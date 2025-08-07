@@ -29,7 +29,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData>();
     return (
         <>
-            <div className="border-b border-sidebar-border/80">
+            <div className="border-b border-sidebar-border/80 bg-sidebar shadow-sm">
                 <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
@@ -100,7 +100,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
                 </div>
             </div>
-            <div className="flex w-full border-b border-sidebar-border/70">
+            <div className="flex w-full border-b border-sidebar-border/70 bg-sidebar shadow-sm">
                 <div className="mx-auto flex h-12 w-full items-center justify-between px-4 text-neutral-500 md:max-w-7xl">
                     <div className="flex items-center">{breadcrumbs.length > 1 && <Breadcrumbs breadcrumbs={breadcrumbs} />}</div>
 

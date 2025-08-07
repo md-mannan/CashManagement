@@ -12,7 +12,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
     const { auth } = page.props;
 
     return (
-        <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border/50 bg-background px-6 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4">
+        <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 bg-sidebar px-6 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4 dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
                 <Breadcrumbs breadcrumbs={breadcrumbs} />

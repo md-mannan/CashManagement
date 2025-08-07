@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import { Banknote, Coins, CreditCard, Download, FileSpreadsheet, FileText, Printer, TrendingDown, TrendingUp } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
+import { Banknote, Coins, CreditCard, Download, FileSpreadsheet, FileText, Plus, Printer, TrendingDown, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -435,9 +436,51 @@ export default function Transactions() {
 
                     {/* Financial Summary Section */}
                     <div className="financial-summary space-y-4">
-                        <div>
-                            <h2 className="text-xl font-semibold tracking-tight">Financial Summary</h2>
-                            <p className="text-sm text-muted-foreground">Overview of your current financial position</p>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h2 className="text-xl font-semibold tracking-tight">Financial Summary</h2>
+                                <p className="text-sm text-muted-foreground">Overview of your current financial position</p>
+                            </div>
+
+                            {/* Add Transaction Button */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button className="flex items-center gap-2">
+                                        <Plus className="h-4 w-4" />
+                                        Add Transaction
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuItem
+                                        className="flex items-center gap-2 text-green-600"
+                                        onClick={() => router.visit('/add-transaction?type=income')}
+                                    >
+                                        <TrendingUp className="h-4 w-4" />
+                                        Add Income
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className="flex items-center gap-2 text-red-600"
+                                        onClick={() => router.visit('/add-transaction?type=expense')}
+                                    >
+                                        <TrendingDown className="h-4 w-4" />
+                                        Add Expense
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className="flex items-center gap-2 text-blue-600"
+                                        onClick={() => router.visit('/add-transaction?type=receivable')}
+                                    >
+                                        <Banknote className="h-4 w-4" />
+                                        Add Receivable
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className="flex items-center gap-2 text-orange-600"
+                                        onClick={() => router.visit('/add-transaction?type=payable')}
+                                    >
+                                        <CreditCard className="h-4 w-4" />
+                                        Add Payable
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
 
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
