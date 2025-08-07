@@ -18,7 +18,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('transactions', function () {
         return Inertia::render('transactions');
     })->name('transactions');
-    
+
+    Route::get('add-transaction', function () {
+        return Inertia::render('add-transaction');
+    })->name('add-transaction');
+
     Route::get('income', function () {
         return Inertia::render('income');
     })->name('income');
