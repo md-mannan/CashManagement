@@ -14,7 +14,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    Route::get('transactions', function () {
+        return Inertia::render('transactions');
+    })->name('transactions');
     
+    Route::get('income', function () {
+        return Inertia::render('income');
+    })->name('income');
+
     // Redirect authenticated users to dashboard
     Route::get('/home', function () {
         return redirect()->route('dashboard');

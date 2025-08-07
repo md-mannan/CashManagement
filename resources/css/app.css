@@ -328,4 +328,178 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    /* Cursor pointer for buttons and inputs */
+    button,
+    input,
+    select,
+    textarea {
+        cursor: pointer;
+    }
+
+    /* Ensure buttons have pointer cursor */
+    .btn,
+    [type='button'],
+    [type='submit'],
+    [type='reset'] {
+        cursor: pointer;
+    }
+}
+
+/* Print Styles for Ledger Table */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .print-content,
+    .print-content * {
+        visibility: visible;
+    }
+
+    .print-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    /* Hide browser elements and application titles */
+    @page {
+        margin: 0;
+        size: A4;
+    }
+
+    /* Hide any browser chrome or application titles */
+    .print-content::before,
+    .print-content::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* Hide any page titles or browser elements */
+    title,
+    .page-title,
+    .app-title {
+        display: none !important;
+    }
+
+    /* Hide Financial Summary section when printing */
+    .financial-summary {
+        display: none !important;
+    }
+
+    /* Hide the main page header when printing */
+    .page-header {
+        display: none !important;
+    }
+
+    /* Only show the ledger section */
+    .ledger-section {
+        visibility: visible !important;
+        display: block !important;
+    }
+
+    .print-content table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+    }
+
+    .print-content th,
+    .print-content td {
+        border: 1px solid #000 !important;
+        padding: 8px !important;
+        text-align: left !important;
+        font-size: 12px !important;
+    }
+
+    .print-content th {
+        background-color: #f3f4f6 !important;
+        font-weight: bold !important;
+        text-align: center !important;
+    }
+
+    .print-content .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    .print-content .card-header {
+        border-bottom: 2px solid #000 !important;
+        padding-bottom: 10px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .print-content .card-title {
+        font-size: 24px !important;
+        font-weight: bold !important;
+        text-align: center !important;
+    }
+
+    /* Invoice Design for Print */
+    .print-content::before {
+        content: '';
+        display: none;
+    }
+
+    .print-content::after {
+        content: '';
+        display: none;
+    }
+
+    /* Simple header for print */
+    .print-content .simple-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        border-bottom: 2px solid #000;
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .print-content .simple-header .ledger-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #000;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .print-content .simple-header .date-range {
+        font-size: 16px;
+        font-weight: bold;
+        color: #000;
+        text-align: center;
+    }
+
+    .print-content .simple-header .currency-info {
+        font-size: 14px;
+        color: #666;
+        text-align: center;
+        margin-top: 5px;
+    }
+
+    .print-content .simple-header .complete-history {
+        font-size: 14px;
+        font-style: italic;
+        color: #666;
+    }
+
+    /* Table header repeat on every page */
+    .print-content thead {
+        display: table-header-group;
+    }
+
+    .print-content tbody {
+        display: table-row-group;
+    }
 }
