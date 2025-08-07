@@ -2,7 +2,7 @@ import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LayoutGrid } from 'lucide-react';
+import { DollarSign, LayoutGrid, Receipt } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -10,6 +10,16 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Transaction Details',
+        href: '/transactions',
+        icon: Receipt,
+    },
+    {
+        title: 'Income',
+        href: '/income',
+        icon: DollarSign,
     },
 ];
 
@@ -32,9 +42,7 @@ export function AppSidebar() {
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarFooter>
-                {/* User profile moved to header */}
-            </SidebarFooter>
+            <SidebarFooter>{/* User profile moved to header */}</SidebarFooter>
         </Sidebar>
     );
 }
