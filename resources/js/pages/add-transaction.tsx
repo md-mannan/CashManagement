@@ -116,15 +116,20 @@ export default function AddTransaction() {
             <Head title={`${transactionType.title} - Personal Account`} />
 
             <div className="container mx-auto max-w-lg px-4 py-1 sm:px-6">
-                <div className="mt-4 mb-1 flex items-center gap-3">
-                    <Button variant="outline" size="sm" onClick={() => router.visit('/transactions')}>
-                        <ArrowLeft className="h-4 w-4" />
-                        <span className="hidden sm:inline">Back to Transactions</span>
-                        <span className="sm:hidden">Back</span>
-                    </Button>
+                <div className="mt-4 mb-1 flex items-center justify-between">
+                    <div></div>
                 </div>
 
-                <Card className={`mt-6 border-l-4 pt-0 shadow-lg ${transactionType.borderColor} overflow-hidden`}>
+                <Card className={`mt-2 border-l-4 pt-0 shadow-lg ${transactionType.borderColor} relative overflow-hidden`}>
+                    {/* Back to Transactions button positioned in top-right corner of card */}
+                    <div className="absolute top-2 right-2 z-10">
+                        <Button variant="outline" size="sm" onClick={() => router.visit('/transactions')}>
+                            <ArrowLeft className="h-4 w-4" />
+                            <span className="hidden sm:inline">Back to Transactions</span>
+                            <span className="sm:hidden">Back</span>
+                        </Button>
+                    </div>
+
                     <CardHeader className={`${transactionType.bgColor} border-b px-4 py-2 sm:px-6`}>
                         <CardTitle className={`flex items-center gap-2 text-base sm:text-lg ${transactionType.color}`}>
                             <div className={`rounded-lg bg-white/80 p-1.5 shadow-sm ${transactionType.color} sm:p-2`}>

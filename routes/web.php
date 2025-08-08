@@ -23,9 +23,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('add-transaction');
     })->name('add-transaction');
 
-    Route::get('income', function () {
-        return Inertia::render('income');
-    })->name('income');
+    Route::get('transaction', function () {
+        return Inertia::render('transaction');
+    })->name('transaction');
+
+    // Transaction CRUD routes
+    Route::get('transaction/{id}', function ($id) {
+        return Inertia::render('transaction-view', ['id' => $id]);
+    })->name('transaction.view');
+
+    Route::get('transaction/{id}/edit', function ($id) {
+        return Inertia::render('transaction-edit', ['id' => $id]);
+    })->name('transaction.edit');
+
+    Route::delete('transaction/{id}', function ($id) {
+        // Handle delete logic here
+        return redirect()->route('transaction')->with('success', 'Transaction deleted successfully');
+    })->name('transaction.delete');
 
     // Redirect authenticated users to dashboard
     Route::get('/home', function () {

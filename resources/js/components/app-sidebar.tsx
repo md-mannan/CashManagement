@@ -17,8 +17,8 @@ const mainNavItems: NavItem[] = [
         icon: Receipt,
     },
     {
-        title: 'Income',
-        href: '/income',
+        title: 'Transaction',
+        href: '/transaction',
         icon: DollarSign,
     },
 ];
