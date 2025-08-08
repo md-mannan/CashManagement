@@ -1,300 +1,230 @@
-# 💰 Personal Account - Smart Financial Management
+# PersonalAcc - Personal Accounting System
 
-> A modern, intuitive financial management application built with Laravel 12, React, and TypeScript. Track your personal finances, manage transactions, and gain insights into your financial health with a beautiful, responsive interface.
+A comprehensive personal finance management system built with Laravel, React, TypeScript, and Inertia.js. Features dual currency support, real-time exchange rates, and beautiful modern UI components.
 
-![Laravel](https://img.shields.io/badge/Laravel-12.22.0-red.svg)
-![React](https://img.shields.io/badge/React-18-blue.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+## 🚀 Features
 
-## ✨ Features
+### 💰 Dual Currency System
+- **Multi-Currency Support**: Handle transactions in multiple currencies (USD, EUR, KWD, BDT, AED, SAR, QAR, BHD, OMR, JOD, LBP, EGP)
+- **Real-Time Exchange Rates**: Automatic fetching of live exchange rates with fallback mechanisms
+- **Bidirectional Conversion**: Convert between primary and secondary currencies seamlessly
+- **Smart Decimal Handling**: KWD displays 3 decimal places, all others display 2 decimal places
+- **Currency Settings**: User-configurable primary and secondary currency preferences
 
-### 🎯 Core Functionality
+### 📊 Transaction Management
+- **Complete CRUD Operations**: Create, read, update, and delete transactions
+- **Multiple Transaction Types**: Income, Expense, Receivable, and Payable
+- **Dual Currency Recording**: Store both primary and secondary amounts with exchange rates
+- **Advanced Filtering**: Filter transactions by type, date range, and search terms
+- **Export Functionality**: Export to Excel, PDF, or print directly
+- **Animated Confirmations**: Beautiful confirmation modals for edit and delete actions
 
-- **Smart Transaction Management** - Add, edit, and categorize income, expenses, receivables, and payables
-- **Real-time Financial Dashboard** - Live overview of your financial position with beautiful charts
-- **Multi-Currency Support** - Handle KWD, USD, EUR, BDT with proper decimal formatting
-- **Advanced Filtering** - Filter transactions by date, type, category, and amount
-- **Search & Sort** - Find transactions quickly with powerful search capabilities
+### 📈 Dashboard & Analytics
+- **Interactive Charts**: Bar and pie charts with Chart.js integration
+- **Multiple Time Periods**: Monthly, yearly, and total analytics
+- **3D Pie Charts**: Visually appealing 3D-styled pie charts
+- **Inline Legends**: Horizontal chart legends with proper spacing
+- **Real-Time Updates**: Dynamic currency display based on user settings
+- **Responsive Design**: Mobile-friendly dashboard layout
 
-### 📊 Export & Reporting
+### ⚙️ Settings & Configuration
+- **Currency Management**: Set primary and secondary currencies
+- **Exchange Rate Configuration**: Manual and automatic rate updates
+- **User Preferences**: Customizable currency symbols and formats
+- **Profile Management**: User profile and password settings
+- **Appearance Settings**: Theme and appearance customization
 
-- **Excel Export** - Beautiful, formatted spreadsheets with proper data types and styling
-- **CSV Export** - Clean data export for analysis and backup
-- **PDF Reports** - Print-friendly transaction reports and summaries
-- **Date Range Exports** - Export specific time periods for detailed analysis
-
-### 🎨 User Experience
-
-- **Responsive Design** - Optimized for desktop, tablet, and mobile devices
-- **Dark/Light Themes** - Toggle between neutral and violet themes
-- **Color-Coded Transactions** - Visual distinction for different transaction types
-- **Touch-Friendly Interface** - Large buttons and intuitive navigation
-- **Professional UI** - Clean, modern design with excellent accessibility
-
-### 🔐 Security & Authentication
-
-- **Secure Authentication** - Laravel Sanctum-powered login and registration
-- **Email Verification** - Complete email verification workflow
-- **Password Management** - Secure password reset and update functionality
-- **Profile Management** - User profile and preferences management
-
-## 🛠️ Technology Stack
+## 🛠️ Tech Stack
 
 ### Backend
-
-- **Laravel 12** - Modern PHP framework with robust features
-- **Inertia.js** - Seamless SPA experience without API complexity
-- **MySQL/PostgreSQL** - Reliable database management
-- **Laravel Sanctum** - Lightweight API authentication
+- **Laravel 11**: PHP framework for robust backend API
+- **MySQL**: Database for data persistence
+- **Eloquent ORM**: Database relationships and queries
+- **Laravel Sanctum**: API authentication
+- **Inertia.js**: Server-side rendering with SPA experience
 
 ### Frontend
-
-- **React 18** - Modern JavaScript library with hooks and context
-- **TypeScript** - Type-safe development for better code quality
-- **Tailwind CSS** - Utility-first CSS framework for rapid styling
-- **Lucide React** - Beautiful, customizable icon library
-- **Radix UI** - Accessible UI primitives and components
+- **React 18**: Modern UI library
+- **TypeScript**: Type-safe JavaScript development
+- **Tailwind CSS**: Utility-first CSS framework
+- **Shadcn/ui**: Beautiful and accessible UI components
+- **Chart.js**: Interactive data visualization
+- **React Chart.js 2**: React wrapper for Chart.js
+- **Lucide React**: Beautiful icon library
 
 ### Development Tools
+- **Vite**: Fast build tool and development server
+- **ESLint**: Code linting and formatting
+- **Prettier**: Code formatting
+- **PHPUnit**: PHP testing framework
+- **Pest**: Elegant PHP testing framework
 
-- **Vite** - Lightning-fast build tool and development server
-- **ESLint** - Code linting and formatting
-- **Pest** - Modern PHP testing framework
-- **XLSX** - Excel file generation and manipulation
-
-## 🚀 Quick Start
+## 📦 Installation
 
 ### Prerequisites
-
 - PHP 8.2 or higher
-- Composer 2.0+
 - Node.js 18 or higher
-- npm or yarn
-- MySQL 8.0+ or PostgreSQL 13+
+- Composer
+- MySQL 8.0 or higher
 
-### Installation
+### Setup Instructions
 
 1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd PersonalAcc
+   ```
 
-    ```bash
-    git clone <repository-url>
-    cd PersonalAcc
-    ```
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
 
-2. **Install dependencies**
+3. **Install Node.js dependencies**
+   ```bash
+   npm install
+   ```
 
-    ```bash
-    # Install PHP dependencies
-    composer install
+4. **Environment Configuration**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-    # Install Node.js dependencies
-    npm install
-    ```
+5. **Database Setup**
+   ```bash
+   # Configure database credentials in .env
+   php artisan migrate
+   php artisan db:seed
+   ```
 
-3. **Environment setup**
+6. **Build Assets**
+   ```bash
+   npm run build
+   # or for development
+   npm run dev
+   ```
 
-    ```bash
-    # Copy environment file
-    cp .env.example .env
+7. **Start the Application**
+   ```bash
+   php artisan serve
+   ```
 
-    # Generate application key
-    php artisan key:generate
-    ```
-
-4. **Database configuration**
-
-    ```bash
-    # Configure your database in .env file
-    DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=personal_acc
-    DB_USERNAME=your_username
-    DB_PASSWORD=your_password
-
-    # Run migrations
-    php artisan migrate
-
-    # Seed the database (optional)
-    php artisan db:seed
-    ```
-
-5. **Build assets**
-
-    ```bash
-    # Development
-    npm run dev
-
-    # Production
-    npm run build
-    ```
-
-6. **Start the application**
-    ```bash
-    php artisan serve
-    # Visit http://localhost:8000
-    ```
-
-## 📖 Usage Guide
+## 🎯 Usage
 
 ### Getting Started
+1. **Register/Login**: Create an account or login to access the system
+2. **Configure Currency**: Go to Settings > Currency to set your preferred currencies
+3. **Add Transactions**: Start adding your income, expenses, receivables, and payables
+4. **View Analytics**: Check the dashboard for insights into your financial data
 
-1. **Register** - Create a new account with your email and password
-2. **Verify Email** - Complete the email verification process
-3. **Set Preferences** - Configure your primary currency and theme
-4. **Add Transactions** - Start tracking your financial activities
+### Currency Configuration
+1. Navigate to **Settings > Currency**
+2. Select your **Primary Currency** (main accounting currency)
+3. Choose a **Secondary Currency** (for dual currency transactions)
+4. Set the **Exchange Rate** or let the system fetch it automatically
+5. Preview how amounts will be displayed
 
 ### Adding Transactions
+1. Click **Add Transaction** from the navigation or dashboard
+2. Select transaction type (Income/Expense/Receivable/Payable)
+3. Enter the amount in either primary or secondary currency
+4. The system will automatically convert and show both amounts
+5. Add description, source, category, and notes
+6. Save the transaction
 
-1. Navigate to the **Transactions** page
-2. Click the **"Add Transaction"** button
-3. Select transaction type:
-    - 💚 **Income** - Money received (salary, freelance, investments)
-    - 🔴 **Expense** - Money spent (food, utilities, entertainment)
-    - 🔵 **Receivable** - Money owed to you (client payments, loans)
-    - 🟠 **Payable** - Money you owe (bills, credit cards, rent)
-4. Fill in the required details:
-    - **Amount** - Transaction value with proper decimal places
-    - **Date** - Transaction date
-    - **Description** - Brief description of the transaction
-    - **Source** - Where the transaction occurred
-    - **Category** - Predefined categories for better organization
-    - **Notes** - Optional additional information
+### Managing Transactions
+- **View**: Click the eye icon to see detailed transaction information
+- **Edit**: Click the edit icon to modify transaction details
+- **Delete**: Click the delete icon and confirm to remove transactions
+- **Filter**: Use the filter options to find specific transactions
+- **Export**: Export your data in Excel, PDF, or print format
 
-### Exporting Data
+## 🔧 Configuration
 
-1. Go to the **Transactions** page
-2. Use the **export dropdown** menu
-3. Select your preferred format:
-    - 📊 **Excel** - Beautiful formatted spreadsheets
-    - 📄 **CSV** - Simple data export
-    - 🖨️ **PDF** - Print-friendly reports
-4. Choose date range if needed
-5. Download your file
+### Currency Settings
+Configure supported currencies in the currency settings page:
+- **Primary Currency**: Your main accounting currency
+- **Secondary Currency**: Alternative currency for transactions
+- **Exchange Rate**: Manual or automatic rate fetching
+- **Decimal Places**: Automatic formatting (KWD: 3, Others: 2)
 
-### Managing Settings
+### Exchange Rate Service
+The system includes a built-in exchange rate service with:
+- **Hardcoded Rate Matrix**: Reliable fallback rates
+- **Real-Time Fetching**: Live rates from external APIs
+- **Caching Mechanism**: Efficient rate storage and retrieval
+- **Error Handling**: Graceful fallback when APIs are unavailable
 
-- **Profile** - Update your personal information
-- **Password** - Change your account password
-- **Appearance** - Switch between themes and customize appearance
-- **Currency** - Set your primary and secondary currencies
+## 🎨 UI Components
 
-## 🎨 Design System
+### Custom Components
+- **Beautiful Modals**: Animated confirmation dialogs
+- **Currency Inputs**: Smart currency input fields with proper formatting
+- **Interactive Charts**: Responsive charts with animations
+- **Form Components**: Accessible and user-friendly forms
+- **Navigation**: Intuitive sidebar and breadcrumb navigation
 
-### Color Themes
+### Design System
+- **Consistent Styling**: Unified design language throughout
+- **Responsive Design**: Mobile-first approach
+- **Accessibility**: WCAG compliant components
+- **Dark Mode Ready**: Theme system for appearance customization
 
-- **Neutral** - Clean, minimal design with gray tones
-- **Violet** - Elegant purple theme for enhanced visual appeal
+## 📱 Mobile Support
 
-### Transaction Types
+The application is fully responsive and optimized for:
+- **Mobile Phones**: Touch-friendly interface
+- **Tablets**: Optimized layout for medium screens
+- **Desktop**: Full-featured experience
 
-- **Income** (Green) - Money received (salary, freelance, investments)
-- **Expense** (Red) - Money spent (food, utilities, entertainment)
-- **Receivable** (Blue) - Money owed to you (client payments, loans)
-- **Payable** (Orange) - Money you owe (bills, credit cards, rent)
+## 🔐 Security
 
-### Responsive Design
+- **Authentication**: Secure user authentication system
+- **Authorization**: Role-based access control
+- **Data Validation**: Server and client-side validation
+- **CSRF Protection**: Cross-site request forgery protection
+- **SQL Injection Prevention**: Parameterized queries with Eloquent
 
-- **Mobile-First** - Optimized for mobile devices
-- **Touch-Friendly** - Large buttons and touch targets
-- **Adaptive Layout** - Responsive grid and flexible components
+## 🧪 Testing
 
-## 🔧 Development
-
-### Project Structure
-
-```
-PersonalAcc/
-├── app/                    # Laravel application logic
-│   ├── Http/              # Controllers and middleware
-│   ├── Models/            # Eloquent models
-│   └── Providers/         # Service providers
-├── resources/
-│   ├── js/               # React/TypeScript components
-│   │   ├── components/   # Reusable UI components
-│   │   ├── pages/        # Page components
-│   │   ├── layouts/      # Layout components
-│   │   └── types/        # TypeScript type definitions
-│   └── css/              # Stylesheets
-├── routes/               # Application routes
-├── database/             # Migrations and seeders
-└── tests/               # Test files
-```
-
-### Key Components
-
-- **AppLayout** - Main application layout with sidebar and header
-- **AddTransactionForm** - Comprehensive transaction form with validation
-- **TransactionLedger** - Data table with sorting and filtering
-- **ExportFunctions** - Excel, CSV, and PDF export utilities
-- **ThemeSystem** - Dark/light theme management
-
-### Available Scripts
-
+### Running Tests
 ```bash
-# Development
-npm run dev          # Start Vite development server
-npm run build        # Build for production
-npm run preview      # Preview production build
+# PHP Tests
+php artisan test
+# or with Pest
+./vendor/bin/pest
 
-# Testing
-npm run test         # Run tests
-php artisan test     # Run PHP tests
-
-# Code Quality
-npm run lint         # Lint JavaScript/TypeScript
-npm run format       # Format code
+# Frontend Tests (if configured)
+npm test
 ```
 
-## 🚀 Deployment
+### Test Coverage
+- **Feature Tests**: End-to-end functionality testing
+- **Unit Tests**: Individual component testing
+- **Browser Tests**: UI interaction testing
 
-### Production Build
+## 📈 Performance
 
-```bash
-# Install dependencies
-composer install --optimize-autoloader --no-dev
-npm install
-npm run build
-
-# Configure environment
-cp .env.example .env
-# Edit .env with production settings
-
-# Run migrations
-php artisan migrate --force
-
-# Optimize for production
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-```
-
-### Server Requirements
-
-- PHP 8.2+
-- MySQL 8.0+ or PostgreSQL 13+
-- Node.js 18+ (for asset compilation)
-- Web server (Apache/Nginx)
+### Optimization Features
+- **Lazy Loading**: Components loaded on demand
+- **Code Splitting**: Optimized bundle sizes
+- **Caching**: Efficient data caching strategies
+- **Database Indexing**: Optimized database queries
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ### Development Guidelines
-
 - Follow PSR-12 coding standards for PHP
-- Use TypeScript for all JavaScript code
+- Use TypeScript for all frontend code
 - Write tests for new features
 - Update documentation as needed
-- Follow conventional commit messages
 
 ## 📝 License
 
@@ -302,23 +232,29 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/your-repo/issues) page
+If you encounter any issues or need help:
+1. Check the [Issues](../../issues) page
 2. Create a new issue with detailed information
 3. Include steps to reproduce the problem
-4. Provide system information and error logs
 
-## 🎉 Acknowledgments
+## 🙏 Acknowledgments
 
-- **Laravel Team** - For the amazing PHP framework
-- **Tailwind CSS** - For the utility-first CSS framework
-- **Radix UI** - For accessible UI primitives
-- **Lucide** - For beautiful, customizable icons
-- **Inertia.js** - For seamless SPA experience
+- [Laravel](https://laravel.com/) - The PHP framework
+- [React](https://reactjs.org/) - UI library
+- [Inertia.js](https://inertiajs.com/) - Modern monolith approach
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Shadcn/ui](https://ui.shadcn.com/) - UI components
+- [Chart.js](https://www.chartjs.org/) - Data visualization
+
+## 📊 Project Stats
+
+- **Languages**: PHP, TypeScript, JavaScript
+- **Framework**: Laravel + React
+- **Database**: MySQL
+- **UI Components**: 50+ custom components
+- **Features**: 15+ major features
+- **Tests**: Comprehensive test suite
 
 ---
 
-**Built with ❤️ using modern web technologies**
-
-_Transform your financial management with Personal Account - where simplicity meets sophistication._
+**Built with ❤️ by the PersonalAcc Team**
