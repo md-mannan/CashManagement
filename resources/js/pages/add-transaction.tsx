@@ -5,10 +5,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { ArrowLeft, Banknote, CreditCard, TrendingDown, TrendingUp } from 'lucide-react';
-import { useState } from 'react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
+import { ArrowLeft, Banknote, CreditCard, RefreshCw, TrendingDown, TrendingUp } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { getExchangeRateForTransaction } from '../services/exchangeRateService';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -29,6 +30,9 @@ interface TransactionFormData {
     date: string;
     category: string;
     notes?: string;
+    secondaryCurrency?: string;
+    exchangeRate?: number;
+    secondaryAmount?: number;
 }
 
 const transactionTypes = {
@@ -77,7 +81,25 @@ const categories = {
     payable: ['Bills', 'Loan Payment', 'Credit Card', 'Rent', 'Taxes', 'Other Payable'],
 };
 
+// Available currencies for selection
+const currencies = [
+    { code: 'USD', name: 'US Dollar', symbol: '$' },
+    { code: 'EUR', name: 'Euro', symbol: '€' },
+    { code: 'KWD', name: 'Kuwaiti Dinar', symbol: 'د.ك' },
+    { code: 'BDT', name: 'Bangladeshi Taka', symbol: '৳' },
+    { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
+    { code: 'SAR', name: 'Saudi Riyal', symbol: 'ر.س' },
+    { code: 'QAR', name: 'Qatari Riyal', symbol: 'ر.ق' },
+    { code: 'BHD', name: 'Bahraini Dinar', symbol: '.د.ب' },
+    { code: 'OMR', name: 'Omani Rial', symbol: 'ر.ع' },
+    { code: 'JOD', name: 'Jordanian Dinar', symbol: 'د.أ' },
+    { code: 'LBP', name: 'Lebanese Pound', symbol: 'ل.ل' },
+    { code: 'EGP', name: 'Egyptian Pound', symbol: 'ج.م' },
+];
+
 export default function AddTransaction() {
+    const { auth } = usePage<SharedData>().props;
+
     // Get transaction type from URL params or default to income
     const urlParams = new URLSearchParams(window.location.search);
     const type = (urlParams.get('type') as 'income' | 'expense' | 'receivable' | 'payable') || 'income';
@@ -90,15 +112,115 @@ export default function AddTransaction() {
         date: new Date().toISOString().split('T')[0],
         category: '',
         notes: '',
+        secondaryCurrency: 'KWD',
+        exchangeRate: 3.25, // 1 KWD = 3.25 USD (default rate)
+        secondaryAmount: 0,
     });
+
+    const [isLoadingRate, setIsLoadingRate] = useState(false);
+    const [rateSource, setRateSource] = useState<string>('Default');
+
+    // User's primary currency from settings
+    const primaryCurrency = auth.user.primary_currency || 'USD';
+    const primarySymbol = auth.user.primary_symbol || '$';
+
+    // Helper function to convert primary currency to secondary currency
+    const convertToSecondaryCurrency = (amount: number, exchangeRate: number) => {
+        return amount / exchangeRate;
+    };
+
+    // Helper function to convert secondary currency to primary currency
+    const convertToPrimaryCurrency = (secondaryAmount: number, exchangeRate: number) => {
+        return secondaryAmount * exchangeRate;
+    };
+
+    // Helper function to get step and placeholder based on currency
+    const getCurrencyInputProps = (currency: string) => {
+        if (currency === 'KWD') {
+            return { step: '0.001', placeholder: '0.000', decimals: 3 };
+        } else {
+            return { step: '0.01', placeholder: '0.00', decimals: 2 };
+        }
+    };
+
+    // Helper function to format input value based on currency
+    const formatInputValue = (value: number, currency: string) => {
+        const props = getCurrencyInputProps(currency);
+        return value.toFixed(props.decimals);
+    };
+
+    // Function to fetch real-time exchange rate
+    const fetchRealTimeRate = useCallback(
+        async (currency: string) => {
+            if (!currency || currency === primaryCurrency) {
+                console.log('Skipping rate fetch - no currency or same as primary');
+                return;
+            }
+
+            console.log('Fetching rate FROM:', currency, 'TO:', primaryCurrency);
+            setIsLoadingRate(true);
+            try {
+                // Get rate FROM secondary currency TO primary currency
+                const rate = await getExchangeRateForTransaction(currency, primaryCurrency);
+                console.log(`Fetched rate: 1 ${currency} = ${rate} ${primaryCurrency}`);
+                setFormData((prev) => ({
+                    ...prev,
+                    exchangeRate: rate,
+                }));
+                setRateSource('');
+            } catch (error) {
+                console.error('Failed to fetch real-time rate:', error);
+                setRateSource('');
+            } finally {
+                setIsLoadingRate(false);
+            }
+        },
+        [primaryCurrency],
+    );
+
+    // Fetch real-time rate when component mounts and when secondary currency changes
+    useEffect(() => {
+        if (formData.secondaryCurrency && formData.secondaryCurrency !== primaryCurrency) {
+            console.log('useEffect triggered - fetching rate for:', formData.secondaryCurrency);
+            fetchRealTimeRate(formData.secondaryCurrency);
+        }
+    }, [formData.secondaryCurrency, primaryCurrency, fetchRealTimeRate]);
+
+    // Force initial rate fetch on component mount
+    useEffect(() => {
+        console.log('Component mounted, forcing initial rate fetch');
+        if (formData.secondaryCurrency && formData.secondaryCurrency !== primaryCurrency) {
+            setTimeout(() => {
+                console.log('Forcing rate fetch for:', formData.secondaryCurrency);
+                if (formData.secondaryCurrency) {
+                    fetchRealTimeRate(formData.secondaryCurrency);
+                }
+            }, 1000); // Wait 1 second after mount
+        }
+    }, [fetchRealTimeRate, formData.secondaryCurrency, primaryCurrency]); // Include dependencies
 
     const transactionType = transactionTypes[type];
     const IconComponent = transactionType.icon;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Prepare transaction data with currency information
+        const transactionData = {
+            ...formData,
+            primaryCurrency,
+            primarySymbol,
+            secondaryCurrency: formData.secondaryCurrency || null,
+            exchangeRate: formData.secondaryCurrency ? formData.exchangeRate : null,
+            // Record both amounts - primary amount and secondary amount
+            primaryAmount: formData.amount,
+            secondaryAmount:
+                formData.secondaryAmount ||
+                (formData.secondaryCurrency && formData.exchangeRate ? convertToSecondaryCurrency(formData.amount, formData.exchangeRate) : null),
+        };
+
         // TODO: Implement transaction submission logic
-        console.log('Transaction data:', formData);
+        console.log('Transaction data:', transactionData);
         // Here you would typically send the data to your backend
         // For now, we'll just redirect back to transactions page
         router.visit('/transactions');
@@ -109,6 +231,58 @@ export default function AddTransaction() {
             ...prev,
             [field]: value,
         }));
+
+        // Reset exchange rate when secondary currency changes and trigger rate fetch
+        if (field === 'secondaryCurrency') {
+            // Get default rate FROM secondary currency TO primary currency
+            const getDefaultRate = async (fromCurrency: string, toCurrency: string) => {
+                const rate = await getExchangeRateForTransaction(fromCurrency, toCurrency);
+                setFormData((prev) => ({
+                    ...prev,
+                    exchangeRate: rate,
+                    secondaryAmount: 0,
+                }));
+            };
+
+            // Set default rate and fetch real-time rate
+            if (value && value !== primaryCurrency) {
+                getDefaultRate(value as string, primaryCurrency);
+                fetchRealTimeRate(value as string);
+            }
+        }
+
+        // Update primary amount when exchange rate changes and secondary amount exists
+        if (field === 'exchangeRate' && formData.secondaryAmount && formData.secondaryAmount > 0) {
+            const primaryAmount = convertToPrimaryCurrency(formData.secondaryAmount, value as number);
+            setFormData((prev) => ({
+                ...prev,
+                amount: primaryAmount,
+            }));
+        }
+
+        // Update secondary amount when primary amount changes
+        if (field === 'amount' && formData.exchangeRate && formData.exchangeRate > 0) {
+            const secondaryAmount = convertToSecondaryCurrency(value as number, formData.exchangeRate);
+            // Round to appropriate decimal places
+            const props = getCurrencyInputProps(formData.secondaryCurrency || 'USD');
+            const roundedSecondaryAmount = Math.round(secondaryAmount * Math.pow(10, props.decimals)) / Math.pow(10, props.decimals);
+            setFormData((prev) => ({
+                ...prev,
+                secondaryAmount: roundedSecondaryAmount,
+            }));
+        }
+
+        // Update primary amount when secondary amount changes
+        if (field === 'secondaryAmount' && formData.exchangeRate && formData.exchangeRate > 0) {
+            const primaryAmount = convertToPrimaryCurrency(value as number, formData.exchangeRate);
+            // Round to appropriate decimal places
+            const props = getCurrencyInputProps(primaryCurrency);
+            const roundedPrimaryAmount = Math.round(primaryAmount * Math.pow(10, props.decimals)) / Math.pow(10, props.decimals);
+            setFormData((prev) => ({
+                ...prev,
+                amount: roundedPrimaryAmount,
+            }));
+        }
     };
 
     return (
@@ -145,13 +319,13 @@ export default function AddTransaction() {
                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
                                 <div className="space-y-1 sm:space-y-1.5">
                                     <Label htmlFor="amount" className="text-xs font-semibold text-gray-700 sm:text-sm">
-                                        Amount *
+                                        Amount ({primarySymbol}) *
                                     </Label>
                                     <Input
                                         id="amount"
                                         type="number"
-                                        step="0.001"
-                                        placeholder="0.000"
+                                        step={getCurrencyInputProps(primaryCurrency).step}
+                                        placeholder={getCurrencyInputProps(primaryCurrency).placeholder}
                                         value={formData.amount || ''}
                                         onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
                                         required
@@ -172,6 +346,98 @@ export default function AddTransaction() {
                                     />
                                 </div>
                             </div>
+
+                            {/* Currency Selection Row */}
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
+                                <div className="space-y-1 sm:space-y-1.5">
+                                    <Label htmlFor="secondaryCurrency" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                                        Secondary Currency
+                                    </Label>
+                                    <Select
+                                        value={formData.secondaryCurrency || ''}
+                                        onValueChange={(value) => handleInputChange('secondaryCurrency', value)}
+                                    >
+                                        <SelectTrigger className="h-8 sm:h-9">
+                                            <SelectValue placeholder="Select currency (optional)" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {currencies.map((currency) => (
+                                                <SelectItem key={currency.code} value={currency.code}>
+                                                    {currency.symbol} {currency.name} ({currency.code})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-1 sm:space-y-1.5">
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="exchangeRate" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                                            Rate (1 {formData.secondaryCurrency || 'Secondary'} = ? {primaryCurrency})
+                                        </Label>
+                                        <div className="flex items-center gap-2">
+                                            {isLoadingRate && (
+                                                <div className="flex items-center gap-1 text-xs text-blue-600">
+                                                    <RefreshCw className="h-3 w-3 animate-spin" />
+                                                    <span>Fetching...</span>
+                                                </div>
+                                            )}
+                                            {formData.secondaryCurrency && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => fetchRealTimeRate(formData.secondaryCurrency!)}
+                                                    disabled={isLoadingRate}
+                                                    className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400"
+                                                    title="Refresh exchange rate"
+                                                >
+                                                    <RefreshCw className="h-3 w-3" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="relative">
+                                        <Input
+                                            id="exchangeRate"
+                                            type="number"
+                                            step="0.0001"
+                                            placeholder="1.0000"
+                                            value={formData.exchangeRate || ''}
+                                            onChange={(e) => handleInputChange('exchangeRate', parseFloat(e.target.value) || 1)}
+                                            disabled={!formData.secondaryCurrency || isLoadingRate}
+                                            className="h-8 text-sm font-medium sm:h-9 sm:text-base"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Secondary Amount Row */}
+                            {formData.secondaryCurrency && (
+                                <div className="space-y-1 sm:space-y-1.5">
+                                    <Label htmlFor="secondaryAmount" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                                        Amount in {formData.secondaryCurrency} (
+                                        {currencies.find((c) => c.code === formData.secondaryCurrency)?.symbol})
+                                    </Label>
+                                    <Input
+                                        id="secondaryAmount"
+                                        type="number"
+                                        step={getCurrencyInputProps(formData.secondaryCurrency || 'USD').step}
+                                        placeholder={getCurrencyInputProps(formData.secondaryCurrency || 'USD').placeholder}
+                                        value={formData.secondaryAmount || ''}
+                                        onChange={(e) => {
+                                            const secondaryAmount = parseFloat(e.target.value) || 0;
+                                            const primaryAmount = convertToPrimaryCurrency(secondaryAmount, formData.exchangeRate || 1);
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                secondaryAmount,
+                                                amount: primaryAmount,
+                                            }));
+                                        }}
+                                        className="h-8 text-sm font-medium sm:h-9 sm:text-base"
+                                    />
+                                    <p className="text-xs text-gray-500">
+                                        Enter amount in {formData.secondaryCurrency} - both amounts will be recorded
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Description */}
                             <div className="space-y-1 sm:space-y-1.5">

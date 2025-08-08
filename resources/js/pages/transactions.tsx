@@ -2,8 +2,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Banknote, Coins, CreditCard, Download, FileSpreadsheet, FileText, Plus, Printer, TrendingDown, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
@@ -16,13 +16,44 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Transactions() {
-    // User's primary currency from settings (this should come from user settings/context)
-    const primaryCurrency = 'KWD'; // This should be fetched from user settings
+    const { auth } = usePage<SharedData>().props;
+
+    // User's primary currency from settings
+    const primaryCurrency = auth.user.primary_currency || 'USD';
+    const primarySymbol = auth.user.primary_symbol || '$';
+    const secondaryCurrency = auth.user.secondary_currency || 'EUR';
+    const secondarySymbol = auth.user.secondary_symbol || '€';
+    const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
+
+    // Determine the third currency (EUR or KWD if not already selected)
+    const getThirdCurrency = () => {
+        if (primaryCurrency !== 'EUR' && secondaryCurrency !== 'EUR') {
+            return { code: 'EUR', symbol: '€', rate: 0.9 };
+        } else if (primaryCurrency !== 'KWD' && secondaryCurrency !== 'KWD') {
+            return { code: 'KWD', symbol: 'د.ك', rate: 3.25 };
+        } else {
+            return { code: 'USD', symbol: '$', rate: 1.0 };
+        }
+    };
+
+    const thirdCurrency = getThirdCurrency();
+
+    // Helper function to calculate converted amount
+    const convertAmount = (amount: number, targetCurrency: string) => {
+        if (targetCurrency === primaryCurrency) return amount;
+        if (targetCurrency === secondaryCurrency) return amount * exchangeRate;
+        if (targetCurrency === thirdCurrency.code) return amount * thirdCurrency.rate;
+        return amount;
+    };
+
     const currencySymbols = {
         USD: '$',
-        KWD: 'KWD',
+        KWD: 'د.ك',
         EUR: '€',
-        BDT: 'BDT',
+        BDT: '৳',
+        [primaryCurrency]: primarySymbol,
+        [secondaryCurrency]: secondarySymbol,
+        [thirdCurrency.code]: thirdCurrency.symbol,
     };
     const currencySymbol = currencySymbols[primaryCurrency as keyof typeof currencySymbols] || primaryCurrency;
 
@@ -49,54 +80,54 @@ export default function Transactions() {
     const exportToCSV = () => {
         const headers = ['Date', 'Description', 'Source', 'Debit', 'Credit', 'Balance'];
         const data = [
-            ['01/01/2024', 'Opening Balance', 'Initial', '', '', `${currencySymbol} ${formatCurrency(1500, 'KWD')}`],
+            ['01/01/2024', 'Opening Balance', 'Initial', '', '', `${primarySymbol} ${formatCurrency(1500, primaryCurrency)}`],
             [
                 '05/01/2024',
                 'Salary Payment',
                 'Company Inc.',
                 '',
-                `${currencySymbol} ${formatCurrency(3750, 'KWD')}`,
-                `${currencySymbol} ${formatCurrency(5250, 'KWD')}`,
+                `${primarySymbol} ${formatCurrency(3750, primaryCurrency)}`,
+                `${primarySymbol} ${formatCurrency(5250, primaryCurrency)}`,
             ],
             [
                 '08/01/2024',
                 'Grocery Shopping',
                 'Local Supermarket',
-                `${currencySymbol} ${formatCurrency(450, 'KWD')}`,
+                `${primarySymbol} ${formatCurrency(450, primaryCurrency)}`,
                 '',
-                `${currencySymbol} ${formatCurrency(4800, 'KWD')}`,
+                `${primarySymbol} ${formatCurrency(4800, primaryCurrency)}`,
             ],
             [
                 '12/01/2024',
                 'Freelance Project',
                 'Client XYZ',
                 '',
-                `${currencySymbol} ${formatCurrency(1200, 'KWD')}`,
-                `${currencySymbol} ${formatCurrency(6000, 'KWD')}`,
+                `${primarySymbol} ${formatCurrency(1200, primaryCurrency)}`,
+                `${primarySymbol} ${formatCurrency(6000, primaryCurrency)}`,
             ],
             [
                 '15/01/2024',
                 'Utility Bills',
                 'Electricity Co.',
-                `${currencySymbol} ${formatCurrency(180, 'KWD')}`,
+                `${primarySymbol} ${formatCurrency(180, primaryCurrency)}`,
                 '',
-                `${currencySymbol} ${formatCurrency(5820, 'KWD')}`,
+                `${primarySymbol} ${formatCurrency(5820, primaryCurrency)}`,
             ],
             [
                 '18/01/2024',
                 'Investment Dividend',
                 'Investment Bank',
                 '',
-                `${currencySymbol} ${formatCurrency(500, 'KWD')}`,
-                `${currencySymbol} ${formatCurrency(6320, 'KWD')}`,
+                `${primarySymbol} ${formatCurrency(500, primaryCurrency)}`,
+                `${primarySymbol} ${formatCurrency(6320, primaryCurrency)}`,
             ],
             [
                 '22/01/2024',
                 'Restaurant Dinner',
                 'Fine Dining',
-                `${currencySymbol} ${formatCurrency(120, 'KWD')}`,
+                `${primarySymbol} ${formatCurrency(120, primaryCurrency)}`,
                 '',
-                `${currencySymbol} ${formatCurrency(6200, 'KWD')}`,
+                `${primarySymbol} ${formatCurrency(6200, primaryCurrency)}`,
             ],
             [
                 '25/01/2024',
@@ -494,12 +525,15 @@ export default function Transactions() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-purple-800">
-                                        {currencySymbol} {formatCurrency(2050, 'KWD')}
+                                        {primarySymbol} {formatCurrency(2050, primaryCurrency)}
                                     </div>
-                                    <div className="space-y-1 text-xs text-purple-600">
-                                        <div>USD {formatCurrency(6800, 'USD')}</div>
-                                        <div>€{formatCurrency(6120, 'EUR')}</div>
-                                        <div>BDT {formatCurrency(748000, 'BDT')}</div>
+                                    <div className="space-y-1 text-sm text-purple-600">
+                                        <div>
+                                            {secondarySymbol} {formatCurrency(convertAmount(2050, secondaryCurrency), secondaryCurrency)}
+                                        </div>
+                                        <div>
+                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(2050, thirdCurrency.code), thirdCurrency.code)}
+                                        </div>
                                     </div>
                                     <p className="mt-1 text-xs text-purple-600">Available now</p>
                                 </CardContent>
@@ -515,12 +549,15 @@ export default function Transactions() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-green-800">
-                                        {currencySymbol} {formatCurrency(3750, 'KWD')}
+                                        {primarySymbol} {formatCurrency(3750, primaryCurrency)}
                                     </div>
-                                    <div className="space-y-1 text-xs text-green-600">
-                                        <div>USD {formatCurrency(12450, 'USD')}</div>
-                                        <div>€{formatCurrency(11200, 'EUR')}</div>
-                                        <div>BDT {formatCurrency(1365000, 'BDT')}</div>
+                                    <div className="space-y-1 text-sm text-green-600">
+                                        <div>
+                                            {secondarySymbol} {formatCurrency(convertAmount(3750, secondaryCurrency), secondaryCurrency)}
+                                        </div>
+                                        <div>
+                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(3750, thirdCurrency.code), thirdCurrency.code)}
+                                        </div>
                                     </div>
                                     <p className="mt-1 text-xs text-green-600">+15% from last month</p>
                                 </CardContent>
@@ -536,12 +573,15 @@ export default function Transactions() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-red-800">
-                                        {currencySymbol} {formatCurrency(2470, 'KWD')}
+                                        {primarySymbol} {formatCurrency(2470, primaryCurrency)}
                                     </div>
-                                    <div className="space-y-1 text-xs text-red-600">
-                                        <div>USD {formatCurrency(8210, 'USD')}</div>
-                                        <div>€{formatCurrency(7390, 'EUR')}</div>
-                                        <div>BDT {formatCurrency(900000, 'BDT')}</div>
+                                    <div className="space-y-1 text-sm text-red-600">
+                                        <div>
+                                            {secondarySymbol} {formatCurrency(convertAmount(2470, secondaryCurrency), secondaryCurrency)}
+                                        </div>
+                                        <div>
+                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(2470, thirdCurrency.code), thirdCurrency.code)}
+                                        </div>
                                     </div>
                                     <p className="mt-1 text-xs text-red-600">+8% from last month</p>
                                 </CardContent>
@@ -557,12 +597,15 @@ export default function Transactions() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-orange-800">
-                                        {currencySymbol} {formatCurrency(705, 'KWD')}
+                                        {primarySymbol} {formatCurrency(705, primaryCurrency)}
                                     </div>
-                                    <div className="space-y-1 text-xs text-orange-600">
-                                        <div>USD {formatCurrency(2340, 'USD')}</div>
-                                        <div>€{formatCurrency(2110, 'EUR')}</div>
-                                        <div>BDT {formatCurrency(257000, 'BDT')}</div>
+                                    <div className="space-y-1 text-sm text-orange-600">
+                                        <div>
+                                            {secondarySymbol} {formatCurrency(convertAmount(705, secondaryCurrency), secondaryCurrency)}
+                                        </div>
+                                        <div>
+                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(705, thirdCurrency.code), thirdCurrency.code)}
+                                        </div>
                                     </div>
                                     <p className="mt-1 text-xs text-orange-600">Due this month</p>
                                 </CardContent>
@@ -578,12 +621,15 @@ export default function Transactions() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-blue-800">
-                                        {currencySymbol} {formatCurrency(1240, 'KWD')}
+                                        {primarySymbol} {formatCurrency(1240, primaryCurrency)}
                                     </div>
-                                    <div className="space-y-1 text-xs text-blue-600">
-                                        <div>USD {formatCurrency(4120, 'USD')}</div>
-                                        <div>€{formatCurrency(3710, 'EUR')}</div>
-                                        <div>BDT {formatCurrency(453000, 'BDT')}</div>
+                                    <div className="space-y-1 text-sm text-blue-600">
+                                        <div>
+                                            {secondarySymbol} {formatCurrency(convertAmount(1240, secondaryCurrency), secondaryCurrency)}
+                                        </div>
+                                        <div>
+                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(1240, thirdCurrency.code), thirdCurrency.code)}
+                                        </div>
                                     </div>
                                     <p className="mt-1 text-xs text-blue-600">Expected this month</p>
                                 </CardContent>

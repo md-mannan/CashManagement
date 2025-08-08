@@ -21,6 +21,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'primary_currency',
+        'secondary_currency',
+        'primary_symbol',
+        'secondary_symbol',
+        'exchange_rate',
     ];
 
     /**

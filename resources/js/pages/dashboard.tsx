@@ -1,8 +1,7 @@
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, usePage } from '@inertiajs/react';
 import {
     ArcElement,
     BarElement,
@@ -16,7 +15,7 @@ import {
     Title,
     Tooltip,
 } from 'chart.js';
-import { ArrowDownRight, ArrowUpRight, BarChart3, PieChart, Plus, Receipt, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, BarChart3, PieChart, Receipt, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 
@@ -295,6 +294,7 @@ const mockPieChartData = {
 };
 
 export default function Dashboard() {
+    const { auth } = usePage<SharedData>().props;
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
@@ -326,10 +326,14 @@ export default function Dashboard() {
     }, []);
 
     const formatCurrency = (amount: number) => {
+        const userCurrency = auth.user.primary_currency || 'USD';
+        const decimals = userCurrency === 'KWD' ? 3 : 2;
+
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'KWD',
-            minimumFractionDigits: 3,
+            currency: userCurrency,
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
         }).format(amount);
     };
 
@@ -337,19 +341,30 @@ export default function Dashboard() {
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+        },
         plugins: {
             title: {
                 display: false,
             },
             legend: {
                 position: 'top' as const,
+                align: 'center' as const,
                 labels: {
                     usePointStyle: true,
-                    padding: 20,
+                    padding: 15,
+                    boxWidth: 12,
+                    boxHeight: 12,
                     font: {
                         size: 12,
                     },
                 },
+                maxHeight: 50,
+                fullSize: true,
             },
             tooltip: {
                 mode: 'index' as const,
@@ -449,19 +464,30 @@ export default function Dashboard() {
     const pieChartOptions = {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+        },
         plugins: {
             title: {
                 display: false,
             },
             legend: {
                 position: 'bottom' as const,
+                align: 'center' as const,
                 labels: {
                     usePointStyle: true,
-                    padding: 20,
+                    padding: 12,
+                    boxWidth: 12,
+                    boxHeight: 12,
                     font: {
-                        size: 12,
+                        size: 11,
                     },
                 },
+                maxHeight: 40,
+                fullSize: true,
             },
             tooltip: {
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -514,10 +540,6 @@ export default function Dashboard() {
                         </h1>
                         <p className="text-muted-foreground">Your financial overview at a glance</p>
                     </div>
-                    <Button onClick={() => router.visit('/add-transaction')} className="flex animate-pulse items-center gap-2">
-                        <Plus className="h-4 w-4" />
-                        Add Transaction
-                    </Button>
                 </div>
 
                 {/* Financial Summary Cards */}

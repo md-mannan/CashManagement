@@ -6,9 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { Download, Filter, Plus, Search, FileText, Printer, Eye, Edit, Trash2 } from 'lucide-react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
+import { Download, Edit, Eye, FileText, Filter, Plus, Printer, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -140,6 +140,7 @@ const transactionTypes = [
 ];
 
 export default function Transaction() {
+    const { auth } = usePage<SharedData>().props;
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedType, setSelectedType] = useState('all');
     const [startDate, setStartDate] = useState('');
@@ -147,30 +148,69 @@ export default function Transaction() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
+    // Confirmation modal states
+    const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; transactionId: number | null }>({
+        isOpen: false,
+        transactionId: null,
+    });
+    const [editConfirmation, setEditConfirmation] = useState<{ isOpen: boolean; transactionId: number | null }>({
+        isOpen: false,
+        transactionId: null,
+    });
+
+    // User's primary currency from settings
+    const primaryCurrency = auth.user.primary_currency || 'USD';
+    const primarySymbol = auth.user.primary_symbol || '$';
+    const secondaryCurrency = auth.user.secondary_currency || 'EUR';
+    const secondarySymbol = auth.user.secondary_symbol || '€';
+    const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
+
+    // Determine the third currency (EUR or KWD if not already selected)
+    const getThirdCurrency = () => {
+        if (primaryCurrency !== 'EUR' && secondaryCurrency !== 'EUR') {
+            return { code: 'EUR', symbol: '€', rate: 0.9 };
+        } else if (primaryCurrency !== 'KWD' && secondaryCurrency !== 'KWD') {
+            return { code: 'KWD', symbol: 'د.ك', rate: 3.25 };
+        } else {
+            return { code: 'USD', symbol: '$', rate: 1.0 };
+        }
+    };
+
+    const thirdCurrency = getThirdCurrency();
+
+    // Helper function to calculate converted amount
+    const convertAmount = (amount: number, targetCurrency: string) => {
+        if (targetCurrency === primaryCurrency) return amount;
+        if (targetCurrency === secondaryCurrency) return amount * exchangeRate;
+        if (targetCurrency === thirdCurrency.code) return amount * thirdCurrency.rate;
+        return amount;
+    };
+
     // Filter transactions based on search criteria
     const filteredTransactions = useMemo(() => {
         let filtered = mockTransactions;
 
         // Filter by search term
         if (searchTerm) {
-            filtered = filtered.filter(transaction =>
-                transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                transaction.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                transaction.category.toLowerCase().includes(searchTerm.toLowerCase())
+            filtered = filtered.filter(
+                (transaction) =>
+                    transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    transaction.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    transaction.category.toLowerCase().includes(searchTerm.toLowerCase()),
             );
         }
 
         // Filter by type
         if (selectedType !== 'all') {
-            filtered = filtered.filter(transaction => transaction.type === selectedType);
+            filtered = filtered.filter((transaction) => transaction.type === selectedType);
         }
 
         // Filter by date range
         if (startDate) {
-            filtered = filtered.filter(transaction => transaction.date >= startDate);
+            filtered = filtered.filter((transaction) => transaction.date >= startDate);
         }
         if (endDate) {
-            filtered = filtered.filter(transaction => transaction.date <= endDate);
+            filtered = filtered.filter((transaction) => transaction.date <= endDate);
         }
 
         return filtered;
@@ -182,11 +222,18 @@ export default function Transaction() {
     const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + itemsPerPage);
 
     // Format currency
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 3,
-            maximumFractionDigits: 3,
-        }).format(amount);
+    const formatCurrency = (amount: number, currency: string = primaryCurrency) => {
+        const formatNumber = (num: number, decimals: number) => {
+            return num.toLocaleString('en-US', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+            });
+        };
+
+        if (currency === 'KWD') {
+            return formatNumber(amount, 3); // 3 decimal places for KWD
+        }
+        return formatNumber(amount, 2); // 2 decimal places for other currencies
     };
 
     // Format date
@@ -213,6 +260,37 @@ export default function Transaction() {
         }
     };
 
+    // Confirmation handlers
+    const handleDeleteClick = (transactionId: number) => {
+        setDeleteConfirmation({ isOpen: true, transactionId });
+    };
+
+    const handleEditClick = (transactionId: number) => {
+        setEditConfirmation({ isOpen: true, transactionId });
+    };
+
+    const handleDeleteConfirm = () => {
+        if (deleteConfirmation.transactionId) {
+            console.log('Deleting transaction:', deleteConfirmation.transactionId);
+            // Add your delete logic here
+            router.delete(`/transaction/${deleteConfirmation.transactionId}`);
+        }
+        setDeleteConfirmation({ isOpen: false, transactionId: null });
+    };
+
+    const handleEditConfirm = () => {
+        if (editConfirmation.transactionId) {
+            console.log('Editing transaction:', editConfirmation.transactionId);
+            router.visit(`/transaction/${editConfirmation.transactionId}/edit`);
+        }
+        setEditConfirmation({ isOpen: false, transactionId: null });
+    };
+
+    const handleCancel = () => {
+        setDeleteConfirmation({ isOpen: false, transactionId: null });
+        setEditConfirmation({ isOpen: false, transactionId: null });
+    };
+
     // Handle view transaction
     const handleViewTransaction = (transactionId: number) => {
         router.visit(`/transaction/${transactionId}`);
@@ -229,7 +307,7 @@ export default function Transaction() {
             // For mock data, we'll just show a success message
             // In a real application, this would call the backend API
             alert('Transaction deleted successfully!');
-            
+
             // Simulate the deletion by refreshing the page
             // In a real application, you would update the local state instead
             window.location.reload();
@@ -240,13 +318,13 @@ export default function Transaction() {
     const exportToExcel = () => {
         // Prepare data for export
         const exportData = filteredTransactions.map((transaction, index) => ({
-            'SL': startIndex + index + 1,
-            'Date': formatDate(transaction.date),
-            'Description': transaction.description,
-            'Type': transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
-            'Source': transaction.source,
-            'Category': transaction.category,
-            'Amount': `${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} KWD ${formatCurrency(transaction.amount)}`,
+            SL: startIndex + index + 1,
+            Date: formatDate(transaction.date),
+            Description: transaction.description,
+            Type: transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
+            Source: transaction.source,
+            Category: transaction.category,
+            Amount: `${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}`,
         }));
 
         // Create workbook and worksheet
@@ -255,7 +333,7 @@ export default function Transaction() {
 
         // Set column widths
         const columnWidths = [
-            { wch: 5 },  // SL
+            { wch: 5 }, // SL
             { wch: 12 }, // Date
             { wch: 25 }, // Description
             { wch: 10 }, // Type
@@ -319,7 +397,9 @@ export default function Transaction() {
                         </tr>
                     </thead>
                     <tbody>
-                        ${filteredTransactions.map((transaction, index) => `
+                        ${filteredTransactions
+                            .map(
+                                (transaction, index) => `
                             <tr>
                                 <td>${startIndex + index + 1}</td>
                                 <td>${formatDate(transaction.date)}</td>
@@ -329,7 +409,9 @@ export default function Transaction() {
                                 <td>${transaction.category}</td>
                                 <td>${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} KWD ${formatCurrency(transaction.amount)}</td>
                             </tr>
-                        `).join('')}
+                        `,
+                            )
+                            .join('')}
                     </tbody>
                 </table>
             </body>
@@ -384,7 +466,9 @@ export default function Transaction() {
                         </tr>
                     </thead>
                     <tbody>
-                        ${filteredTransactions.map((transaction, index) => `
+                        ${filteredTransactions
+                            .map(
+                                (transaction, index) => `
                             <tr>
                                 <td>${startIndex + index + 1}</td>
                                 <td>${formatDate(transaction.date)}</td>
@@ -392,9 +476,11 @@ export default function Transaction() {
                                 <td>${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</td>
                                 <td>${transaction.source}</td>
                                 <td>${transaction.category}</td>
-                                <td>${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} KWD ${formatCurrency(transaction.amount)}</td>
+                                <td>${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}</td>
                             </tr>
-                        `).join('')}
+                        `,
+                            )
+                            .join('')}
                     </tbody>
                 </table>
             </body>
@@ -470,7 +556,7 @@ export default function Transaction() {
                             <div className="space-y-2">
                                 <Label htmlFor="search">Search</Label>
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         id="search"
                                         placeholder="Search transactions..."
@@ -501,23 +587,13 @@ export default function Transaction() {
                             {/* Start Date */}
                             <div className="space-y-2">
                                 <Label htmlFor="startDate">Start Date</Label>
-                                <Input
-                                    id="startDate"
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                />
+                                <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                             </div>
 
                             {/* End Date */}
                             <div className="space-y-2">
                                 <Label htmlFor="endDate">End Date</Label>
-                                <Input
-                                    id="endDate"
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                />
+                                <Input id="endDate" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                             </div>
                         </div>
                     </CardContent>
@@ -525,9 +601,43 @@ export default function Transaction() {
 
                 {/* Results Summary */}
                 <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                        Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredTransactions.length)} of {filteredTransactions.length} transactions
-                    </p>
+                    <div className="flex items-center gap-6">
+                        <p className="text-sm text-muted-foreground">
+                            Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredTransactions.length)} of{' '}
+                            {filteredTransactions.length} transactions
+                        </p>
+
+                        {/* 3-Currency Summary */}
+                        <div className="flex items-center gap-4 text-sm">
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-primary">{primarySymbol}</span>
+                                <span className="text-muted-foreground">
+                                    {formatCurrency(
+                                        filteredTransactions.reduce((sum, t) => sum + t.amount, 0),
+                                        primaryCurrency,
+                                    )}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-blue-600">{secondarySymbol}</span>
+                                <span className="text-muted-foreground">
+                                    {formatCurrency(
+                                        filteredTransactions.reduce((sum, t) => sum + convertAmount(t.amount, secondaryCurrency), 0),
+                                        secondaryCurrency,
+                                    )}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-green-600">{thirdCurrency.symbol}</span>
+                                <span className="text-muted-foreground">
+                                    {formatCurrency(
+                                        filteredTransactions.reduce((sum, t) => sum + convertAmount(t.amount, thirdCurrency.code), 0),
+                                        thirdCurrency.code,
+                                    )}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm">
@@ -571,7 +681,7 @@ export default function Transaction() {
                             <TableBody>
                                 {paginatedTransactions.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                                        <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                                             No transactions found matching your criteria.
                                         </TableCell>
                                     </TableRow>
@@ -582,18 +692,23 @@ export default function Transaction() {
                                             <TableCell>{formatDate(transaction.date)}</TableCell>
                                             <TableCell className="font-medium">{transaction.description}</TableCell>
                                             <TableCell>
-                                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}>
+                                                <span
+                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
+                                                >
                                                     {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
                                                 </span>
                                             </TableCell>
                                             <TableCell>{transaction.source}</TableCell>
                                             <TableCell>{transaction.category}</TableCell>
-                                            <TableCell className={
-                                                transaction.type === 'income' || transaction.type === 'receivable' 
-                                                    ? 'text-green-600' 
-                                                    : 'text-red-600'
-                                            }>
-                                                {transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} KWD {formatCurrency(transaction.amount)}
+                                            <TableCell
+                                                className={
+                                                    transaction.type === 'income' || transaction.type === 'receivable'
+                                                        ? 'text-green-600'
+                                                        : 'text-red-600'
+                                                }
+                                            >
+                                                {transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} {primarySymbol}{' '}
+                                                {formatCurrency(transaction.amount, primaryCurrency)}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
@@ -608,7 +723,7 @@ export default function Transaction() {
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        onClick={() => handleEditTransaction(transaction.id)}
+                                                        onClick={() => handleEditClick(transaction.id)}
                                                         className="h-8 w-8 p-0"
                                                     >
                                                         <Edit className="h-4 w-4" />
@@ -616,7 +731,7 @@ export default function Transaction() {
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        onClick={() => handleDeleteTransaction(transaction.id)}
+                                                        onClick={() => handleDeleteClick(transaction.id)}
                                                         className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
@@ -658,6 +773,82 @@ export default function Transaction() {
                     </div>
                 )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirmation.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm duration-200 animate-in fade-in" onClick={handleCancel} />
+
+                    {/* Modal */}
+                    <div className="relative m-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl duration-200 animate-in zoom-in-95">
+                        <div className="text-center">
+                            {/* Icon */}
+                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                                <Trash2 className="h-6 w-6 text-red-600" />
+                            </div>
+
+                            {/* Title */}
+                            <h3 className="mb-2 text-lg font-semibold text-gray-900">Delete Transaction</h3>
+
+                            {/* Description */}
+                            <p className="mb-6 text-sm text-gray-500">
+                                Are you sure you want to delete this transaction? This action cannot be undone.
+                            </p>
+
+                            {/* Buttons */}
+                            <div className="flex gap-3">
+                                <Button variant="outline" onClick={handleCancel} className="flex-1 transition-colors duration-200 hover:bg-gray-50">
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleDeleteConfirm}
+                                    className="flex-1 bg-red-600 text-white transition-all duration-200 hover:scale-105 hover:bg-red-700"
+                                >
+                                    Delete
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Confirmation Modal */}
+            {editConfirmation.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm duration-200 animate-in fade-in" onClick={handleCancel} />
+
+                    {/* Modal */}
+                    <div className="relative m-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl duration-200 animate-in zoom-in-95">
+                        <div className="text-center">
+                            {/* Icon */}
+                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                                <Edit className="h-6 w-6 text-blue-600" />
+                            </div>
+
+                            {/* Title */}
+                            <h3 className="mb-2 text-lg font-semibold text-gray-900">Edit Transaction</h3>
+
+                            {/* Description */}
+                            <p className="mb-6 text-sm text-gray-500">Do you want to edit this transaction? You'll be redirected to the edit page.</p>
+
+                            {/* Buttons */}
+                            <div className="flex gap-3">
+                                <Button variant="outline" onClick={handleCancel} className="flex-1 transition-colors duration-200 hover:bg-gray-50">
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleEditConfirm}
+                                    className="flex-1 bg-blue-600 text-white transition-all duration-200 hover:scale-105 hover:bg-blue-700"
+                                >
+                                    Edit
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }

@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -27,6 +27,9 @@ const mockTransactions = [
         source: 'Company Inc.',
         category: 'Salary',
         notes: 'Monthly salary payment for January 2024',
+        secondaryCurrency: 'KWD',
+        exchangeRate: 3.25,
+        secondaryAmount: 1153.846, // 3750 / 3.25
     },
     {
         id: 2,
@@ -37,6 +40,9 @@ const mockTransactions = [
         source: 'Local Supermarket',
         category: 'Food & Dining',
         notes: 'Weekly grocery shopping for household items',
+        secondaryCurrency: 'BDT',
+        exchangeRate: 122.3,
+        secondaryAmount: 55035.0, // 450 * 122.3
     },
     {
         id: 3,
@@ -47,6 +53,9 @@ const mockTransactions = [
         source: 'Client XYZ',
         category: 'Freelance',
         notes: 'Web development project for client XYZ',
+        secondaryCurrency: 'KWD',
+        exchangeRate: 3.25,
+        secondaryAmount: 369.231, // 1200 / 3.25
     },
     {
         id: 4,
@@ -144,7 +153,25 @@ interface TransactionViewProps {
     id: string;
 }
 
+// Available currencies for displaying symbols
+const currencies = [
+    { code: 'USD', name: 'US Dollar', symbol: '$' },
+    { code: 'EUR', name: 'Euro', symbol: '€' },
+    { code: 'KWD', name: 'Kuwaiti Dinar', symbol: 'د.ك' },
+    { code: 'BDT', name: 'Bangladeshi Taka', symbol: '৳' },
+    { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
+    { code: 'SAR', name: 'Saudi Riyal', symbol: 'ر.س' },
+    { code: 'QAR', name: 'Qatari Riyal', symbol: 'ر.ق' },
+    { code: 'BHD', name: 'Bahraini Dinar', symbol: '.د.ب' },
+    { code: 'OMR', name: 'Omani Rial', symbol: 'ر.ع' },
+    { code: 'JOD', name: 'Jordanian Dinar', symbol: 'د.أ' },
+    { code: 'LBP', name: 'Lebanese Pound', symbol: 'ل.ل' },
+    { code: 'EGP', name: 'Egyptian Pound', symbol: 'ج.م' },
+];
+
 export default function TransactionView({ id }: TransactionViewProps) {
+    const { auth } = usePage<SharedData>().props;
+
     // Find the transaction by ID
     const transaction = mockTransactions.find((t) => t.id === parseInt(id));
 
@@ -168,12 +195,47 @@ export default function TransactionView({ id }: TransactionViewProps) {
         );
     }
 
+    // User's primary currency from settings
+    const primaryCurrency = auth.user.primary_currency || 'USD';
+    const primarySymbol = auth.user.primary_symbol || '$';
+    const secondaryCurrency = auth.user.secondary_currency || 'EUR';
+    const secondarySymbol = auth.user.secondary_symbol || '€';
+    const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
+
+    // Determine the third currency (EUR or KWD if not already selected)
+    const getThirdCurrency = () => {
+        if (primaryCurrency !== 'EUR' && secondaryCurrency !== 'EUR') {
+            return { code: 'EUR', symbol: '€', rate: 0.9 };
+        } else if (primaryCurrency !== 'KWD' && secondaryCurrency !== 'KWD') {
+            return { code: 'KWD', symbol: 'د.ك', rate: 3.25 };
+        } else {
+            return { code: 'USD', symbol: '$', rate: 1.0 };
+        }
+    };
+
+    const thirdCurrency = getThirdCurrency();
+
+    // Helper function to calculate converted amount
+    const convertAmount = (amount: number, targetCurrency: string) => {
+        if (targetCurrency === primaryCurrency) return amount;
+        if (targetCurrency === secondaryCurrency) return amount * exchangeRate;
+        if (targetCurrency === thirdCurrency.code) return amount * thirdCurrency.rate;
+        return amount;
+    };
+
     // Format currency
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 3,
-            maximumFractionDigits: 3,
-        }).format(amount);
+    const formatCurrency = (amount: number, currency: string = primaryCurrency) => {
+        const formatNumber = (num: number, decimals: number) => {
+            return num.toLocaleString('en-US', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+            });
+        };
+
+        if (currency === 'KWD') {
+            return formatNumber(amount, 3); // 3 decimal places for KWD
+        }
+        return formatNumber(amount, 2); // 2 decimal places for other currencies
     };
 
     // Format date
@@ -280,8 +342,8 @@ export default function TransactionView({ id }: TransactionViewProps) {
                                     <p
                                         className={`text-lg font-semibold ${transaction.type === 'income' || transaction.type === 'receivable' ? 'text-green-600' : 'text-red-600'}`}
                                     >
-                                        {transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} KWD{' '}
-                                        {formatCurrency(transaction.amount)}
+                                        {transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} {primarySymbol}{' '}
+                                        {formatCurrency(transaction.amount, primaryCurrency)}
                                     </p>
                                 </div>
                             </div>
@@ -308,6 +370,48 @@ export default function TransactionView({ id }: TransactionViewProps) {
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* Dual Currency Information */}
+                    {transaction.secondaryCurrency && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Recorded Currency Information</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid gap-6 md:grid-cols-2">
+                                    {/* Primary Currency (Recorded) */}
+                                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-center">
+                                        <div className="mb-2 text-sm font-medium text-muted-foreground">Primary Amount</div>
+                                        <div className="mb-1 text-2xl font-bold text-primary">
+                                            {primarySymbol} {formatCurrency(transaction.amount, primaryCurrency)}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">{primaryCurrency}</div>
+                                    </div>
+
+                                    {/* Secondary Currency (Recorded) */}
+                                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-center">
+                                        <div className="mb-2 text-sm font-medium text-muted-foreground">Secondary Amount</div>
+                                        <div className="mb-1 text-2xl font-bold text-blue-600">
+                                            {currencies.find((c) => c.code === transaction.secondaryCurrency)?.symbol ||
+                                                transaction.secondaryCurrency}{' '}
+                                            {formatCurrency(transaction.secondaryAmount, transaction.secondaryCurrency)}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">{transaction.secondaryCurrency}</div>
+                                    </div>
+                                </div>
+
+                                {/* Exchange Rate Information */}
+                                <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                                    <div className="text-center">
+                                        <div className="mb-2 text-sm font-medium text-muted-foreground">Exchange Rate Used</div>
+                                        <div className="text-lg font-semibold text-gray-700">
+                                            1 {transaction.secondaryCurrency} = {transaction.exchangeRate} {primaryCurrency}
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
             </div>
         </AppLayout>
