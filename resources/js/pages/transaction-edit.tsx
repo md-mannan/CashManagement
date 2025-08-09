@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomDateInput } from '@/components/ui/custom-date-input';
+import FormSkeleton from '@/components/ui/form-skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -133,24 +134,10 @@ export default function TransactionEdit() {
     const secondarySymbol = auth.user.secondary_symbol || '€';
     const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
 
-    // Determine the third currency (EUR or KWD if not already selected)
-    const getThirdCurrency = () => {
-        if (primaryCurrency !== 'EUR' && secondaryCurrency !== 'EUR') {
-            return { code: 'EUR', symbol: '€', rate: 0.9 };
-        } else if (primaryCurrency !== 'KWD' && secondaryCurrency !== 'KWD') {
-            return { code: 'KWD', symbol: 'د.ك', rate: 3.25 };
-        } else {
-            return { code: 'USD', symbol: '$', rate: 1.0 };
-        }
-    };
-
-    const thirdCurrency = getThirdCurrency();
-
     // Helper function to calculate converted amount
     const convertAmount = (amount: number, targetCurrency: string) => {
         if (targetCurrency === primaryCurrency) return amount;
-        if (targetCurrency === secondaryCurrency) return amount * exchangeRate;
-        if (targetCurrency === thirdCurrency.code) return amount * thirdCurrency.rate;
+        if (targetCurrency === secondaryCurrency) return amount / exchangeRate;
         return amount;
     };
 
@@ -464,12 +451,7 @@ export default function TransactionEdit() {
                     </CardHeader>
                     <CardContent>
                         {!isFormInitialized ? (
-                            <div className="flex items-center justify-center py-8">
-                                <div className="text-center">
-                                    <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                                    <p className="text-sm text-muted-foreground">Loading transaction data...</p>
-                                </div>
-                            </div>
+                            <FormSkeleton />
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="grid gap-4 md:grid-cols-2">
@@ -702,15 +684,6 @@ export default function TransactionEdit() {
                                             <div className="text-xs text-muted-foreground">
                                                 Secondary ({formData.secondaryCurrency || secondaryCurrency})
                                             </div>
-                                        </div>
-                                        <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
-                                            <div className="mb-1 text-lg font-semibold text-green-600">
-                                                {thirdCurrency.symbol}{' '}
-                                                {formData.amount
-                                                    ? formatCurrency(formData.amount * thirdCurrency.rate, thirdCurrency.code)
-                                                    : formatCurrency(0, thirdCurrency.code)}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground">Additional ({thirdCurrency.code})</div>
                                         </div>
                                     </div>
                                 </div>

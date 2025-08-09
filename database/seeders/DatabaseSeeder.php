@@ -15,15 +15,16 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-        // Seed categories and transactions
+        // Only seed categories (required for the app to function)
         $this->call([
             CategorySeeder::class,
-            TransactionSeeder::class,
+            // TransactionSeeder::class, // Commented out - no sample transactions
         ]);
+
+        // Note: Create your own user account through registration
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
     }
 }

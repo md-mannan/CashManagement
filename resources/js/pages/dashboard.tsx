@@ -15,7 +15,7 @@ import {
     Title,
     Tooltip,
 } from 'chart.js';
-import { ArrowDownRight, ArrowUpRight, BarChart3, PieChart, Receipt, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { Banknote, BarChart3, CreditCard, PieChart, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 
@@ -29,272 +29,103 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Mock data for dashboard
-const mockTransactions = [
-    {
-        id: 1,
-        date: '2024-01-15',
-        description: 'Salary Payment',
-        type: 'income',
-        amount: 3750.0,
-        source: 'Company Inc.',
-        category: 'Salary',
-    },
-    {
-        id: 2,
-        date: '2024-01-08',
-        description: 'Grocery Shopping',
-        type: 'expense',
-        amount: 450.0,
-        source: 'Local Supermarket',
-        category: 'Food & Dining',
-    },
-    {
-        id: 3,
-        date: '2024-01-12',
-        description: 'Freelance Project',
-        type: 'income',
-        amount: 1200.0,
-        source: 'Client XYZ',
-        category: 'Freelance',
-    },
-    {
-        id: 4,
-        date: '2024-01-15',
-        description: 'Utility Bills',
-        type: 'expense',
-        amount: 180.0,
-        source: 'Electricity Co.',
-        category: 'Utilities',
-    },
-    {
-        id: 5,
-        date: '2024-01-18',
-        description: 'Investment Dividend',
-        type: 'income',
-        amount: 500.0,
-        source: 'Investment Bank',
-        category: 'Investment',
-    },
-    {
-        id: 6,
-        date: '2024-01-22',
-        description: 'Restaurant Dinner',
-        type: 'expense',
-        amount: 120.0,
-        source: 'Fine Dining',
-        category: 'Food & Dining',
-    },
-    {
-        id: 7,
-        date: '2024-01-25',
-        description: 'Client Payment Due',
-        type: 'receivable',
-        amount: 2500.0,
-        source: 'Client ABC',
-        category: 'Client Payment',
-    },
-    {
-        id: 8,
-        date: '2024-01-28',
-        description: 'Loan Repayment',
-        type: 'receivable',
-        amount: 800.0,
-        source: 'Friend Loan',
-        category: 'Loan Repayment',
-    },
-    {
-        id: 9,
-        date: '2024-01-30',
-        description: 'Credit Card Bill',
-        type: 'payable',
-        amount: 350.0,
-        source: 'Bank Credit Card',
-        category: 'Credit Card',
-    },
-];
-
-// Mock chart data
-const mockChartData = {
-    daily: {
-        labels: ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5', 'Jan 6', 'Jan 7'],
-        datasets: [
-            {
-                label: 'Income',
-                data: [0, 1200, 0, 500, 3750, 0, 0],
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Expense',
-                data: [0, 450, 180, 120, 0, 0, 0],
-                borderColor: 'rgb(239, 68, 68)',
-                backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Receivable',
-                data: [0, 500, 0, 800, 2500, 0, 0],
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Payable',
-                data: [0, 200, 0, 350, 0, 0, 0],
-                borderColor: 'rgb(249, 115, 22)',
-                backgroundColor: 'rgba(249, 115, 22, 0.8)',
-                type: 'bar' as const,
-            },
-        ],
-    },
-    monthly: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [
-            {
-                label: 'Income',
-                data: [5450, 4200, 3800, 5100, 4600, 3900],
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Expense',
-                data: [750, 1200, 950, 1100, 1300, 850],
-                borderColor: 'rgb(239, 68, 68)',
-                backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Receivable',
-                data: [3300, 2800, 2200, 3500, 2900, 2400],
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Payable',
-                data: [550, 800, 600, 700, 900, 500],
-                borderColor: 'rgb(249, 115, 22)',
-                backgroundColor: 'rgba(249, 115, 22, 0.8)',
-                type: 'bar' as const,
-            },
-        ],
-    },
-    yearly: {
-        labels: ['2020', '2021', '2022', '2023', '2024'],
-        datasets: [
-            {
-                label: 'Income',
-                data: [45000, 52000, 48000, 55000, 58000],
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Expense',
-                data: [12000, 15000, 14000, 16000, 17000],
-                borderColor: 'rgb(239, 68, 68)',
-                backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Receivable',
-                data: [28000, 32000, 30000, 35000, 38000],
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Payable',
-                data: [8000, 10000, 9000, 11000, 12000],
-                borderColor: 'rgb(249, 115, 22)',
-                backgroundColor: 'rgba(249, 115, 22, 0.8)',
-                type: 'bar' as const,
-            },
-        ],
-    },
-    total: {
-        labels: ['Total'],
-        datasets: [
-            {
-                label: 'Income',
-                data: [270500],
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Expense',
-                data: [62500],
-                borderColor: 'rgb(239, 68, 68)',
-                backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Receivable',
-                data: [163000],
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                type: 'bar' as const,
-            },
-            {
-                label: 'Payable',
-                data: [50000],
-                borderColor: 'rgb(249, 115, 22)',
-                backgroundColor: 'rgba(249, 115, 22, 0.8)',
-                type: 'bar' as const,
-            },
-        ],
-    },
-};
-
-// Pie chart data
-const mockPieChartData = {
-    monthly: {
-        labels: ['Income', 'Expense', 'Receivable', 'Payable'],
-        datasets: [
-            {
-                data: [27050, 6150, 15100, 4050],
-                backgroundColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)', 'rgba(249, 115, 22, 1)'],
-                borderColor: ['rgb(34, 197, 94)', 'rgb(239, 68, 68)', 'rgb(59, 130, 246)', 'rgb(249, 115, 22)'],
-                borderWidth: 4,
-                hoverBorderWidth: 6,
-                hoverOffset: 20,
-            },
-        ],
-    },
-    yearly: {
-        labels: ['Income', 'Expense', 'Receivable', 'Payable'],
-        datasets: [
-            {
-                data: [258000, 74000, 163000, 50000],
-                backgroundColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)', 'rgba(249, 115, 22, 1)'],
-                borderColor: ['rgb(34, 197, 94)', 'rgb(239, 68, 68)', 'rgb(59, 130, 246)', 'rgb(249, 115, 22)'],
-                borderWidth: 4,
-                hoverBorderWidth: 6,
-                hoverOffset: 20,
-            },
-        ],
-    },
-    total: {
-        labels: ['Income', 'Expense', 'Receivable', 'Payable'],
-        datasets: [
-            {
-                data: [270500, 62500, 163000, 50000],
-                backgroundColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)', 'rgba(249, 115, 22, 1)'],
-                borderColor: ['rgb(34, 197, 94)', 'rgb(239, 68, 68)', 'rgb(59, 130, 246)', 'rgb(249, 115, 22)'],
-                borderWidth: 4,
-                hoverBorderWidth: 6,
-                hoverOffset: 20,
-            },
-        ],
-    },
-};
-
 export default function Dashboard() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, currentSummary, recentTransactions, changes, monthlyData, yearlyData, categoryData, yearlyCategoryData } = usePage<
+        SharedData & {
+            currentSummary: {
+                total_income: number;
+                total_expenses: number;
+                total_receivables: number;
+                total_payables: number;
+                net_balance: number;
+                secondary_amounts?: {
+                    total_income: number;
+                    total_expenses: number;
+                    total_receivables: number;
+                    total_payables: number;
+                };
+            };
+            recentTransactions: Array<{
+                id: number;
+                date: string;
+                description: string;
+                type: 'income' | 'expense' | 'receivable' | 'payable';
+                amount: number;
+                source: string;
+                category: {
+                    name: string;
+                    color: string;
+                };
+                currency: string;
+                metadata?: {
+                    secondary_currency?: string;
+                    exchange_rate?: number;
+                    secondary_amount?: number;
+                    primary_currency?: string;
+                    primary_symbol?: string;
+                };
+            }>;
+            changes: {
+                income_change: number;
+                expense_change: number;
+                receivables_change: number;
+                payables_change: number;
+                balance_change: number;
+            };
+            monthlyData: {
+                labels: string[];
+                datasets: Array<{
+                    label: string;
+                    data: number[];
+                    borderColor: string;
+                    backgroundColor: string;
+                    type: string;
+                }>;
+            } | null;
+            yearlyData: {
+                labels: string[];
+                datasets: Array<{
+                    label: string;
+                    data: number[];
+                    borderColor: string;
+                    backgroundColor: string;
+                    type: string;
+                }>;
+            } | null;
+            categoryData: {
+                labels: string[];
+                datasets: Array<{
+                    data: number[];
+                    backgroundColor: string[];
+                    borderColor: string[];
+                    borderWidth: number;
+                    hoverBorderWidth: number;
+                    hoverOffset: number;
+                }>;
+            } | null;
+            yearlyCategoryData: {
+                labels: string[];
+                datasets: Array<{
+                    data: number[];
+                    backgroundColor: string[];
+                    borderColor: string[];
+                    borderWidth: number;
+                    hoverBorderWidth: number;
+                    hoverOffset: number;
+                }>;
+            } | null;
+            upcomingTransactions: Array<{
+                id: number;
+                date: string;
+                description: string;
+                type: 'receivable' | 'payable';
+                amount: number;
+                source: string;
+                due_date?: string;
+                status: string;
+            }> | null;
+        }
+    >().props;
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
@@ -303,38 +134,58 @@ export default function Dashboard() {
         return () => clearTimeout(timer);
     }, []);
 
-    // Calculate financial summary
+    // User's currency settings
+    const primaryCurrency = auth.user.primary_currency || 'USD';
+    const primarySymbol = auth.user.primary_symbol || '$';
+    const secondaryCurrency = auth.user.secondary_currency || 'EUR';
+    const secondarySymbol = auth.user.secondary_symbol || '€';
+    const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
+
+    // Helper function to calculate converted amount
+    const convertAmount = (amount: number, targetCurrency: string) => {
+        if (targetCurrency === primaryCurrency) return amount;
+        if (targetCurrency === secondaryCurrency) {
+            // Convert from primary to secondary currency using user's exchange rate
+            const convertedAmount = amount / exchangeRate;
+            // Use appropriate decimal precision
+            if (secondaryCurrency === 'KWD') {
+                return Math.round(convertedAmount * 1000) / 1000; // 3 decimals for KWD
+            }
+            return Math.round(convertedAmount * 100) / 100; // 2 decimals for others
+        }
+        // For any other currency, return the original amount (no conversion available)
+        return amount;
+    };
+
+    // Use real financial summary from backend
     const financialSummary = useMemo(() => {
-        const totalIncome = mockTransactions.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-
-        const totalExpense = mockTransactions.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-
-        const totalReceivable = mockTransactions.filter((t) => t.type === 'receivable').reduce((sum, t) => sum + t.amount, 0);
-
-        const totalPayable = mockTransactions.filter((t) => t.type === 'payable').reduce((sum, t) => sum + t.amount, 0);
-
-        const balance = totalIncome - totalExpense + totalReceivable - totalPayable;
-
         return {
-            balance,
-            totalIncome,
-            totalExpense,
-            totalReceivable,
-            totalPayable,
-            transactionCount: mockTransactions.length,
+            balance: currentSummary?.net_balance || 0,
+            totalIncome: currentSummary?.total_income || 0,
+            totalExpense: currentSummary?.total_expenses || 0,
+            totalReceivable: currentSummary?.total_receivables || 0,
+            totalPayable: currentSummary?.total_payables || 0,
+            transactionCount: recentTransactions?.length || 0,
         };
-    }, []);
+    }, [currentSummary, recentTransactions]);
 
-    const formatCurrency = (amount: number) => {
-        const userCurrency = auth.user.primary_currency || 'USD';
-        const decimals = userCurrency === 'KWD' ? 3 : 2;
+    // Format currency amounts with proper decimal places (similar to ledger)
+    const formatCurrency = (amount: number, currency: string = primaryCurrency) => {
+        // Round the amount first to avoid floating point precision issues
+        const roundedAmount = Math.round(amount * 1000) / 1000;
 
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: userCurrency,
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals,
-        }).format(amount);
+        const formatNumber = (num: number, decimals: number) => {
+            return num.toLocaleString('en-US', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+            });
+        };
+
+        // Handle different currencies with appropriate decimal places
+        if (currency === 'KWD') {
+            return formatNumber(roundedAmount, 3); // 3 decimal places for KWD
+        }
+        return formatNumber(roundedAmount, 2); // 2 decimal places for other currencies
     };
 
     // Chart options with animations
@@ -384,10 +235,10 @@ export default function Dashboard() {
                     size: 13,
                 },
                 callbacks: {
-                    title: function (context: any) {
+                    title: function (context: Array<{ label: string }>) {
                         return `📅 ${context[0].label}`;
                     },
-                    label: function (context: any) {
+                    label: function (context: { dataset: { label: string }; parsed: { y: number } }) {
                         const label = context.dataset.label || '';
                         const value = context.parsed.y;
 
@@ -409,7 +260,7 @@ export default function Dashboard() {
                                 emoji = '📊';
                         }
 
-                        return `${emoji} ${label}: ${formatCurrency(value)}`;
+                        return `${emoji} ${label}: ${primarySymbol} ${formatCurrency(value)}`;
                     },
                 },
             },
@@ -440,8 +291,8 @@ export default function Dashboard() {
                         size: 12,
                     },
                     color: '#666',
-                    callback: function (value: any) {
-                        return formatCurrency(value);
+                    callback: function (value: number) {
+                        return `${primarySymbol} ${formatCurrency(value)}`;
                     },
                 },
                 title: {
@@ -466,8 +317,10 @@ export default function Dashboard() {
         maintainAspectRatio: false,
         layout: {
             padding: {
-                top: 5,
-                bottom: 5,
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10,
             },
         },
         plugins: {
@@ -479,51 +332,79 @@ export default function Dashboard() {
                 align: 'center' as const,
                 labels: {
                     usePointStyle: true,
-                    padding: 12,
+                    padding: 15,
                     boxWidth: 12,
                     boxHeight: 12,
                     font: {
-                        size: 11,
+                        size: 12,
+                        weight: 'bold' as const,
+                    },
+                    generateLabels: function (chart: any) {
+                        const data = chart.data;
+                        if (data.labels.length && data.datasets.length) {
+                            return data.labels.map((label: string, i: number) => {
+                                const meta = chart.getDatasetMeta(0);
+                                const style = meta.controller.getStyle(i);
+                                return {
+                                    text: label,
+                                    fillStyle: style.backgroundColor,
+                                    strokeStyle: style.borderColor,
+                                    lineWidth: style.borderWidth,
+                                    pointStyle: 'circle',
+                                    hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
+                                    index: i,
+                                };
+                            });
+                        }
+                        return [];
                     },
                 },
-                maxHeight: 40,
+                maxHeight: 60,
                 fullSize: true,
             },
             tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
                 titleColor: 'white',
                 bodyColor: 'white',
-                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: 'rgba(255, 255, 255, 0.2)',
                 borderWidth: 1,
                 cornerRadius: 8,
                 padding: 12,
+                titleFont: {
+                    size: 14,
+                    weight: 'bold' as const,
+                },
+                bodyFont: {
+                    size: 13,
+                },
                 callbacks: {
+                    title: function () {
+                        return 'Transaction Breakdown';
+                    },
                     label: function (context: any) {
                         const label = context.label || '';
                         const value = context.parsed;
                         const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
                         const percentage = ((value / total) * 100).toFixed(1);
-                        return `${label}: ${formatCurrency(value)} (${percentage}%)`;
+                        return `${label}: ${primarySymbol} ${formatCurrency(value)} (${percentage}%)`;
                     },
                 },
             },
         },
         animation: {
-            duration: 2000,
+            duration: 1500,
             easing: 'easeInOutQuart' as const,
         },
         elements: {
             arc: {
-                borderWidth: 4,
+                borderWidth: 3,
                 borderColor: '#fff',
-                shadowOffsetX: 8,
-                shadowOffsetY: 8,
-                shadowBlur: 20,
-                shadowColor: 'rgba(0, 0, 0, 0.6)',
+                hoverBorderWidth: 5,
+                hoverOffset: 8,
             },
         },
-        cutout: '0%',
-        radius: '80%',
+        cutout: '20%', // Creates a donut chart effect
+        radius: '90%',
     };
 
     return (
@@ -542,238 +423,328 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Financial Summary Cards */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-                    {/* Balance */}
-                    <Card
-                        className={`transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                        style={{ animationDelay: '100ms' }}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Balance</CardTitle>
-                            <Wallet className="h-4 w-4 text-blue-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className={`text-2xl font-bold ${financialSummary.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {formatCurrency(financialSummary.balance)}
-                            </div>
-                            <p className="text-xs text-muted-foreground">{financialSummary.balance >= 0 ? '+12%' : '-5%'} from last month</p>
-                        </CardContent>
-                    </Card>
+                {/* Financial Summary Section - Ledger Style */}
+                <div className="financial-summary space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-xl font-semibold tracking-tight">Financial Summary</h2>
+                            <p className="text-sm text-muted-foreground">Overview of your current financial position</p>
+                        </div>
+                    </div>
 
-                    {/* Total Income */}
-                    <Card
-                        className={`transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                        style={{ animationDelay: '200ms' }}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Income</CardTitle>
-                            <TrendingUp className="h-4 w-4 text-green-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-green-600">{formatCurrency(financialSummary.totalIncome)}</div>
-                            <p className="text-xs text-muted-foreground">+15% from last month</p>
-                        </CardContent>
-                    </Card>
-
-                    {/* Total Expenses */}
-                    <Card
-                        className={`transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                        style={{ animationDelay: '300ms' }}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Expense</CardTitle>
-                            <TrendingDown className="h-4 w-4 text-red-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-red-600">{formatCurrency(financialSummary.totalExpense)}</div>
-                            <p className="text-xs text-muted-foreground">+8% from last month</p>
-                        </CardContent>
-                    </Card>
-
-                    {/* Receivables */}
-                    <Card
-                        className={`transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                        style={{ animationDelay: '400ms' }}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Receivable</CardTitle>
-                            <ArrowUpRight className="h-4 w-4 text-blue-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-blue-600">{formatCurrency(financialSummary.totalReceivable)}</div>
-                            <p className="text-xs text-muted-foreground">+20% from last month</p>
-                        </CardContent>
-                    </Card>
-
-                    {/* Payables */}
-                    <Card
-                        className={`transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                        style={{ animationDelay: '500ms' }}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Payable</CardTitle>
-                            <ArrowDownRight className="h-4 w-4 text-orange-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-orange-600">{formatCurrency(financialSummary.totalPayable)}</div>
-                            <p className="text-xs text-muted-foreground">+5% from last month</p>
-                        </CardContent>
-                    </Card>
-
-                    {/* Total Transactions */}
-                    <Card
-                        className={`transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                        style={{ animationDelay: '600ms' }}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Transactions</CardTitle>
-                            <Receipt className="h-4 w-4 text-purple-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-purple-600">{financialSummary.transactionCount}</div>
-                            <p className="text-xs text-muted-foreground">This month</p>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Charts Section */}
-                <div className="space-y-6">
-                    {/* Bar Charts */}
-                    <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
-                        {/* Monthly Chart */}
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                        {/* Net Balance Card */}
                         <Card
-                            className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-                            style={{ animationDelay: '700ms' }}
+                            className={`border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                            style={{ animationDelay: '100ms' }}
                         >
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <BarChart3 className="h-5 w-5" />
-                                    Monthly Analytics
-                                </CardTitle>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-purple-800">Net Balance</CardTitle>
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-200">
+                                    <Wallet className="h-4 w-4 text-purple-700" />
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="h-80 w-full">
-                                    <Chart type="bar" data={mockChartData.monthly} options={chartOptions} />
+                                <div className="text-2xl font-bold text-purple-800">
+                                    {primarySymbol} {formatCurrency(financialSummary.balance, primaryCurrency)}
                                 </div>
+                                <div className="space-y-1 text-sm text-purple-600">
+                                    <div>
+                                        {secondarySymbol}{' '}
+                                        {formatCurrency(
+                                            currentSummary?.secondary_amounts
+                                                ? currentSummary.secondary_amounts.total_income +
+                                                      currentSummary.secondary_amounts.total_receivables -
+                                                      (currentSummary.secondary_amounts.total_expenses +
+                                                          currentSummary.secondary_amounts.total_payables)
+                                                : convertAmount(financialSummary.balance, secondaryCurrency),
+                                            secondaryCurrency,
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="mt-1 text-xs text-purple-600">
+                                    {changes?.balance_change
+                                        ? changes.balance_change >= 0
+                                            ? `+${changes.balance_change.toFixed(1)}%`
+                                            : `${changes.balance_change.toFixed(1)}%`
+                                        : 'Current balance'}{' '}
+                                    from last month
+                                </p>
                             </CardContent>
                         </Card>
 
-                        {/* Yearly Chart */}
+                        {/* Income Card */}
                         <Card
-                            className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-                            style={{ animationDelay: '800ms' }}
+                            className={`border-green-200 bg-gradient-to-br from-green-50 to-green-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                            style={{ animationDelay: '200ms' }}
                         >
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <BarChart3 className="h-5 w-5" />
-                                    Yearly Analytics
-                                </CardTitle>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-green-800">Income</CardTitle>
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-200">
+                                    <TrendingUp className="h-4 w-4 text-green-700" />
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="h-80 w-full">
-                                    <Chart type="bar" data={mockChartData.yearly} options={chartOptions} />
+                                <div className="text-2xl font-bold text-green-800">
+                                    {primarySymbol} {formatCurrency(financialSummary.totalIncome, primaryCurrency)}
                                 </div>
+                                <div className="space-y-1 text-sm text-green-600">
+                                    <div>
+                                        {secondarySymbol}{' '}
+                                        {formatCurrency(
+                                            currentSummary?.secondary_amounts?.total_income ||
+                                                convertAmount(financialSummary.totalIncome, secondaryCurrency),
+                                            secondaryCurrency,
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="mt-1 text-xs text-green-600">
+                                    {changes?.income_change
+                                        ? changes.income_change >= 0
+                                            ? `+${changes.income_change.toFixed(1)}%`
+                                            : `${changes.income_change.toFixed(1)}%`
+                                        : 'Total income'}{' '}
+                                    from last month
+                                </p>
                             </CardContent>
                         </Card>
 
-                        {/* Total Chart */}
+                        {/* Expenses Card */}
                         <Card
-                            className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-                            style={{ animationDelay: '900ms' }}
+                            className={`border-red-200 bg-gradient-to-br from-red-50 to-red-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                            style={{ animationDelay: '300ms' }}
                         >
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <BarChart3 className="h-5 w-5" />
-                                    Total Analytics
-                                </CardTitle>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-red-800">Expenses</CardTitle>
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-200">
+                                    <TrendingDown className="h-4 w-4 text-red-700" />
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="h-80 w-full">
-                                    <Chart type="bar" data={mockChartData.total} options={chartOptions} />
+                                <div className="text-2xl font-bold text-red-800">
+                                    {primarySymbol} {formatCurrency(financialSummary.totalExpense, primaryCurrency)}
                                 </div>
+                                <div className="space-y-1 text-sm text-red-600">
+                                    <div>
+                                        {secondarySymbol}{' '}
+                                        {formatCurrency(
+                                            currentSummary?.secondary_amounts?.total_expenses ||
+                                                convertAmount(financialSummary.totalExpense, secondaryCurrency),
+                                            secondaryCurrency,
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="mt-1 text-xs text-red-600">
+                                    {changes?.expense_change
+                                        ? changes.expense_change >= 0
+                                            ? `+${changes.expense_change.toFixed(1)}%`
+                                            : `${changes.expense_change.toFixed(1)}%`
+                                        : 'Total expenses'}{' '}
+                                    from last month
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                        {/* Payable Card */}
+                        <Card
+                            className={`border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                            style={{ animationDelay: '400ms' }}
+                        >
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-orange-800">Payable</CardTitle>
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-200">
+                                    <CreditCard className="h-4 w-4 text-orange-700" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-orange-800">
+                                    {primarySymbol} {formatCurrency(financialSummary.totalPayable, primaryCurrency)}
+                                </div>
+                                <div className="space-y-1 text-sm text-orange-600">
+                                    <div>
+                                        {secondarySymbol}{' '}
+                                        {formatCurrency(
+                                            currentSummary?.secondary_amounts?.total_payables ||
+                                                convertAmount(financialSummary.totalPayable, secondaryCurrency),
+                                            secondaryCurrency,
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="mt-1 text-xs text-orange-600">
+                                    {changes?.payables_change
+                                        ? changes.payables_change >= 0
+                                            ? `+${changes.payables_change.toFixed(1)}%`
+                                            : `${changes.payables_change.toFixed(1)}%`
+                                        : 'Total payables'}{' '}
+                                    from last month
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                        {/* Receivable Card */}
+                        <Card
+                            className={`border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                            style={{ animationDelay: '500ms' }}
+                        >
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-blue-800">Receivable</CardTitle>
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200">
+                                    <Banknote className="h-4 w-4 text-blue-700" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-blue-800">
+                                    {primarySymbol} {formatCurrency(financialSummary.totalReceivable, primaryCurrency)}
+                                </div>
+                                <div className="space-y-1 text-sm text-blue-600">
+                                    <div>
+                                        {secondarySymbol}{' '}
+                                        {formatCurrency(
+                                            currentSummary?.secondary_amounts?.total_receivables ||
+                                                convertAmount(financialSummary.totalReceivable, secondaryCurrency),
+                                            secondaryCurrency,
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="mt-1 text-xs text-blue-600">
+                                    {changes?.receivables_change
+                                        ? changes.receivables_change >= 0
+                                            ? `+${changes.receivables_change.toFixed(1)}%`
+                                            : `${changes.receivables_change.toFixed(1)}%`
+                                        : 'Total receivables'}{' '}
+                                    from last month
+                                </p>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
 
-                {/* Pie Charts Section */}
+                {/* Charts Section */}
                 <div className="space-y-6">
-                    <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
-                        {/* Monthly Pie Chart */}
-                        <Card
-                            className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-                            style={{ animationDelay: '1000ms' }}
-                        >
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <PieChart className="h-5 w-5" />
-                                    Monthly Distribution
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div
-                                    className="h-80 w-full"
-                                    style={{
-                                        perspective: '1000px',
-                                        transform: 'rotateX(15deg) rotateY(5deg)',
-                                        transformStyle: 'preserve-3d',
-                                    }}
-                                >
-                                    <Chart type="pie" data={mockPieChartData.monthly} options={pieChartOptions} />
-                                </div>
-                            </CardContent>
-                        </Card>
+                    {/* Bar Charts Row */}
+                    <div>
+                        <div className="mb-4">
+                            <h2 className="text-xl font-semibold tracking-tight">Analytics Overview</h2>
+                            <p className="text-sm text-muted-foreground">Transaction trends over time</p>
+                        </div>
+                        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+                            {/* Monthly Bar Chart */}
+                            <Card
+                                className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+                                style={{ animationDelay: '700ms' }}
+                            >
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <BarChart3 className="h-5 w-5" />
+                                        Last 6 Months Analytics
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="h-80 w-full">
+                                        {monthlyData ? (
+                                            <Chart type="bar" data={monthlyData} options={chartOptions} />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center text-muted-foreground">
+                                                <div className="text-center">
+                                                    <BarChart3 className="mx-auto h-12 w-12 opacity-20" />
+                                                    <p className="mt-2 text-sm">No transaction data available</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
 
-                        {/* Yearly Pie Chart */}
-                        <Card
-                            className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-                            style={{ animationDelay: '1100ms' }}
-                        >
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <PieChart className="h-5 w-5" />
-                                    Yearly Distribution
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div
-                                    className="h-80 w-full"
-                                    style={{
-                                        perspective: '1000px',
-                                        transform: 'rotateX(15deg) rotateY(5deg)',
-                                        transformStyle: 'preserve-3d',
-                                    }}
-                                >
-                                    <Chart type="pie" data={mockPieChartData.yearly} options={pieChartOptions} />
-                                </div>
-                            </CardContent>
-                        </Card>
+                            {/* Yearly Bar Chart */}
+                            <Card
+                                className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+                                style={{ animationDelay: '800ms' }}
+                            >
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <BarChart3 className="h-5 w-5" />
+                                        Last 5 Years Analytics
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="h-80 w-full">
+                                        {yearlyData ? (
+                                            <Chart type="bar" data={yearlyData} options={chartOptions} />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center text-muted-foreground">
+                                                <div className="text-center">
+                                                    <BarChart3 className="mx-auto h-12 w-12 opacity-20" />
+                                                    <p className="mt-2 text-sm">No yearly data available</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
 
-                        {/* Total Pie Chart */}
-                        <Card
-                            className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-                            style={{ animationDelay: '1200ms' }}
-                        >
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <PieChart className="h-5 w-5" />
-                                    Total Distribution
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div
-                                    className="h-80 w-full"
-                                    style={{
-                                        perspective: '1000px',
-                                        transform: 'rotateX(15deg) rotateY(5deg)',
-                                        transformStyle: 'preserve-3d',
-                                    }}
-                                >
-                                    <Chart type="pie" data={mockPieChartData.total} options={pieChartOptions} />
-                                </div>
-                            </CardContent>
-                        </Card>
+                    {/* Pie Charts Row */}
+                    <div>
+                        <div className="mb-4">
+                            <h2 className="text-xl font-semibold tracking-tight">Transaction Distribution</h2>
+                            <p className="text-sm text-muted-foreground">Breakdown by transaction types</p>
+                        </div>
+                        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+                            {/* Monthly Transaction Distribution */}
+                            <Card
+                                className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+                                style={{ animationDelay: '900ms' }}
+                            >
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <PieChart className="h-5 w-5" />
+                                        Monthly Distribution
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="h-80 w-full">
+                                        {categoryData ? (
+                                            <Chart type="pie" data={categoryData} options={pieChartOptions} />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center text-muted-foreground">
+                                                <div className="text-center">
+                                                    <PieChart className="mx-auto h-12 w-12 opacity-20" />
+                                                    <p className="mt-2 text-sm">No category data available</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Yearly Transaction Distribution */}
+                            <Card
+                                className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+                                style={{ animationDelay: '1000ms' }}
+                            >
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <PieChart className="h-5 w-5" />
+                                        Yearly Distribution
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="h-80 w-full">
+                                        {yearlyCategoryData ? (
+                                            <Chart type="pie" data={yearlyCategoryData} options={pieChartOptions} />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center text-muted-foreground">
+                                                <div className="text-center">
+                                                    <PieChart className="mx-auto h-12 w-12 opacity-20" />
+                                                    <p className="mt-2 text-sm">No yearly category data available</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </div>
             </div>

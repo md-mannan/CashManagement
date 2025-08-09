@@ -17,44 +17,46 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Ledger() {
-    const { auth, transactions, summary, filters } = usePage<SharedData & {
-        transactions: Array<{
-            id: number;
-            date: string;
-            description: string;
-            type: 'income' | 'expense' | 'receivable' | 'payable';
-            amount: number | string;
-            source: string;
-            category: {
-                name: string;
-                color: string;
+    const { auth, transactions, summary, filters } = usePage<
+        SharedData & {
+            transactions: Array<{
+                id: number;
+                date: string;
+                description: string;
+                type: 'income' | 'expense' | 'receivable' | 'payable';
+                amount: number | string;
+                source: string;
+                category: {
+                    name: string;
+                    color: string;
+                };
+                notes?: string;
+                currency: string;
+                status: string;
+                metadata?: {
+                    secondary_currency?: string;
+                    exchange_rate?: number;
+                    secondary_amount?: number;
+                    primary_currency?: string;
+                    primary_symbol?: string;
+                };
+            }>;
+            summary: {
+                total_income: number;
+                total_expenses: number;
+                total_receivables: number;
+                total_payables: number;
+                net_balance: number;
             };
-            notes?: string;
-            currency: string;
-            status: string;
-            metadata?: {
-                secondary_currency?: string;
-                exchange_rate?: number;
-                secondary_amount?: number;
-                primary_currency?: string;
-                primary_symbol?: string;
+            filters: {
+                type?: string;
+                start_date?: string;
+                end_date?: string;
+                search?: string;
+                category_id?: string;
             };
-        }>;
-        summary: {
-            total_income: number;
-            total_expenses: number;
-            total_receivables: number;
-            total_payables: number;
-            net_balance: number;
-        };
-        filters: {
-            type?: string;
-            start_date?: string;
-            end_date?: string;
-            search?: string;
-            category_id?: string;
-        };
-    }>().props;
+        }
+    >().props;
 
     // User's primary currency from settings
     const primaryCurrency = auth.user.primary_currency || 'USD';
@@ -63,33 +65,20 @@ export default function Ledger() {
     const secondarySymbol = auth.user.secondary_symbol || '€';
     const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
 
-    // Determine the third currency (EUR or KWD if not already selected)
-    const getThirdCurrency = () => {
-        if (primaryCurrency !== 'EUR' && secondaryCurrency !== 'EUR') {
-            return { code: 'EUR', symbol: '€', rate: 0.9 };
-        } else if (primaryCurrency !== 'KWD' && secondaryCurrency !== 'KWD') {
-            return { code: 'KWD', symbol: 'د.ك', rate: 3.25 };
-        } else {
-            return { code: 'USD', symbol: '$', rate: 1.0 };
-        }
-    };
-
-    const thirdCurrency = getThirdCurrency();
-
-    // Helper function to calculate converted amount
+    // Helper function to calculate converted amount (used for secondary currency conversion)
     const convertAmount = (amount: number, targetCurrency: string) => {
         if (targetCurrency === primaryCurrency) return amount;
         if (targetCurrency === secondaryCurrency) {
-            // Round to avoid floating point precision issues
-            return Math.round(amount * exchangeRate * 100) / 100;
-        }
-        if (targetCurrency === thirdCurrency.code) {
-            // Round to avoid floating point precision issues
-            return Math.round(amount * thirdCurrency.rate * 1000) / 1000;
+            // Convert from primary to secondary currency using user's exchange rate
+            const convertedAmount = amount / exchangeRate;
+            // Use appropriate decimal precision
+            if (secondaryCurrency === 'KWD') {
+                return Math.round(convertedAmount * 1000) / 1000; // 3 decimals for KWD
+            }
+            return Math.round(convertedAmount * 100) / 100; // 2 decimals for others
         }
         return amount;
     };
-
 
     // Date state for date-to-date export and filtering
     const [startDate, setStartDate] = useState<string>(filters?.start_date || '');
@@ -98,9 +87,7 @@ export default function Ledger() {
     // Calculate running balance and prepare ledger entries
     const prepareLedgerEntries = () => {
         // Sort transactions by date (oldest first for running balance calculation)
-        const sortedTransactions = [...transactions].sort((a, b) =>
-            new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
+        const sortedTransactions = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
         // Calculate opening balance (start with 0 for simplicity, but could be enhanced)
         let runningBalance = 0;
@@ -122,16 +109,14 @@ export default function Ledger() {
         }
 
         // Process each transaction
-        sortedTransactions.forEach(transaction => {
+        sortedTransactions.forEach((transaction) => {
             let debit = null;
             let credit = null;
 
             // Determine debit/credit based on transaction type
             // In accounting: Debit = money going out, Credit = money coming in
             // Convert amount to number to ensure proper arithmetic (not string concatenation)
-            const amount = typeof transaction.amount === 'string'
-                ? parseFloat(transaction.amount) || 0
-                : transaction.amount || 0;
+            const amount = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) || 0 : transaction.amount || 0;
 
             if (transaction.type === 'expense') {
                 debit = amount;
@@ -149,7 +134,7 @@ export default function Ledger() {
                 runningBalance += amount;
             }
 
-                        ledgerEntries.push({
+            ledgerEntries.push({
                 id: transaction.id,
                 date: transaction.date,
                 description: transaction.description,
@@ -175,11 +160,14 @@ export default function Ledger() {
         let originalReceivables = 0;
         let originalPayables = 0;
 
-        transactions.forEach(transaction => {
+        transactions.forEach((transaction) => {
             // Use original entered amount if available, otherwise use converted amount
-            const originalAmount = transaction.metadata?.secondary_currency && transaction.metadata?.secondary_amount
-                ? transaction.metadata.secondary_amount
-                : (typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : transaction.amount);
+            const originalAmount =
+                transaction.metadata?.secondary_currency && transaction.metadata?.secondary_amount
+                    ? transaction.metadata.secondary_amount
+                    : typeof transaction.amount === 'string'
+                      ? parseFloat(transaction.amount)
+                      : transaction.amount;
 
             switch (transaction.type) {
                 case 'income':
@@ -202,7 +190,7 @@ export default function Ledger() {
             total_expenses: originalExpenses,
             total_receivables: originalReceivables,
             total_payables: originalPayables,
-            net_balance: (originalIncome + originalReceivables) - (originalExpenses + originalPayables),
+            net_balance: originalIncome + originalReceivables - (originalExpenses + originalPayables),
         };
     };
 
@@ -221,7 +209,7 @@ export default function Ledger() {
         };
 
         // Handle different currencies with appropriate decimal places
-        if (currency === 'KWD' || currency === thirdCurrency.code && thirdCurrency.code === 'KWD') {
+        if (currency === 'KWD') {
             return formatNumber(roundedAmount, 3); // 3 decimal places for KWD
         }
         return formatNumber(roundedAmount, 2); // 2 decimal places for other currencies
@@ -230,7 +218,7 @@ export default function Ledger() {
     // Export functions
     const exportToCSV = () => {
         const headers = ['Date', 'Description', 'Source', 'Debit', 'Credit', 'Balance'];
-        const data = ledgerEntries.map(entry => [
+        const data = ledgerEntries.map((entry) => [
             new Date(entry.date).toLocaleDateString('en-GB', {
                 year: 'numeric',
                 month: '2-digit',
@@ -250,11 +238,13 @@ export default function Ledger() {
             ['TRANSACTION LEDGER REPORT'],
             [''],
             [dateRangeText],
-            [`Generated on: ${new Date().toLocaleDateString('en-GB', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-            })}`],
+            [
+                `Generated on: ${new Date().toLocaleDateString('en-GB', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                })}`,
+            ],
             ['Currency: ' + primaryCurrency],
             [''],
             headers,
@@ -272,7 +262,7 @@ export default function Ledger() {
         const workbook = XLSX.utils.book_new();
         const headers = ['Date', 'Description', 'Source', 'Debit', 'Credit', 'Balance'];
 
-        const data = ledgerEntries.map(entry => [
+        const data = ledgerEntries.map((entry) => [
             new Date(entry.date).toLocaleDateString('en-GB', {
                 year: 'numeric',
                 month: '2-digit',
@@ -376,9 +366,6 @@ export default function Ledger() {
                                         <div>
                                             {secondarySymbol} {formatCurrency(originalSummary.net_balance, secondaryCurrency)}
                                         </div>
-                                        <div>
-                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(summary.net_balance, thirdCurrency.code), thirdCurrency.code)}
-                                        </div>
                                     </div>
                                     <p className="mt-1 text-xs text-purple-600">Current balance</p>
                                 </CardContent>
@@ -399,9 +386,6 @@ export default function Ledger() {
                                     <div className="space-y-1 text-sm text-green-600">
                                         <div>
                                             {secondarySymbol} {formatCurrency(originalSummary.total_income, secondaryCurrency)}
-                                        </div>
-                                        <div>
-                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(summary.total_income, thirdCurrency.code), thirdCurrency.code)}
                                         </div>
                                     </div>
                                     <p className="mt-1 text-xs text-green-600">Total income</p>
@@ -424,9 +408,6 @@ export default function Ledger() {
                                         <div>
                                             {secondarySymbol} {formatCurrency(originalSummary.total_expenses, secondaryCurrency)}
                                         </div>
-                                        <div>
-                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(summary.total_expenses, thirdCurrency.code), thirdCurrency.code)}
-                                        </div>
                                     </div>
                                     <p className="mt-1 text-xs text-red-600">Total expenses</p>
                                 </CardContent>
@@ -448,9 +429,6 @@ export default function Ledger() {
                                         <div>
                                             {secondarySymbol} {formatCurrency(originalSummary.total_payables, secondaryCurrency)}
                                         </div>
-                                        <div>
-                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(summary.total_payables, thirdCurrency.code), thirdCurrency.code)}
-                                        </div>
                                     </div>
                                     <p className="mt-1 text-xs text-orange-600">Total payables</p>
                                 </CardContent>
@@ -471,9 +449,6 @@ export default function Ledger() {
                                     <div className="space-y-1 text-sm text-blue-600">
                                         <div>
                                             {secondarySymbol} {formatCurrency(originalSummary.total_receivables, secondaryCurrency)}
-                                        </div>
-                                        <div>
-                                            {thirdCurrency.symbol} {formatCurrency(convertAmount(summary.total_receivables, thirdCurrency.code), thirdCurrency.code)}
                                         </div>
                                     </div>
                                     <p className="mt-1 text-xs text-blue-600">Total receivables</p>
@@ -577,7 +552,7 @@ export default function Ledger() {
                                                             month: '2-digit',
                                                             day: '2-digit',
                                                         })}
-                                                </td>
+                                                    </td>
                                                     <td className="px-4 py-3 text-sm print:text-base">{entry.description}</td>
                                                     <td className="px-4 py-3 text-sm print:text-base">{entry.source}</td>
                                                     <td className="px-4 py-3 text-right text-sm print:text-base">
@@ -585,19 +560,23 @@ export default function Ledger() {
                                                             <span className="text-red-600">
                                                                 {primarySymbol} {formatCurrency(entry.debit, primaryCurrency)}
                                                             </span>
-                                                        ) : '-'}
-                                                </td>
+                                                        ) : (
+                                                            '-'
+                                                        )}
+                                                    </td>
                                                     <td className="px-4 py-3 text-right text-sm print:text-base">
                                                         {entry.credit ? (
                                                             <span className="text-green-600">
                                                                 {primarySymbol} {formatCurrency(entry.credit, primaryCurrency)}
                                                             </span>
-                                                        ) : '-'}
-                                                </td>
-                                                <td className="px-4 py-3 text-right text-sm font-semibold print:text-base print:font-bold">
+                                                        ) : (
+                                                            '-'
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right text-sm font-semibold print:text-base print:font-bold">
                                                         {primarySymbol} {formatCurrency(entry.balance, primaryCurrency)}
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                </tr>
                                             ))}
                                         </tbody>
                                     </table>

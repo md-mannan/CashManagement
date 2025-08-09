@@ -35,30 +35,32 @@ const currencies = [
 ];
 
 export default function TransactionView() {
-    const { auth, transaction } = usePage<SharedData & {
-        transaction: {
-            id: number;
-            date: string;
-            description: string;
-            type: 'income' | 'expense' | 'receivable' | 'payable';
-            amount: number;
-            source: string;
-            category: {
-                name: string;
-                color: string;
+    const { auth, transaction } = usePage<
+        SharedData & {
+            transaction: {
+                id: number;
+                date: string;
+                description: string;
+                type: 'income' | 'expense' | 'receivable' | 'payable';
+                amount: number;
+                source: string;
+                category: {
+                    name: string;
+                    color: string;
+                };
+                notes?: string;
+                currency: string;
+                status: string;
+                metadata?: {
+                    secondary_currency?: string;
+                    exchange_rate?: number;
+                    secondary_amount?: number;
+                    primary_currency?: string;
+                    primary_symbol?: string;
+                };
             };
-            notes?: string;
-            currency: string;
-            status: string;
-            metadata?: {
-                secondary_currency?: string;
-                exchange_rate?: number;
-                secondary_amount?: number;
-                primary_currency?: string;
-                primary_symbol?: string;
-            };
-        };
-    }>().props;
+        }
+    >().props;
 
     if (!transaction) {
         return (
@@ -84,25 +86,6 @@ export default function TransactionView() {
     const primaryCurrency = auth.user.primary_currency || 'USD';
     const primarySymbol = auth.user.primary_symbol || '$';
 
-
-    // Determine a display currency different from primary
-    const getThirdCurrency = () => {
-        switch (primaryCurrency) {
-            case 'EUR':
-                return { code: 'KWD', symbol: 'د.ك', rate: 3.25 };
-            case 'KWD':
-                return { code: 'EUR', symbol: '€', rate: 0.9 };
-            case 'BDT':
-                return { code: 'USD', symbol: '$', rate: 1.0 };
-            default:
-                return { code: 'EUR', symbol: '€', rate: 0.9 };
-        }
-    };
-
-    const thirdCurrency = getThirdCurrency();
-
-
-
     // Format currency
     const formatCurrency = (amount: number, currency: string = primaryCurrency) => {
         // Round the amount first to avoid floating point precision issues
@@ -116,7 +99,7 @@ export default function TransactionView() {
         };
 
         // Handle different currencies with appropriate decimal places
-        if (currency === 'KWD' || currency === thirdCurrency.code && thirdCurrency.code === 'KWD') {
+        if (currency === 'KWD') {
             return formatNumber(roundedAmount, 3); // 3 decimal places for KWD
         }
         return formatNumber(roundedAmount, 2); // 2 decimal places for other currencies
@@ -278,7 +261,10 @@ export default function TransactionView() {
                                         <div className="mb-1 text-2xl font-bold text-blue-600">
                                             {currencies.find((c) => c.code === transaction.metadata?.secondary_currency)?.symbol ||
                                                 transaction.metadata?.secondary_currency}{' '}
-                                            {formatCurrency(transaction.metadata?.secondary_amount || 0, transaction.metadata?.secondary_currency || 'USD')}
+                                            {formatCurrency(
+                                                transaction.metadata?.secondary_amount || 0,
+                                                transaction.metadata?.secondary_currency || 'USD',
+                                            )}
                                         </div>
                                         <div className="text-xs text-muted-foreground">{transaction.metadata?.secondary_currency}</div>
                                     </div>

@@ -30,6 +30,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
         post(route('login'), {
             onFinish: () => reset('password'),
         });
@@ -84,7 +85,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             id="remember"
                             name="remember"
                             checked={data.remember}
-                            onClick={() => setData('remember', !data.remember)}
+                            onCheckedChange={(checked) => setData('remember', !!checked)}
                             tabIndex={3}
                         />
                         <Label htmlFor="remember">Remember me</Label>
