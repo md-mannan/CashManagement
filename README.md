@@ -5,6 +5,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 ## 🚀 Features
 
 ### 💰 Dual Currency System
+
 - **Multi-Currency Support**: Handle transactions in multiple currencies (USD, EUR, KWD, BDT, AED, SAR, QAR, BHD, OMR, JOD, LBP, EGP)
 - **Real-Time Exchange Rates**: Automatic fetching of live exchange rates with fallback mechanisms
 - **Bidirectional Conversion**: Convert between primary and secondary currencies seamlessly
@@ -12,6 +13,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 - **Currency Settings**: User-configurable primary and secondary currency preferences
 
 ### 📊 Transaction Management
+
 - **Complete CRUD Operations**: Create, read, update, and delete transactions with instant feedback
 - **Multiple Transaction Types**: Income, Expense, Receivable, and Payable
 - **Dual Currency Recording**: Store both primary and secondary amounts with exchange rates
@@ -23,6 +25,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 - **Precise Amount Handling**: Exact amount preservation without floating-point conversion errors
 
 ### 📈 Dashboard & Analytics
+
 - **Interactive Charts**: Bar and pie charts with Chart.js integration
 - **Multiple Time Periods**: Monthly, yearly, and total analytics
 - **3D Pie Charts**: Visually appealing 3D-styled pie charts
@@ -31,6 +34,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 - **Responsive Design**: Mobile-friendly dashboard layout
 
 ### ⚙️ Settings & Configuration
+
 - **Currency Management**: Set primary and secondary currencies
 - **Exchange Rate Configuration**: Manual and automatic rate updates
 - **User Preferences**: Customizable currency symbols and formats
@@ -40,6 +44,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 ## 🛠️ Tech Stack
 
 ### Backend
+
 - **Laravel 11**: PHP framework for robust backend API
 - **MySQL**: Database for data persistence
 - **Eloquent ORM**: Database relationships and queries
@@ -47,6 +52,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 - **Inertia.js**: Server-side rendering with SPA experience
 
 ### Frontend
+
 - **React 18**: Modern UI library
 - **TypeScript**: Type-safe JavaScript development
 - **Tailwind CSS**: Utility-first CSS framework
@@ -56,6 +62,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 - **Lucide React**: Beautiful icon library
 
 ### Development Tools
+
 - **Vite**: Fast build tool and development server
 - **ESLint**: Code linting and formatting
 - **Prettier**: Code formatting
@@ -65,6 +72,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 ## 📦 Installation
 
 ### Prerequisites
+
 - PHP 8.2 or higher
 - Node.js 18 or higher
 - Composer
@@ -73,55 +81,63 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 ### Setup Instructions
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd PersonalAcc
-   ```
+
+    ```bash
+    git clone <repository-url>
+    cd PersonalAcc
+    ```
 
 2. **Install PHP dependencies**
-   ```bash
-   composer install
-   ```
+
+    ```bash
+    composer install
+    ```
 
 3. **Install Node.js dependencies**
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 4. **Environment Configuration**
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
+
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
 
 5. **Database Setup**
-   ```bash
-   # Configure database credentials in .env
-   php artisan migrate
-   php artisan db:seed
-   ```
+
+    ```bash
+    # Configure database credentials in .env
+    php artisan migrate
+    php artisan db:seed
+    ```
 
 6. **Build Assets**
-   ```bash
-   npm run build
-   # or for development
-   npm run dev
-   ```
+
+    ```bash
+    npm run build
+    # or for development
+    npm run dev
+    ```
 
 7. **Start the Application**
-   ```bash
-   php artisan serve
-   ```
+    ```bash
+    php artisan serve
+    ```
 
 ## 🎯 Usage
 
 ### Getting Started
+
 1. **Register/Login**: Create an account or login to access the system
 2. **Configure Currency**: Go to Settings > Currency to set your preferred currencies
 3. **Add Transactions**: Start adding your income, expenses, receivables, and payables
 4. **View Analytics**: Check the dashboard for insights into your financial data
 
 ### Currency Configuration
+
 1. Navigate to **Settings > Currency**
 2. Select your **Primary Currency** (main accounting currency)
 3. Choose a **Secondary Currency** (for dual currency transactions)
@@ -129,6 +145,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 5. Preview how amounts will be displayed
 
 ### Adding Transactions
+
 1. Click **Add Transaction** from the navigation or dashboard
 2. Select transaction type (Income/Expense/Receivable/Payable)
 3. Enter the amount in either primary or secondary currency
@@ -137,6 +154,7 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 6. Save the transaction
 
 ### Managing Transactions
+
 - **View**: Click the eye icon to see detailed transaction information
 - **Edit**: Click the edit icon to modify transaction details
 - **Delete**: Click the delete icon and confirm to remove transactions
@@ -146,18 +164,20 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 ## 🔔 Toast Notification System
 
 ### Features
+
 - **Centered Display**: Notifications appear in the center of the screen for maximum visibility
 - **Sound Effects**: Different audio tones for each notification type:
-  - **Success**: Pleasant chord progression (C5, E5, G5)
-  - **Error**: Warning tones (A3, G3) 
-  - **Warning**: Alert tones (A4, C5)
-  - **Info**: Simple notification tone (C5)
+    - **Success**: Pleasant chord progression (C5, E5, G5)
+    - **Error**: Warning tones (A3, G3)
+    - **Warning**: Alert tones (A4, C5)
+    - **Info**: Simple notification tone (C5)
 - **Auto-dismiss**: Notifications automatically fade out after 3 seconds
 - **Manual Close**: Users can close notifications manually with the X button
 - **Smooth Animations**: Fade in/out with scale and translate effects
 - **Color-coded**: Each notification type has distinct visual styling
 
 ### Notification Types
+
 - ✅ **Success**: Transaction saved, updated, or deleted successfully
 - ❌ **Error**: Operation failed with helpful error messages
 - ⚠️ **Warning**: Important alerts and warnings
@@ -166,14 +186,18 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 ## 🔧 Configuration
 
 ### Currency Settings
+
 Configure supported currencies in the currency settings page:
+
 - **Primary Currency**: Your main accounting currency
 - **Secondary Currency**: Alternative currency for transactions
 - **Exchange Rate**: Manual or automatic rate fetching
 - **Decimal Places**: Automatic formatting (KWD: 3, Others: 2)
 
 ### Exchange Rate Service
+
 The system includes a built-in exchange rate service with:
+
 - **Hardcoded Rate Matrix**: Reliable fallback rates
 - **Real-Time Fetching**: Live rates from external APIs
 - **Caching Mechanism**: Efficient rate storage and retrieval
@@ -182,6 +206,7 @@ The system includes a built-in exchange rate service with:
 ## 🎨 UI Components
 
 ### Custom Components
+
 - **Beautiful Modals**: Animated confirmation dialogs
 - **Currency Inputs**: Smart currency input fields with proper formatting
 - **Interactive Charts**: Responsive charts with animations
@@ -191,6 +216,7 @@ The system includes a built-in exchange rate service with:
 - **Loading States**: Smooth loading animations during form initialization
 
 ### Design System
+
 - **Consistent Styling**: Unified design language throughout
 - **Responsive Design**: Mobile-first approach
 - **Accessibility**: WCAG compliant components
@@ -199,6 +225,7 @@ The system includes a built-in exchange rate service with:
 ## 📱 Mobile Support
 
 The application is fully responsive and optimized for:
+
 - **Mobile Phones**: Touch-friendly interface
 - **Tablets**: Optimized layout for medium screens
 - **Desktop**: Full-featured experience
@@ -214,6 +241,7 @@ The application is fully responsive and optimized for:
 ## 🧪 Testing
 
 ### Running Tests
+
 ```bash
 # PHP Tests
 php artisan test
@@ -225,6 +253,7 @@ npm test
 ```
 
 ### Test Coverage
+
 - **Feature Tests**: End-to-end functionality testing
 - **Unit Tests**: Individual component testing
 - **Browser Tests**: UI interaction testing
@@ -232,6 +261,7 @@ npm test
 ## 📈 Performance
 
 ### Optimization Features
+
 - **Lazy Loading**: Components loaded on demand
 - **Code Splitting**: Optimized bundle sizes
 - **Caching**: Efficient data caching strategies
@@ -246,6 +276,7 @@ npm test
 5. Open a Pull Request
 
 ### Development Guidelines
+
 - Follow PSR-12 coding standards for PHP
 - Use TypeScript for all frontend code
 - Write tests for new features
@@ -258,6 +289,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 If you encounter any issues or need help:
+
 1. Check the [Issues](../../issues) page
 2. Create a new issue with detailed information
 3. Include steps to reproduce the problem
