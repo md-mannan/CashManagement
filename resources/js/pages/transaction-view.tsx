@@ -16,142 +16,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Mock transaction data - replace with actual data from your backend
-const mockTransactions = [
-    {
-        id: 1,
-        date: '2024-01-15',
-        description: 'Salary Payment',
-        type: 'income',
-        amount: 3750.0,
-        source: 'Company Inc.',
-        category: 'Salary',
-        notes: 'Monthly salary payment for January 2024',
-        secondaryCurrency: 'KWD',
-        exchangeRate: 3.25,
-        secondaryAmount: 1153.846, // 3750 / 3.25
-    },
-    {
-        id: 2,
-        date: '2024-01-08',
-        description: 'Grocery Shopping',
-        type: 'expense',
-        amount: 450.0,
-        source: 'Local Supermarket',
-        category: 'Food & Dining',
-        notes: 'Weekly grocery shopping for household items',
-        secondaryCurrency: 'BDT',
-        exchangeRate: 122.3,
-        secondaryAmount: 55035.0, // 450 * 122.3
-    },
-    {
-        id: 3,
-        date: '2024-01-12',
-        description: 'Freelance Project',
-        type: 'income',
-        amount: 1200.0,
-        source: 'Client XYZ',
-        category: 'Freelance',
-        notes: 'Web development project for client XYZ',
-        secondaryCurrency: 'KWD',
-        exchangeRate: 3.25,
-        secondaryAmount: 369.231, // 1200 / 3.25
-    },
-    {
-        id: 4,
-        date: '2024-01-15',
-        description: 'Utility Bills',
-        type: 'expense',
-        amount: 180.0,
-        source: 'Electricity Co.',
-        category: 'Utilities',
-        notes: 'Monthly electricity bill payment',
-    },
-    {
-        id: 5,
-        date: '2024-01-18',
-        description: 'Investment Dividend',
-        type: 'income',
-        amount: 500.0,
-        source: 'Investment Bank',
-        category: 'Investment',
-        notes: 'Quarterly dividend from investment portfolio',
-    },
-    {
-        id: 6,
-        date: '2024-01-22',
-        description: 'Restaurant Dinner',
-        type: 'expense',
-        amount: 120.0,
-        source: 'Fine Dining',
-        category: 'Food & Dining',
-        notes: 'Dinner at fine dining restaurant',
-    },
-    {
-        id: 7,
-        date: '2024-01-25',
-        description: 'Client Payment Due',
-        type: 'receivable',
-        amount: 2500.0,
-        source: 'Client ABC',
-        category: 'Client Payment',
-        notes: 'Payment due from client for completed project',
-    },
-    {
-        id: 8,
-        date: '2024-01-28',
-        description: 'Loan Repayment',
-        type: 'receivable',
-        amount: 800.0,
-        source: 'Friend Loan',
-        category: 'Loan Repayment',
-        notes: 'Loan repayment from friend',
-    },
-    {
-        id: 9,
-        date: '2024-01-30',
-        description: 'Credit Card Bill',
-        type: 'payable',
-        amount: 350.0,
-        source: 'Bank Credit Card',
-        category: 'Credit Card',
-        notes: 'Monthly credit card bill payment',
-    },
-    {
-        id: 10,
-        date: '2024-02-01',
-        description: 'Rent Payment',
-        type: 'payable',
-        amount: 1200.0,
-        source: 'Landlord',
-        category: 'Rent',
-        notes: 'Monthly rent payment to landlord',
-    },
-    {
-        id: 11,
-        date: '2024-02-03',
-        description: 'Rental Income',
-        type: 'receivable',
-        amount: 1500.0,
-        source: 'Tenant',
-        category: 'Rental Payment',
-        notes: 'Rental income from property',
-    },
-    {
-        id: 12,
-        date: '2024-02-05',
-        description: 'Tax Payment',
-        type: 'payable',
-        amount: 750.0,
-        source: 'Tax Authority',
-        category: 'Taxes',
-        notes: 'Quarterly tax payment',
-    },
-];
-
-interface TransactionViewProps {
-    id: string;
-}
+// Real transaction data comes from backend via Inertia props
 
 // Available currencies for displaying symbols
 const currencies = [
@@ -169,11 +34,31 @@ const currencies = [
     { code: 'EGP', name: 'Egyptian Pound', symbol: 'ج.م' },
 ];
 
-export default function TransactionView({ id }: TransactionViewProps) {
-    const { auth } = usePage<SharedData>().props;
-
-    // Find the transaction by ID
-    const transaction = mockTransactions.find((t) => t.id === parseInt(id));
+export default function TransactionView() {
+    const { auth, transaction } = usePage<SharedData & {
+        transaction: {
+            id: number;
+            date: string;
+            description: string;
+            type: 'income' | 'expense' | 'receivable' | 'payable';
+            amount: number;
+            source: string;
+            category: {
+                name: string;
+                color: string;
+            };
+            notes?: string;
+            currency: string;
+            status: string;
+            metadata?: {
+                secondary_currency?: string;
+                exchange_rate?: number;
+                secondary_amount?: number;
+                primary_currency?: string;
+                primary_symbol?: string;
+            };
+        };
+    }>().props;
 
     if (!transaction) {
         return (
@@ -198,33 +83,31 @@ export default function TransactionView({ id }: TransactionViewProps) {
     // User's primary currency from settings
     const primaryCurrency = auth.user.primary_currency || 'USD';
     const primarySymbol = auth.user.primary_symbol || '$';
-    const secondaryCurrency = auth.user.secondary_currency || 'EUR';
-    const secondarySymbol = auth.user.secondary_symbol || '€';
-    const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
 
-    // Determine the third currency (EUR or KWD if not already selected)
+
+    // Determine a display currency different from primary
     const getThirdCurrency = () => {
-        if (primaryCurrency !== 'EUR' && secondaryCurrency !== 'EUR') {
-            return { code: 'EUR', symbol: '€', rate: 0.9 };
-        } else if (primaryCurrency !== 'KWD' && secondaryCurrency !== 'KWD') {
-            return { code: 'KWD', symbol: 'د.ك', rate: 3.25 };
-        } else {
-            return { code: 'USD', symbol: '$', rate: 1.0 };
+        switch (primaryCurrency) {
+            case 'EUR':
+                return { code: 'KWD', symbol: 'د.ك', rate: 3.25 };
+            case 'KWD':
+                return { code: 'EUR', symbol: '€', rate: 0.9 };
+            case 'BDT':
+                return { code: 'USD', symbol: '$', rate: 1.0 };
+            default:
+                return { code: 'EUR', symbol: '€', rate: 0.9 };
         }
     };
 
     const thirdCurrency = getThirdCurrency();
 
-    // Helper function to calculate converted amount
-    const convertAmount = (amount: number, targetCurrency: string) => {
-        if (targetCurrency === primaryCurrency) return amount;
-        if (targetCurrency === secondaryCurrency) return amount * exchangeRate;
-        if (targetCurrency === thirdCurrency.code) return amount * thirdCurrency.rate;
-        return amount;
-    };
+
 
     // Format currency
     const formatCurrency = (amount: number, currency: string = primaryCurrency) => {
+        // Round the amount first to avoid floating point precision issues
+        const roundedAmount = Math.round(amount * 1000) / 1000;
+
         const formatNumber = (num: number, decimals: number) => {
             return num.toLocaleString('en-US', {
                 minimumFractionDigits: decimals,
@@ -232,18 +115,19 @@ export default function TransactionView({ id }: TransactionViewProps) {
             });
         };
 
-        if (currency === 'KWD') {
-            return formatNumber(amount, 3); // 3 decimal places for KWD
+        // Handle different currencies with appropriate decimal places
+        if (currency === 'KWD' || currency === thirdCurrency.code && thirdCurrency.code === 'KWD') {
+            return formatNumber(roundedAmount, 3); // 3 decimal places for KWD
         }
-        return formatNumber(amount, 2); // 2 decimal places for other currencies
+        return formatNumber(roundedAmount, 2); // 2 decimal places for other currencies
     };
 
     // Format date
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleDateString('en-GB', {
             year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
         });
     };
 
@@ -263,12 +147,12 @@ export default function TransactionView({ id }: TransactionViewProps) {
     };
 
     const handleEdit = () => {
-        router.visit(`/transaction/${id}/edit`);
+        router.visit(`/transaction/${transaction.id}/edit`);
     };
 
     const handleDelete = () => {
         if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
-            router.delete(`/transaction/${id}`, {
+            router.delete(`/transaction/${transaction.id}`, {
                 onSuccess: () => {
                     router.visit('/transaction');
                 },
@@ -362,7 +246,7 @@ export default function TransactionView({ id }: TransactionViewProps) {
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground">Category</label>
-                                <p className="text-lg font-semibold">{transaction.category}</p>
+                                <p className="text-lg font-semibold">{transaction.category.name}</p>
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground">Notes</label>
@@ -372,7 +256,7 @@ export default function TransactionView({ id }: TransactionViewProps) {
                     </Card>
 
                     {/* Dual Currency Information */}
-                    {transaction.secondaryCurrency && (
+                    {transaction.metadata?.secondary_currency && (
                         <Card>
                             <CardHeader>
                                 <CardTitle>Recorded Currency Information</CardTitle>
@@ -392,11 +276,11 @@ export default function TransactionView({ id }: TransactionViewProps) {
                                     <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-center">
                                         <div className="mb-2 text-sm font-medium text-muted-foreground">Secondary Amount</div>
                                         <div className="mb-1 text-2xl font-bold text-blue-600">
-                                            {currencies.find((c) => c.code === transaction.secondaryCurrency)?.symbol ||
-                                                transaction.secondaryCurrency}{' '}
-                                            {formatCurrency(transaction.secondaryAmount, transaction.secondaryCurrency)}
+                                            {currencies.find((c) => c.code === transaction.metadata?.secondary_currency)?.symbol ||
+                                                transaction.metadata?.secondary_currency}{' '}
+                                            {formatCurrency(transaction.metadata?.secondary_amount || 0, transaction.metadata?.secondary_currency || 'USD')}
                                         </div>
-                                        <div className="text-xs text-muted-foreground">{transaction.secondaryCurrency}</div>
+                                        <div className="text-xs text-muted-foreground">{transaction.metadata?.secondary_currency}</div>
                                     </div>
                                 </div>
 
@@ -405,7 +289,7 @@ export default function TransactionView({ id }: TransactionViewProps) {
                                     <div className="text-center">
                                         <div className="mb-2 text-sm font-medium text-muted-foreground">Exchange Rate Used</div>
                                         <div className="text-lg font-semibold text-gray-700">
-                                            1 {transaction.secondaryCurrency} = {transaction.exchangeRate} {primaryCurrency}
+                                            1 {transaction.metadata?.secondary_currency} = {transaction.metadata?.exchange_rate} {primaryCurrency}
                                         </div>
                                     </div>
                                 </div>

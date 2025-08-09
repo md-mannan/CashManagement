@@ -1,7 +1,8 @@
+import { getExchangeRateForTransaction } from '@/services/exchangeRateService';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useCallback, useEffect, useState } from 'react';
 
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
@@ -11,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { RefreshCw } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -61,15 +63,25 @@ const currencies = [
 ];
 
 export default function Currency() {
-    const { auth } = usePage<SharedData>().props;
+    const { user_preferences } = usePage<SharedData & {
+        user_preferences: {
+            primary_currency: string;
+            secondary_currency: string;
+            primary_symbol: string;
+            secondary_symbol: string;
+            exchange_rate: string;
+        };
+    }>().props;
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<CurrencyForm>>({
-        primary_currency: auth.user.primary_currency || 'USD',
-        secondary_currency: auth.user.secondary_currency || 'EUR',
-        primary_symbol: auth.user.primary_symbol || '$',
-        secondary_symbol: auth.user.secondary_symbol || '€',
-        exchange_rate: auth.user.exchange_rate || '1.0',
+        primary_currency: user_preferences.primary_currency || 'USD',
+        secondary_currency: user_preferences.secondary_currency || 'EUR',
+        primary_symbol: user_preferences.primary_symbol || '$',
+        secondary_symbol: user_preferences.secondary_symbol || '€',
+        exchange_rate: user_preferences.exchange_rate || '1.0',
     });
+
+    const [isLoadingRate, setIsLoadingRate] = useState(false);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -85,6 +97,8 @@ export default function Currency() {
         if (currency) {
             setData('primary_symbol', currency.symbol);
         }
+        // Fetch live exchange rate when currency changes
+        fetchLiveExchangeRate(data.secondary_currency, value);
     };
 
     const handleSecondaryCurrencyChange = (value: string) => {
@@ -93,7 +107,34 @@ export default function Currency() {
         if (currency) {
             setData('secondary_symbol', currency.symbol);
         }
+        // Fetch live exchange rate when currency changes
+        fetchLiveExchangeRate(value, data.primary_currency);
     };
+
+    const fetchLiveExchangeRate = useCallback(async (from: string, to: string) => {
+        if (!from || !to || from === to) return;
+
+        setIsLoadingRate(true);
+        try {
+            console.log(`Fetching rate FROM: ${from} TO: ${to}`);
+            // Use your existing exchange rate service
+            const rate = await getExchangeRateForTransaction(from, to);
+            console.log(`Fetched rate: 1 ${from} = ${rate} ${to}`);
+
+            setData('exchange_rate', rate.toFixed(4));
+        } catch (error) {
+            console.error('Failed to fetch live exchange rate:', error);
+        } finally {
+            setIsLoadingRate(false);
+        }
+    }, [setData]);
+
+    // Auto-fetch exchange rate when both currencies are selected
+    useEffect(() => {
+        if (data.primary_currency && data.secondary_currency && data.primary_currency !== data.secondary_currency) {
+            fetchLiveExchangeRate(data.secondary_currency, data.primary_currency);
+        }
+    }, [data.primary_currency, data.secondary_currency, fetchLiveExchangeRate]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -177,9 +218,31 @@ export default function Currency() {
 
                         {/* Exchange Rate */}
                         <div className="space-y-2">
-                            <Label htmlFor="exchange_rate">
-                                Exchange Rate (1 {data.primary_currency} = ? {data.secondary_currency})
-                            </Label>
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="exchange_rate" className="flex items-center gap-2">
+                                    Exchange Rate (1 {data.secondary_currency} = ? {data.primary_currency})
+                                    <span className="text-xs text-green-600 font-medium">📈</span>
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                    {isLoadingRate && (
+                                        <div className="flex items-center gap-1 text-xs text-blue-600">
+                                            <RefreshCw className="h-3 w-3 animate-spin" />
+                                            <span>Fetching...</span>
+                                        </div>
+                                    )}
+                                    {data.secondary_currency && data.primary_currency && (
+                                        <button
+                                            type="button"
+                                            onClick={() => fetchLiveExchangeRate(data.secondary_currency, data.primary_currency)}
+                                            disabled={isLoadingRate}
+                                            className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400"
+                                            title="Refresh exchange rate"
+                                        >
+                                            <RefreshCw className="h-3 w-3" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                             <Input
                                 id="exchange_rate"
                                 type="number"
@@ -190,32 +253,12 @@ export default function Currency() {
                                 onChange={(e) => setData('exchange_rate', e.target.value)}
                                 required
                                 placeholder="1.0"
+                                disabled={isLoadingRate}
                             />
                             <p className="text-sm text-muted-foreground">
-                                Set the current exchange rate between your primary and secondary currencies
+                                Set the current exchange rate between your currencies
                             </p>
                             <InputError className="mt-2" message={errors.exchange_rate} />
-                        </div>
-
-                        {/* Currency Preview */}
-                        <div className="rounded-lg border bg-muted/50 p-4">
-                            <h4 className="mb-3 font-medium">Currency Preview</h4>
-                            <div className="grid gap-3 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium">Primary Currency</p>
-                                    <p className="text-lg">
-                                        {data.primary_symbol}1,000.{data.primary_currency === 'KWD' ? '000' : '00'} {data.primary_currency}
-                                    </p>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium">Secondary Currency</p>
-                                    <p className="text-lg">
-                                        {data.secondary_symbol}
-                                        {(parseFloat(data.exchange_rate) * 1000).toFixed(data.secondary_currency === 'KWD' ? 3 : 2)}{' '}
-                                        {data.secondary_currency}
-                                    </p>
-                                </div>
-                            </div>
                         </div>
 
                         <div className="flex items-center gap-4">

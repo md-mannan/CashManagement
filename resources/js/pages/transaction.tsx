@@ -1,15 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CustomDateInput } from '@/components/ui/custom-date-input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Download, Edit, Eye, FileText, Filter, Plus, Printer, Search, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -19,117 +21,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Mock transaction data - replace with actual data from your backend
-const mockTransactions = [
-    {
-        id: 1,
-        date: '2024-01-15',
-        description: 'Salary Payment',
-        type: 'income',
-        amount: 3750.0,
-        source: 'Company Inc.',
-        category: 'Salary',
-    },
-    {
-        id: 2,
-        date: '2024-01-08',
-        description: 'Grocery Shopping',
-        type: 'expense',
-        amount: 450.0,
-        source: 'Local Supermarket',
-        category: 'Food & Dining',
-    },
-    {
-        id: 3,
-        date: '2024-01-12',
-        description: 'Freelance Project',
-        type: 'income',
-        amount: 1200.0,
-        source: 'Client XYZ',
-        category: 'Freelance',
-    },
-    {
-        id: 4,
-        date: '2024-01-15',
-        description: 'Utility Bills',
-        type: 'expense',
-        amount: 180.0,
-        source: 'Electricity Co.',
-        category: 'Utilities',
-    },
-    {
-        id: 5,
-        date: '2024-01-18',
-        description: 'Investment Dividend',
-        type: 'income',
-        amount: 500.0,
-        source: 'Investment Bank',
-        category: 'Investment',
-    },
-    {
-        id: 6,
-        date: '2024-01-22',
-        description: 'Restaurant Dinner',
-        type: 'expense',
-        amount: 120.0,
-        source: 'Fine Dining',
-        category: 'Food & Dining',
-    },
-    {
-        id: 7,
-        date: '2024-01-25',
-        description: 'Client Payment Due',
-        type: 'receivable',
-        amount: 2500.0,
-        source: 'Client ABC',
-        category: 'Client Payment',
-    },
-    {
-        id: 8,
-        date: '2024-01-28',
-        description: 'Loan Repayment',
-        type: 'receivable',
-        amount: 800.0,
-        source: 'Friend Loan',
-        category: 'Loan Repayment',
-    },
-    {
-        id: 9,
-        date: '2024-01-30',
-        description: 'Credit Card Bill',
-        type: 'payable',
-        amount: 350.0,
-        source: 'Bank Credit Card',
-        category: 'Credit Card',
-    },
-    {
-        id: 10,
-        date: '2024-02-01',
-        description: 'Rent Payment',
-        type: 'payable',
-        amount: 1200.0,
-        source: 'Landlord',
-        category: 'Rent',
-    },
-    {
-        id: 11,
-        date: '2024-02-03',
-        description: 'Rental Income',
-        type: 'receivable',
-        amount: 1500.0,
-        source: 'Tenant',
-        category: 'Rental Payment',
-    },
-    {
-        id: 12,
-        date: '2024-02-05',
-        description: 'Tax Payment',
-        type: 'payable',
-        amount: 750.0,
-        source: 'Tax Authority',
-        category: 'Taxes',
-    },
-];
+// Real transaction data comes from backend via Inertia props
 
 const transactionTypes = [
     { value: 'all', label: 'All Types' },
@@ -140,13 +32,45 @@ const transactionTypes = [
 ];
 
 export default function Transaction() {
-    const { auth } = usePage<SharedData>().props;
-    const [searchTerm, setSearchTerm] = useState('');
+    const { auth, transactions } = usePage<
+        SharedData & {
+            transactions: {
+                data: Array<{
+                    id: number;
+                    date: string;
+                    description: string;
+                    type: 'income' | 'expense' | 'receivable' | 'payable';
+                    amount: number;
+                    source: string;
+                    category: {
+                        name: string;
+                    };
+                    notes?: string;
+                    metadata?: {
+                        secondary_currency?: string;
+                        exchange_rate?: number;
+                        secondary_amount?: number;
+                        primary_currency?: string;
+                        primary_symbol?: string;
+                    };
+                }>;
+                current_page: number;
+                last_page: number;
+                per_page: number;
+                total: number;
+            };
+        }
+    >().props;
+
+    // Client-side filtering states
+    const [searchInput, setSearchInput] = useState(''); // What user types in search
     const [selectedType, setSelectedType] = useState('all');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+
+    // All transactions from backend (no server-side filtering)
+    const allTransactions = transactions.data;
 
     // Confirmation modal states
     const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; transactionId: number | null }>({
@@ -161,51 +85,33 @@ export default function Transaction() {
     // User's primary currency from settings
     const primaryCurrency = auth.user.primary_currency || 'USD';
     const primarySymbol = auth.user.primary_symbol || '$';
-    const secondaryCurrency = auth.user.secondary_currency || 'EUR';
-    const secondarySymbol = auth.user.secondary_symbol || '€';
-    const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
 
-    // Determine the third currency (EUR or KWD if not already selected)
-    const getThirdCurrency = () => {
-        if (primaryCurrency !== 'EUR' && secondaryCurrency !== 'EUR') {
-            return { code: 'EUR', symbol: '€', rate: 0.9 };
-        } else if (primaryCurrency !== 'KWD' && secondaryCurrency !== 'KWD') {
-            return { code: 'KWD', symbol: 'د.ك', rate: 3.25 };
-        } else {
-            return { code: 'USD', symbol: '$', rate: 1.0 };
-        }
-    };
+    const { showToast } = useToast();
 
-    const thirdCurrency = getThirdCurrency();
-
-    // Helper function to calculate converted amount
-    const convertAmount = (amount: number, targetCurrency: string) => {
-        if (targetCurrency === primaryCurrency) return amount;
-        if (targetCurrency === secondaryCurrency) return amount * exchangeRate;
-        if (targetCurrency === thirdCurrency.code) return amount * thirdCurrency.rate;
-        return amount;
-    };
-
-    // Filter transactions based on search criteria
+    // Client-side filtering logic
     const filteredTransactions = useMemo(() => {
-        let filtered = mockTransactions;
+        let filtered = [...allTransactions];
 
-        // Filter by search term
-        if (searchTerm) {
+        // Search filter (no reloading - instant)
+        if (searchInput.trim()) {
+            const searchTerm = searchInput.toLowerCase();
             filtered = filtered.filter(
                 (transaction) =>
-                    transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    transaction.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    transaction.category.toLowerCase().includes(searchTerm.toLowerCase()),
+                    transaction.description.toLowerCase().includes(searchTerm) ||
+                    transaction.source.toLowerCase().includes(searchTerm) ||
+                    transaction.category.name.toLowerCase().includes(searchTerm) ||
+                    transaction.notes?.toLowerCase().includes(searchTerm) ||
+                    transaction.amount.toString().includes(searchTerm) ||
+                    transaction.type.toLowerCase().includes(searchTerm),
             );
         }
 
-        // Filter by type
+        // Type filter
         if (selectedType !== 'all') {
             filtered = filtered.filter((transaction) => transaction.type === selectedType);
         }
 
-        // Filter by date range
+        // Date range filter
         if (startDate) {
             filtered = filtered.filter((transaction) => transaction.date >= startDate);
         }
@@ -214,15 +120,29 @@ export default function Transaction() {
         }
 
         return filtered;
-    }, [searchTerm, selectedType, startDate, endDate]);
+    }, [allTransactions, searchInput, selectedType, startDate, endDate]);
 
-    // Pagination
+    // Client-side pagination
+    const itemsPerPage = 10;
     const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + itemsPerPage);
 
+    // Reset to first page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchInput, selectedType, startDate, endDate]);
+
     // Format currency
     const formatCurrency = (amount: number, currency: string = primaryCurrency) => {
+        // Validate input amount - return 0.00 if invalid
+        if (!amount || isNaN(amount)) {
+            return currency === 'KWD' ? '0.000' : '0.00';
+        }
+
+        // Round the amount first to avoid floating point precision issues
+        const roundedAmount = Math.round(amount * 1000) / 1000;
+
         const formatNumber = (num: number, decimals: number) => {
             return num.toLocaleString('en-US', {
                 minimumFractionDigits: decimals,
@@ -230,18 +150,19 @@ export default function Transaction() {
             });
         };
 
+        // Handle different currencies with appropriate decimal places
         if (currency === 'KWD') {
-            return formatNumber(amount, 3); // 3 decimal places for KWD
+            return formatNumber(roundedAmount, 3); // 3 decimal places for KWD
         }
-        return formatNumber(amount, 2); // 2 decimal places for other currencies
+        return formatNumber(roundedAmount, 2); // 2 decimal places for other currencies
     };
 
     // Format date
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleDateString('en-GB', {
             year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
         });
     };
 
@@ -271,9 +192,25 @@ export default function Transaction() {
 
     const handleDeleteConfirm = () => {
         if (deleteConfirmation.transactionId) {
-            console.log('Deleting transaction:', deleteConfirmation.transactionId);
-            // Add your delete logic here
-            router.delete(`/transaction/${deleteConfirmation.transactionId}`);
+            router.delete(`/transaction/${deleteConfirmation.transactionId}`, {
+                onSuccess: () => {
+                    showToast({
+                        type: 'success',
+                        title: 'Transaction Deleted!',
+                        message: 'The transaction has been successfully deleted.',
+                        sound: true,
+                    });
+                },
+                onError: (errors) => {
+                    showToast({
+                        type: 'error',
+                        title: 'Delete Failed!',
+                        message: 'There was an error deleting the transaction. Please try again.',
+                        sound: true,
+                    });
+                    console.error('Error deleting transaction:', errors);
+                },
+            });
         }
         setDeleteConfirmation({ isOpen: false, transactionId: null });
     };
@@ -294,24 +231,6 @@ export default function Transaction() {
     // Handle view transaction
     const handleViewTransaction = (transactionId: number) => {
         router.visit(`/transaction/${transactionId}`);
-    };
-
-    // Handle edit transaction
-    const handleEditTransaction = (transactionId: number) => {
-        router.visit(`/transaction/${transactionId}/edit`);
-    };
-
-    // Handle delete transaction
-    const handleDeleteTransaction = (transactionId: number) => {
-        if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
-            // For mock data, we'll just show a success message
-            // In a real application, this would call the backend API
-            alert('Transaction deleted successfully!');
-
-            // Simulate the deletion by refreshing the page
-            // In a real application, you would update the local state instead
-            window.location.reload();
-        }
     };
 
     // Export to Excel functionality
@@ -356,44 +275,86 @@ export default function Transaction() {
 
     // Export to PDF functionality
     const exportToPDF = () => {
-        // Create a new window for PDF printing
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) return;
-
-        // Create the HTML content for PDF
+        // Create the HTML content
         const htmlContent = `
             <!DOCTYPE html>
             <html>
             <head>
                 <title>Transactions Report</title>
+                <meta charset="UTF-8">
                 <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; }
-                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                    th { background-color: #f2f2f2; font-weight: bold; }
-                    .header { text-align: center; margin-bottom: 20px; }
-                    .summary { margin-bottom: 20px; }
-                    @media print { body { margin: 0; } }
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 20px;
+                        color: #000;
+                        line-height: 1.4;
+                    }
+                    .header {
+                        text-align: center;
+                        margin-bottom: 30px;
+                        border-bottom: 2px solid #333;
+                        padding-bottom: 20px;
+                    }
+                    .header h1 {
+                        margin: 0 0 10px 0;
+                        color: #333;
+                    }
+                    .summary {
+                        margin-bottom: 20px;
+                        font-size: 14px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                        font-size: 12px;
+                    }
+                    th, td {
+                        border: 1px solid #333;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #f0f0f0;
+                        font-weight: bold;
+                        text-align: center;
+                    }
+                    .amount {
+                        text-align: right;
+                        font-weight: bold;
+                    }
+                    .income { color: #008000; }
+                    .expense { color: #cc0000; }
+                    @media print {
+                        body { margin: 10px; }
+                        table { page-break-inside: avoid; }
+                        .header { break-after: avoid; }
+                    }
                 </style>
             </head>
             <body>
                 <div class="header">
                     <h1>Transactions Report</h1>
-                    <p>Generated on: ${new Date().toLocaleDateString()}</p>
+                    <p>Generated on: ${new Date().toLocaleDateString('en-GB', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                    })}</p>
                 </div>
                 <div class="summary">
-                    <p>Total Transactions: ${filteredTransactions.length}</p>
+                    <p><strong>Total Transactions:</strong> ${filteredTransactions.length}</p>
+                    <p><strong>Date Range:</strong> All transactions</p>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <th>SL</th>
-                            <th>Date</th>
-                            <th>Description</th>
-                            <th>Type</th>
-                            <th>Source</th>
-                            <th>Category</th>
-                            <th>Amount</th>
+                            <th style="width: 5%;">SL</th>
+                            <th style="width: 12%;">Date</th>
+                            <th style="width: 25%;">Description</th>
+                            <th style="width: 10%;">Type</th>
+                            <th style="width: 15%;">Source</th>
+                            <th style="width: 15%;">Category</th>
+                            <th style="width: 18%;">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -401,95 +362,50 @@ export default function Transaction() {
                             .map(
                                 (transaction, index) => `
                             <tr>
-                                <td>${startIndex + index + 1}</td>
+                                <td style="text-align: center;">${startIndex + index + 1}</td>
                                 <td>${formatDate(transaction.date)}</td>
                                 <td>${transaction.description}</td>
-                                <td>${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</td>
+                                <td style="text-transform: capitalize;">${transaction.type}</td>
                                 <td>${transaction.source}</td>
-                                <td>${transaction.category}</td>
-                                <td>${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} KWD ${formatCurrency(transaction.amount)}</td>
+                                <td>${transaction.category.name}</td>
+                                <td class="amount ${transaction.type === 'income' || transaction.type === 'receivable' ? 'income' : 'expense'}">${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}</td>
                             </tr>
                         `,
                             )
                             .join('')}
                     </tbody>
                 </table>
+                <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #666;">
+                    <p>This report was generated automatically from the Cash Management System</p>
+                </div>
             </body>
             </html>
         `;
 
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-        printWindow.print();
+        // Open in a new window but trigger print immediately
+        const printWindow = window.open('', 'printWindow', 'width=800,height=600');
+        if (printWindow) {
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+
+            // Wait for content to load then print
+            printWindow.onload = () => {
+                printWindow.print();
+                printWindow.close();
+            };
+
+            // Fallback in case onload doesn't fire
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 1000);
+        }
     };
 
-    // Print transactions functionality
+    // Print transactions functionality (without opening new window)
     const printTransactions = () => {
-        // Create a new window for printing
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) return;
-
-        // Create the HTML content for printing
-        const htmlContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Transactions Report</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; }
-                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                    th { background-color: #f2f2f2; font-weight: bold; }
-                    .header { text-align: center; margin-bottom: 20px; }
-                    .summary { margin-bottom: 20px; }
-                    @media print { body { margin: 0; } }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <h1>Transactions Report</h1>
-                    <p>Generated on: ${new Date().toLocaleDateString()}</p>
-                </div>
-                <div class="summary">
-                    <p>Total Transactions: ${filteredTransactions.length}</p>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>SL</th>
-                            <th>Date</th>
-                            <th>Description</th>
-                            <th>Type</th>
-                            <th>Source</th>
-                            <th>Category</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${filteredTransactions
-                            .map(
-                                (transaction, index) => `
-                            <tr>
-                                <td>${startIndex + index + 1}</td>
-                                <td>${formatDate(transaction.date)}</td>
-                                <td>${transaction.description}</td>
-                                <td>${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</td>
-                                <td>${transaction.source}</td>
-                                <td>${transaction.category}</td>
-                                <td>${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}</td>
-                            </tr>
-                        `,
-                            )
-                            .join('')}
-                    </tbody>
-                </table>
-            </body>
-            </html>
-        `;
-
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-        printWindow.print();
+        // Use the same approach as PDF export
+        exportToPDF();
     };
 
     return (
@@ -549,6 +465,7 @@ export default function Transaction() {
                             <Filter className="h-4 w-4" />
                             Filters
                         </CardTitle>
+                        <p className="text-sm text-muted-foreground">Filters apply instantly as you type. Clear fields to reset.</p>
                     </CardHeader>
                     <CardContent>
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -560,8 +477,8 @@ export default function Transaction() {
                                     <Input
                                         id="search"
                                         placeholder="Search transactions..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        value={searchInput}
+                                        onChange={(e) => setSearchInput(e.target.value)}
                                         className="pl-8"
                                     />
                                 </div>
@@ -587,13 +504,18 @@ export default function Transaction() {
                             {/* Start Date */}
                             <div className="space-y-2">
                                 <Label htmlFor="startDate">Start Date</Label>
-                                <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                                <CustomDateInput
+                                    id="startDate"
+                                    value={startDate}
+                                    onChange={(value) => setStartDate(value)}
+                                    placeholder="dd/mm/yyyy"
+                                />
                             </div>
 
                             {/* End Date */}
                             <div className="space-y-2">
                                 <Label htmlFor="endDate">End Date</Label>
-                                <Input id="endDate" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                                <CustomDateInput id="endDate" value={endDate} onChange={(value) => setEndDate(value)} placeholder="dd/mm/yyyy" />
                             </div>
                         </div>
                     </CardContent>
@@ -606,37 +528,6 @@ export default function Transaction() {
                             Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredTransactions.length)} of{' '}
                             {filteredTransactions.length} transactions
                         </p>
-
-                        {/* 3-Currency Summary */}
-                        <div className="flex items-center gap-4 text-sm">
-                            <div className="flex items-center gap-2">
-                                <span className="font-medium text-primary">{primarySymbol}</span>
-                                <span className="text-muted-foreground">
-                                    {formatCurrency(
-                                        filteredTransactions.reduce((sum, t) => sum + t.amount, 0),
-                                        primaryCurrency,
-                                    )}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="font-medium text-blue-600">{secondarySymbol}</span>
-                                <span className="text-muted-foreground">
-                                    {formatCurrency(
-                                        filteredTransactions.reduce((sum, t) => sum + convertAmount(t.amount, secondaryCurrency), 0),
-                                        secondaryCurrency,
-                                    )}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="font-medium text-green-600">{thirdCurrency.symbol}</span>
-                                <span className="text-muted-foreground">
-                                    {formatCurrency(
-                                        filteredTransactions.reduce((sum, t) => sum + convertAmount(t.amount, thirdCurrency.code), 0),
-                                        thirdCurrency.code,
-                                    )}
-                                </span>
-                            </div>
-                        </div>
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -688,7 +579,7 @@ export default function Transaction() {
                                 ) : (
                                     paginatedTransactions.map((transaction, index) => (
                                         <TableRow key={transaction.id}>
-                                            <TableCell className="font-medium">{startIndex + index + 1}</TableCell>
+                                            <TableCell className="font-medium">{(currentPage - 1) * transactions.per_page + index + 1}</TableCell>
                                             <TableCell>{formatDate(transaction.date)}</TableCell>
                                             <TableCell className="font-medium">{transaction.description}</TableCell>
                                             <TableCell>
@@ -699,7 +590,7 @@ export default function Transaction() {
                                                 </span>
                                             </TableCell>
                                             <TableCell>{transaction.source}</TableCell>
-                                            <TableCell>{transaction.category}</TableCell>
+                                            <TableCell>{transaction.category.name}</TableCell>
                                             <TableCell
                                                 className={
                                                     transaction.type === 'income' || transaction.type === 'receivable'

@@ -12,12 +12,15 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 - **Currency Settings**: User-configurable primary and secondary currency preferences
 
 ### 📊 Transaction Management
-- **Complete CRUD Operations**: Create, read, update, and delete transactions
+- **Complete CRUD Operations**: Create, read, update, and delete transactions with instant feedback
 - **Multiple Transaction Types**: Income, Expense, Receivable, and Payable
 - **Dual Currency Recording**: Store both primary and secondary amounts with exchange rates
-- **Advanced Filtering**: Filter transactions by type, date range, and search terms
+- **Advanced Filtering**: Filter transactions by type, date range, and search terms including transaction types
 - **Export Functionality**: Export to Excel, PDF, or print directly
 - **Animated Confirmations**: Beautiful confirmation modals for edit and delete actions
+- **Toast Notifications**: Centered success/error messages with sound effects for all operations
+- **Auto-redirect**: Automatic return to transaction list after save/update operations
+- **Precise Amount Handling**: Exact amount preservation without floating-point conversion errors
 
 ### 📈 Dashboard & Analytics
 - **Interactive Charts**: Bar and pie charts with Chart.js integration
@@ -140,6 +143,26 @@ A comprehensive personal finance management system built with Laravel, React, Ty
 - **Filter**: Use the filter options to find specific transactions
 - **Export**: Export your data in Excel, PDF, or print format
 
+## 🔔 Toast Notification System
+
+### Features
+- **Centered Display**: Notifications appear in the center of the screen for maximum visibility
+- **Sound Effects**: Different audio tones for each notification type:
+  - **Success**: Pleasant chord progression (C5, E5, G5)
+  - **Error**: Warning tones (A3, G3) 
+  - **Warning**: Alert tones (A4, C5)
+  - **Info**: Simple notification tone (C5)
+- **Auto-dismiss**: Notifications automatically fade out after 3 seconds
+- **Manual Close**: Users can close notifications manually with the X button
+- **Smooth Animations**: Fade in/out with scale and translate effects
+- **Color-coded**: Each notification type has distinct visual styling
+
+### Notification Types
+- ✅ **Success**: Transaction saved, updated, or deleted successfully
+- ❌ **Error**: Operation failed with helpful error messages
+- ⚠️ **Warning**: Important alerts and warnings
+- ℹ️ **Info**: General information and tips
+
 ## 🔧 Configuration
 
 ### Currency Settings
@@ -162,8 +185,10 @@ The system includes a built-in exchange rate service with:
 - **Beautiful Modals**: Animated confirmation dialogs
 - **Currency Inputs**: Smart currency input fields with proper formatting
 - **Interactive Charts**: Responsive charts with animations
-- **Form Components**: Accessible and user-friendly forms
+- **Form Components**: Accessible and user-friendly forms with real-time validation
 - **Navigation**: Intuitive sidebar and breadcrumb navigation
+- **Toast System**: Centered notification system with sound effects and auto-dismiss
+- **Loading States**: Smooth loading animations during form initialization
 
 ### Design System
 - **Consistent Styling**: Unified design language throughout

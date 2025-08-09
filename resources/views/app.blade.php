@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+<html lang="en-GB"
     @class([
         'dark' => ($appearance ?? 'system') == 'dark',
         'theme-violet' => ($theme ?? 'neutral') == 'violet'

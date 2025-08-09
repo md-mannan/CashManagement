@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -11,35 +13,27 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    // Dashboard
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('transactions', function () {
-        return Inertia::render('transactions');
-    })->name('transactions');
+    // Ledger (transactions summary)
+    Route::get('ledger', [TransactionController::class, 'ledger'])->name('ledger');
 
-    Route::get('add-transaction', function () {
-        return Inertia::render('add-transaction');
-    })->name('add-transaction');
-
-    Route::get('transaction', function () {
-        return Inertia::render('transaction');
-    })->name('transaction');
+    // Transactions
+    Route::get('transaction', [TransactionController::class, 'index'])->name('transaction');
+    Route::get('add-transaction', [TransactionController::class, 'create'])->name('add-transaction');
+    Route::post('transactions', [TransactionController::class, 'store'])->name('transactions.store');
 
     // Transaction CRUD routes
-    Route::get('transaction/{id}', function ($id) {
-        return Inertia::render('transaction-view', ['id' => $id]);
-    })->name('transaction.view');
+    Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
+    Route::get('transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
+    Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
+    Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
-    Route::get('transaction/{id}/edit', function ($id) {
-        return Inertia::render('transaction-edit', ['id' => $id]);
-    })->name('transaction.edit');
-
-    Route::delete('transaction/{id}', function ($id) {
-        // Handle delete logic here
-        return redirect()->route('transaction')->with('success', 'Transaction deleted successfully');
-    })->name('transaction.delete');
+    // Legacy routes for backward compatibility
+    Route::get('transaction/{transaction}', [TransactionController::class, 'show'])->name('transaction.view');
+    Route::get('transaction/{transaction}/edit', [TransactionController::class, 'edit'])->name('transaction.edit');
+    Route::delete('transaction/{transaction}', [TransactionController::class, 'destroy'])->name('transaction.delete');
 
     // Redirect authenticated users to dashboard
     Route::get('/home', function () {

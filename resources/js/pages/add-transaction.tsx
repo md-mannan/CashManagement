@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CustomDateInput } from '@/components/ui/custom-date-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -13,8 +15,8 @@ import { getExchangeRateForTransaction } from '../services/exchangeRateService';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Transactions',
-        href: '/transactions',
+        title: 'Ledger',
+        href: '/ledger',
     },
     {
         title: 'Add Transaction',
@@ -124,13 +126,23 @@ export default function AddTransaction() {
     const primaryCurrency = auth.user.primary_currency || 'USD';
     const primarySymbol = auth.user.primary_symbol || '$';
 
+    const { showToast } = useToast();
+
     // Helper function to convert primary currency to secondary currency
     const convertToSecondaryCurrency = (amount: number, exchangeRate: number) => {
+        // If secondary currency is same as primary currency, no conversion needed
+        if (formData.secondaryCurrency === primaryCurrency) {
+            return amount;
+        }
         return amount / exchangeRate;
     };
 
     // Helper function to convert secondary currency to primary currency
     const convertToPrimaryCurrency = (secondaryAmount: number, exchangeRate: number) => {
+        // If secondary currency is same as primary currency, no conversion needed
+        if (formData.secondaryCurrency === primaryCurrency) {
+            return secondaryAmount;
+        }
         return secondaryAmount * exchangeRate;
     };
 
@@ -205,25 +217,55 @@ export default function AddTransaction() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Prepare transaction data with currency information
+        // Find the category by name to get the category_id
+        const selectedCategory = categories[formData.type].find((cat) => cat === formData.category);
+
+        // Prepare transaction data for backend
         const transactionData = {
-            ...formData,
-            primaryCurrency,
-            primarySymbol,
-            secondaryCurrency: formData.secondaryCurrency || null,
-            exchangeRate: formData.secondaryCurrency ? formData.exchangeRate : null,
-            // Record both amounts - primary amount and secondary amount
-            primaryAmount: formData.amount,
-            secondaryAmount:
-                formData.secondaryAmount ||
-                (formData.secondaryCurrency && formData.exchangeRate ? convertToSecondaryCurrency(formData.amount, formData.exchangeRate) : null),
+            type: formData.type,
+            amount: formData.amount,
+            description: formData.description,
+            source: formData.source,
+            date: formData.date,
+            category: formData.category, // We'll need to handle category mapping in backend
+            notes: formData.notes || '',
+            currency: primaryCurrency,
+            // Store secondary currency info in metadata
+            metadata: formData.secondaryCurrency
+                ? {
+                      secondary_currency: formData.secondaryCurrency,
+                      exchange_rate: formData.exchangeRate,
+                      secondary_amount: formData.secondaryAmount || convertToSecondaryCurrency(formData.amount, formData.exchangeRate || 1),
+                      primary_currency: primaryCurrency,
+                      primary_symbol: primarySymbol,
+                  }
+                : null,
         };
 
-        // TODO: Implement transaction submission logic
-        console.log('Transaction data:', transactionData);
-        // Here you would typically send the data to your backend
-        // For now, we'll just redirect back to transactions page
-        router.visit('/transactions');
+        console.log('Submitting transaction data:', transactionData);
+
+        // Submit to backend using Inertia
+        router.post('/transactions', transactionData, {
+            onSuccess: () => {
+                showToast({
+                    type: 'success',
+                    title: 'Transaction Saved!',
+                    message: 'Your transaction has been successfully created.',
+                    sound: true,
+                });
+                // Redirect immediately to transaction list
+                router.visit('/transaction');
+            },
+            onError: (errors) => {
+                showToast({
+                    type: 'error',
+                    title: 'Save Failed!',
+                    message: 'There was an error saving your transaction. Please try again.',
+                    sound: true,
+                });
+                console.error('Error saving transaction:', errors);
+            },
+        });
     };
 
     const handleInputChange = (field: keyof TransactionFormData, value: string | number) => {
@@ -295,11 +337,11 @@ export default function AddTransaction() {
                 </div>
 
                 <Card className={`mt-2 border-l-4 pt-0 shadow-lg ${transactionType.borderColor} relative overflow-hidden`}>
-                    {/* Back to Transactions button positioned in top-right corner of card */}
+                    {/* Back to Ledger button positioned in top-right corner of card */}
                     <div className="absolute top-2 right-2 z-10">
-                        <Button variant="outline" size="sm" onClick={() => router.visit('/transactions')}>
+                        <Button variant="outline" size="sm" onClick={() => router.visit('/ledger')}>
                             <ArrowLeft className="h-4 w-4" />
-                            <span className="hidden sm:inline">Back to Transactions</span>
+                            <span className="hidden sm:inline">Back to Ledger</span>
                             <span className="sm:hidden">Back</span>
                         </Button>
                     </div>
@@ -336,13 +378,13 @@ export default function AddTransaction() {
                                     <Label htmlFor="date" className="text-xs font-semibold text-gray-700 sm:text-sm">
                                         Date *
                                     </Label>
-                                    <Input
+                                    <CustomDateInput
                                         id="date"
-                                        type="date"
                                         value={formData.date}
-                                        onChange={(e) => handleInputChange('date', e.target.value)}
+                                        onChange={(value) => handleInputChange('date', value)}
                                         required
                                         className="h-8 sm:h-9"
+                                        placeholder="dd/mm/yyyy"
                                     />
                                 </div>
                             </div>
@@ -509,7 +551,7 @@ export default function AddTransaction() {
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => router.visit('/transactions')}
+                                    onClick={() => router.visit('/ledger')}
                                     className="w-full px-3 py-1.5 text-sm sm:w-auto sm:px-4"
                                 >
                                     Cancel

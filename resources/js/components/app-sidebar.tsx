@@ -12,8 +12,8 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Transaction Details',
-        href: '/transactions',
+        title: 'Ledger',
+        href: '/ledger',
         icon: Receipt,
     },
     {
