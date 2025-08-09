@@ -40,7 +40,7 @@ A comprehensive personal finance management system built with Laravel 12, React 
 - **Currency Management**: Set primary and secondary currencies
 - **Exchange Rate Configuration**: Manual and automatic rate updates
 - **User Preferences**: Customizable currency symbols and formats
-- **Profile Management**: User profile and password settings  
+- **Profile Management**: User profile and password settings
 - **Appearance Settings**: Theme and appearance customization
 - **Remember Me**: Secure login persistence with proper token management
 - **Auto-Login Redirect**: Automatic dashboard redirect after successful authentication
@@ -312,6 +312,7 @@ If you encounter any issues or need help:
 ## 🆕 Latest Updates
 
 ### Version 2.0 Features
+
 - ✅ **Laravel 12 Upgrade**: Latest framework with enhanced performance
 - ✅ **Exact Amount Display**: Shows original entered amounts instead of re-converted values
 - ✅ **Chart Layout Reorganization**: Bar charts and pie charts in separate rows
