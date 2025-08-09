@@ -23,3 +23,12 @@ Route::prefix('exchange-rates')->group(function () {
         Route::get('/database-status', [ExchangeRateController::class, 'getDatabaseStatus']);
     });
 });
+
+// Notification API Routes
+Route::prefix('notifications')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [App\Http\Controllers\NotificationController::class, 'index']);
+    Route::get('/unread-count', [App\Http\Controllers\NotificationController::class, 'unreadCount']);
+    Route::post('/{notification}/mark-as-read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+    Route::post('/mark-all-as-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+    Route::delete('/{notification}', [App\Http\Controllers\NotificationController::class, 'destroy']);
+});

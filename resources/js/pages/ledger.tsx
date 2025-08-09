@@ -30,6 +30,11 @@ export default function Ledger() {
                     name: string;
                     color: string;
                 };
+                user?: {
+                    name: string;
+                    email: string;
+                    primary_symbol: string;
+                };
                 notes?: string;
                 currency: string;
                 status: string;
@@ -140,6 +145,7 @@ export default function Ledger() {
                 description: transaction.description,
                 source: transaction.source,
                 category: transaction.category.name,
+                user: transaction.user, // Add user info for admin view
                 debit,
                 credit,
                 balance: runningBalance,
@@ -538,6 +544,7 @@ export default function Ledger() {
                                                 <th className="px-4 py-3 text-left text-sm font-semibold print:text-base">Date</th>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold print:text-base">Description</th>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold print:text-base">Source</th>
+
                                                 <th className="px-4 py-3 text-right text-sm font-semibold print:text-base">Debit</th>
                                                 <th className="px-4 py-3 text-right text-sm font-semibold print:text-base">Credit</th>
                                                 <th className="px-4 py-3 text-right text-sm font-semibold print:text-base">Balance</th>
@@ -555,6 +562,7 @@ export default function Ledger() {
                                                     </td>
                                                     <td className="px-4 py-3 text-sm print:text-base">{entry.description}</td>
                                                     <td className="px-4 py-3 text-sm print:text-base">{entry.source}</td>
+
                                                     <td className="px-4 py-3 text-right text-sm print:text-base">
                                                         {entry.debit ? (
                                                             <span className="text-red-600">

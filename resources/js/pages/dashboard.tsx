@@ -57,6 +57,10 @@ export default function Dashboard() {
                     color: string;
                 };
                 currency: string;
+                user?: {
+                    name: string;
+                    email: string;
+                };
                 metadata?: {
                     secondary_currency?: string;
                     exchange_rate?: number;

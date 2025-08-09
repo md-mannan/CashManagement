@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Category;
+use App\Models\Notification;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,8 +19,10 @@ class TransactionController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+
         $query = Transaction::with('category')
-            ->forUser(Auth::id())
+            ->forUser($user->id)
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc');
 
@@ -56,8 +59,10 @@ class TransactionController extends Controller
      */
     public function ledger(Request $request)
     {
+        $user = Auth::user();
+
         $query = Transaction::with('category')
-            ->forUser(Auth::id())
+            ->forUser($user->id)
             ->orderBy('date', 'desc');
 
         // Apply filters similar to index
@@ -136,6 +141,9 @@ class TransactionController extends Controller
             'metadata' => $request->metadata,
         ]);
 
+        // Create notification for transaction creation
+        $this->createTransactionNotification($transaction, 'created');
+
         // Redirect to transaction list with success message
         return to_route('transaction')->with('success', 'Transaction created successfully.');
     }
@@ -152,6 +160,55 @@ class TransactionController extends Controller
             'payable' => '#F59E0B', // Orange
             default => '#6B7280', // Gray
         };
+    }
+
+    /**
+     * Create notification for transaction actions
+     */
+    private function createTransactionNotification(Transaction $transaction, string $action): void
+    {
+        $user = Auth::user();
+        $primarySymbol = $user->primary_symbol ?? '$';
+        $amount = number_format($transaction->amount, 2);
+
+        $actionText = $action === 'created' ? 'added' : 'updated';
+        $typeText = ucfirst($transaction->type);
+
+        $title = "{$typeText} Transaction " . ucfirst($actionText);
+        $message = "Your {$transaction->type} of {$primarySymbol}{$amount} has been {$actionText} successfully";
+
+        $icon = match ($transaction->type) {
+            'income' => 'TrendingUp',
+            'expense' => 'TrendingDown',
+            'receivable' => 'ArrowUpRight',
+            'payable' => 'ArrowDownLeft',
+            default => 'DollarSign',
+        };
+
+        $color = match ($transaction->type) {
+            'income' => 'green',
+            'expense' => 'red',
+            'receivable' => 'blue',
+            'payable' => 'orange',
+            default => 'blue',
+        };
+
+        Notification::createForUser(
+            $user->id,
+            'success',
+            $title,
+            $message,
+            [
+                'icon' => $icon,
+                'color' => $color,
+                'data' => [
+                    'transaction_id' => $transaction->id,
+                    'action' => $action,
+                    'type' => $transaction->type,
+                    'amount' => $transaction->amount,
+                ],
+            ]
+        );
     }
 
     /**
@@ -235,6 +292,9 @@ class TransactionController extends Controller
             'due_date' => $request->due_date,
             'metadata' => $request->metadata,
         ]);
+
+        // Create notification for transaction update
+        $this->createTransactionNotification($transaction, 'updated');
 
         // Redirect to transaction list with success message
         return to_route('transaction')->with('success', 'Transaction updated successfully.');

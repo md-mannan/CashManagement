@@ -10,14 +10,23 @@ use Illuminate\Support\Collection;
 class TransactionService
 {
     /**
-     * Calculate financial summary for a user
+     * Calculate financial summary for a user or all users (if user is null)
      */
-    public function getFinancialSummary(User $user, ?Carbon $startDate = null, ?Carbon $endDate = null): array
+    public function getFinancialSummary(?User $user = null, ?Carbon $startDate = null, ?Carbon $endDate = null): array
     {
-        $query = $user->transactions();
+        if ($user) {
+            $query = $user->transactions();
+        } else {
+            // Admin view - all transactions
+            $query = Transaction::query();
+        }
 
         if ($startDate && $endDate) {
-            $query->dateRange($startDate, $endDate);
+            if ($user) {
+                $query->dateRange($startDate, $endDate);
+            } else {
+                $query->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+            }
         }
 
         $transactions = $query->get();
@@ -27,8 +36,8 @@ class TransactionService
         $totalReceivables = $transactions->where('type', 'receivable')->sum('amount');
         $totalPayables = $transactions->where('type', 'payable')->sum('amount');
 
-        // Calculate original entered amounts in secondary currency
-        $secondaryAmounts = $this->calculateSecondaryAmountSums($transactions, $user);
+        // Calculate original entered amounts in secondary currency (only for single user view)
+        $secondaryAmounts = $user ? $this->calculateSecondaryAmountSums($transactions, $user) : [];
 
         return [
             'total_income' => $totalIncome,
@@ -93,7 +102,7 @@ class TransactionService
     /**
      * Get monthly chart data for dashboard - shows all months with transaction data
      */
-    public function getMonthlyChartData(User $user): array
+    public function getMonthlyChartData(?User $user = null): array
     {
         $data = [
             'labels' => [],
@@ -129,13 +138,22 @@ class TransactionService
             ],
         ];
 
-        // Get all unique year-month combinations from user's transactions
-        $monthlyPeriods = $user->transactions()
-            ->selectRaw('YEAR(date) as year, MONTH(date) as month')
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
-            ->get();
+        // Get all unique year-month combinations from transactions
+        if ($user) {
+            $monthlyPeriods = $user->transactions()
+                ->selectRaw('YEAR(date) as year, MONTH(date) as month')
+                ->groupBy('year', 'month')
+                ->orderBy('year', 'asc')
+                ->orderBy('month', 'asc')
+                ->get();
+        } else {
+            // Admin view - all transactions
+            $monthlyPeriods = Transaction::selectRaw('YEAR(date) as year, MONTH(date) as month')
+                ->groupBy('year', 'month')
+                ->orderBy('year', 'asc')
+                ->orderBy('month', 'asc')
+                ->get();
+        }
 
         // If no transactions found, return empty data
         if ($monthlyPeriods->isEmpty()) {
@@ -147,9 +165,14 @@ class TransactionService
             $endOfMonth = $startOfMonth->copy()->endOfMonth();
 
             // Get all transactions for this month
-            $transactions = $user->transactions()
-                ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
-                ->get();
+            if ($user) {
+                $transactions = $user->transactions()
+                    ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                    ->get();
+            } else {
+                $transactions = Transaction::whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                    ->get();
+            }
 
             $data['labels'][] = $startOfMonth->format('M Y');
             $data['datasets'][0]['data'][] = (float) $transactions->where('type', 'income')->sum('amount');
@@ -164,7 +187,7 @@ class TransactionService
     /**
      * Get yearly chart data for dashboard - shows all years with transaction data
      */
-    public function getYearlyChartData(User $user): array
+    public function getYearlyChartData(?User $user = null): array
     {
         $data = [
             'labels' => [],
@@ -200,12 +223,20 @@ class TransactionService
             ],
         ];
 
-        // Get all unique years from user's transactions
-        $yearlyPeriods = $user->transactions()
-            ->selectRaw('YEAR(date) as year')
-            ->groupBy('year')
-            ->orderBy('year', 'asc')
-            ->get();
+        // Get all unique years from transactions
+        if ($user) {
+            $yearlyPeriods = $user->transactions()
+                ->selectRaw('YEAR(date) as year')
+                ->groupBy('year')
+                ->orderBy('year', 'asc')
+                ->get();
+        } else {
+            // Admin view - all transactions
+            $yearlyPeriods = Transaction::selectRaw('YEAR(date) as year')
+                ->groupBy('year')
+                ->orderBy('year', 'asc')
+                ->get();
+        }
 
         // If no transactions found, return empty data
         if ($yearlyPeriods->isEmpty()) {
@@ -217,9 +248,14 @@ class TransactionService
             $endOfYear = $startOfYear->copy()->endOfYear();
 
             // Get all transactions for this year
-            $transactions = $user->transactions()
-                ->whereBetween('date', [$startOfYear->format('Y-m-d'), $endOfYear->format('Y-m-d')])
-                ->get();
+            if ($user) {
+                $transactions = $user->transactions()
+                    ->whereBetween('date', [$startOfYear->format('Y-m-d'), $endOfYear->format('Y-m-d')])
+                    ->get();
+            } else {
+                $transactions = Transaction::whereBetween('date', [$startOfYear->format('Y-m-d'), $endOfYear->format('Y-m-d')])
+                    ->get();
+            }
 
             $data['labels'][] = $period->year;
             $data['datasets'][0]['data'][] = (float) $transactions->where('type', 'income')->sum('amount');
@@ -234,9 +270,14 @@ class TransactionService
     /**
      * Get category breakdown for pie chart
      */
-    public function getCategoryBreakdown(User $user, ?Carbon $startDate = null, ?Carbon $endDate = null): array
+    public function getCategoryBreakdown(?User $user = null, ?Carbon $startDate = null, ?Carbon $endDate = null): array
     {
-        $query = $user->transactions()->with('category');
+        if ($user) {
+            $query = $user->transactions()->with('category');
+        } else {
+            // Admin view - all transactions
+            $query = Transaction::with('category');
+        }
 
         if ($startDate && $endDate) {
             $query->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
@@ -318,7 +359,7 @@ class TransactionService
     /**
      * Get yearly category breakdown for pie chart
      */
-    public function getYearlyCategoryBreakdown(User $user, ?int $year = null): array
+    public function getYearlyCategoryBreakdown(?User $user = null, ?int $year = null): array
     {
         $targetYear = $year ?? Carbon::now()->year;
         $startOfYear = Carbon::create($targetYear)->startOfYear();
@@ -330,15 +371,25 @@ class TransactionService
     /**
      * Get upcoming transactions (receivables and payables)
      */
-    public function getUpcomingTransactions(User $user, int $days = 30): Collection
+    public function getUpcomingTransactions(?User $user = null, int $days = 30): Collection
     {
-        return $user->transactions()
-            ->with('category')
-            ->whereIn('type', ['receivable', 'payable'])
-            ->where('status', 'pending')
-            ->where('due_date', '<=', Carbon::now()->addDays($days))
-            ->orderBy('due_date', 'asc')
-            ->get();
+        if ($user) {
+            return $user->transactions()
+                ->with('category')
+                ->whereIn('type', ['receivable', 'payable'])
+                ->where('status', 'pending')
+                ->where('due_date', '<=', Carbon::now()->addDays($days))
+                ->orderBy('due_date', 'asc')
+                ->get();
+        } else {
+            // Admin view - all transactions
+            return Transaction::with(['category', 'user'])
+                ->whereIn('type', ['receivable', 'payable'])
+                ->where('status', 'pending')
+                ->where('due_date', '<=', Carbon::now()->addDays($days))
+                ->orderBy('due_date', 'asc')
+                ->get();
+        }
     }
 
     /**

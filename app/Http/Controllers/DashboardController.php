@@ -31,7 +31,7 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        // Debug: Get total transaction count for user
+        // Debug: Get total transaction count
         $totalTransactions = Transaction::forUser($user->id)->count();
 
         // Get current month financial summary

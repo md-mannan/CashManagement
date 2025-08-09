@@ -45,6 +45,11 @@ export default function Transaction() {
                     category: {
                         name: string;
                     };
+                    user?: {
+                        name: string;
+                        email: string;
+                        primary_symbol: string;
+                    };
                     notes?: string;
                     metadata?: {
                         secondary_currency?: string;
@@ -563,6 +568,7 @@ export default function Transaction() {
                                     <TableHead>Type</TableHead>
                                     <TableHead>Source</TableHead>
                                     <TableHead>Category</TableHead>
+
                                     <TableHead>Amount</TableHead>
                                     <TableHead className="w-32">Actions</TableHead>
                                 </TableRow>
@@ -589,6 +595,7 @@ export default function Transaction() {
                                             </TableCell>
                                             <TableCell>{transaction.source}</TableCell>
                                             <TableCell>{transaction.category.name}</TableCell>
+
                                             <TableCell
                                                 className={
                                                     transaction.type === 'income' || transaction.type === 'receivable'
@@ -596,7 +603,8 @@ export default function Transaction() {
                                                         : 'text-red-600'
                                                 }
                                             >
-                                                {transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} {primarySymbol}{' '}
+                                                {transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'}{' '}
+                                                {transaction.user?.primary_symbol || primarySymbol}{' '}
                                                 {formatCurrency(transaction.amount, primaryCurrency)}
                                             </TableCell>
                                             <TableCell>

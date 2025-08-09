@@ -4,14 +4,32 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useToast } from '@/components/ui/toast';
+import { useNotifications } from '@/hooks/use-notifications';
 import { type BreadcrumbItem as BreadcrumbItemType, type SharedData } from '@/types';
 import { router, usePage } from '@inertiajs/react';
-import { Bell, LogOut, Settings, User } from 'lucide-react';
+import {
+    AlertCircle,
+    AlertTriangle,
+    ArrowDownLeft,
+    ArrowUpRight,
+    Bell,
+    CheckCircle,
+    DollarSign,
+    Info,
+    LogOut,
+    RefreshCw,
+    Settings,
+    TrendingDown,
+    TrendingUp,
+    User,
+    X,
+} from 'lucide-react';
 
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
     const { showToast } = useToast();
+    const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
 
     const handleLogout = () => {
         showToast({
@@ -21,6 +39,60 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
             sound: true,
         });
         router.post('/logout');
+    };
+
+    // Get icon component based on icon name
+    const getNotificationIcon = (iconName?: string) => {
+        switch (iconName) {
+            case 'CheckCircle':
+                return CheckCircle;
+            case 'AlertCircle':
+                return AlertCircle;
+            case 'AlertTriangle':
+                return AlertTriangle;
+            case 'RefreshCw':
+                return RefreshCw;
+            case 'Info':
+                return Info;
+            case 'TrendingUp':
+                return TrendingUp;
+            case 'TrendingDown':
+                return TrendingDown;
+            case 'ArrowUpRight':
+                return ArrowUpRight;
+            case 'ArrowDownLeft':
+                return ArrowDownLeft;
+            case 'DollarSign':
+                return DollarSign;
+            default:
+                return Bell;
+        }
+    };
+
+    // Get color classes based on color name
+    const getColorClasses = (color: string) => {
+        switch (color) {
+            case 'green':
+                return 'bg-green-500';
+            case 'red':
+                return 'bg-red-500';
+            case 'yellow':
+                return 'bg-yellow-500';
+            case 'blue':
+                return 'bg-blue-500';
+            case 'purple':
+                return 'bg-purple-500';
+            case 'orange':
+                return 'bg-orange-500';
+            case 'indigo':
+                return 'bg-indigo-500';
+            case 'pink':
+                return 'bg-pink-500';
+            case 'teal':
+                return 'bg-teal-500';
+            default:
+                return 'bg-blue-500';
+        }
     };
 
     return (
@@ -37,100 +109,77 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                         <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full hover:bg-accent">
                             <Bell className="h-5 w-5" />
                             {/* Notification Badge */}
-                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                                3
-                            </span>
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                </span>
+                            )}
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-80" align="end">
                         <div className="flex items-center justify-between p-2">
                             <h4 className="text-sm font-medium">Notifications</h4>
-                            <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                            <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={markAllAsRead} disabled={unreadCount === 0}>
                                 Mark all as read
                             </Button>
                         </div>
                         <div className="scrollbar-hide max-h-64 overflow-y-auto">
-                            {/* Notification Items */}
-                            <div className="border-b border-border p-3 hover:bg-accent/50">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-2 h-2 w-2 rounded-full bg-blue-500"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">New message received</p>
-                                        <p className="text-xs text-muted-foreground">You have a new message from John Doe</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">2 minutes ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border-b border-border p-3 hover:bg-accent/50">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-2 h-2 w-2 rounded-full bg-green-500"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">Task completed</p>
-                                        <p className="text-xs text-muted-foreground">Your task "Update dashboard" has been completed</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">1 hour ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-3 hover:bg-accent/50">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-2 h-2 w-2 rounded-full bg-yellow-500"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">System update</p>
-                                        <p className="text-xs text-muted-foreground">System maintenance scheduled for tomorrow</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">3 hours ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border-b border-border p-3 hover:bg-accent/50">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-2 h-2 w-2 rounded-full bg-purple-500"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">New feature available</p>
-                                        <p className="text-xs text-muted-foreground">Dark mode has been enabled for your account</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">5 hours ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border-b border-border p-3 hover:bg-accent/50">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-2 h-2 w-2 rounded-full bg-orange-500"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">Security alert</p>
-                                        <p className="text-xs text-muted-foreground">New login detected from a new device</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">1 day ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border-b border-border p-3 hover:bg-accent/50">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-2 h-2 w-2 rounded-full bg-indigo-500"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">Backup completed</p>
-                                        <p className="text-xs text-muted-foreground">Your data has been successfully backed up</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">2 days ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border-b border-border p-3 hover:bg-accent/50">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-2 h-2 w-2 rounded-full bg-pink-500"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">Welcome message</p>
-                                        <p className="text-xs text-muted-foreground">Welcome to your new dashboard!</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">1 week ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-3 hover:bg-accent/50">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-2 h-2 w-2 rounded-full bg-teal-500"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">Account verified</p>
-                                        <p className="text-xs text-muted-foreground">Your email address has been verified</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">1 week ago</p>
-                                    </div>
-                                </div>
-                            </div>
+                            {loading ? (
+                                <div className="p-4 text-center text-sm text-muted-foreground">Loading notifications...</div>
+                            ) : notifications.length === 0 ? (
+                                <div className="p-4 text-center text-sm text-muted-foreground">No notifications yet</div>
+                            ) : (
+                                notifications.map((notification, index) => {
+                                    const IconComponent = getNotificationIcon(notification.icon);
+                                    const isLast = index === notifications.length - 1;
+
+                                    return (
+                                        <div
+                                            key={notification.id}
+                                            className={`group relative p-3 hover:bg-accent/50 ${!isLast ? 'border-b border-border' : ''}`}
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <div className={`mt-2 h-2 w-2 rounded-full ${getColorClasses(notification.color)}`}></div>
+                                                <div className="flex-1">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1">
+                                                            <p
+                                                                className={`text-sm font-medium ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}
+                                                            >
+                                                                {notification.title}
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground">{notification.message}</p>
+                                                            <p className="mt-1 text-xs text-muted-foreground">{notification.time_ago}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                                            {!notification.is_read && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="h-6 w-6 p-0"
+                                                                    onClick={() => markAsRead(notification.id)}
+                                                                    title="Mark as read"
+                                                                >
+                                                                    <CheckCircle className="h-3 w-3" />
+                                                                </Button>
+                                                            )}
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-6 w-6 p-0 text-red-500 hover:text-red-600"
+                                                                onClick={() => deleteNotification(notification.id)}
+                                                                title="Delete notification"
+                                                            >
+                                                                <X className="h-3 w-3" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
                         <div className="border-t border-border p-2">
                             <Button variant="ghost" size="sm" className="w-full text-xs">
