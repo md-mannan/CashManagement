@@ -141,6 +141,19 @@ export default function Dashboard() {
     const secondarySymbol = auth.user.secondary_symbol || '€';
     const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
 
+    // Helper function to check if chart data has actual values
+    const hasChartData = (data: { datasets?: Array<{ data?: number[] }> } | null) => {
+        if (!data || !data.datasets || !Array.isArray(data.datasets)) return false;
+        return data.datasets.some((dataset) => Array.isArray(dataset.data) && dataset.data.some((value: number) => value > 0));
+    };
+
+    // Helper function to check if pie chart data has values
+    const hasPieData = (data: { datasets?: Array<{ data?: number[] }> } | null) => {
+        if (!data || !data.datasets || !Array.isArray(data.datasets)) return false;
+        const dataset = data.datasets[0];
+        return dataset && Array.isArray(dataset.data) && dataset.data.some((value: number) => value > 0);
+    };
+
     // Helper function to calculate converted amount
     const convertAmount = (amount: number, targetCurrency: string) => {
         if (targetCurrency === primaryCurrency) return amount;
@@ -235,10 +248,10 @@ export default function Dashboard() {
                     size: 13,
                 },
                 callbacks: {
-                    title: function (context: Array<{ label: string }>) {
+                    title: function (context: any) {
                         return `📅 ${context[0].label}`;
                     },
-                    label: function (context: { dataset: { label: string }; parsed: { y: number } }) {
+                    label: function (context: any) {
                         const label = context.dataset.label || '';
                         const value = context.parsed.y;
 
@@ -291,8 +304,8 @@ export default function Dashboard() {
                         size: 12,
                     },
                     color: '#666',
-                    callback: function (value: number) {
-                        return `${primarySymbol} ${formatCurrency(value)}`;
+                    callback: function (value: any) {
+                        return `${primarySymbol} ${formatCurrency(Number(value))}`;
                     },
                 },
                 title: {
@@ -636,18 +649,19 @@ export default function Dashboard() {
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <BarChart3 className="h-5 w-5" />
-                                        Last 6 Months Analytics
+                                        Monthly Analytics
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="h-80 w-full">
-                                        {monthlyData ? (
-                                            <Chart type="bar" data={monthlyData} options={chartOptions} />
+                                        {hasChartData(monthlyData) && monthlyData ? (
+                                            <Chart type="bar" data={monthlyData as any} options={chartOptions as any} />
                                         ) : (
                                             <div className="flex h-full items-center justify-center text-muted-foreground">
                                                 <div className="text-center">
                                                     <BarChart3 className="mx-auto h-12 w-12 opacity-20" />
                                                     <p className="mt-2 text-sm">No transaction data available</p>
+                                                    <p className="mt-1 text-xs text-gray-500">Add some transactions to see analytics</p>
                                                 </div>
                                             </div>
                                         )}
@@ -663,18 +677,19 @@ export default function Dashboard() {
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <BarChart3 className="h-5 w-5" />
-                                        Last 5 Years Analytics
+                                        Yearly Analytics
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="h-80 w-full">
-                                        {yearlyData ? (
-                                            <Chart type="bar" data={yearlyData} options={chartOptions} />
+                                        {hasChartData(yearlyData) && yearlyData ? (
+                                            <Chart type="bar" data={yearlyData as any} options={chartOptions as any} />
                                         ) : (
                                             <div className="flex h-full items-center justify-center text-muted-foreground">
                                                 <div className="text-center">
                                                     <BarChart3 className="mx-auto h-12 w-12 opacity-20" />
-                                                    <p className="mt-2 text-sm">No yearly data available</p>
+                                                    <p className="mt-2 text-sm">No transaction data available</p>
+                                                    <p className="mt-1 text-xs text-gray-500">Add some transactions to see yearly trends</p>
                                                 </div>
                                             </div>
                                         )}
@@ -704,13 +719,14 @@ export default function Dashboard() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="h-80 w-full">
-                                        {categoryData ? (
+                                        {hasPieData(categoryData) && categoryData ? (
                                             <Chart type="pie" data={categoryData} options={pieChartOptions} />
                                         ) : (
                                             <div className="flex h-full items-center justify-center text-muted-foreground">
                                                 <div className="text-center">
                                                     <PieChart className="mx-auto h-12 w-12 opacity-20" />
-                                                    <p className="mt-2 text-sm">No category data available</p>
+                                                    <p className="mt-2 text-sm">No category data available for this month</p>
+                                                    <p className="mt-1 text-xs text-gray-500">Add transactions to see category breakdown</p>
                                                 </div>
                                             </div>
                                         )}
@@ -731,13 +747,14 @@ export default function Dashboard() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="h-80 w-full">
-                                        {yearlyCategoryData ? (
+                                        {hasPieData(yearlyCategoryData) && yearlyCategoryData ? (
                                             <Chart type="pie" data={yearlyCategoryData} options={pieChartOptions} />
                                         ) : (
                                             <div className="flex h-full items-center justify-center text-muted-foreground">
                                                 <div className="text-center">
                                                     <PieChart className="mx-auto h-12 w-12 opacity-20" />
-                                                    <p className="mt-2 text-sm">No yearly category data available</p>
+                                                    <p className="mt-2 text-sm">No category data available for this year</p>
+                                                    <p className="mt-1 text-xs text-gray-500">Add transactions to see yearly distribution</p>
                                                 </div>
                                             </div>
                                         )}

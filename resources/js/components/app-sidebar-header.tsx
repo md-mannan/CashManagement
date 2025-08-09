@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useToast } from '@/components/ui/toast';
 import { type BreadcrumbItem as BreadcrumbItemType, type SharedData } from '@/types';
 import { router, usePage } from '@inertiajs/react';
 import { Bell, LogOut, Settings, User } from 'lucide-react';
@@ -10,6 +11,17 @@ import { Bell, LogOut, Settings, User } from 'lucide-react';
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
+    const { showToast } = useToast();
+
+    const handleLogout = () => {
+        showToast({
+            type: 'success',
+            title: 'Logged out',
+            message: 'You have been logged out successfully.',
+            sound: true,
+        });
+        router.post('/logout');
+    };
 
     return (
         <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 bg-sidebar px-6 shadow-[8px_3px_4px_rgba(0,0,0,0.08)] transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4 dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
@@ -163,7 +175,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                             <Settings className="mr-2 h-4 w-4" />
                             <span>Settings</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => router.post('/logout')} className="text-red-600 focus:text-red-600">
+                        <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                             <LogOut className="mr-2 h-4 w-4" />
                             <span>Logout</span>
                         </DropdownMenuItem>

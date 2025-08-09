@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/toast';
 import AuthLayout from '@/layouts/auth-layout';
 
 type LoginForm = {
@@ -28,10 +29,28 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         remember: false,
     });
 
+    const { showToast } = useToast();
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
         post(route('login'), {
+            onSuccess: () => {
+                showToast({
+                    type: 'success',
+                    title: 'Welcome back!',
+                    message: 'You have been logged in successfully.',
+                    sound: true,
+                });
+            },
+            onError: (errors) => {
+                showToast({
+                    type: 'error',
+                    title: 'Login Failed',
+                    message: errors.email || 'Invalid credentials. Please try again.',
+                    sound: true,
+                });
+            },
             onFinish: () => reset('password'),
         });
     };

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Settings\AppearanceController;
 use App\Http\Controllers\Settings\CurrencyController;
+use App\Http\Controllers\Settings\ExchangeRateController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -28,8 +29,14 @@ Route::middleware('auth')->group(function () {
     // Legacy route for backward compatibility
     Route::get('settings/appearance', [AppearanceController::class, 'edit'])->name('appearance');
 
-        // Currency settings
+    // Currency settings
     Route::get('settings/currency', [CurrencyController::class, 'edit'])->name('currency.edit');
     Route::patch('settings/currency', [CurrencyController::class, 'update'])->name('currency.update');
     Route::get('settings/currency/live-rate', [CurrencyController::class, 'getLiveRate'])->name('currency.live-rate');
+
+    // Exchange Rate API settings
+    Route::get('settings/exchange-rate', [ExchangeRateController::class, 'edit'])->name('exchange-rate.edit');
+    Route::patch('settings/exchange-rate', [ExchangeRateController::class, 'update'])->name('exchange-rate.update');
+    Route::delete('settings/exchange-rate', [ExchangeRateController::class, 'destroy'])->name('exchange-rate.destroy');
+    Route::post('settings/exchange-rate/test', [ExchangeRateController::class, 'test'])->name('exchange-rate.test');
 });

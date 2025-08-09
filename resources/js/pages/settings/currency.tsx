@@ -63,15 +63,17 @@ const currencies = [
 ];
 
 export default function Currency() {
-    const { user_preferences } = usePage<SharedData & {
-        user_preferences: {
-            primary_currency: string;
-            secondary_currency: string;
-            primary_symbol: string;
-            secondary_symbol: string;
-            exchange_rate: string;
-        };
-    }>().props;
+    const { user_preferences } = usePage<
+        SharedData & {
+            user_preferences: {
+                primary_currency: string;
+                secondary_currency: string;
+                primary_symbol: string;
+                secondary_symbol: string;
+                exchange_rate: string;
+            };
+        }
+    >().props;
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<CurrencyForm>>({
         primary_currency: user_preferences.primary_currency || 'USD',
@@ -111,23 +113,23 @@ export default function Currency() {
         fetchLiveExchangeRate(value, data.primary_currency);
     };
 
-    const fetchLiveExchangeRate = useCallback(async (from: string, to: string) => {
-        if (!from || !to || from === to) return;
+    const fetchLiveExchangeRate = useCallback(
+        async (from: string, to: string) => {
+            if (!from || !to || from === to) return;
 
-        setIsLoadingRate(true);
-        try {
-            console.log(`Fetching rate FROM: ${from} TO: ${to}`);
-            // Use your existing exchange rate service
-            const rate = await getExchangeRateForTransaction(from, to);
-            console.log(`Fetched rate: 1 ${from} = ${rate} ${to}`);
+            setIsLoadingRate(true);
+            try {
+                // Use your existing exchange rate service
+                const rate = await getExchangeRateForTransaction(from, to);
 
-            setData('exchange_rate', rate.toFixed(4));
-        } catch (error) {
-            console.error('Failed to fetch live exchange rate:', error);
-        } finally {
-            setIsLoadingRate(false);
-        }
-    }, [setData]);
+                setData('exchange_rate', rate.toFixed(4));
+            } catch (error) {
+            } finally {
+                setIsLoadingRate(false);
+            }
+        },
+        [setData],
+    );
 
     // Auto-fetch exchange rate when both currencies are selected
     useEffect(() => {
@@ -221,7 +223,7 @@ export default function Currency() {
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="exchange_rate" className="flex items-center gap-2">
                                     Exchange Rate (1 {data.secondary_currency} = ? {data.primary_currency})
-                                    <span className="text-xs text-green-600 font-medium">📈</span>
+                                    <span className="text-xs font-medium text-green-600">📈</span>
                                 </Label>
                                 <div className="flex items-center gap-2">
                                     {isLoadingRate && (
@@ -255,9 +257,7 @@ export default function Currency() {
                                 placeholder="1.0"
                                 disabled={isLoadingRate}
                             />
-                            <p className="text-sm text-muted-foreground">
-                                Set the current exchange rate between your currencies
-                            </p>
+                            <p className="text-sm text-muted-foreground">Set the current exchange rate between your currencies</p>
                             <InputError className="mt-2" message={errors.exchange_rate} />
                         </div>
 

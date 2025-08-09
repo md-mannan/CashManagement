@@ -7,6 +7,7 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/toast';
 import AuthLayout from '@/layouts/auth-layout';
 
 type RegisterForm = {
@@ -24,9 +25,28 @@ export default function Register() {
         password_confirmation: '',
     });
 
+    const { showToast } = useToast();
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('register'), {
+            onSuccess: () => {
+                showToast({
+                    type: 'success',
+                    title: 'Account Created!',
+                    message: 'Your account has been created successfully. Welcome!',
+                    sound: true,
+                });
+            },
+            onError: (errors) => {
+                const firstError = Object.values(errors)[0];
+                showToast({
+                    type: 'error',
+                    title: 'Registration Failed',
+                    message: Array.isArray(firstError) ? firstError[0] : firstError || 'Please check your information and try again.',
+                    sound: true,
+                });
+            },
             onFinish: () => reset('password', 'password_confirmation'),
         });
     };

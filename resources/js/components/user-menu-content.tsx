@@ -1,4 +1,5 @@
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/components/ui/toast';
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { type User } from '@/types';
@@ -11,10 +12,19 @@ interface UserMenuContentProps {
 
 export function UserMenuContent({ user }: UserMenuContentProps) {
     const cleanup = useMobileNavigation();
+    const { showToast } = useToast();
 
     const handleLogout = () => {
         cleanup();
         router.flushAll();
+
+        // Show logout toast
+        showToast({
+            type: 'success',
+            title: 'Logged out',
+            message: 'You have been logged out successfully.',
+            sound: true,
+        });
     };
 
     return (

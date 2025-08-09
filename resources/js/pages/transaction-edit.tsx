@@ -43,13 +43,13 @@ interface TransactionFormData {
     date: string;
     description: string;
     type: 'income' | 'expense' | 'receivable' | 'payable';
-    amount: number;
+    amount: number | string;
     source: string;
     category: string;
     notes: string;
     secondaryCurrency?: string;
-    exchangeRate?: number;
-    secondaryAmount?: number;
+    exchangeRate?: number | string;
+    secondaryAmount?: number | string;
 }
 
 // Available currencies for selection
@@ -110,13 +110,13 @@ export default function TransactionEdit() {
         date: '',
         description: '',
         type: 'income',
-        amount: 0,
+        amount: '',
         source: '',
         category: '',
         notes: '',
         secondaryCurrency: '',
-        exchangeRate: 1,
-        secondaryAmount: 0,
+        exchangeRate: '',
+        secondaryAmount: '',
     });
 
     const [isFormInitialized, setIsFormInitialized] = useState(false);
@@ -124,6 +124,7 @@ export default function TransactionEdit() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingRate, setIsLoadingRate] = useState(false);
+    const [rateSource, setRateSource] = useState<'database' | 'api' | 'manual'>('database');
 
     const { showToast } = useToast();
 
@@ -181,38 +182,48 @@ export default function TransactionEdit() {
         return value.toFixed(props.decimals);
     };
 
-    // Fetch real-time exchange rate
+    // Fetch real-time exchange rate (only when user explicitly requests)
     const fetchRealTimeRate = useCallback(
         async (secondaryCurrency: string) => {
             if (!secondaryCurrency || secondaryCurrency === primaryCurrency) return;
 
-            console.log(`Fetching real-time rate for ${secondaryCurrency} -> ${primaryCurrency}`);
             setIsLoadingRate(true);
 
             try {
                 const rate = await getExchangeRateForTransaction(secondaryCurrency, primaryCurrency);
-                console.log(`Fetched rate: 1 ${secondaryCurrency} = ${rate} ${primaryCurrency}`);
+                const roundedRate = Math.round(rate * 100) / 100; // Round to 2 decimal places
 
                 setFormData((prev) => ({
                     ...prev,
-                    exchangeRate: rate,
+                    exchangeRate: roundedRate,
                 }));
+
+                setRateSource('api');
+
+                showToast({
+                    type: 'success',
+                    title: 'Exchange Rate Updated',
+                    message: `Updated rate: 1 ${secondaryCurrency} = ${roundedRate} ${primaryCurrency}`,
+                });
             } catch (error) {
-                console.error('Error fetching exchange rate:', error);
+                showToast({
+                    type: 'error',
+                    title: 'Failed to Update Rate',
+                    message: 'Could not fetch the latest exchange rate. Please try again.',
+                });
             } finally {
                 setIsLoadingRate(false);
             }
         },
-        [primaryCurrency],
+        [primaryCurrency, showToast],
     );
 
-    // Fetch rate when secondary currency changes (but not during initial form load)
-    useEffect(() => {
-        if (isFormInitialized && formData.secondaryCurrency && formData.secondaryCurrency !== primaryCurrency) {
-            console.log('useEffect triggered - fetching rate for:', formData.secondaryCurrency);
+    // Handle refresh rate button click
+    const handleRefreshRate = () => {
+        if (formData.secondaryCurrency && formData.secondaryCurrency !== primaryCurrency) {
             fetchRealTimeRate(formData.secondaryCurrency);
         }
-    }, [formData.secondaryCurrency, primaryCurrency, fetchRealTimeRate, isFormInitialized]);
+    };
 
     // Initialize form data when transaction is found
     useEffect(() => {
@@ -234,6 +245,7 @@ export default function TransactionEdit() {
 
             setFormData(newFormData);
             setIsFormInitialized(true);
+            setRateSource('database'); // Rate loaded from database
 
             // Small delay to ensure form data is set before allowing conversions
             setTimeout(() => {
@@ -275,37 +287,30 @@ export default function TransactionEdit() {
 
         // Handle secondary currency change
         if (field === 'secondaryCurrency') {
-            // Get default rate for new currency
-            const getDefaultRate = async (currency: string) => {
-                try {
-                    const rate = await getExchangeRateForTransaction(currency, primaryCurrency);
-                    setFormData((prev) => ({
-                        ...prev,
-                        exchangeRate: rate,
-                        secondaryAmount: 0,
-                    }));
-                } catch (error) {
-                    console.error('Error getting default rate:', error);
-                }
-                // Also fetch real-time rate
-                fetchRealTimeRate(value as string);
-            };
+            // Only reset amounts when currency changes, don't auto-fetch rates
+            setFormData((prev) => ({
+                ...prev,
+                secondaryAmount: 0, // Reset secondary amount
+                exchangeRate: 1, // Reset to default rate - user can refresh if needed
+            }));
 
-            if (value !== primaryCurrency) {
-                getDefaultRate(value as string);
-            }
+            // Rate reset to 1. User can click refresh to get current rate.
         }
 
         // Update secondary amount when exchange rate changes
-        if (field === 'exchangeRate' && formData.secondaryAmount && formData.secondaryAmount > 0) {
-            const primaryAmount = convertToPrimaryCurrency(formData.secondaryAmount, value as number);
-            // Round to appropriate decimal places
-            const props = getCurrencyInputProps(primaryCurrency);
-            const roundedPrimaryAmount = Math.round(primaryAmount * Math.pow(10, props.decimals)) / Math.pow(10, props.decimals);
-            setFormData((prev) => ({
-                ...prev,
-                amount: roundedPrimaryAmount,
-            }));
+        if (field === 'exchangeRate') {
+            setRateSource('manual'); // User manually entered rate
+
+            if (formData.secondaryAmount && formData.secondaryAmount > 0) {
+                const primaryAmount = convertToPrimaryCurrency(formData.secondaryAmount, value as number);
+                // Round to appropriate decimal places
+                const props = getCurrencyInputProps(primaryCurrency);
+                const roundedPrimaryAmount = Math.round(primaryAmount * Math.pow(10, props.decimals)) / Math.pow(10, props.decimals);
+                setFormData((prev) => ({
+                    ...prev,
+                    amount: roundedPrimaryAmount,
+                }));
+            }
         }
 
         // Update secondary amount when primary amount changes
@@ -347,14 +352,18 @@ export default function TransactionEdit() {
         }
 
         // If not found, we need to create it (similar to store method)
-        if (!categoryId) {
-            console.warn('Category not found in backend categories, will be created:', formData.category);
-        }
+        // Category will be created if not found
+
+        // Convert string values to numbers for backend
+        const amountNumeric = typeof formData.amount === 'string' ? parseFloat(formData.amount) || 0 : formData.amount;
+        const exchangeRateNumeric = typeof formData.exchangeRate === 'string' ? parseFloat(formData.exchangeRate) || 1 : formData.exchangeRate || 1;
+        const secondaryAmountNumeric =
+            typeof formData.secondaryAmount === 'string' ? parseFloat(formData.secondaryAmount) || 0 : formData.secondaryAmount || 0;
 
         // Prepare transaction data for backend
         const transactionData = {
             type: formData.type,
-            amount: formData.amount,
+            amount: amountNumeric,
             description: formData.description,
             source: formData.source,
             date: formData.date,
@@ -366,15 +375,13 @@ export default function TransactionEdit() {
             metadata: formData.secondaryCurrency
                 ? {
                       secondary_currency: formData.secondaryCurrency,
-                      exchange_rate: formData.exchangeRate,
-                      secondary_amount: formData.secondaryAmount,
+                      exchange_rate: exchangeRateNumeric,
+                      secondary_amount: secondaryAmountNumeric,
                       primary_currency: primaryCurrency,
                       primary_symbol: primarySymbol,
                   }
                 : null,
         };
-
-        console.log('Updating transaction data:', transactionData);
 
         // Submit to backend using Inertia
         router.put(`/transactions/${transaction.id}`, transactionData, {
@@ -386,8 +393,7 @@ export default function TransactionEdit() {
                     message: 'Your transaction has been successfully updated.',
                     sound: true,
                 });
-                // Redirect immediately to transaction list
-                router.visit('/transaction');
+                // Backend will handle redirect to transaction list
             },
             onError: (errors) => {
                 setIsLoading(false);
@@ -397,13 +403,12 @@ export default function TransactionEdit() {
                     message: 'There was an error updating your transaction. Please try again.',
                     sound: true,
                 });
-                console.error('Error updating transaction:', errors);
             },
         });
     };
 
     const handleCancel = () => {
-        router.visit('/transaction');
+        router.get('/transaction');
     };
 
     if (!transaction) {
@@ -503,11 +508,14 @@ export default function TransactionEdit() {
                                         <Label htmlFor="amount">Amount ({primarySymbol}) *</Label>
                                         <Input
                                             id="amount"
-                                            type="number"
-                                            step={getCurrencyInputProps(primaryCurrency).step}
+                                            type="text"
                                             placeholder={getCurrencyInputProps(primaryCurrency).placeholder}
-                                            value={formData.amount || ''}
-                                            onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+                                            value={formData.amount ? formData.amount.toString() : ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                // Simple - no validation, store as string to preserve decimal input
+                                                handleInputChange('amount', value);
+                                            }}
                                             required
                                         />
                                     </div>
@@ -558,9 +566,10 @@ export default function TransactionEdit() {
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={() => fetchRealTimeRate(formData.secondaryCurrency!)}
+                                                    onClick={handleRefreshRate}
                                                     disabled={isLoadingRate}
                                                     className="h-6 w-6 p-0"
+                                                    title="Refresh exchange rate from API"
                                                 >
                                                     <RefreshCw className={`h-3 w-3 ${isLoadingRate ? 'animate-spin' : ''}`} />
                                                 </Button>
@@ -568,14 +577,25 @@ export default function TransactionEdit() {
                                         </div>
                                         <Input
                                             id="exchangeRate"
-                                            type="number"
-                                            step="0.001"
-                                            placeholder="1.000"
-                                            value={formData.exchangeRate || ''}
-                                            onChange={(e) => handleInputChange('exchangeRate', parseFloat(e.target.value) || 1)}
+                                            type="text"
+                                            placeholder="1.00"
+                                            value={formData.exchangeRate ? formData.exchangeRate.toString() : ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                // Simple - no validation, store as string to preserve decimal input
+                                                handleInputChange('exchangeRate', value);
+                                            }}
                                             disabled={!formData.secondaryCurrency || isLoadingRate}
                                             className="text-sm"
                                         />
+                                        {formData.secondaryCurrency && (
+                                            <div className="mt-1 flex items-center justify-between text-xs text-gray-500">
+                                                <span>
+                                                    Rate source: {rateSource === 'database' ? 'Stored' : rateSource === 'api' ? 'Live API' : 'Manual'}
+                                                </span>
+                                                {rateSource === 'database' && <span className="text-amber-600">Click refresh for current rate</span>}
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Secondary Amount */}
@@ -587,17 +607,22 @@ export default function TransactionEdit() {
                                             </Label>
                                             <Input
                                                 id="secondaryAmount"
-                                                type="number"
-                                                step={getCurrencyInputProps(formData.secondaryCurrency || 'USD').step}
+                                                type="text"
                                                 placeholder={getCurrencyInputProps(formData.secondaryCurrency || 'USD').placeholder}
-                                                value={formData.secondaryAmount || ''}
+                                                value={formData.secondaryAmount !== undefined ? formData.secondaryAmount.toString() : ''}
                                                 onChange={(e) => {
-                                                    const secondaryAmount = parseFloat(e.target.value) || 0;
-                                                    const primaryAmount = convertToPrimaryCurrency(secondaryAmount, formData.exchangeRate || 1);
+                                                    const value = e.target.value;
+                                                    // Simple - no validation, store as string and calculate conversion
+                                                    const numericValue = value === '' ? 0 : parseFloat(value) || 0;
+                                                    const exchangeRateValue =
+                                                        typeof formData.exchangeRate === 'string'
+                                                            ? parseFloat(formData.exchangeRate) || 1
+                                                            : formData.exchangeRate || 1;
+                                                    const primaryAmount = convertToPrimaryCurrency(numericValue, exchangeRateValue);
                                                     setFormData((prev) => ({
                                                         ...prev,
-                                                        secondaryAmount,
-                                                        amount: primaryAmount,
+                                                        secondaryAmount: value,
+                                                        amount: primaryAmount.toString(),
                                                     }));
                                                 }}
                                                 className="text-sm"

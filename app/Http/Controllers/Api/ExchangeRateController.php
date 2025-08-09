@@ -30,7 +30,8 @@ class ExchangeRateController extends Controller
         try {
             $rate = $this->exchangeRateService->getExchangeRate(
                 strtoupper($validated['from']),
-                strtoupper($validated['to'])
+                strtoupper($validated['to']),
+                auth()->user()
             );
 
             return response()->json([
@@ -65,7 +66,7 @@ class ExchangeRateController extends Controller
         $baseCurrency = strtoupper($validated['base'] ?? 'USD');
 
         try {
-            $rates = $this->exchangeRateService->getCurrentRates($baseCurrency);
+            $rates = $this->exchangeRateService->getCurrentRates($baseCurrency, auth()->user());
 
             return response()->json([
                 'success' => true,
@@ -119,7 +120,8 @@ class ExchangeRateController extends Controller
         try {
             $rate = $this->exchangeRateService->getExchangeRate(
                 strtoupper($validated['from']),
-                strtoupper($validated['to'])
+                strtoupper($validated['to']),
+                auth()->user()
             );
 
             $convertedAmount = $validated['amount'] * $rate;
@@ -146,33 +148,58 @@ class ExchangeRateController extends Controller
     }
 
     /**
-     * Clear exchange rate cache (admin only)
+     * Sync all exchange rates
      */
-    public function clearCache(): JsonResponse
+    public function syncRates(): JsonResponse
     {
         try {
-            $this->exchangeRateService->clearCache();
+            $results = $this->exchangeRateService->syncAllRates(auth()->user());
+
+            $successCount = collect($results)->where('status', 'success')->count();
+            $totalCount = count($results);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Exchange rate cache cleared successfully'
+                'message' => "Synced {$successCount}/{$totalCount} exchange rates successfully",
+                'data' => $results
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to clear cache',
+                'message' => 'Failed to sync exchange rates',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Get cache status for debugging
+     * Clear old exchange rates
      */
-    public function getCacheStatus(): JsonResponse
+    public function clearOldRates(): JsonResponse
     {
         try {
-            $status = $this->exchangeRateService->getCacheStatus();
+            $deletedCount = $this->exchangeRateService->clearOldRates();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Cleared {$deletedCount} old exchange rates"
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to clear old rates',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get database status for debugging
+     */
+    public function getDatabaseStatus(): JsonResponse
+    {
+        try {
+            $status = $this->exchangeRateService->getDatabaseStatus();
 
             return response()->json([
                 'success' => true,
@@ -181,7 +208,7 @@ class ExchangeRateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get cache status',
+                'message' => 'Failed to get database status',
                 'error' => $e->getMessage()
             ], 500);
         }

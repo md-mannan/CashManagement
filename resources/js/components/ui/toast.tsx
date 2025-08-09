@@ -71,7 +71,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 }, index * 150);
             });
         } catch (error) {
-            console.warn('Could not play toast sound:', error);
+
         }
     };
 

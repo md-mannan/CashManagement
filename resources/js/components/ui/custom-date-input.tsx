@@ -29,7 +29,7 @@ export const CustomDateInput: React.FC<CustomDateInputProps> = ({
     // Convert YYYY-MM-DD or datetime to DD/MM/YYYY for display
     const formatDateForDisplay = (dateStr: string) => {
         if (!dateStr) return '';
-        console.log('Formatting date for display:', dateStr);
+
 
         // Handle datetime format (e.g., "2025-08-09T00:00:00.000000Z" or "2025-08-09")
         let datePart = dateStr;
@@ -39,12 +39,12 @@ export const CustomDateInput: React.FC<CustomDateInputProps> = ({
 
         const [year, month, day] = datePart.split('-');
         if (!year || !month || !day) {
-            console.error('Invalid date format:', dateStr);
+
             return '';
         }
 
         const formatted = `${day}/${month}/${year}`;
-        console.log('Formatted date:', formatted);
+
         return formatted;
     };
 

@@ -32,6 +32,8 @@ class User extends Authenticatable
         'timezone',
         'date_format',
         'time_format',
+        'exchange_rate_api_key',
+        'exchange_rate_api_provider',
     ];
 
     /**
@@ -42,6 +44,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'exchange_rate_api_key',
     ];
 
     /**

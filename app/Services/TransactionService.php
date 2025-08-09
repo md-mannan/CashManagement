@@ -91,9 +91,9 @@ class TransactionService
     }
 
     /**
-     * Get monthly chart data for dashboard
+     * Get monthly chart data for dashboard - shows all months with transaction data
      */
-    public function getMonthlyChartData(User $user, int $months = 6): array
+    public function getMonthlyChartData(User $user): array
     {
         $data = [
             'labels' => [],
@@ -129,29 +129,42 @@ class TransactionService
             ],
         ];
 
-        for ($i = $months - 1; $i >= 0; $i--) {
-            $month = Carbon::now()->subMonths($i);
-            $startOfMonth = $month->copy()->startOfMonth();
-            $endOfMonth = $month->copy()->endOfMonth();
+        // Get all unique year-month combinations from user's transactions
+        $monthlyPeriods = $user->transactions()
+            ->selectRaw('YEAR(date) as year, MONTH(date) as month')
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get();
 
+        // If no transactions found, return empty data
+        if ($monthlyPeriods->isEmpty()) {
+            return $data;
+        }
+
+        foreach ($monthlyPeriods as $period) {
+            $startOfMonth = Carbon::create($period->year, $period->month, 1)->startOfMonth();
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+            // Get all transactions for this month
             $transactions = $user->transactions()
-                ->dateRange($startOfMonth, $endOfMonth)
+                ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
                 ->get();
 
-            $data['labels'][] = $month->format('M Y');
-            $data['datasets'][0]['data'][] = $transactions->where('type', 'income')->sum('amount');
-            $data['datasets'][1]['data'][] = $transactions->where('type', 'expense')->sum('amount');
-            $data['datasets'][2]['data'][] = $transactions->where('type', 'receivable')->sum('amount');
-            $data['datasets'][3]['data'][] = $transactions->where('type', 'payable')->sum('amount');
+            $data['labels'][] = $startOfMonth->format('M Y');
+            $data['datasets'][0]['data'][] = (float) $transactions->where('type', 'income')->sum('amount');
+            $data['datasets'][1]['data'][] = (float) $transactions->where('type', 'expense')->sum('amount');
+            $data['datasets'][2]['data'][] = (float) $transactions->where('type', 'receivable')->sum('amount');
+            $data['datasets'][3]['data'][] = (float) $transactions->where('type', 'payable')->sum('amount');
         }
 
         return $data;
     }
 
     /**
-     * Get yearly chart data for dashboard
+     * Get yearly chart data for dashboard - shows all years with transaction data
      */
-    public function getYearlyChartData(User $user, int $years = 5): array
+    public function getYearlyChartData(User $user): array
     {
         $data = [
             'labels' => [],
@@ -187,20 +200,32 @@ class TransactionService
             ],
         ];
 
-        for ($i = $years - 1; $i >= 0; $i--) {
-            $year = Carbon::now()->subYears($i);
-            $startOfYear = $year->copy()->startOfYear();
-            $endOfYear = $year->copy()->endOfYear();
+        // Get all unique years from user's transactions
+        $yearlyPeriods = $user->transactions()
+            ->selectRaw('YEAR(date) as year')
+            ->groupBy('year')
+            ->orderBy('year', 'asc')
+            ->get();
 
+        // If no transactions found, return empty data
+        if ($yearlyPeriods->isEmpty()) {
+            return $data;
+        }
+
+        foreach ($yearlyPeriods as $period) {
+            $startOfYear = Carbon::create($period->year, 1, 1)->startOfYear();
+            $endOfYear = $startOfYear->copy()->endOfYear();
+
+            // Get all transactions for this year
             $transactions = $user->transactions()
-                ->dateRange($startOfYear, $endOfYear)
+                ->whereBetween('date', [$startOfYear->format('Y-m-d'), $endOfYear->format('Y-m-d')])
                 ->get();
 
-            $data['labels'][] = $year->format('Y');
-            $data['datasets'][0]['data'][] = $transactions->where('type', 'income')->sum('amount');
-            $data['datasets'][1]['data'][] = $transactions->where('type', 'expense')->sum('amount');
-            $data['datasets'][2]['data'][] = $transactions->where('type', 'receivable')->sum('amount');
-            $data['datasets'][3]['data'][] = $transactions->where('type', 'payable')->sum('amount');
+            $data['labels'][] = $period->year;
+            $data['datasets'][0]['data'][] = (float) $transactions->where('type', 'income')->sum('amount');
+            $data['datasets'][1]['data'][] = (float) $transactions->where('type', 'expense')->sum('amount');
+            $data['datasets'][2]['data'][] = (float) $transactions->where('type', 'receivable')->sum('amount');
+            $data['datasets'][3]['data'][] = (float) $transactions->where('type', 'payable')->sum('amount');
         }
 
         return $data;
@@ -214,7 +239,7 @@ class TransactionService
         $query = $user->transactions()->with('category');
 
         if ($startDate && $endDate) {
-            $query->dateRange($startDate, $endDate);
+            $query->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
         }
 
         $transactions = $query->get();

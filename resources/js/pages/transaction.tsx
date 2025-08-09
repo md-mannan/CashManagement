@@ -208,7 +208,6 @@ export default function Transaction() {
                         message: 'There was an error deleting the transaction. Please try again.',
                         sound: true,
                     });
-                    console.error('Error deleting transaction:', errors);
                 },
             });
         }
@@ -217,7 +216,6 @@ export default function Transaction() {
 
     const handleEditConfirm = () => {
         if (editConfirmation.transactionId) {
-            console.log('Editing transaction:', editConfirmation.transactionId);
             router.visit(`/transaction/${editConfirmation.transactionId}/edit`);
         }
         setEditConfirmation({ isOpen: false, transactionId: null });

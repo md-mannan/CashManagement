@@ -20,7 +20,8 @@ class TransactionController extends Controller
     {
         $query = Transaction::with('category')
             ->forUser(Auth::id())
-            ->orderBy('date', 'desc');
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc');
 
         // Apply filters
         if ($request->filled('type') && $request->type !== 'all') {
@@ -135,8 +136,8 @@ class TransactionController extends Controller
             'metadata' => $request->metadata,
         ]);
 
-        // Return success response for Inertia (frontend will handle redirect)
-        return back()->with('success', 'Transaction created successfully.');
+        // Redirect to transaction list with success message
+        return to_route('transaction')->with('success', 'Transaction created successfully.');
     }
 
     /**
@@ -235,8 +236,8 @@ class TransactionController extends Controller
             'metadata' => $request->metadata,
         ]);
 
-        // Return success response for Inertia (frontend will handle redirect)
-        return back()->with('success', 'Transaction updated successfully.');
+        // Redirect to transaction list with success message
+        return to_route('transaction')->with('success', 'Transaction updated successfully.');
     }
 
     /**

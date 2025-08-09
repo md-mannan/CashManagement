@@ -31,6 +31,9 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
+        // Debug: Get total transaction count for user
+        $totalTransactions = Transaction::forUser($user->id)->count();
+
         // Get current month financial summary
         $currentSummary = $this->transactionService->getFinancialSummary(
             $user,
@@ -79,6 +82,11 @@ class DashboardController extends Controller
             'categoryData' => $categoryData,
             'yearlyCategoryData' => $yearlyCategoryData,
             'upcomingTransactions' => $upcomingTransactions,
+            'debug' => [
+                'totalTransactions' => $totalTransactions,
+                'currentMonth' => $currentMonth->format('Y-m-d'),
+                'monthlyDataSample' => $monthlyData['datasets'][0]['data'] ?? [],
+            ],
         ]);
     }
 

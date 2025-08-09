@@ -18,7 +18,8 @@ Route::prefix('exchange-rates')->group(function () {
 
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/clear-cache', [ExchangeRateController::class, 'clearCache']);
-        Route::get('/cache-status', [ExchangeRateController::class, 'getCacheStatus']);
+        Route::post('/sync', [ExchangeRateController::class, 'syncRates']);
+        Route::delete('/old-rates', [ExchangeRateController::class, 'clearOldRates']);
+        Route::get('/database-status', [ExchangeRateController::class, 'getDatabaseStatus']);
     });
 });

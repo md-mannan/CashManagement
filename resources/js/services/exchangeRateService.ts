@@ -114,7 +114,6 @@ class ExchangeRateService {
 
             return null;
         } catch (error) {
-            console.error('Error fetching exchange rate:', error);
             return this.getFallbackRate(fromCurrency, toCurrency);
         }
     }
@@ -133,7 +132,6 @@ class ExchangeRateService {
             // Fallback to hardcoded rates
             return FALLBACK_RATES;
         } catch (error) {
-            console.error('Error fetching all rates:', error);
             return FALLBACK_RATES;
         }
     }
@@ -157,9 +155,6 @@ class ExchangeRateService {
                         // 1 KWD = (1/kwdToUsdRate) USD = (1/kwdToUsdRate) * targetRate target currency
                         const finalRate = targetRate / kwdToUsdRate;
 
-                        console.log(`API rates: 1 USD = ${kwdToUsdRate} KWD, 1 USD = ${targetRate} ${toCurrency}`);
-                        console.log(`Calculated: 1 KWD = ${finalRate} ${toCurrency}`);
-
                         return {
                             currency: toCurrency,
                             buyRate: finalRate * 0.999, // Slightly lower for buy rate
@@ -169,9 +164,7 @@ class ExchangeRateService {
                         };
                     }
                 }
-            } catch (error) {
-                console.warn('Exchange Rate API failed:', error);
-            }
+            } catch (error) {}
         }
 
         // Fallback: try the original KWD-based API
@@ -181,7 +174,6 @@ class ExchangeRateService {
                 const data = await response.json();
                 const rate = data.rates[toCurrency];
                 if (rate) {
-                    console.log(`Direct KWD API rate: 1 KWD = ${rate} ${toCurrency}`);
                     return {
                         currency: toCurrency,
                         buyRate: rate * 0.999,
@@ -191,9 +183,7 @@ class ExchangeRateService {
                     };
                 }
             }
-        } catch (error) {
-            console.warn('Direct KWD API failed:', error);
-        }
+        } catch (error) {}
 
         return null;
     }
@@ -224,9 +214,7 @@ class ExchangeRateService {
 
                 return rates;
             }
-        } catch (error) {
-            console.warn('Failed to fetch all rates:', error);
-        }
+        } catch (error) {}
 
         return null;
     }
@@ -282,15 +270,32 @@ export const exchangeRateService = new ExchangeRateService();
 // Helper function to get rate for add transaction form
 // This function gets the exchange rate FROM secondaryCurrency TO primaryCurrency
 export const getExchangeRateForTransaction = async (fromCurrency: string, toCurrency: string): Promise<number> => {
-    console.log(`getExchangeRateForTransaction called: ${fromCurrency} -> ${toCurrency}`);
-
     // If currencies are the same, return 1
     if (fromCurrency === toCurrency) {
-        console.log('Same currency, returning rate: 1');
         return 1;
     }
 
-    // Define exchange rates for different currency pairs
+    try {
+        // Use the centralized API
+        const response = await fetch(`/api/exchange-rates/rate?from=${fromCurrency}&to=${toCurrency}`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data?.rate) {
+                const rate = data.data.rate;
+
+                return rate;
+            }
+        }
+    } catch (error) {}
+
+    // Fallback to hardcoded rates
     const exchangeRates: { [key: string]: { [key: string]: number } } = {
         KWD: {
             USD: 3.25,
@@ -350,7 +355,6 @@ export const getExchangeRateForTransaction = async (fromCurrency: string, toCurr
     const rate = exchangeRates[fromCurrency]?.[toCurrency];
 
     if (rate) {
-        console.log(`Found rate: 1 ${fromCurrency} = ${rate} ${toCurrency}`);
         return rate;
     }
 
@@ -358,11 +362,10 @@ export const getExchangeRateForTransaction = async (fromCurrency: string, toCurr
     const reverseRate = exchangeRates[toCurrency]?.[fromCurrency];
     if (reverseRate) {
         const calculatedRate = 1 / reverseRate;
-        console.log(`Calculated reverse rate: 1 ${fromCurrency} = ${calculatedRate} ${toCurrency}`);
+
         return calculatedRate;
     }
 
-    console.log(`No rate found for ${fromCurrency} -> ${toCurrency}, returning 1`);
     return 1;
 };
 

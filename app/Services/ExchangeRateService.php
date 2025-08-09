@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\ExchangeRate;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -90,28 +92,35 @@ class ExchangeRateService
     /**
      * Get exchange rate between two currencies
      */
-    public function getExchangeRate(string $fromCurrency, string $toCurrency): float
+    public function getExchangeRate(string $fromCurrency, string $toCurrency, ?User $user = null): float
     {
         // Same currency
         if ($fromCurrency === $toCurrency) {
             return 1.0;
         }
 
-        $cacheKey = self::CACHE_PREFIX . $fromCurrency . '_' . $toCurrency;
+        // Try to get from database first
+        $dbRate = ExchangeRate::getRate($fromCurrency, $toCurrency);
 
-        // Try to get from cache first
-        $cachedRate = Cache::get($cacheKey);
-        if ($cachedRate !== null) {
-            return (float) $cachedRate;
+        if ($dbRate !== null) {
+            // Check if rate is not stale (less than 5 minutes old)
+            $exchangeRate = ExchangeRate::where('from_currency', $fromCurrency)
+                                      ->where('to_currency', $toCurrency)
+                                      ->latest('fetched_at')
+                                      ->first();
+
+            if ($exchangeRate && !$exchangeRate->isStale()) {
+                return $dbRate;
+            }
         }
 
+        // Rate is stale or doesn't exist, fetch from API
         try {
-            // Try to fetch from external API
-            $rate = $this->fetchFromExternalAPI($fromCurrency, $toCurrency);
+            $rate = $this->fetchFromExternalAPI($fromCurrency, $toCurrency, $user);
 
             if ($rate !== null) {
-                // Cache the result
-                Cache::put($cacheKey, $rate, self::CACHE_DURATION);
+                // Store in database
+                ExchangeRate::updateRate($fromCurrency, $toCurrency, $rate);
                 return $rate;
             }
         } catch (\Exception $e) {
@@ -122,11 +131,16 @@ class ExchangeRateService
             ]);
         }
 
+        // If we have a stale rate, use it
+        if ($dbRate !== null) {
+            return $dbRate;
+        }
+
         // Fallback to hardcoded rates
         $fallbackRate = $this->getFallbackRate($fromCurrency, $toCurrency);
 
-        // Cache fallback rate for shorter duration
-        Cache::put($cacheKey, $fallbackRate, 60); // 1 minute for fallback
+        // Store fallback rate in database
+        ExchangeRate::updateRate($fromCurrency, $toCurrency, $fallbackRate, 'fallback');
 
         return $fallbackRate;
     }
@@ -148,13 +162,13 @@ class ExchangeRateService
     /**
      * Get current exchange rates for a base currency
      */
-    public function getCurrentRates(string $baseCurrency = 'USD'): array
+    public function getCurrentRates(string $baseCurrency = 'USD', ?User $user = null): array
     {
         $rates = [];
 
         foreach (array_keys(self::SUPPORTED_CURRENCIES) as $currency) {
             if ($currency !== $baseCurrency) {
-                $rates[$currency] = $this->getExchangeRate($baseCurrency, $currency);
+                $rates[$currency] = $this->getExchangeRate($baseCurrency, $currency, $user);
             }
         }
 
@@ -164,10 +178,35 @@ class ExchangeRateService
     /**
      * Fetch exchange rate from external API
      */
-    private function fetchFromExternalAPI(string $fromCurrency, string $toCurrency): ?float
+    private function fetchFromExternalAPI(string $fromCurrency, string $toCurrency, ?User $user = null): ?float
     {
+        // Get user's API key or use default
+        $apiKey = $user?->exchange_rate_api_key ?? '003381ffeda29d4c1ff22e05';
+        $provider = $user?->exchange_rate_api_provider ?? 'exchangerate-api.com';
+
         try {
-            // Using exchangerate-api.com (free tier)
+            // Using exchangerate-api.com with user's API key
+            $url = "https://v6.exchangerate-api.com/v6/{$apiKey}/latest/{$fromCurrency}";
+            $response = Http::timeout(10)->get($url);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if ($data['result'] === 'success' && isset($data['conversion_rates'][$toCurrency])) {
+                    return (float) $data['conversion_rates'][$toCurrency];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Primary API request failed', [
+                'from' => $fromCurrency,
+                'to' => $toCurrency,
+                'provider' => $provider,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        // Try alternative free API as fallback
+        try {
             $response = Http::timeout(5)->get("https://api.exchangerate-api.com/v4/latest/{$fromCurrency}");
 
             if ($response->successful()) {
@@ -178,16 +217,15 @@ class ExchangeRateService
                 }
             }
         } catch (\Exception $e) {
-            Log::warning('External API request failed', [
+            Log::warning('Fallback API request failed', [
                 'from' => $fromCurrency,
                 'to' => $toCurrency,
                 'error' => $e->getMessage()
             ]);
         }
 
-        // Try alternative API
+        // Try open.er-api.com as second fallback
         try {
-            // Using open.er-api.com as fallback
             $response = Http::timeout(5)->get("https://open.er-api.com/v6/latest/{$fromCurrency}");
 
             if ($response->successful()) {
@@ -198,7 +236,7 @@ class ExchangeRateService
                 }
             }
         } catch (\Exception $e) {
-            Log::warning('Fallback API request failed', [
+            Log::warning('Second fallback API request failed', [
                 'from' => $fromCurrency,
                 'to' => $toCurrency,
                 'error' => $e->getMessage()
@@ -242,40 +280,76 @@ class ExchangeRateService
     }
 
     /**
-     * Clear exchange rate cache
+     * Sync all exchange rates for major currencies
      */
-    public function clearCache(): void
+    public function syncAllRates(?User $user = null): array
     {
-        $keys = Cache::getRedis()->keys(self::CACHE_PREFIX . '*');
-        if (!empty($keys)) {
-            Cache::getRedis()->del($keys);
-        }
-    }
+        $results = [];
+        $majorCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'KWD', 'AED', 'SAR', 'BDT'];
 
-    /**
-     * Get cache status for debugging
-     */
-    public function getCacheStatus(): array
-    {
-        $status = [];
-
-        foreach (array_keys(self::SUPPORTED_CURRENCIES) as $from) {
-            foreach (array_keys(self::SUPPORTED_CURRENCIES) as $to) {
-                if ($from !== $to) {
-                    $cacheKey = self::CACHE_PREFIX . $from . '_' . $to;
-                    $cached = Cache::get($cacheKey);
-
-                    if ($cached !== null) {
-                        $status[] = [
-                            'pair' => $from . '_' . $to,
-                            'rate' => $cached,
-                            'cached_at' => Cache::get($cacheKey . '_timestamp', 'unknown')
+        foreach ($majorCurrencies as $fromCurrency) {
+            foreach ($majorCurrencies as $toCurrency) {
+                if ($fromCurrency !== $toCurrency) {
+                    try {
+                        $rate = $this->fetchFromExternalAPI($fromCurrency, $toCurrency, $user);
+                        if ($rate !== null) {
+                            ExchangeRate::updateRate($fromCurrency, $toCurrency, $rate);
+                            $results[] = [
+                                'from' => $fromCurrency,
+                                'to' => $toCurrency,
+                                'rate' => $rate,
+                                'status' => 'success'
+                            ];
+                        } else {
+                            $results[] = [
+                                'from' => $fromCurrency,
+                                'to' => $toCurrency,
+                                'rate' => null,
+                                'status' => 'failed'
+                            ];
+                        }
+                    } catch (\Exception $e) {
+                        $results[] = [
+                            'from' => $fromCurrency,
+                            'to' => $toCurrency,
+                            'rate' => null,
+                            'status' => 'error',
+                            'error' => $e->getMessage()
                         ];
                     }
                 }
             }
         }
 
-        return $status;
+        return $results;
+    }
+
+    /**
+     * Clear old exchange rates
+     */
+    public function clearOldRates(): int
+    {
+        return ExchangeRate::cleanOldRates();
+    }
+
+    /**
+     * Get database status for debugging
+     */
+    public function getDatabaseStatus(): array
+    {
+        $rates = ExchangeRate::latest('fetched_at')->take(50)->get();
+
+        return [
+            'total_rates' => ExchangeRate::count(),
+            'recent_rates' => $rates->map(function ($rate) {
+                return [
+                    'pair' => $rate->from_currency . '_' . $rate->to_currency,
+                    'rate' => $rate->rate,
+                    'source' => $rate->source,
+                    'fetched_at' => $rate->fetched_at->toISOString(),
+                    'is_stale' => $rate->isStale()
+                ];
+            })->toArray()
+        ];
     }
 }
