@@ -76,7 +76,11 @@ class TransactionService
                 $originalSecondaryAmount = $transaction->metadata['secondary_amount'];
             } else {
                 // Transaction was entered in primary currency, convert using current rate
-                $originalSecondaryAmount = $transaction->amount / ($user->exchange_rate ?: 1);
+                $exchangeRate = $user->exchange_rate ?: 1;
+                if ($exchangeRate <= 0) {
+                    $exchangeRate = 1; // Prevent division by zero
+                }
+                $originalSecondaryAmount = $transaction->amount / $exchangeRate;
             }
 
             // Add to appropriate total
@@ -478,5 +482,53 @@ class TransactionService
         }
 
         return $result;
+    }
+
+    /**
+     * Get system-wide financial summary (for admins)
+     */
+    public function getSystemFinancialSummary(?Carbon $startDate = null, ?Carbon $endDate = null): array
+    {
+        return $this->getFinancialSummary(null, $startDate, $endDate);
+    }
+
+    /**
+     * Get system-wide monthly chart data (for admins)
+     */
+    public function getSystemMonthlyChartData(): array
+    {
+        return $this->getMonthlyChartData(null);
+    }
+
+    /**
+     * Get system-wide yearly chart data (for admins)
+     */
+    public function getSystemYearlyChartData(): array
+    {
+        return $this->getYearlyChartData(null);
+    }
+
+    /**
+     * Get system-wide category breakdown (for admins)
+     */
+    public function getSystemCategoryBreakdown(?Carbon $startDate = null): array
+    {
+        return $this->getCategoryBreakdown(null, $startDate);
+    }
+
+    /**
+     * Get system-wide yearly category breakdown (for admins)
+     */
+    public function getSystemYearlyCategoryBreakdown(?int $year = null): array
+    {
+        return $this->getYearlyCategoryBreakdown(null, $year);
+    }
+
+    /**
+     * Get system-wide upcoming transactions (for admins)
+     */
+    public function getSystemUpcomingTransactions(int $days = 30): Collection
+    {
+        return $this->getUpcomingTransactions(null, $days);
     }
 }

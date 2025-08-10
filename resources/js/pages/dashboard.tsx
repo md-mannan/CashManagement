@@ -1,3 +1,4 @@
+import { AdminNotification } from '@/components/admin-notification';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
@@ -15,7 +16,7 @@ import {
     Title,
     Tooltip,
 } from 'chart.js';
-import { Banknote, BarChart3, CreditCard, PieChart, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { Banknote, BarChart3, CreditCard, PieChart, Shield, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 
@@ -162,6 +163,10 @@ export default function Dashboard() {
     const convertAmount = (amount: number, targetCurrency: string) => {
         if (targetCurrency === primaryCurrency) return amount;
         if (targetCurrency === secondaryCurrency) {
+            // Check if exchange rate is valid (not 0, null, or undefined)
+            if (!exchangeRate || exchangeRate === 0 || isNaN(exchangeRate)) {
+                return 0; // Return 0 instead of NaN
+            }
             // Convert from primary to secondary currency using user's exchange rate
             const convertedAmount = amount / exchangeRate;
             // Use appropriate decimal precision
@@ -438,7 +443,25 @@ export default function Dashboard() {
                         </h1>
                         <p className="text-muted-foreground">Your financial overview at a glance</p>
                     </div>
+                    {auth.user.role && ['admin', 'super_admin'].includes(auth.user.role) && (
+                        <div className="flex items-center gap-2">
+                            <div className="rounded-lg border border-red-200 bg-gradient-to-r from-red-50 to-red-100 p-3">
+                                <div className="flex items-center gap-2">
+                                    <Shield className="h-5 w-5 text-red-600" />
+                                    <div>
+                                        <p className="text-sm font-medium text-red-800">Admin Access</p>
+                                        <p className="text-xs text-red-600">You have administrative privileges</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                {/* Admin Notification */}
+                {auth.user.role && ['admin', 'super_admin'].includes(auth.user.role) && (
+                    <AdminNotification userRole={auth.user.role} userPermissions={auth.user.permissions || []} />
+                )}
 
                 {/* Financial Summary Section - Ledger Style */}
                 <div className="financial-summary space-y-4">
@@ -469,7 +492,11 @@ export default function Dashboard() {
                                     <div>
                                         {secondarySymbol}{' '}
                                         {formatCurrency(
-                                            currentSummary?.secondary_amounts
+                                            currentSummary?.secondary_amounts &&
+                                                typeof currentSummary.secondary_amounts.total_income === 'number' &&
+                                                typeof currentSummary.secondary_amounts.total_receivables === 'number' &&
+                                                typeof currentSummary.secondary_amounts.total_expenses === 'number' &&
+                                                typeof currentSummary.secondary_amounts.total_payables === 'number'
                                                 ? currentSummary.secondary_amounts.total_income +
                                                       currentSummary.secondary_amounts.total_receivables -
                                                       (currentSummary.secondary_amounts.total_expenses +
@@ -509,8 +536,11 @@ export default function Dashboard() {
                                     <div>
                                         {secondarySymbol}{' '}
                                         {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_income ||
-                                                convertAmount(financialSummary.totalIncome, secondaryCurrency),
+                                            currentSummary?.secondary_amounts?.total_income &&
+                                                typeof currentSummary.secondary_amounts.total_income === 'number' &&
+                                                !isNaN(currentSummary.secondary_amounts.total_income)
+                                                ? currentSummary.secondary_amounts.total_income
+                                                : convertAmount(financialSummary.totalIncome, secondaryCurrency),
                                             secondaryCurrency,
                                         )}
                                     </div>
@@ -545,8 +575,11 @@ export default function Dashboard() {
                                     <div>
                                         {secondarySymbol}{' '}
                                         {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_expenses ||
-                                                convertAmount(financialSummary.totalExpense, secondaryCurrency),
+                                            currentSummary?.secondary_amounts?.total_expenses &&
+                                                typeof currentSummary.secondary_amounts.total_expenses === 'number' &&
+                                                !isNaN(currentSummary.secondary_amounts.total_expenses)
+                                                ? currentSummary.secondary_amounts.total_expenses
+                                                : convertAmount(financialSummary.totalExpense, secondaryCurrency),
                                             secondaryCurrency,
                                         )}
                                     </div>
@@ -581,8 +614,11 @@ export default function Dashboard() {
                                     <div>
                                         {secondarySymbol}{' '}
                                         {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_payables ||
-                                                convertAmount(financialSummary.totalPayable, secondaryCurrency),
+                                            currentSummary?.secondary_amounts?.total_payables &&
+                                                typeof currentSummary.secondary_amounts.total_payables === 'number' &&
+                                                !isNaN(currentSummary.secondary_amounts.total_payables)
+                                                ? currentSummary.secondary_amounts.total_payables
+                                                : convertAmount(financialSummary.totalPayable, secondaryCurrency),
                                             secondaryCurrency,
                                         )}
                                     </div>
@@ -617,8 +653,11 @@ export default function Dashboard() {
                                     <div>
                                         {secondarySymbol}{' '}
                                         {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_receivables ||
-                                                convertAmount(financialSummary.totalReceivable, secondaryCurrency),
+                                            currentSummary?.secondary_amounts?.total_receivables &&
+                                                typeof currentSummary.secondary_amounts.total_receivables === 'number' &&
+                                                !isNaN(currentSummary.secondary_amounts.total_receivables)
+                                                ? currentSummary.secondary_amounts.total_receivables
+                                                : convertAmount(financialSummary.totalReceivable, secondaryCurrency),
                                             secondaryCurrency,
                                         )}
                                     </div>

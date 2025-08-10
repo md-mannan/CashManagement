@@ -6,6 +6,9 @@ import { createRoot } from 'react-dom/client';
 import { ToastProvider } from './components/ui/toast';
 import { initializeTheme } from './hooks/use-appearance';
 
+// Import axios configuration
+import './lib/axios';
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({

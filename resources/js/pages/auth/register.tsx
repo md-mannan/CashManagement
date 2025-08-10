@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { Chrome, Facebook, Github, LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toast';
 import AuthLayout from '@/layouts/auth-layout';
+import { Separator } from '@radix-ui/react-separator';
 
 type RegisterForm = {
     name: string;
@@ -134,6 +135,48 @@ export default function Register() {
                     </TextLink>
                 </div>
             </form>
+
+            {/* Social Authentication */}
+            <div className="space-y-4">
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <Separator className="w-full" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                    <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => (window.location.href = route('socialite.redirect', 'facebook'))}
+                        className="flex items-center gap-2"
+                    >
+                        <Facebook className="h-4 w-4 text-blue-600" />
+                        Facebook
+                    </Button>
+                    <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => (window.location.href = route('socialite.redirect', 'google'))}
+                        className="flex items-center gap-2"
+                    >
+                        <Chrome className="h-4 w-4 text-red-600" />
+                        Google
+                    </Button>
+                    <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => (window.location.href = route('socialite.redirect', 'github'))}
+                        className="flex items-center gap-2"
+                    >
+                        <Github className="h-4 w-4 text-gray-800" />
+                        GitHub
+                    </Button>
+                </div>
+            </div>
         </AuthLayout>
     );
 }

@@ -181,7 +181,122 @@
     }
 }
 
-/* Custom Scrollbar Styles */
+/* Global Scrollbar Styles - Hide default scrollbars and apply custom ones */
+@layer base {
+    /* Hide scrollbars globally but maintain scroll functionality */
+    html {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+    }
+
+    html::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
+    }
+
+    body {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+    }
+
+    body::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
+    }
+
+    /* Apply custom scrollbars to all scrollable elements */
+    * {
+        scrollbar-width: thin; /* Firefox */
+    }
+
+    *::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 3px;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: rgb(209 213 219);
+        border-radius: 3px;
+        transition: background-color 0.2s ease;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(156 163 175);
+    }
+
+    *::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+
+    /* Dark mode scrollbars */
+    .dark *::-webkit-scrollbar-thumb {
+        background-color: rgb(75 85 99);
+    }
+
+    .dark *::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(107 114 128);
+    }
+
+    /* Specific scrollbar styles for common elements */
+    .table-container::-webkit-scrollbar,
+    .card-content::-webkit-scrollbar,
+    .sidebar::-webkit-scrollbar,
+    .main-content::-webkit-scrollbar,
+    .overflow-auto::-webkit-scrollbar,
+    .overflow-y-auto::-webkit-scrollbar,
+    .overflow-x-auto::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb,
+    .card-content::-webkit-scrollbar-thumb,
+    .sidebar::-webkit-scrollbar-thumb,
+    .main-content::-webkit-scrollbar-thumb,
+    .overflow-auto::-webkit-scrollbar-thumb,
+    .overflow-y-auto::-webkit-scrollbar-thumb,
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+        background-color: rgb(209 213 219);
+        border-radius: 3px;
+        transition: background-color 0.2s ease;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover,
+    .card-content::-webkit-scrollbar-thumb:hover,
+    .sidebar::-webkit-scrollbar-thumb:hover,
+    .main-content::-webkit-scrollbar-thumb:hover,
+    .overflow-auto::-webkit-scrollbar-thumb:hover,
+    .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(156 163 175);
+    }
+
+    /* Dark mode for specific elements */
+    .dark .table-container::-webkit-scrollbar-thumb,
+    .dark .card-content::-webkit-scrollbar-thumb,
+    .dark .sidebar::-webkit-scrollbar-thumb,
+    .dark .main-content::-webkit-scrollbar-thumb,
+    .dark .overflow-auto::-webkit-scrollbar-thumb,
+    .dark .overflow-y-auto::-webkit-scrollbar-thumb,
+    .dark .overflow-x-auto::-webkit-scrollbar-thumb {
+        background-color: rgb(75 85 99);
+    }
+
+    .dark .table-container::-webkit-scrollbar-thumb:hover,
+    .dark .card-content::-webkit-scrollbar-thumb:hover,
+    .dark .sidebar::-webkit-scrollbar-thumb:hover,
+    .dark .main-content::-webkit-scrollbar-thumb:hover,
+    .dark .overflow-auto::-webkit-scrollbar-thumb:hover,
+    .dark .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+    .dark .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(107 114 128);
+    }
+}
+
+/* Custom Scrollbar Utility Classes */
 @layer utilities {
     .scrollbar-hide {
         -ms-overflow-style: none; /* Internet Explorer 10+ */
@@ -243,6 +358,94 @@
     }
 
     .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(107 114 128);
+    }
+
+    /* Custom scrollbar sizes */
+    .scrollbar-xs::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    .scrollbar-sm::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .scrollbar-md::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .scrollbar-lg::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+
+    /* Additional scrollbar utilities */
+    .scrollbar-auto {
+        scrollbar-width: auto;
+    }
+
+    .scrollbar-auto::-webkit-scrollbar {
+        width: auto;
+        height: auto;
+    }
+
+    /* Hide scrollbar but keep functionality */
+    .scrollbar-none {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Custom scrollbar colors */
+    .scrollbar-primary::-webkit-scrollbar-thumb {
+        background-color: rgb(59 130 246);
+    }
+
+    .scrollbar-primary::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(37 99 235);
+    }
+
+    .scrollbar-secondary::-webkit-scrollbar-thumb {
+        background-color: rgb(107 114 128);
+    }
+
+    .scrollbar-secondary::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(75 85 99);
+    }
+
+    /* Sidebar-specific scrollbar utilities */
+    .scrollbar-sidebar::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    .scrollbar-sidebar::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 2px;
+    }
+
+    .scrollbar-sidebar::-webkit-scrollbar-thumb {
+        background-color: rgb(156 163 175);
+        border-radius: 2px;
+        transition: background-color 0.2s ease;
+    }
+
+    .scrollbar-sidebar::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(107 114 128);
+    }
+
+    /* Dark mode sidebar scrollbar */
+    .dark .scrollbar-sidebar::-webkit-scrollbar-thumb {
+        background-color: rgb(75 85 99);
+    }
+
+    .dark .scrollbar-sidebar::-webkit-scrollbar-thumb:hover {
         background-color: rgb(107 114 128);
     }
 }
@@ -346,38 +549,236 @@
     }
 
     /* Force date input to show dd/mm/yyyy format */
-    input[type="date"]::-webkit-datetime-edit {
+    input[type='date']::-webkit-datetime-edit {
         font-family: inherit;
     }
 
-    input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    input[type='date']::-webkit-datetime-edit-fields-wrapper {
         display: flex;
     }
 
-    input[type="date"]::-webkit-datetime-edit-day-field {
+    input[type='date']::-webkit-datetime-edit-day-field {
         order: 1;
     }
 
-    input[type="date"]::-webkit-datetime-edit-text {
+    input[type='date']::-webkit-datetime-edit-text {
         order: 2;
     }
 
-    input[type="date"]::-webkit-datetime-edit-month-field {
+    input[type='date']::-webkit-datetime-edit-month-field {
         order: 3;
     }
 
-    input[type="date"]::-webkit-datetime-edit-year-field {
+    input[type='date']::-webkit-datetime-edit-year-field {
         order: 5;
     }
 
     /* Hide the default placeholder and show custom text */
-    input[type="date"]:invalid {
+    input[type='date']:invalid {
         color: #999;
     }
 
-    input[type="date"]:invalid:before {
-        content: "dd/mm/yyyy";
+    input[type='date']:invalid:before {
+        content: 'dd/mm/yyyy';
         color: #999;
+    }
+
+    /* Ensure all scrollable elements use custom scrollbars */
+    [class*='overflow-'] {
+        scrollbar-width: thin;
+    }
+
+    /* Force sidebar scrollbars to be thin */
+    [data-slot='sidebar-content'] {
+        scrollbar-width: thin !important;
+    }
+
+    /* Completely hide sidebar scrollbars */
+    [data-slot='sidebar-content']::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Hide sidebar scrollbars in Firefox */
+    [data-slot='sidebar-content'] {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    /* Additional sidebar scrollbar hiding - more comprehensive */
+    .sidebar::-webkit-scrollbar,
+    .sidebar *::-webkit-scrollbar,
+    [class*='sidebar']::-webkit-scrollbar,
+    [class*='sidebar'] *::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Hide scrollbars in sidebar components */
+    [data-slot*='sidebar']::-webkit-scrollbar,
+    [data-slot*='sidebar'] *::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Target exact sidebar attributes */
+    [data-slot='sidebar']::-webkit-scrollbar,
+    [data-slot='sidebar'] *::-webkit-scrollbar,
+    [data-sidebar='sidebar']::-webkit-scrollbar,
+    [data-sidebar='sidebar'] *::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Force hide all scrollbars in sidebar area */
+    [data-slot='sidebar'] {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    [data-sidebar='sidebar'] {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    /* Target sidebar by CSS classes */
+    .bg-sidebar::-webkit-scrollbar,
+    .bg-sidebar *::-webkit-scrollbar,
+    [class*='bg-sidebar']::-webkit-scrollbar,
+    [class*='bg-sidebar'] *::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Nuclear option - hide all scrollbars in the entire left area */
+    .group[data-side='left']::-webkit-scrollbar,
+    .group[data-side='left'] *::-webkit-scrollbar,
+    .peer[data-side='left']::-webkit-scrollbar,
+    .peer[data-side='left'] *::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Override any overflow-auto in sidebar */
+    [data-slot='sidebar'] .overflow-auto,
+    [data-sidebar='sidebar'] .overflow-auto,
+    .bg-sidebar .overflow-auto {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    [data-slot='sidebar'] .overflow-auto::-webkit-scrollbar,
+    [data-sidebar='sidebar'] .overflow-auto::-webkit-scrollbar,
+    .bg-sidebar .overflow-auto::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Main content spacing - add more space on left and right */
+    [data-slot='sidebar-inset'] {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        margin-left: 0.5rem !important;
+        margin-right: 0.5rem !important;
+    }
+
+    /* Add more space for content inside main area */
+    [data-slot='sidebar-inset'] > * {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    /* Specific spacing for admin pages */
+    [data-slot='sidebar-inset'] .admin-content {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    [class*='overflow-']::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    [class*='overflow-']::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 3px;
+    }
+
+    [class*='overflow-']::-webkit-scrollbar-thumb {
+        background-color: rgb(209 213 219);
+        border-radius: 3px;
+        transition: background-color 0.2s ease;
+    }
+
+    [class*='overflow-']::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(156 163 175);
+    }
+
+    /* Dark mode for overflow elements */
+    .dark [class*='overflow-']::-webkit-scrollbar-thumb {
+        background-color: rgb(75 85 99);
+    }
+
+    .dark [class*='overflow-']::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(107 114 128);
+    }
+
+    /* Specific sidebar scrollbar styles - HIDE THEM COMPLETELY */
+    [data-sidebar='content']::-webkit-scrollbar,
+    [data-slot='sidebar-content']::-webkit-scrollbar,
+    .sidebar::-webkit-scrollbar,
+    .sidebar-content::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    [data-sidebar='content']::-webkit-scrollbar-track,
+    [data-slot='sidebar-content']::-webkit-scrollbar-track,
+    .sidebar::-webkit-scrollbar-track,
+    .sidebar-content::-webkit-scrollbar-track {
+        display: none !important;
+        background: transparent !important;
+        border-radius: 2px;
+    }
+
+    [data-sidebar='content']::-webkit-scrollbar-thumb,
+    [data-slot='sidebar-content']::-webkit-scrollbar-thumb,
+    .sidebar::-webkit-scrollbar-thumb,
+    .sidebar-content::-webkit-scrollbar-thumb {
+        display: none !important;
+        background-color: transparent !important;
+        border-radius: 2px;
+        transition: background-color 0.2s ease;
+    }
+
+    [data-sidebar='content']::-webkit-scrollbar-thumb:hover,
+    [data-slot='sidebar-content']::-webkit-scrollbar-thumb:hover,
+    .sidebar::-webkit-scrollbar-thumb:hover,
+    .sidebar-content::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(107 114 128);
+    }
+
+    /* Dark mode sidebar scrollbars */
+    .dark [data-sidebar='content']::-webkit-scrollbar-thumb,
+    .dark [data-slot='sidebar-content']::-webkit-scrollbar-thumb,
+    .dark .sidebar::-webkit-scrollbar-thumb,
+    .dark .sidebar-content::-webkit-scrollbar-thumb {
+        background-color: rgb(75 85 99);
+    }
+
+    .dark [data-sidebar='content']::-webkit-scrollbar-thumb:hover,
+    .dark [data-slot='sidebar-content']::-webkit-scrollbar-thumb:hover,
+    .dark .sidebar::-webkit-scrollbar-thumb:hover,
+    .dark .sidebar-content::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(107 114 128);
     }
 }
 

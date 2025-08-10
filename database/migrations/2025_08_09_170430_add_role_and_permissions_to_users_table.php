@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('user')->after('is_admin'); // user, admin, super_admin
+            $table->string('role')->default('user')->after('email_verified_at'); // user, admin, super_admin
             $table->json('permissions')->nullable()->after('role'); // specific permissions array
             $table->boolean('is_active')->default(true)->after('permissions');
             $table->timestamp('last_login_at')->nullable()->after('is_active');

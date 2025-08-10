@@ -23,31 +23,61 @@ class DashboardController extends Controller
         $currentMonth = Carbon::now()->startOfMonth();
         $lastMonth = Carbon::now()->subMonth()->startOfMonth();
 
-        // Recent transactions (last 10)
-        $recentTransactions = Transaction::with('category')
-            ->forUser($user->id)
-            ->orderBy('date', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
+        // Admins and super admins can view all data
+        if ($user->isAdmin()) {
+            // Recent transactions from all users (last 10)
+            $recentTransactions = Transaction::with(['category', 'user'])
+                ->orderBy('date', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
 
-        // Debug: Get total transaction count
-        $totalTransactions = Transaction::forUser($user->id)->count();
+            // Total transactions from all users
+            $totalTransactions = Transaction::count();
 
-        // Get current month financial summary
-        $currentSummary = $this->transactionService->getFinancialSummary(
-            $user,
-            $currentMonth,
-            Carbon::now()->endOfMonth()
-        );
+            // Get all users for admin dashboard
+            $allUsers = \App\Models\User::withCount('transactions')
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
 
-        // Get previous month for comparison
-        $previousMonth = Carbon::now()->subMonth()->startOfMonth();
-        $previousSummary = $this->transactionService->getFinancialSummary(
-            $user,
-            $previousMonth,
-            $previousMonth->copy()->endOfMonth()
-        );
+            // System-wide financial summary
+            $currentSummary = $this->transactionService->getSystemFinancialSummary(
+                $currentMonth,
+                Carbon::now()->endOfMonth()
+            );
+
+            $previousMonth = Carbon::now()->subMonth()->startOfMonth();
+            $previousSummary = $this->transactionService->getSystemFinancialSummary(
+                $previousMonth,
+                $previousMonth->copy()->endOfMonth()
+            );
+        } else {
+            // Regular users see only their own data
+            $recentTransactions = Transaction::with('category')
+                ->forUser($user->id)
+                ->orderBy('date', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+
+            $totalTransactions = Transaction::forUser($user->id)->count();
+            $allUsers = null;
+
+            // User-specific financial summary
+            $currentSummary = $this->transactionService->getFinancialSummary(
+                $user,
+                $currentMonth,
+                Carbon::now()->endOfMonth()
+            );
+
+            $previousMonth = Carbon::now()->subMonth()->startOfMonth();
+            $previousSummary = $this->transactionService->getFinancialSummary(
+                $user,
+                $previousMonth,
+                $previousMonth->copy()->endOfMonth()
+            );
+        }
 
         // Calculate changes
         $changes = [
@@ -58,20 +88,20 @@ class DashboardController extends Controller
             'balance_change' => $this->calculatePercentageChange($previousSummary['net_balance'], $currentSummary['net_balance']),
         ];
 
-        // Monthly chart data (last 6 months)
-        $monthlyData = $this->transactionService->getMonthlyChartData($user);
-
-        // Yearly chart data (last 5 years)
-        $yearlyData = $this->transactionService->getYearlyChartData($user);
-
-        // Category breakdown for current month
-        $categoryData = $this->transactionService->getCategoryBreakdown($user, $currentMonth);
-
-        // Yearly category breakdown for current year
-        $yearlyCategoryData = $this->transactionService->getYearlyCategoryBreakdown($user);
-
-        // Upcoming transactions
-        $upcomingTransactions = $this->transactionService->getUpcomingTransactions($user);
+        // Monthly chart data
+        if ($user->isAdmin()) {
+            $monthlyData = $this->transactionService->getSystemMonthlyChartData();
+            $yearlyData = $this->transactionService->getSystemYearlyChartData();
+            $categoryData = $this->transactionService->getSystemCategoryBreakdown($currentMonth);
+            $yearlyCategoryData = $this->transactionService->getSystemYearlyCategoryBreakdown();
+            $upcomingTransactions = $this->transactionService->getSystemUpcomingTransactions();
+        } else {
+            $monthlyData = $this->transactionService->getMonthlyChartData($user);
+            $yearlyData = $this->transactionService->getYearlyChartData($user);
+            $categoryData = $this->transactionService->getCategoryBreakdown($user, $currentMonth);
+            $yearlyCategoryData = $this->transactionService->getYearlyCategoryBreakdown($user);
+            $upcomingTransactions = $this->transactionService->getUpcomingTransactions($user);
+        }
 
         return Inertia::render('dashboard', [
             'recentTransactions' => $recentTransactions,
@@ -82,6 +112,8 @@ class DashboardController extends Controller
             'categoryData' => $categoryData,
             'yearlyCategoryData' => $yearlyCategoryData,
             'upcomingTransactions' => $upcomingTransactions,
+            'isAdmin' => $user->isAdmin(),
+            'allUsers' => $allUsers,
             'debug' => [
                 'totalTransactions' => $totalTransactions,
                 'currentMonth' => $currentMonth->format('Y-m-d'),

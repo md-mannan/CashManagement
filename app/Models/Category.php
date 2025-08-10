@@ -46,4 +46,12 @@ class Category extends Model
     {
         return $query->where('type', $type);
     }
+
+    /**
+     * Get the transactions count for the category.
+     */
+    public function getTransactionsCountAttribute(): int
+    {
+        return $this->transactions()->count();
+    }
 }

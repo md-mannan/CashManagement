@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         // Only seed categories (required for the app to function)
         $this->call([
             CategorySeeder::class,
+            SuperAdminSeeder::class,
             // TransactionSeeder::class, // Commented out - no sample transactions
         ]);
 

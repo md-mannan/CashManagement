@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\ActivityLogService;
+use App\Services\AdminNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +35,19 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Log successful login
+        $user = Auth::user();
+        if ($user) {
+            ActivityLogService::logLogin($user, $request);
+
+            // Notify admins about user login
+            AdminNotificationService::notifyUserActivity(
+                'logged in',
+                $user->name,
+                $request->ip()
+            );
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -41,6 +56,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Log logout before destroying session
+        $user = Auth::user();
+        if ($user) {
+            ActivityLogService::logLogout($user, $request);
+
+            // Notify admins about user logout
+            AdminNotificationService::notifyUserActivity(
+                'logged out',
+                $user->name,
+                $request->ip()
+            );
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

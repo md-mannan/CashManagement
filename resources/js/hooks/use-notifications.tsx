@@ -14,10 +14,13 @@ export function useNotifications() {
         try {
             setLoading(true);
             setError(null);
+            console.log('Fetching notifications...');
             const response = await notificationService.getNotifications(unreadOnly, limit);
+            console.log('Notifications response:', response);
             setNotifications(response.notifications);
             setUnreadCount(response.unread_count);
         } catch (err) {
+            console.error('Error fetching notifications:', err);
             setError(err instanceof Error ? err.message : 'Failed to fetch notifications');
         } finally {
             setLoading(false);

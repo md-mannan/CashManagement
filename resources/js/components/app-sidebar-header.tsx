@@ -31,6 +31,11 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
     const { showToast } = useToast();
     const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
 
+    // Debug logging
+    console.log('AppSidebarHeader - notifications:', notifications);
+    console.log('AppSidebarHeader - unreadCount:', unreadCount);
+    console.log('AppSidebarHeader - loading:', loading);
+
     const handleLogout = () => {
         showToast({
             type: 'success',
@@ -182,7 +187,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                             )}
                         </div>
                         <div className="border-t border-border p-2">
-                            <Button variant="ghost" size="sm" className="w-full text-xs">
+                            <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => router.visit('/admin/notifications')}>
                                 View all notifications
                             </Button>
                         </div>

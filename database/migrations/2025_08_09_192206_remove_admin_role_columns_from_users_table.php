@@ -12,14 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Remove admin and role related columns
+            // Remove only the old admin columns, keep the new role system
             $table->dropColumn([
                 'is_admin',
                 'admin_granted_at',
-                'role',
-                'permissions',
-                'is_active',
-                'last_login_at',
             ]);
         });
     }
@@ -30,13 +26,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Restore admin and role related columns
+            // Restore only the old admin columns
             $table->boolean('is_admin')->default(false);
             $table->timestamp('admin_granted_at')->nullable();
-            $table->enum('role', ['user', 'admin', 'super_admin'])->default('user');
-            $table->json('permissions')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamp('last_login_at')->nullable();
         });
     }
 };

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware('auth');
 
 // Exchange Rate API Routes
 Route::prefix('exchange-rates')->group(function () {
@@ -17,7 +17,7 @@ Route::prefix('exchange-rates')->group(function () {
     Route::post('/convert', [ExchangeRateController::class, 'convertAmount']);
 
     // Authenticated routes
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth')->group(function () {
         Route::post('/sync', [ExchangeRateController::class, 'syncRates']);
         Route::delete('/old-rates', [ExchangeRateController::class, 'clearOldRates']);
         Route::get('/database-status', [ExchangeRateController::class, 'getDatabaseStatus']);
@@ -25,7 +25,7 @@ Route::prefix('exchange-rates')->group(function () {
 });
 
 // Notification API Routes
-Route::prefix('notifications')->middleware('auth:sanctum')->group(function () {
+Route::prefix('notifications')->middleware('auth')->group(function () {
     Route::get('/', [App\Http\Controllers\NotificationController::class, 'index']);
     Route::get('/unread-count', [App\Http\Controllers\NotificationController::class, 'unreadCount']);
     Route::post('/{notification}/mark-as-read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);

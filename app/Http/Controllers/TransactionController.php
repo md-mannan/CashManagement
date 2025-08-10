@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Category;
 use App\Models\Notification;
 use App\Models\Transaction;
+use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -21,10 +22,17 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
 
-        $query = Transaction::with('category')
-            ->forUser($user->id)
-            ->orderBy('date', 'desc')
-            ->orderBy('created_at', 'desc');
+        // Admins and super admins can view all transactions
+        if ($user->isAdmin()) {
+            $query = Transaction::with(['category', 'user'])
+                ->orderBy('date', 'desc')
+                ->orderBy('created_at', 'desc');
+        } else {
+            $query = Transaction::with('category')
+                ->forUser($user->id)
+                ->orderBy('date', 'desc')
+                ->orderBy('created_at', 'desc');
+        }
 
         // Apply filters
         if ($request->filled('type') && $request->type !== 'all') {
@@ -46,11 +54,17 @@ class TransactionController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
+        // Filter by user if admin is viewing specific user's transactions
+        if ($user->isAdmin() && $request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
         $transactions = $query->paginate(10);
 
         return Inertia::render('transaction', [
             'transactions' => $transactions,
-            'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id']),
+            'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id', 'user_id']),
+            'isAdmin' => $user->isAdmin(),
         ]);
     }
 
@@ -61,9 +75,15 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
 
-        $query = Transaction::with('category')
-            ->forUser($user->id)
-            ->orderBy('date', 'desc');
+        // Admins and super admins can view all transactions
+        if ($user->isAdmin()) {
+            $query = Transaction::with(['category', 'user'])
+                ->orderBy('date', 'desc');
+        } else {
+            $query = Transaction::with('category')
+                ->forUser($user->id)
+                ->orderBy('date', 'desc');
+        }
 
         // Apply filters similar to index
         if ($request->filled('type') && $request->type !== 'all') {
@@ -81,6 +101,11 @@ class TransactionController extends Controller
             });
         }
 
+        // Filter by user if admin is viewing specific user's transactions
+        if ($user->isAdmin() && $request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
         $transactions = $query->get();
 
         // Calculate summary data
@@ -95,7 +120,8 @@ class TransactionController extends Controller
         return Inertia::render('ledger', [
             'transactions' => $transactions,
             'summary' => $summary,
-            'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id']),
+            'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id', 'user_id']),
+            'isAdmin' => $user->isAdmin(),
         ]);
     }
 
@@ -143,6 +169,15 @@ class TransactionController extends Controller
 
         // Create notification for transaction creation
         $this->createTransactionNotification($transaction, 'created');
+
+        // Notify admins about the transaction creation
+        AdminNotificationService::notifyTransactionAction(
+            'created',
+            Auth::user()->name,
+            $transaction->type,
+            $transaction->amount,
+            $transaction->currency
+        );
 
         // Redirect to transaction list with success message
         return to_route('transaction')->with('success', 'Transaction created successfully.');
@@ -216,8 +251,10 @@ class TransactionController extends Controller
      */
     public function show(Transaction $transaction)
     {
-        // Ensure user owns this transaction
-        if ($transaction->user_id !== Auth::id()) {
+        $user = Auth::user();
+
+        // Admins and super admins can view any transaction
+        if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
             abort(403);
         }
 
@@ -234,8 +271,10 @@ class TransactionController extends Controller
      */
     public function edit(Transaction $transaction)
     {
-        // Ensure user owns this transaction
-        if ($transaction->user_id !== Auth::id()) {
+        $user = Auth::user();
+
+        // Admins and super admins can edit any transaction
+        if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
             abort(403);
         }
 
@@ -259,8 +298,10 @@ class TransactionController extends Controller
      */
     public function update(UpdateTransactionRequest $request, Transaction $transaction)
     {
-        // Ensure user owns this transaction
-        if ($transaction->user_id !== Auth::id()) {
+        $user = Auth::user();
+
+        // Admins and super admins can update any transaction
+        if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
             abort(403);
         }
 
@@ -296,6 +337,15 @@ class TransactionController extends Controller
         // Create notification for transaction update
         $this->createTransactionNotification($transaction, 'updated');
 
+        // Notify admins about the transaction update
+        AdminNotificationService::notifyTransactionAction(
+            'updated',
+            Auth::user()->name,
+            $transaction->type,
+            $transaction->amount,
+            $transaction->currency
+        );
+
         // Redirect to transaction list with success message
         return to_route('transaction')->with('success', 'Transaction updated successfully.');
     }
@@ -305,12 +355,30 @@ class TransactionController extends Controller
      */
     public function destroy(Transaction $transaction)
     {
-        // Ensure user owns this transaction
-        if ($transaction->user_id !== Auth::id()) {
+        $user = Auth::user();
+
+        // Admins and super admins can delete any transaction
+        if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
             abort(403);
         }
 
+        // Store transaction info before deletion for admin notification
+        $transactionInfo = [
+            'type' => $transaction->type,
+            'amount' => $transaction->amount,
+            'currency' => $transaction->currency,
+        ];
+
         $transaction->delete();
+
+        // Notify admins about the transaction deletion
+        AdminNotificationService::notifyTransactionAction(
+            'deleted',
+            Auth::user()->name,
+            $transactionInfo['type'],
+            $transactionInfo['amount'],
+            $transactionInfo['currency']
+        );
 
         // Return success response for Inertia (frontend will handle any redirect)
         return back()->with('success', 'Transaction deleted successfully.');

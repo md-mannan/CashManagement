@@ -42,6 +42,10 @@ export interface User {
     primary_symbol?: string;
     secondary_symbol?: string;
     exchange_rate?: string;
+    role?: string;
+    permissions?: string[];
+    is_active?: boolean;
+    last_login_at?: string | null;
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
