@@ -46,6 +46,15 @@ class InstallerController extends Controller
         return Inertia::render('installer/database');
     }
 
+    public function configuration()
+    {
+        if ($this->isInstalled()) {
+            return redirect('/');
+        }
+
+        return Inertia::render('installer/configuration');
+    }
+
     public function testDatabase(Request $request)
     {
         $request->validate([
@@ -94,10 +103,18 @@ class InstallerController extends Controller
             'password' => 'nullable|string',
             'app_name' => 'required|string|max:255',
             'app_url' => 'required|url',
+            'app_timezone' => 'required|string',
+            'app_locale' => 'required|string',
+            'default_currency' => 'required|string|size:3',
+            'default_secondary_currency' => 'required|string|size:3',
             'admin_name' => 'required|string|max:255',
             'admin_email' => 'required|email|max:255',
             'admin_password' => 'required|string|min:8',
             'admin_password_confirmation' => 'required|same:admin_password',
+            'enable_notifications' => 'boolean',
+            'enable_activity_logging' => 'boolean',
+            'enable_backup' => 'boolean',
+            'enable_social_login' => 'boolean',
         ]);
 
         try {
@@ -110,7 +127,7 @@ class InstallerController extends Controller
             // Create admin user
             $this->createAdminUser($request->all());
 
-            // Create .env file
+            // Create .env file with all configuration
             $this->createEnvFile($request->all());
 
             // Mark as installed
@@ -122,7 +139,7 @@ class InstallerController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Installation completed successfully!',
-                'redirect_url' => '/login'
+                'redirect_url' => '/install/complete'
             ]);
 
         } catch (\Exception $e) {
@@ -311,11 +328,17 @@ class InstallerController extends Controller
             'password' => Hash::make($config['admin_password']),
             'role' => 'super_admin',
             'email_verified_at' => now(),
-            'primary_currency' => 'USD',
-            'secondary_currency' => 'EUR',
-            'primary_symbol' => '$',
-            'secondary_symbol' => '€',
-            'exchange_rate' => 1.0,
+            'primary_currency' => $config['default_currency'],
+            'secondary_currency' => $config['default_secondary_currency'],
+            'primary_symbol' => '$', // Default, can be overridden
+            'secondary_symbol' => '€', // Default, can be overridden
+            'exchange_rate' => 1.0, // Default, can be overridden
+            'timezone' => $config['app_timezone'],
+            'locale' => $config['app_locale'],
+            'enable_notifications' => $config['enable_notifications'] ?? false,
+            'enable_activity_logging' => $config['enable_activity_logging'] ?? false,
+            'enable_backup' => $config['enable_backup'] ?? false,
+            'enable_social_login' => $config['enable_social_login'] ?? false,
         ]);
     }
 
@@ -327,6 +350,45 @@ class InstallerController extends Controller
         // Update app configuration
         $envContent = preg_replace('/APP_NAME=.*/', "APP_NAME=\"{$config['app_name']}\"", $envContent);
         $envContent = preg_replace('/APP_URL=.*/', "APP_URL={$config['app_url']}", $envContent);
+        $envContent = preg_replace('/APP_TIMEZONE=.*/', "APP_TIMEZONE={$config['app_timezone']}", $envContent);
+        $envContent = preg_replace('/APP_LOCALE=.*/', "APP_LOCALE={$config['app_locale']}", $envContent);
+        
+        // Add custom configuration if not exists
+        if (strpos($envContent, 'DEFAULT_CURRENCY') === false) {
+            $envContent .= "\nDEFAULT_CURRENCY={$config['default_currency']}\n";
+        } else {
+            $envContent = preg_replace('/DEFAULT_CURRENCY=.*/', "DEFAULT_CURRENCY={$config['default_currency']}", $envContent);
+        }
+        
+        if (strpos($envContent, 'DEFAULT_SECONDARY_CURRENCY') === false) {
+            $envContent .= "\nDEFAULT_SECONDARY_CURRENCY={$config['default_secondary_currency']}\n";
+        } else {
+            $envContent = preg_replace('/DEFAULT_SECONDARY_CURRENCY=.*/', "DEFAULT_SECONDARY_CURRENCY={$config['default_secondary_currency']}", $envContent);
+        }
+        
+        if (strpos($envContent, 'ENABLE_NOTIFICATIONS') === false) {
+            $envContent .= "\nENABLE_NOTIFICATIONS=" . ($config['enable_notifications'] ? 'true' : 'false') . "\n";
+        } else {
+            $envContent = preg_replace('/ENABLE_NOTIFICATIONS=.*/', "ENABLE_NOTIFICATIONS=" . ($config['enable_notifications'] ? 'true' : 'false'), $envContent);
+        }
+        
+        if (strpos($envContent, 'ENABLE_ACTIVITY_LOGGING') === false) {
+            $envContent .= "\nENABLE_ACTIVITY_LOGGING=" . ($config['enable_activity_logging'] ? 'true' : 'false') . "\n";
+        } else {
+            $envContent = preg_replace('/ENABLE_ACTIVITY_LOGGING=.*/', "ENABLE_ACTIVITY_LOGGING=" . ($config['enable_activity_logging'] ? 'true' : 'false'), $envContent);
+        }
+        
+        if (strpos($envContent, 'ENABLE_BACKUP') === false) {
+            $envContent .= "\nENABLE_BACKUP=" . ($config['enable_backup'] ? 'true' : 'false') . "\n";
+        } else {
+            $envContent = preg_replace('/ENABLE_BACKUP=.*/', "ENABLE_BACKUP=" . ($config['enable_backup'] ? 'true' : 'false'), $envContent);
+        }
+        
+        if (strpos($envContent, 'ENABLE_SOCIAL_LOGIN') === false) {
+            $envContent .= "\nENABLE_SOCIAL_LOGIN=" . ($config['enable_social_login'] ? 'true' : 'false') . "\n";
+        } else {
+            $envContent = preg_replace('/ENABLE_SOCIAL_LOGIN=.*/', "ENABLE_SOCIAL_LOGIN=" . ($config['enable_social_login'] ? 'true' : 'false'), $envContent);
+        }
 
         // Add installation flag
         if (strpos($envContent, 'APP_INSTALLED') === false) {

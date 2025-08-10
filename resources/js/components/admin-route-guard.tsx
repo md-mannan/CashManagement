@@ -25,13 +25,9 @@ export function AdminRouteGuard({ requiredRole = 'admin', children }: AdminRoute
     const user = auth.user;
 
     // Debug logging
-    console.log('AdminRouteGuard: User data:', user);
-    console.log('AdminRouteGuard: Required role:', requiredRole);
-    console.log('AdminRouteGuard: User role:', user.role);
 
     // Super admin has access to everything
     if (user.role === 'super_admin') {
-        console.log('AdminRouteGuard: User is super admin, granting access');
         return <>{children}</>;
     }
 
@@ -39,11 +35,7 @@ export function AdminRouteGuard({ requiredRole = 'admin', children }: AdminRoute
     const hasAccess = ['admin', 'super_admin'].includes(user.role);
     const hasRequiredRole = user.role === requiredRole || user.role === 'super_admin';
 
-    console.log('AdminRouteGuard: Has access:', hasAccess);
-    console.log('AdminRouteGuard: Has required role:', hasRequiredRole);
-
     if (!hasAccess) {
-        console.log('AdminRouteGuard: Access denied - user is not admin');
         return (
             <div className="flex min-h-screen items-center justify-center bg-gray-50">
                 <div className="text-center">
@@ -63,7 +55,6 @@ export function AdminRouteGuard({ requiredRole = 'admin', children }: AdminRoute
     }
 
     if (requiredRole === 'super_admin' && !hasRequiredRole) {
-        console.log('AdminRouteGuard: Insufficient privileges - super admin required');
         return (
             <div className="flex min-h-screen items-center justify-center bg-gray-50">
                 <div className="text-center">
@@ -82,6 +73,5 @@ export function AdminRouteGuard({ requiredRole = 'admin', children }: AdminRoute
         );
     }
 
-    console.log('AdminRouteGuard: Access granted');
     return <>{children}</>;
 }

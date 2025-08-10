@@ -30,6 +30,7 @@ class User extends Authenticatable
         'appearance_mode',
         'theme',
         'timezone',
+        'locale',
         'date_format',
         'time_format',
         'exchange_rate_api_key',
@@ -41,6 +42,10 @@ class User extends Authenticatable
         'password_reset_token',
         'password_reset_expires_at',
         'force_password_change',
+        'enable_notifications',
+        'enable_activity_logging',
+        'enable_backup',
+        'enable_social_login',
     ];
 
     /**

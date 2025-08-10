@@ -31,14 +31,12 @@ class NotificationService {
      */
     async getNotifications(unreadOnly = false, limit = 20): Promise<NotificationsResponse> {
         try {
-            console.log('Making request to:', this.baseUrl);
             const response = await axios.get(this.baseUrl, {
                 params: {
                     unread_only: unreadOnly,
                     limit,
                 },
             });
-            console.log('Response received:', response);
             return response.data;
         } catch (error) {
             console.error('Error in getNotifications:', error);

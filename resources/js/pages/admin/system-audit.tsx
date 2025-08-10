@@ -54,12 +54,10 @@ interface SystemAuditProps {
     error?: string;
 }
 
-export default function SystemAudit({ recentActivities, attentionActivities, auditStats, error }: SystemAuditProps) {
+export default function SystemAudit({ recentActivities, error }: SystemAuditProps) {
     const page = usePage();
 
     // Debug: Log the props to see what's being passed
-    console.log('SystemAudit props:', { recentActivities, attentionActivities, auditStats, error });
-    console.log('Page props:', page.props);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedAction, setSelectedAction] = useState('all');

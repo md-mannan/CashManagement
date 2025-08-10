@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Head, useForm } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle, Database, Settings, Shield, User, XCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Database, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 export default function InstallerDatabase() {
@@ -14,25 +14,14 @@ export default function InstallerDatabase() {
         tables?: string[];
     } | null>(null);
     const [isTesting, setIsTesting] = useState(false);
-    const [isInstalling, setIsInstalling] = useState(false);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, errors } = useForm({
         // Database Configuration
         host: 'localhost',
         port: '3306',
         database: '',
         username: '',
         password: '',
-
-        // Application Configuration
-        app_name: 'Cash Management',
-        app_url: window.location.origin,
-
-        // Admin User Configuration
-        admin_name: '',
-        admin_email: '',
-        admin_password: '',
-        admin_password_confirmation: '',
     });
 
     const handleTestConnection = async () => {
@@ -67,37 +56,10 @@ export default function InstallerDatabase() {
         }
     };
 
-    const handleInstall = async () => {
-        if (!testResult?.success) {
-            alert('Please test your database connection first.');
-            return;
-        }
-
-        setIsInstalling(true);
-
-        try {
-            const response = await fetch('/install/install', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify(data),
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                alert('Installation completed successfully! Redirecting to login...');
-                window.location.href = result.redirect_url;
-            } else {
-                alert('Installation failed: ' + result.message);
-            }
-        } catch (error) {
-            alert('Installation failed. Please try again.');
-        } finally {
-            setIsInstalling(false);
-        }
+    const handleNext = () => {
+        // Store database config in sessionStorage for the next step
+        sessionStorage.setItem('installer_db_config', JSON.stringify(data));
+        window.location.href = '/install/configuration';
     };
 
     return (
@@ -109,7 +71,7 @@ export default function InstallerDatabase() {
                     {/* Header */}
                     <div className="mb-8 text-center">
                         <h1 className="mb-2 text-3xl font-bold text-gray-900">Database Configuration</h1>
-                        <p className="text-lg text-gray-600">Configure your database connection and application settings</p>
+                        <p className="text-lg text-gray-600">Configure your MySQL database connection details</p>
                     </div>
 
                     {/* Progress Indicator */}
@@ -238,110 +200,6 @@ export default function InstallerDatabase() {
                             </Card>
                         )}
 
-                        {/* Application Configuration */}
-                        <Card className="mb-6">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Settings className="h-5 w-5 text-green-600" />
-                                    Application Configuration
-                                </CardTitle>
-                                <CardDescription>Set up your application name and URL</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div>
-                                    <Label htmlFor="app_name">Application Name</Label>
-                                    <Input
-                                        id="app_name"
-                                        type="text"
-                                        value={data.app_name}
-                                        onChange={(e) => setData('app_name', e.target.value)}
-                                        placeholder="Cash Management"
-                                        required
-                                    />
-                                    {errors.app_name && <p className="mt-1 text-sm text-red-500">{errors.app_name}</p>}
-                                </div>
-                                <div>
-                                    <Label htmlFor="app_url">Application URL</Label>
-                                    <Input
-                                        id="app_url"
-                                        type="url"
-                                        value={data.app_url}
-                                        onChange={(e) => setData('app_url', e.target.value)}
-                                        placeholder="https://example.com"
-                                        required
-                                    />
-                                    {errors.app_url && <p className="mt-1 text-sm text-red-500">{errors.app_url}</p>}
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Admin User Configuration */}
-                        <Card className="mb-8">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <User className="h-5 w-5 text-purple-600" />
-                                    Administrator Account
-                                </CardTitle>
-                                <CardDescription>Create your super admin account. This user will have full access to the system.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <div>
-                                        <Label htmlFor="admin_name">Full Name</Label>
-                                        <Input
-                                            id="admin_name"
-                                            type="text"
-                                            value={data.admin_name}
-                                            onChange={(e) => setData('admin_name', e.target.value)}
-                                            placeholder="John Doe"
-                                            required
-                                        />
-                                        {errors.admin_name && <p className="mt-1 text-sm text-red-500">{errors.admin_name}</p>}
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="admin_email">Email Address</Label>
-                                        <Input
-                                            id="admin_email"
-                                            type="email"
-                                            value={data.admin_email}
-                                            onChange={(e) => setData('admin_email', e.target.value)}
-                                            placeholder="admin@example.com"
-                                            required
-                                        />
-                                        {errors.admin_email && <p className="mt-1 text-sm text-red-500">{errors.admin_email}</p>}
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <div>
-                                        <Label htmlFor="admin_password">Password</Label>
-                                        <Input
-                                            id="admin_password"
-                                            type="password"
-                                            value={data.admin_password}
-                                            onChange={(e) => setData('admin_password', e.target.value)}
-                                            placeholder="Minimum 8 characters"
-                                            required
-                                        />
-                                        {errors.admin_password && <p className="mt-1 text-sm text-red-500">{errors.admin_password}</p>}
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="admin_password_confirmation">Confirm Password</Label>
-                                        <Input
-                                            id="admin_password_confirmation"
-                                            type="password"
-                                            value={data.admin_password_confirmation}
-                                            onChange={(e) => setData('admin_password_confirmation', e.target.value)}
-                                            placeholder="Confirm your password"
-                                            required
-                                        />
-                                        {errors.admin_password_confirmation && (
-                                            <p className="mt-1 text-sm text-red-500">{errors.admin_password_confirmation}</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
                         {/* Action Buttons */}
                         <div className="flex items-center justify-between">
                             <a href="/install/requirements">
@@ -351,15 +209,13 @@ export default function InstallerDatabase() {
                                 </Button>
                             </a>
 
-                            <Button onClick={handleInstall} disabled={!testResult?.success || isInstalling} className="flex items-center gap-2">
-                                {isInstalling ? (
-                                    'Installing...'
-                                ) : (
-                                    <>
-                                        <Shield className="h-4 w-4" />
-                                        Install Application
-                                    </>
-                                )}
+                            <Button 
+                                onClick={handleNext} 
+                                disabled={!testResult?.success} 
+                                className="flex items-center gap-2"
+                            >
+                                Next
+                                <ArrowRight className="h-4 w-4" />
                             </Button>
                         </div>
                     </form>
@@ -374,8 +230,7 @@ export default function InstallerDatabase() {
                                 <li>• Make sure your database server is running and accessible</li>
                                 <li>• The database user must have CREATE, ALTER, and DROP privileges</li>
                                 <li>• Existing data in the database will be overwritten during installation</li>
-                                <li>• Keep your admin credentials safe - you'll need them to log in</li>
-                                <li>• The installation process may take a few minutes to complete</li>
+                                <li>• Test your connection before proceeding to the next step</li>
                             </ul>
                         </CardContent>
                     </Card>

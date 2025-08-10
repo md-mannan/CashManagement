@@ -32,9 +32,6 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
     const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
 
     // Debug logging
-    console.log('AppSidebarHeader - notifications:', notifications);
-    console.log('AppSidebarHeader - unreadCount:', unreadCount);
-    console.log('AppSidebarHeader - loading:', loading);
 
     const handleLogout = () => {
         showToast({

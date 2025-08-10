@@ -61,8 +61,6 @@ export default function SystemHealth({ systemHealth }: SystemHealthProps) {
     const page = usePage();
 
     // Debug: Log the props to see what's being passed
-    console.log('SystemHealth props:', { systemHealth });
-    console.log('Page props:', page.props);
 
     // Check if systemHealth data exists
     if (!systemHealth) {
