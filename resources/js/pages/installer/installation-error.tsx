@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Head, Link } from '@inertiajs/react';
 import { AlertTriangle, ArrowLeft, Database, FileText, RefreshCw, Settings, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface InstallationErrorProps {
     error: {
@@ -17,7 +18,32 @@ interface InstallationErrorProps {
     };
 }
 
-export default function InstallationError({ error }: InstallationErrorProps) {
+export default function InstallationError() {
+    // Get error data from sessionStorage or use default
+    const [error, setError] = useState<InstallationErrorProps['error']>({
+        type: 'system',
+        title: 'Installation Failed',
+        message: 'The installation process encountered an error.',
+        details: ['Unknown error occurred during installation'],
+        suggestions: ['Check your database connection', 'Verify all required fields are filled', 'Ensure proper permissions on storage directories'],
+        canRetry: true,
+        canGoBack: true,
+    });
+
+    useEffect(() => {
+        // Try to get error data from sessionStorage
+        const storedError = sessionStorage.getItem('installer_error');
+        if (storedError) {
+            try {
+                const parsedError = JSON.parse(storedError);
+                setError(parsedError);
+                // Clear the stored error after reading it
+                sessionStorage.removeItem('installer_error');
+            } catch (e) {
+                console.error('Failed to parse stored error:', e);
+            }
+        }
+    }, []);
     const getErrorIcon = (type: string) => {
         switch (type) {
             case 'database_setup':
@@ -126,6 +152,7 @@ export default function InstallationError({ error }: InstallationErrorProps) {
     };
 
     const handleRetry = () => {
+        // Go back to configuration page to retry installation
         window.location.href = '/install/configuration';
     };
 

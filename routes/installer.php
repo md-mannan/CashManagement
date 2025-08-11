@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'install', 'middleware' => ['web', 'installer']], function () {
     Route::get('/', [InstallerController::class, 'index'])->name('installer.welcome');
     Route::get('/requirements', [InstallerController::class, 'requirements'])->name('installer.requirements');
+    Route::get('/requirements-error', [InstallerController::class, 'requirementsError'])->name('installer.requirements-error');
     Route::get('/database', [InstallerController::class, 'database'])->name('installer.database');
     Route::post('/test-database', [InstallerController::class, 'testDatabase'])->name('installer.test-database');
+    Route::get('/database-error', [InstallerController::class, 'databaseError'])->name('installer.database-error');
     Route::get('/configuration', [InstallerController::class, 'configuration'])->name('installer.configuration');
     Route::post('/install', [InstallerController::class, 'install'])->name('installer.install');
+    Route::get('/installation-error', [InstallerController::class, 'installationError'])->name('installer.installation-error');
     Route::get('/complete', [InstallerController::class, 'complete'])->name('installer.complete');
 });

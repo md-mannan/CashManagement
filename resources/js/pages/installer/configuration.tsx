@@ -5,13 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Head, useForm } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle, DollarSign, Globe, Settings, User } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { AlertTriangle, ArrowLeft, CheckCircle, DollarSign, Globe, Settings, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function InstallerConfiguration() {
     const [currentStep, setCurrentStep] = useState(1);
     const [isInstalling, setIsInstalling] = useState(false);
     const [dbConfig, setDbConfig] = useState<any>(null);
+    const [hasError, setHasError] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         // Database Configuration (retrieved from previous step)
@@ -20,23 +21,23 @@ export default function InstallerConfiguration() {
         database: '',
         username: '',
         password: '',
-        
+
         // Application Configuration
         app_name: 'Cash Management',
         app_url: window.location.origin,
         app_timezone: 'UTC',
         app_locale: 'en',
-        
+
         // Currency Configuration
         default_currency: 'USD',
         default_secondary_currency: 'EUR',
-        
+
         // Admin User Configuration
         admin_name: '',
         admin_email: '',
         admin_password: '',
         admin_password_confirmation: '',
-        
+
         // Optional Settings
         enable_notifications: true,
         enable_activity_logging: true,
@@ -59,22 +60,33 @@ export default function InstallerConfiguration() {
                 password: parsed.password,
             });
         }
+
+        // Check if there was a previous installation error
+        const hasPreviousError = sessionStorage.getItem('installer_error');
+        if (hasPreviousError) {
+            setHasError(true);
+        }
     }, []);
 
     // Timezones, locales, and currencies arrays
     const timezones = [
-        'UTC', 'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
-        'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai',
-        'Australia/Sydney', 'Pacific/Auckland'
+        'UTC',
+        'America/New_York',
+        'America/Chicago',
+        'America/Denver',
+        'America/Los_Angeles',
+        'Europe/London',
+        'Europe/Paris',
+        'Europe/Berlin',
+        'Asia/Tokyo',
+        'Asia/Shanghai',
+        'Australia/Sydney',
+        'Pacific/Auckland',
     ];
 
-    const locales = [
-        'en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh', 'ar', 'hi'
-    ];
+    const locales = ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh', 'ar', 'hi'];
 
-    const currencies = [
-        'USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'BRL', 'MXN', 'SGD'
-    ];
+    const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'BRL', 'MXN', 'SGD'];
 
     const handleNext = () => {
         if (currentStep < 3) {
@@ -113,10 +125,42 @@ export default function InstallerConfiguration() {
                 sessionStorage.removeItem('installer_db_config');
                 window.location.href = result.redirect_url;
             } else {
-                alert('Installation failed: ' + result.message);
+                // Redirect to installation error page with error details
+                const errorData = {
+                    type: result.errorType || 'installation',
+                    title: 'Installation Failed',
+                    message: result.message || 'The installation process encountered an error.',
+                    details: result.details || ['Unknown error occurred during installation'],
+                    errorCode: result.errorCode,
+                    suggestions: result.suggestions || [
+                        'Check your database connection',
+                        'Verify all required fields are filled',
+                        'Ensure proper permissions on storage directories',
+                    ],
+                    canRetry: true,
+                    canGoBack: true,
+                };
+
+                // Store error data in sessionStorage for the error page
+                sessionStorage.setItem('installer_error', JSON.stringify(errorData));
+                window.location.href = '/install/installation-error';
             }
         } catch (error) {
-            alert('Installation failed. Please try again.');
+            console.error('Installation error:', error);
+
+            // Redirect to installation error page with network error
+            const errorData = {
+                type: 'system',
+                title: 'Installation Failed',
+                message: 'A network error occurred during installation.',
+                details: ['Unable to connect to the server', 'Check your internet connection', 'Verify the server is running'],
+                suggestions: ['Check your internet connection', 'Verify the server is running', 'Try refreshing the page and installing again'],
+                canRetry: true,
+                canGoBack: true,
+            };
+
+            sessionStorage.setItem('installer_error', JSON.stringify(errorData));
+            window.location.href = '/install/installation-error';
         } finally {
             setIsInstalling(false);
         }
@@ -165,7 +209,9 @@ export default function InstallerConfiguration() {
                             </SelectTrigger>
                             <SelectContent>
                                 {timezones.map((tz) => (
-                                    <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                                    <SelectItem key={tz} value={tz}>
+                                        {tz}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -179,7 +225,9 @@ export default function InstallerConfiguration() {
                             </SelectTrigger>
                             <SelectContent>
                                 {locales.map((locale) => (
-                                    <SelectItem key={locale} value={locale}>{locale.toUpperCase()}</SelectItem>
+                                    <SelectItem key={locale} value={locale}>
+                                        {locale.toUpperCase()}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -209,7 +257,9 @@ export default function InstallerConfiguration() {
                             </SelectTrigger>
                             <SelectContent>
                                 {currencies.map((currency) => (
-                                    <SelectItem key={currency} value={currency}>{currency}</SelectItem>
+                                    <SelectItem key={currency} value={currency}>
+                                        {currency}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -223,7 +273,9 @@ export default function InstallerConfiguration() {
                             </SelectTrigger>
                             <SelectContent>
                                 {currencies.map((currency) => (
-                                    <SelectItem key={currency} value={currency}>{currency}</SelectItem>
+                                    <SelectItem key={currency} value={currency}>
+                                        {currency}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -293,9 +345,7 @@ export default function InstallerConfiguration() {
                             placeholder="Confirm your password"
                             required
                         />
-                        {errors.admin_password_confirmation && (
-                            <p className="mt-1 text-sm text-red-500">{errors.admin_password_confirmation}</p>
-                        )}
+                        {errors.admin_password_confirmation && <p className="mt-1 text-sm text-red-500">{errors.admin_password_confirmation}</p>}
                     </div>
                 </div>
             </CardContent>
@@ -380,7 +430,7 @@ export default function InstallerConfiguration() {
     return (
         <>
             <Head title="Configuration - Cash Management Installer" />
-            
+
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
                 <div className="mx-auto max-w-4xl">
                     {/* Header */}
@@ -401,6 +451,26 @@ export default function InstallerConfiguration() {
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300 text-sm font-bold text-gray-500">4</div>
                         </div>
                     </div>
+
+                    {/* Error Alert for Previous Installation Failures */}
+                    {hasError && (
+                        <Alert variant="destructive" className="mb-6">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertDescription>
+                                Previous installation attempt failed. Please review your configuration and try again.
+                                <Button
+                                    variant="link"
+                                    className="ml-2 h-auto p-0 text-white underline"
+                                    onClick={() => {
+                                        sessionStorage.removeItem('installer_error');
+                                        setHasError(false);
+                                    }}
+                                >
+                                    Dismiss
+                                </Button>
+                            </AlertDescription>
+                        </Alert>
+                    )}
 
                     <form onSubmit={(e) => e.preventDefault()}>
                         {/* Step Content */}
@@ -425,10 +495,8 @@ export default function InstallerConfiguration() {
                                     </Button>
                                 )}
                             </div>
-                            
-                            <div className="text-sm text-gray-500">
-                                Step {currentStep} of 3
-                            </div>
+
+                            <div className="text-sm text-gray-500">Step {currentStep} of 3</div>
                         </div>
 
                         {/* Action Buttons */}
@@ -441,12 +509,20 @@ export default function InstallerConfiguration() {
                             </a>
 
                             {currentStep === 3 && (
-                                <Button 
-                                    onClick={handleInstall} 
-                                    disabled={isInstalling || !data.admin_name || !data.admin_email || !data.admin_password || !data.admin_password_confirmation} 
+                                <Button
+                                    onClick={handleInstall}
+                                    disabled={
+                                        isInstalling ||
+                                        !data.admin_name ||
+                                        !data.admin_email ||
+                                        !data.admin_password ||
+                                        !data.admin_password_confirmation
+                                    }
                                     className="flex items-center gap-2"
                                 >
-                                    {isInstalling ? 'Installing...' : (
+                                    {isInstalling ? (
+                                        'Installing...'
+                                    ) : (
                                         <>
                                             <CheckCircle className="h-4 w-4" />
                                             Install Application

@@ -122,9 +122,73 @@ class InstallerController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Installation failed: ' . $e->getMessage(), [
+                'exception' => $e,
+                'request_data' => $request->all()
+            ]);
+
+            // Determine error type and provide specific suggestions
+            $errorType = 'installation';
+            $details = [];
+            $suggestions = [];
+
+            if (strpos($e->getMessage(), 'database') !== false || strpos($e->getMessage(), 'SQL') !== false) {
+                $errorType = 'database_setup';
+                $details = [
+                    'Database operation failed',
+                    'Check database connection and permissions',
+                    'Verify database user has sufficient privileges'
+                ];
+                $suggestions = [
+                    'Verify database connection details',
+                    'Ensure database user has CREATE, ALTER, DROP privileges',
+                    'Check if database exists and is accessible'
+                ];
+            } elseif (strpos($e->getMessage(), 'permission') !== false || strpos($e->getMessage(), 'write') !== false) {
+                $errorType = 'file_permissions';
+                $details = [
+                    'File permission error',
+                    'Unable to write to required directories',
+                    'Check storage and bootstrap/cache permissions'
+                ];
+                $suggestions = [
+                    'Set proper permissions on storage directory: chmod 755 storage',
+                    'Set proper permissions on bootstrap/cache: chmod 755 bootstrap/cache',
+                    'Check ownership: chown www-data:www-data directory_name'
+                ];
+            } elseif (strpos($e->getMessage(), 'migration') !== false) {
+                $errorType = 'migration';
+                $details = [
+                    'Database migration failed',
+                    'Unable to create or modify database tables',
+                    'Check database schema and constraints'
+                ];
+                $suggestions = [
+                    'Verify database connection and permissions',
+                    'Check for conflicting table names',
+                    'Ensure database user has ALTER and CREATE privileges'
+                ];
+            } else {
+                $details = [
+                    'Unexpected error occurred',
+                    'Check server logs for more details',
+                    'Verify all requirements are met'
+                ];
+                $suggestions = [
+                    'Check server error logs',
+                    'Verify PHP extensions and requirements',
+                    'Contact support with error details'
+                ];
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => 'Installation failed: ' . $e->getMessage()
+                'message' => 'Installation failed: ' . $e->getMessage(),
+                'errorType' => $errorType,
+                'details' => $details,
+                'suggestions' => $suggestions,
+                'errorCode' => 'INST_' . strtoupper($errorType) . '_001'
             ], 500);
         }
     }
@@ -136,6 +200,21 @@ class InstallerController extends Controller
         }
 
         return Inertia::render('installer/complete');
+    }
+
+    public function installationError()
+    {
+        return Inertia::render('installer/installation-error');
+    }
+
+    public function requirementsError()
+    {
+        return Inertia::render('installer/requirements-error');
+    }
+
+    public function databaseError()
+    {
+        return Inertia::render('installer/database-error');
     }
 
     private function isInstalled()
