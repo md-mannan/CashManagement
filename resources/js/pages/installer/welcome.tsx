@@ -1,9 +1,22 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Head, Link } from '@inertiajs/react';
-import { BarChart3, CheckCircle, CreditCard, Database, Settings, Shield, Users, Zap } from 'lucide-react';
+import { AlertCircle, BarChart3, CheckCircle, CreditCard, Database, Settings, Shield, Users, Zap } from 'lucide-react';
 
-export default function InstallerWelcome() {
+interface InstallerWelcomeProps {
+    installationStatus: {
+        is_installed: boolean;
+        database_connected: boolean;
+        migrations_run: boolean;
+        admin_user_exists: boolean;
+        can_proceed: boolean;
+    };
+    defaultConfig: any;
+}
+
+export default function InstallerWelcome({ installationStatus, defaultConfig }: InstallerWelcomeProps) {
+    const canInstall = installationStatus.can_proceed && !installationStatus.is_installed;
+
     return (
         <>
             <Head title="Welcome - Cash Management Installer" />
@@ -23,6 +36,73 @@ export default function InstallerWelcome() {
                             budgets, and gain insights into your financial health.
                         </p>
                     </div>
+
+                    {/* Installation Status */}
+                    <Card className="mb-8">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                {installationStatus.is_installed ? (
+                                    <CheckCircle className="h-5 w-5 text-green-600" />
+                                ) : (
+                                    <AlertCircle className="h-5 w-5 text-blue-600" />
+                                )}
+                                Installation Status
+                            </CardTitle>
+                            <CardDescription>
+                                {installationStatus.is_installed
+                                    ? 'Your application is already installed and ready to use!'
+                                    : 'Check the status of your installation requirements'}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div className="flex items-center gap-2">
+                                    <Database className="h-4 w-4" />
+                                    <span className="text-sm">Database Connection</span>
+                                    <span
+                                        className={`ml-auto rounded px-2 py-1 text-xs ${
+                                            installationStatus.database_connected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                        }`}
+                                    >
+                                        {installationStatus.database_connected ? 'Connected' : 'Not Connected'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Settings className="h-4 w-4" />
+                                    <span className="text-sm">Migrations</span>
+                                    <span
+                                        className={`ml-auto rounded px-2 py-1 text-xs ${
+                                            installationStatus.migrations_run ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                        }`}
+                                    >
+                                        {installationStatus.migrations_run ? 'Complete' : 'Pending'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Users className="h-4 w-4" />
+                                    <span className="text-sm">Admin User</span>
+                                    <span
+                                        className={`ml-auto rounded px-2 py-1 text-xs ${
+                                            installationStatus.admin_user_exists ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                        }`}
+                                    >
+                                        {installationStatus.admin_user_exists ? 'Exists' : 'Not Created'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle className="h-4 w-4" />
+                                    <span className="text-sm">Overall Status</span>
+                                    <span
+                                        className={`ml-auto rounded px-2 py-1 text-xs ${
+                                            installationStatus.is_installed ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                                        }`}
+                                    >
+                                        {installationStatus.is_installed ? 'Installed' : 'Ready to Install'}
+                                    </span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
 
                     {/* Features Grid */}
                     <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -92,7 +172,7 @@ export default function InstallerWelcome() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Database className="h-4 w-4 text-green-600" />
-                                    <span className="text-sm">MySQL 5.7 or higher</span>
+                                    <span className="text-sm">SQLite (recommended) or MySQL</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Shield className="h-4 w-4 text-purple-600" />
@@ -102,69 +182,27 @@ export default function InstallerWelcome() {
                         </CardContent>
                     </Card>
 
-                    {/* Installation Steps */}
-                    <Card className="mb-8">
-                        <CardHeader>
-                            <CardTitle>Installation Process</CardTitle>
-                            <CardDescription>The installation will guide you through the following steps</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
-                                        1
-                                    </div>
-                                    <div>
-                                        <h4 className="font-medium">System Requirements Check</h4>
-                                        <p className="text-sm text-gray-600">Verify your server meets all requirements</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
-                                        2
-                                    </div>
-                                    <div>
-                                        <h4 className="font-medium">Database Configuration</h4>
-                                        <p className="text-sm text-gray-600">Set up your database connection</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
-                                        3
-                                    </div>
-                                    <div>
-                                        <h4 className="font-medium">Application Setup</h4>
-                                        <p className="text-sm text-gray-600">Configure app settings and create admin user</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-sm font-bold text-white">
-                                        4
-                                    </div>
-                                    <div>
-                                        <h4 className="font-medium">Installation Complete</h4>
-                                        <p className="text-sm text-gray-600">Start using your Cash Management application</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
                     {/* Action Buttons */}
-                    <div className="text-center">
-                        <Link href="/install/requirements">
-                            <Button size="lg" className="px-8">
-                                Get Started
-                                <CheckCircle className="ml-2 h-4 w-4" />
+                    <div className="flex justify-center gap-4">
+                        {installationStatus.is_installed ? (
+                            <Button asChild size="lg" className="bg-green-600 hover:bg-green-700">
+                                <Link href="/">Go to Application</Link>
                             </Button>
-                        </Link>
-                        <p className="mt-3 text-sm text-gray-500">By continuing, you agree to our terms of service and privacy policy</p>
-                    </div>
+                        ) : canInstall ? (
+                            <Button asChild size="lg">
+                                <Link href="/install/requirements">Start Installation</Link>
+                            </Button>
+                        ) : (
+                            <Button asChild size="lg" variant="outline" disabled>
+                                <span>Check Database Connection First</span>
+                            </Button>
+                        )}
 
-                    {/* Footer */}
-                    <div className="mt-12 text-center text-sm text-gray-500">
-                        <p>Cash Management v1.0.0 • Built with Laravel & React</p>
-                        <p className="mt-1">© 2024 Cash Management. All rights reserved.</p>
+                        {!installationStatus.is_installed && (
+                            <Button asChild size="lg" variant="outline">
+                                <Link href="/install/database">Configure Database</Link>
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>

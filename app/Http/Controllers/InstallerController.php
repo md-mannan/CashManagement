@@ -11,12 +11,25 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Config;
 use Inertia\Inertia;
 use App\Models\User;
+use App\Services\InstallationService;
 
 class InstallerController extends Controller
 {
-    public function index()
+    public function __construct(
+        private InstallationService $installationService
+    ) {}
+
+        public function index()
     {
-        return Inertia::render('installer/welcome');
+        $status = $this->installationService->getInstallationStatus();
+        $defaultConfig = $this->installationService->getDefaultConfig();
+        $installerConfig = $this->installationService->getInstallerConfig();
+
+        return Inertia::render('installer/welcome', [
+            'installationStatus' => $status,
+            'defaultConfig' => $defaultConfig,
+            'installerConfig' => $installerConfig,
+        ]);
     }
 
     public function requirements()

@@ -7,23 +7,7 @@ import { useToast } from '@/components/ui/toast';
 import { useNotifications } from '@/hooks/use-notifications';
 import { type BreadcrumbItem as BreadcrumbItemType, type SharedData } from '@/types';
 import { router, usePage } from '@inertiajs/react';
-import {
-    AlertCircle,
-    AlertTriangle,
-    ArrowDownLeft,
-    ArrowUpRight,
-    Bell,
-    CheckCircle,
-    DollarSign,
-    Info,
-    LogOut,
-    RefreshCw,
-    Settings,
-    TrendingDown,
-    TrendingUp,
-    User,
-    X,
-} from 'lucide-react';
+import { Bell, CheckCircle, LogOut, Settings, User, X } from 'lucide-react';
 
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     const page = usePage<SharedData>();
@@ -41,34 +25,6 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
             sound: true,
         });
         router.post('/logout');
-    };
-
-    // Get icon component based on icon name
-    const getNotificationIcon = (iconName?: string) => {
-        switch (iconName) {
-            case 'CheckCircle':
-                return CheckCircle;
-            case 'AlertCircle':
-                return AlertCircle;
-            case 'AlertTriangle':
-                return AlertTriangle;
-            case 'RefreshCw':
-                return RefreshCw;
-            case 'Info':
-                return Info;
-            case 'TrendingUp':
-                return TrendingUp;
-            case 'TrendingDown':
-                return TrendingDown;
-            case 'ArrowUpRight':
-                return ArrowUpRight;
-            case 'ArrowDownLeft':
-                return ArrowDownLeft;
-            case 'DollarSign':
-                return DollarSign;
-            default:
-                return Bell;
-        }
     };
 
     // Get color classes based on color name
@@ -132,7 +88,6 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                                 <div className="p-4 text-center text-sm text-muted-foreground">No notifications yet</div>
                             ) : (
                                 notifications.map((notification, index) => {
-                                    const IconComponent = getNotificationIcon(notification.icon);
                                     const isLast = index === notifications.length - 1;
 
                                     return (

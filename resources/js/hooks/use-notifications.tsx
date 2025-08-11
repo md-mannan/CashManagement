@@ -34,6 +34,7 @@ export function useNotifications() {
             setUnreadCount(count);
         } catch (err) {
             // Silently fail for unread count updates
+            console.debug('Failed to fetch unread count:', err);
         }
     }, []);
 

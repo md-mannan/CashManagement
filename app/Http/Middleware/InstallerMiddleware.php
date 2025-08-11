@@ -5,18 +5,18 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Services\InstallationService;
 
 class InstallerMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
+    public function __construct(
+        private InstallationService $installationService
+    ) {}
+
     public function handle(Request $request, Closure $next): Response
     {
         // Prevent access to installer if already installed
-        if (file_exists(base_path('.env')) && strpos(file_get_contents(base_path('.env')), 'APP_INSTALLED=true') !== false) {
+        if ($this->installationService->isInstalled()) {
             return redirect('/');
         }
 

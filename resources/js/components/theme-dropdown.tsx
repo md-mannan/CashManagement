@@ -16,7 +16,7 @@ export default function ThemeDropdown({ className = '', ...props }: HTMLAttribut
         }
     };
 
-    const themes: { value: Theme; icon: any; label: string }[] = [
+    const themes: { value: Theme; icon: React.ComponentType<{ className?: string }>; label: string }[] = [
         { value: 'neutral', icon: Palette, label: 'Neutral' },
         { value: 'violet', icon: Sparkles, label: 'Violet' },
     ];

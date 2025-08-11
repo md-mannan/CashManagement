@@ -57,7 +57,7 @@ export const CustomDateInput: React.FC<CustomDateInputProps> = ({
         let inputValue = e.target.value;
 
         // Remove any non-digit characters except /
-        inputValue = inputValue.replace(/[^\d\/]/g, '');
+        inputValue = inputValue.replace(/[^\d/]/g, '');
 
         // Auto-format as DD/MM/YYYY
         if (inputValue.length === 2 && !inputValue.includes('/')) {
