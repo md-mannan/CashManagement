@@ -1,8 +1,8 @@
+import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TextLink } from '@/components/ui/text-link';
 import AuthLayout from '@/layouts/auth-layout';
 import { Head, useForm } from '@inertiajs/react';
 import { AlertCircle, ArrowLeft, Eye, EyeOff, Lock } from 'lucide-react';

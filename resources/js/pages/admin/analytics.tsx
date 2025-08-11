@@ -24,7 +24,6 @@ const getCurrencySymbol = (currencyCode: string): string => {
         INR: '₹',
         BRL: 'R$',
         RUB: '₽',
-        KRW: '₩',
         MXN: '$',
         SGD: 'S$',
         HKD: 'HK$',
@@ -77,7 +76,6 @@ const getCurrencySymbol = (currencyCode: string): string => {
         MYR: 'RM',
         PHP: '₱',
         TWD: 'NT$',
-        KRW: '₩',
     };
 
     return currencySymbols[currencyCode] || currencyCode;

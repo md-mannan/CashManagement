@@ -211,13 +211,13 @@ export default function NotificationsPage() {
             await markAsRead(notificationId);
             showToast({
                 title: 'Success',
-                description: 'Notification marked as read',
+                message: 'Notification marked as read',
                 type: 'success',
             });
         } catch (error) {
             showToast({
                 title: 'Error',
-                description: 'Failed to mark notification as read',
+                message: 'Failed to mark notification as read',
                 type: 'error',
             });
         }
@@ -228,13 +228,13 @@ export default function NotificationsPage() {
             await markAllAsRead();
             showToast({
                 title: 'Success',
-                description: 'All notifications marked as read',
+                message: 'All notifications marked as read',
                 type: 'success',
             });
         } catch (error) {
             showToast({
                 title: 'Error',
-                description: 'Failed to mark all notifications as read',
+                message: 'Failed to mark all notifications as read',
                 type: 'error',
             });
         }
@@ -245,13 +245,13 @@ export default function NotificationsPage() {
             await deleteNotification(notificationId);
             showToast({
                 title: 'Success',
-                description: 'Notification deleted',
+                message: 'Notification deleted',
                 type: 'success',
             });
         } catch (error) {
             showToast({
                 title: 'Error',
-                description: 'Failed to delete notification',
+                message: 'Failed to delete notification',
                 type: 'error',
             });
         }
@@ -261,7 +261,7 @@ export default function NotificationsPage() {
         refresh();
         showToast({
             title: 'Refreshing',
-            description: 'Notifications refreshed',
+            message: 'Notifications refreshed',
             type: 'info',
         });
     };
@@ -439,14 +439,10 @@ export default function NotificationsPage() {
                                                                     >
                                                                         {notification.title}
                                                                     </p>
-                                                                    <Badge variant={getTypeBadgeVariant(notification.type)} size="sm">
+                                                                    <Badge variant={getTypeBadgeVariant(notification.type)}>
                                                                         {notification.type}
                                                                     </Badge>
-                                                                    {notification.is_important && (
-                                                                        <Badge variant="destructive" size="sm">
-                                                                            Important
-                                                                        </Badge>
-                                                                    )}
+                                                                    {notification.is_important && <Badge variant="destructive">Important</Badge>}
                                                                 </div>
                                                                 <p className="text-sm text-muted-foreground">{notification.message}</p>
                                                                 <p className="mt-1 text-xs text-muted-foreground">{notification.time_ago}</p>

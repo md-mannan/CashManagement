@@ -50,6 +50,9 @@ export default function InstallerDatabase() {
             setTestResult({
                 success: false,
                 message: 'Connection test failed. Please check your settings.',
+                errorType: 'connection',
+                details: ['Network error occurred', 'Server might be unreachable'],
+                suggestions: ['Check your internet connection', 'Verify the server URL'],
             });
         } finally {
             setIsTesting(false);
@@ -196,6 +199,16 @@ export default function InstallerDatabase() {
                                             <p className="text-xs text-green-600">Note: If you proceed, existing data may be overwritten.</p>
                                         </div>
                                     )}
+                                    {!testResult.success && (
+                                        <div className="mt-3 text-center">
+                                            <Link href="/install/database-error">
+                                                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                                    <AlertTriangle className="h-4 w-4" />
+                                                    View Detailed Error Report
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         )}
@@ -209,11 +222,7 @@ export default function InstallerDatabase() {
                                 </Button>
                             </a>
 
-                            <Button 
-                                onClick={handleNext} 
-                                disabled={!testResult?.success} 
-                                className="flex items-center gap-2"
-                            >
+                            <Button onClick={handleNext} disabled={!testResult?.success} className="flex items-center gap-2">
                                 Next
                                 <ArrowRight className="h-4 w-4" />
                             </Button>

@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    // Check if app is installed
+    if (!file_exists(base_path('.env')) || strpos(file_get_contents(base_path('.env')), 'APP_INSTALLED=true') === false) {
+        return redirect('/install');
+    }
+
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }

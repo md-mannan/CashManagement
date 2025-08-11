@@ -6,7 +6,7 @@ import { BarChart3, Bell, Crown, DollarSign, LayoutGrid, Receipt, Shield, Tag, U
 import AppLogo from './app-logo';
 
 export function AppSidebar() {
-    const { auth } = usePage().props;
+    const { auth } = usePage<{ auth: { user: { role?: string } } }>().props;
     const isAdmin = auth.user.role && ['admin', 'super_admin'].includes(auth.user.role);
     const isSuperAdmin = auth.user.role === 'super_admin';
 

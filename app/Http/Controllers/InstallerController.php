@@ -16,20 +16,11 @@ class InstallerController extends Controller
 {
     public function index()
     {
-        // Check if already installed
-        if ($this->isInstalled()) {
-            return redirect('/');
-        }
-
         return Inertia::render('installer/welcome');
     }
 
     public function requirements()
     {
-        if ($this->isInstalled()) {
-            return redirect('/');
-        }
-
         $requirements = $this->checkRequirements();
 
         return Inertia::render('installer/requirements', [
@@ -39,19 +30,11 @@ class InstallerController extends Controller
 
     public function database()
     {
-        if ($this->isInstalled()) {
-            return redirect('/');
-        }
-
         return Inertia::render('installer/database');
     }
 
     public function configuration()
     {
-        if ($this->isInstalled()) {
-            return redirect('/');
-        }
-
         return Inertia::render('installer/configuration');
     }
 
@@ -91,10 +74,6 @@ class InstallerController extends Controller
 
     public function install(Request $request)
     {
-        if ($this->isInstalled()) {
-            return redirect('/');
-        }
-
         $request->validate([
             'host' => 'required|string',
             'port' => 'required|numeric',
@@ -352,38 +331,38 @@ class InstallerController extends Controller
         $envContent = preg_replace('/APP_URL=.*/', "APP_URL={$config['app_url']}", $envContent);
         $envContent = preg_replace('/APP_TIMEZONE=.*/', "APP_TIMEZONE={$config['app_timezone']}", $envContent);
         $envContent = preg_replace('/APP_LOCALE=.*/', "APP_LOCALE={$config['app_locale']}", $envContent);
-        
+
         // Add custom configuration if not exists
         if (strpos($envContent, 'DEFAULT_CURRENCY') === false) {
             $envContent .= "\nDEFAULT_CURRENCY={$config['default_currency']}\n";
         } else {
             $envContent = preg_replace('/DEFAULT_CURRENCY=.*/', "DEFAULT_CURRENCY={$config['default_currency']}", $envContent);
         }
-        
+
         if (strpos($envContent, 'DEFAULT_SECONDARY_CURRENCY') === false) {
             $envContent .= "\nDEFAULT_SECONDARY_CURRENCY={$config['default_secondary_currency']}\n";
         } else {
             $envContent = preg_replace('/DEFAULT_SECONDARY_CURRENCY=.*/', "DEFAULT_SECONDARY_CURRENCY={$config['default_secondary_currency']}", $envContent);
         }
-        
+
         if (strpos($envContent, 'ENABLE_NOTIFICATIONS') === false) {
             $envContent .= "\nENABLE_NOTIFICATIONS=" . ($config['enable_notifications'] ? 'true' : 'false') . "\n";
         } else {
             $envContent = preg_replace('/ENABLE_NOTIFICATIONS=.*/', "ENABLE_NOTIFICATIONS=" . ($config['enable_notifications'] ? 'true' : 'false'), $envContent);
         }
-        
+
         if (strpos($envContent, 'ENABLE_ACTIVITY_LOGGING') === false) {
             $envContent .= "\nENABLE_ACTIVITY_LOGGING=" . ($config['enable_activity_logging'] ? 'true' : 'false') . "\n";
         } else {
             $envContent = preg_replace('/ENABLE_ACTIVITY_LOGGING=.*/', "ENABLE_ACTIVITY_LOGGING=" . ($config['enable_activity_logging'] ? 'true' : 'false'), $envContent);
         }
-        
+
         if (strpos($envContent, 'ENABLE_BACKUP') === false) {
             $envContent .= "\nENABLE_BACKUP=" . ($config['enable_backup'] ? 'true' : 'false') . "\n";
         } else {
             $envContent = preg_replace('/ENABLE_BACKUP=.*/', "ENABLE_BACKUP=" . ($config['enable_backup'] ? 'true' : 'false'), $envContent);
         }
-        
+
         if (strpos($envContent, 'ENABLE_SOCIAL_LOGIN') === false) {
             $envContent .= "\nENABLE_SOCIAL_LOGIN=" . ($config['enable_social_login'] ? 'true' : 'false') . "\n";
         } else {

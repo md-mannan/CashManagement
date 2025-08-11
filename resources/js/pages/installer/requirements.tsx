@@ -98,6 +98,14 @@ export default function InstallerRequirements({ requirements }: RequirementsProp
                                 <div className="text-center">
                                     <p className="mb-2 text-lg font-medium text-yellow-600">Some requirements are not met ⚠️</p>
                                     <p className="text-gray-600">Please fix the issues below before proceeding with installation.</p>
+                                    <div className="mt-4">
+                                        <Link href="/install/requirements-error">
+                                            <Button variant="destructive" className="flex items-center gap-2">
+                                                <AlertTriangle className="h-4 w-4" />
+                                                View Detailed Error Report
+                                            </Button>
+                                        </Link>
+                                    </div>
                                 </div>
                             )}
                         </CardContent>

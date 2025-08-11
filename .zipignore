@@ -1,0 +1,97 @@
+# Development files
+node_modules/
+vendor/
+.env
+.env.example
+.env.backup
+.env.local
+.env.production
+.env.staging
+
+# Build and cache files
+/public/build/
+/public/hot/
+/public/storage/
+/storage/*.key
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary and test files
+*.tmp
+*.temp
+*.log
+*.sql
+*.bak
+test_*.php
+check_*.php
+*.test.php
+
+# Documentation and development files
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+composer.lock
+package-lock.json
+yarn.lock
+
+# Development scripts
+*.sh
+*.bat
+*.ps1
+
+# Database files
+*.sql
+*.sqlite
+*.db
+
+# Backup files
+*.zip
+*.tar.gz
+*.rar
+
+# Laravel specific
+Homestead.json
+Homestead.yaml
+Vagrantfile
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Testing files
+/tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Coverage reports
+/coverage/
+/htmlcov/
+
+# Node development files
+.npmrc
+.yarnrc
+.yarnrc.yml

@@ -80,7 +80,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
         if (!formData.name.trim()) {
             showToast({
                 title: 'Error',
-                description: 'Category name is required',
+                message: 'Category name is required',
                 type: 'error',
             });
             return;
@@ -90,7 +90,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
             onSuccess: () => {
                 showToast({
                     title: 'Success',
-                    description: 'Category created successfully',
+                    message: 'Category created successfully',
                     type: 'success',
                 });
                 setShowCreateForm(false);
@@ -99,7 +99,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
             onError: (errors) => {
                 showToast({
                     title: 'Error',
-                    description: Object.values(errors).join(', '),
+                    message: Object.values(errors).join(', '),
                     type: 'error',
                 });
             },
@@ -110,7 +110,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
         if (!editingCategory || !formData.name.trim()) {
             showToast({
                 title: 'Error',
-                description: 'Category name is required',
+                message: 'Category name is required',
                 type: 'error',
             });
             return;
@@ -120,7 +120,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
             onSuccess: () => {
                 showToast({
                     title: 'Success',
-                    description: 'Category updated successfully',
+                    message: 'Category updated successfully',
                     type: 'success',
                 });
                 setEditingCategory(null);
@@ -129,7 +129,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
             onError: (errors) => {
                 showToast({
                     title: 'Error',
-                    description: Object.values(errors).join(', '),
+                    message: Object.values(errors).join(', '),
                     type: 'error',
                 });
             },
@@ -140,7 +140,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
         if (category.transactions_count > 0) {
             showToast({
                 title: 'Cannot Delete',
-                description: 'This category has transactions and cannot be deleted',
+                message: 'This category has transactions and cannot be deleted',
                 type: 'error',
             });
             return;
@@ -151,14 +151,14 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                 onSuccess: () => {
                     showToast({
                         title: 'Success',
-                        description: 'Category deleted successfully',
+                        message: 'Category deleted successfully',
                         type: 'success',
                     });
                 },
                 onError: (errors) => {
                     showToast({
                         title: 'Error',
-                        description: Object.values(errors).join(', '),
+                        message: Object.values(errors).join(', '),
                         type: 'error',
                     });
                 },
@@ -170,7 +170,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
         setEditingCategory(category);
         setFormData({
             name: category.name,
-            type: category.type,
+            type: category.type as 'income' | 'expense' | 'receivable' | 'payable',
             color: category.color,
             icon: category.icon || '',
         });
