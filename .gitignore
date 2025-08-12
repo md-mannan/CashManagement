@@ -2,10 +2,7 @@
 
 /node_modules
 
-/public/hot
 
-/storage/*.key
-/storage/pail
 
 .env
 .env.backup
