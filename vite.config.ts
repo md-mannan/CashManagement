@@ -22,15 +22,6 @@ export default defineConfig({
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
-    server: {
-        host: 'localhost',
-        port: 3000,
-        hmr: {
-            host: 'localhost',
-            port: 3000,
-        },
-        cors: true,
-    },
     build: {
         rollupOptions: {
             output: {
@@ -40,5 +31,8 @@ export default defineConfig({
             },
         },
         cssCodeSplit: false,
+        outDir: 'public/build',
+        assetsDir: 'assets',
+        manifest: true,
     },
 });

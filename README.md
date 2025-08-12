@@ -98,79 +98,77 @@ The Cash Management System is a complete financial management solution that help
 
 ## 🚀 **Installation Guide**
 
-### **For Web Hosting Providers**
+### **Quick Start (cPanel Deployment)**
 
-1. **Upload Files**
-
-    ```bash
-    # Upload all project files to your web server
-    # Ensure proper file permissions (755 for directories, 644 for files)
-    ```
-
-2. **Set Permissions**
+1. **Prepare Your Project**
 
     ```bash
-    chmod -R 755 storage/
-    chmod -R 755 bootstrap/cache/
-    chmod -R 755 public/
+    # Windows
+    deploy-cpanel.bat
+
+    # Linux/Mac
+    ./deploy-cpanel.sh
     ```
 
-3. **Create Database**
+2. **Upload to cPanel**
+    - Upload the generated deployment package to your `public_html` directory
+    - Maintain the exact directory structure
 
-    ```sql
-    CREATE DATABASE cash_management;
-    CREATE USER 'cash_user'@'localhost' IDENTIFIED BY 'secure_password';
-    GRANT ALL PRIVILEGES ON cash_management.* TO 'cash_user'@'localhost';
-    FLUSH PRIVILEGES;
-    ```
+3. **Configure Database**
+    - Create MySQL database in cPanel
+    - Update `.env` file with database credentials
 
-4. **Run Web Installer**
-    - Visit your domain: `https://yourdomain.com/install`
-    - Follow the step-by-step installation wizard
-    - The installer will automatically configure everything
-
-### **For VPS/Dedicated Servers**
-
-1. **Clone Repository**
+4. **Run Setup Commands**
 
     ```bash
-    git clone <repository-url>
-    cd CashManagement
-    ```
-
-2. **Install Dependencies**
-
-    ```bash
-    composer install --optimize-autoloader --no-dev
-    npm install
-    npm run build
-    ```
-
-3. **Environment Setup**
-
-    ```bash
-    cp .env.example .env
+    php artisan migrate
+    php artisan db:seed  # Optional
     php artisan key:generate
     ```
 
-4. **Database Setup**
+5. **Set Permissions**
 
     ```bash
-    php artisan migrate --force
-    php artisan db:seed --force
+    chmod 755 storage bootstrap/cache
+    chmod 644 .env
     ```
 
-5. **Web Server Configuration**
+6. **Access Your Application**
+    - Visit your domain
+    - Create your first user account
+    - Start managing your finances!
 
-    ```apache
-    # Apache (.htaccess included)
-    # Point document root to /public directory
+### **Detailed Deployment Guide**
 
-    # Nginx
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-    ```
+For comprehensive deployment instructions, see [CPANEL_DEPLOYMENT_GUIDE.md](CPANEL_DEPLOYMENT_GUIDE.md)
+
+### **Local Development**
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd CashManagement
+
+# Install dependencies
+composer install
+npm install
+
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+
+# Run migrations
+php artisan migrate
+
+# Seed database (optional)
+php artisan db:seed
+
+# Start development server
+npm run dev
+php artisan serve
+```
 
 ## 🔑 **Default Accounts**
 
