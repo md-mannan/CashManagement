@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Head, useForm } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, CheckCircle, Database, XCircle } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle, Database, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 export default function InstallerDatabase() {
@@ -16,11 +16,11 @@ export default function InstallerDatabase() {
     const [isTesting, setIsTesting] = useState(false);
 
     const { data, setData, errors } = useForm({
-        // Database Configuration
+        // Database Configuration - MySQL as default
         host: 'localhost',
         port: '3306',
-        database: '',
-        username: '',
+        database: 'cash_management',
+        username: 'root',
         password: '',
     });
 
@@ -74,7 +74,7 @@ export default function InstallerDatabase() {
                     {/* Header */}
                     <div className="mb-8 text-center">
                         <h1 className="mb-2 text-3xl font-bold text-gray-900">Database Configuration</h1>
-                        <p className="text-lg text-gray-600">Configure your MySQL database connection details</p>
+                        <p className="text-lg text-gray-600">Configure your MySQL database connection details (Recommended)</p>
                     </div>
 
                     {/* Progress Indicator */}
@@ -98,7 +98,9 @@ export default function InstallerDatabase() {
                                     <Database className="h-5 w-5 text-blue-600" />
                                     Database Configuration
                                 </CardTitle>
-                                <CardDescription>Enter your MySQL database connection details</CardDescription>
+                                <CardDescription>
+                                    Enter your MySQL database connection details. MySQL is recommended for production use.
+                                </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

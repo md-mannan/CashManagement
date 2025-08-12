@@ -15,17 +15,24 @@ class InstallationService
     public function isInstalled(): bool
     {
         try {
+            // If no database connection, definitely not installed
             if (!$this->hasDatabaseConnection()) {
                 return false;
             }
+
+            // Check if migrations have been run
             if (!$this->hasMigrationsRun()) {
                 return false;
             }
+
+            // Check if admin user exists
             if (!$this->hasAdminUser()) {
                 return false;
             }
+
             return true;
         } catch (\Exception $e) {
+            // If any exception occurs, assume not installed
             return false;
         }
     }
@@ -33,6 +40,12 @@ class InstallationService
     public function hasDatabaseConnection(): bool
     {
         try {
+            // Check if .env file exists and has database configuration
+            if (!file_exists(base_path('.env'))) {
+                return false;
+            }
+
+            // Try to get database connection
             DB::connection()->getPdo();
             return true;
         } catch (\Exception $e) {
@@ -71,7 +84,8 @@ class InstallationService
 
     public function canProceedWithInstallation(): bool
     {
-        return $this->hasDatabaseConnection();
+        // Can proceed if we have basic requirements (even without database)
+        return true;
     }
 
     public function getDefaultConfig(): array

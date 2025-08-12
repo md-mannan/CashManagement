@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
+            // Add installer routes first with web middleware but without CheckInstallation
+            Route::middleware(['web'])
+                ->group(base_path('routes/installer.php'));
+
             Route::middleware('web')
                 ->group(base_path('routes/auth.php'));
             Route::middleware('web')
@@ -33,7 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(append: [
-            CheckInstallation::class,
+            // CheckInstallation::class, // Temporarily disabled to fix redirect loop
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,

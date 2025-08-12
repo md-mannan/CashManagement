@@ -222,12 +222,34 @@ class InstallerController extends Controller
 
     public function requirementsError()
     {
-        return Inertia::render('installer/requirements-error');
+        $requirements = $this->checkRequirements();
+
+        return Inertia::render('installer/requirements-error', [
+            'requirements' => $requirements
+        ]);
     }
 
     public function databaseError()
     {
-        return Inertia::render('installer/database-error');
+        return Inertia::render('installer/database-error', [
+            'error' => [
+                'type' => 'database_setup',
+                'title' => 'Database Connection Failed',
+                'message' => 'Unable to connect to the database server.',
+                'details' => [
+                    'Check if your database server is running',
+                    'Verify connection details (host, port, username, password)',
+                    'Ensure the database exists and is accessible',
+                    'Check if the database user has sufficient privileges'
+                ],
+                'suggestions' => [
+                    'Verify database server is running (MySQL/MariaDB)',
+                    'Double-check host, port, and credentials',
+                    'Test connection using a database client',
+                    'Check firewall settings and network connectivity'
+                ]
+            ]
+        ]);
     }
 
     private function isInstalled()
@@ -243,69 +265,17 @@ class InstallerController extends Controller
 
     private function checkRequirements()
     {
+        // Get required extensions from config
+        $requiredExtensions = config('installer.requirements.php.extensions', []);
+
         $requirements = [
             'php' => [
                 'name' => 'PHP Version',
-                'required' => '8.1.0',
+                'required' => '8.2.0',
                 'current' => PHP_VERSION,
-                'status' => version_compare(PHP_VERSION, '8.1.0', '>='),
+                'status' => version_compare(PHP_VERSION, '8.2.0', '>='),
             ],
-            'extensions' => [
-                'bcmath' => [
-                    'name' => 'BCMath Extension',
-                    'required' => 'Enabled',
-                    'current' => extension_loaded('bcmath') ? 'Enabled' : 'Disabled',
-                    'status' => extension_loaded('bcmath'),
-                ],
-                'ctype' => [
-                    'name' => 'Ctype Extension',
-                    'required' => 'Enabled',
-                    'current' => extension_loaded('ctype') ? 'Enabled' : 'Disabled',
-                    'status' => extension_loaded('ctype'),
-                ],
-                'fileinfo' => [
-                    'name' => 'Fileinfo Extension',
-                    'required' => 'Enabled',
-                    'current' => extension_loaded('fileinfo') ? 'Enabled' : 'Disabled',
-                    'status' => extension_loaded('fileinfo'),
-                ],
-                'json' => [
-                    'name' => 'JSON Extension',
-                    'required' => 'Enabled',
-                    'current' => extension_loaded('json') ? 'Enabled' : 'Disabled',
-                    'status' => extension_loaded('json'),
-                ],
-                'mbstring' => [
-                    'name' => 'Mbstring Extension',
-                    'required' => 'Enabled',
-                    'current' => extension_loaded('mbstring') ? 'Enabled' : 'Disabled',
-                    'status' => extension_loaded('mbstring'),
-                ],
-                'openssl' => [
-                    'name' => 'OpenSSL Extension',
-                    'required' => 'Enabled',
-                    'current' => extension_loaded('openssl') ? 'Enabled' : 'Disabled',
-                    'status' => extension_loaded('openssl'),
-                ],
-                'pdo' => [
-                    'name' => 'PDO Extension',
-                    'required' => 'Enabled',
-                    'current' => extension_loaded('pdo') ? 'Enabled' : 'Disabled',
-                    'status' => extension_loaded('pdo'),
-                ],
-                'tokenizer' => [
-                    'name' => 'Tokenizer Extension',
-                    'required' => 'Enabled',
-                    'current' => extension_loaded('tokenizer') ? 'Enabled' : 'Disabled',
-                    'status' => extension_loaded('tokenizer'),
-                ],
-                'xml' => [
-                    'name' => 'XML Extension',
-                    'required' => 'Enabled',
-                    'current' => extension_loaded('xml') ? 'Enabled' : 'Disabled',
-                    'status' => extension_loaded('xml'),
-                ],
-            ],
+            'extensions' => [],
             'directories' => [
                 'storage' => [
                     'name' => 'Storage Directory',
@@ -328,12 +298,46 @@ class InstallerController extends Controller
             ],
         ];
 
+        // Check each required extension
+        foreach ($requiredExtensions as $extension) {
+            $requirements['extensions'][$extension] = [
+                'name' => $this->getExtensionDisplayName($extension),
+                'required' => 'Enabled',
+                'current' => extension_loaded($extension) ? 'Enabled' : 'Disabled',
+                'status' => extension_loaded($extension),
+            ];
+        }
+
         $requirements['all_passed'] =
             $requirements['php']['status'] &&
             collect($requirements['extensions'])->every(fn($ext) => $ext['status']) &&
             collect($requirements['directories'])->every(fn($dir) => $dir['status']);
 
         return $requirements;
+    }
+
+    private function getExtensionDisplayName($extension)
+    {
+        $names = [
+            'pdo' => 'PDO Extension',
+            'pdo_mysql' => 'PDO MySQL Extension',
+            'mbstring' => 'Mbstring Extension',
+            'openssl' => 'OpenSSL Extension',
+            'json' => 'JSON Extension',
+            'tokenizer' => 'Tokenizer Extension',
+            'xml' => 'XML Extension',
+            'ctype' => 'Ctype Extension',
+            'bcmath' => 'BCMath Extension',
+            'fileinfo' => 'Fileinfo Extension',
+            'curl' => 'cURL Extension',
+            'gd' => 'GD Extension',
+            'zip' => 'ZIP Extension',
+            'intl' => 'Internationalization Extension',
+            'sodium' => 'Sodium Extension',
+            'redis' => 'Redis Extension',
+        ];
+
+        return $names[$extension] ?? ucfirst(str_replace('_', ' ', $extension)) . ' Extension';
     }
 
     private function testConnection($config)

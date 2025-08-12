@@ -20,8 +20,12 @@ return [
         ],
 
         'database' => [
-            'connection' => 'sqlite',
-            'database' => 'database/database.sqlite',
+            'connection' => 'mysql',
+            'host' => 'localhost',
+            'port' => '3306',
+            'database' => 'cash_management',
+            'username' => 'root',
+            'password' => '',
         ],
 
         'features' => [
@@ -48,7 +52,7 @@ return [
             'version' => '8.2.0',
             'extensions' => [
                 'pdo',
-                'pdo_sqlite',
+                'pdo_mysql',
                 'mbstring',
                 'openssl',
                 'json',
@@ -56,6 +60,13 @@ return [
                 'xml',
                 'ctype',
                 'bcmath',
+                'fileinfo',
+                'curl',
+                'gd',
+                'zip',
+                'intl',
+                'sodium',
+                'redis',
             ],
         ],
 
@@ -68,22 +79,9 @@ return [
     ],
 
     'database_types' => [
-        'sqlite' => [
-            'name' => 'SQLite',
-            'description' => 'Lightweight file-based database (recommended for development)',
-            'driver' => 'sqlite',
-            'fields' => [
-                'database' => [
-                    'type' => 'text',
-                    'label' => 'Database Path',
-                    'default' => 'database/database.sqlite',
-                    'required' => true,
-                ],
-            ],
-        ],
         'mysql' => [
             'name' => 'MySQL',
-            'description' => 'Popular relational database server',
+            'description' => 'Popular relational database server (Recommended)',
             'driver' => 'mysql',
             'fields' => [
                 'host' => [
@@ -115,6 +113,19 @@ return [
                     'label' => 'Password',
                     'default' => '',
                     'required' => false,
+                ],
+            ],
+        ],
+        'sqlite' => [
+            'name' => 'SQLite',
+            'description' => 'Lightweight file-based database (for development only)',
+            'driver' => 'sqlite',
+            'fields' => [
+                'database' => [
+                    'type' => 'text',
+                    'label' => 'Database Path',
+                    'default' => 'database/database.sqlite',
+                    'required' => true,
                 ],
             ],
         ],

@@ -133,13 +133,23 @@ export default function InstallerRequirements({ requirements }: RequirementsProp
                     {/* PHP Extensions */}
                     <Card className="mb-6">
                         <CardHeader>
-                            <CardTitle>PHP Extensions</CardTitle>
-                            <CardDescription>Required PHP extensions for the application to function properly</CardDescription>
+                            <CardTitle className="flex items-center gap-2">
+                                <span>PHP Extensions</span>
+                                <span className="text-sm font-normal text-gray-500">({Object.keys(requirements.extensions).length} required)</span>
+                            </CardTitle>
+                            <CardDescription>
+                                Required PHP extensions for the application to function properly. All extensions must be enabled.
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 {Object.entries(requirements.extensions).map(([key, extension]) => (
-                                    <div key={key} className="flex items-center justify-between rounded-lg border p-3">
+                                    <div
+                                        key={key}
+                                        className={`flex items-center justify-between rounded-lg border p-3 ${
+                                            extension.status ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                                        }`}
+                                    >
                                         <div>
                                             <p className="font-medium">{extension.name}</p>
                                             <p className="text-sm text-gray-600">
@@ -150,6 +160,14 @@ export default function InstallerRequirements({ requirements }: RequirementsProp
                                     </div>
                                 ))}
                             </div>
+                            {Object.values(requirements.extensions).some((ext) => !ext.status) && (
+                                <div className="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
+                                    <p className="text-sm text-yellow-800">
+                                        <strong>Note:</strong> Some PHP extensions are missing. Please enable them in your PHP configuration before
+                                        proceeding.
+                                    </p>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 
@@ -214,8 +232,10 @@ export default function InstallerRequirements({ requirements }: RequirementsProp
                                     <p className="text-sm text-gray-600">If you're having trouble meeting the requirements:</p>
                                     <ul className="ml-4 space-y-1 text-sm text-gray-600">
                                         <li>• Contact your hosting provider to enable required PHP extensions</li>
+                                        <li>• For XAMPP: Enable extensions in php.ini file</li>
+                                        <li>• For cPanel: Use PHP Selector to enable extensions</li>
                                         <li>• Ensure directory permissions are set to 755 or 775</li>
-                                        <li>• Upgrade PHP to version 8.1 or higher</li>
+                                        <li>• Upgrade PHP to version 8.2 or higher</li>
                                         <li>• Check your server's error logs for more details</li>
                                     </ul>
                                 </div>
