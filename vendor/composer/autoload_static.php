@@ -699,7 +699,8 @@ class ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871
     );
 
     public static $classMap = array (
-        'App\\Events\\AdminNotificationSent' => __DIR__ . '/../..' . '/app/Events/AdminNotificationSent.php',
+        'App\\Events\\NotificationDeleted' => __DIR__ . '/../..' . '/app/Events/NotificationDeleted.php',
+        'App\\Events\\NotificationRead' => __DIR__ . '/../..' . '/app/Events/NotificationRead.php',
         'App\\Events\\NotificationSent' => __DIR__ . '/../..' . '/app/Events/NotificationSent.php',
         'App\\Http\\Controllers\\Admin\\ActivityLogController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/ActivityLogController.php',
         'App\\Http\\Controllers\\Admin\\AdminAnalyticsController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/AdminAnalyticsController.php',

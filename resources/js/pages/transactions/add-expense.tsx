@@ -15,7 +15,7 @@ import { getExchangeRateForTransaction } from '../../services/exchangeRateServic
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Transactions',
+        title: 'Ledger',
         href: route('transactions.index'),
     },
     {
@@ -71,15 +71,15 @@ export default function AddExpense() {
     const { auth } = usePage<SharedData>().props;
 
     const [formData, setFormData] = useState<ExpenseFormData>({
-        amount: '',
+        amount: '0.00',
         description: '',
         source: '',
         date: new Date().toISOString().split('T')[0],
         category: '',
         notes: '',
         secondaryCurrency: 'KWD',
-        exchangeRate: '3.25', // 1 KWD = 3.25 USD (default rate)
-        secondaryAmount: '',
+        exchangeRate: '3.27', // 1 KWD = 3.27 USD (default rate)
+        secondaryAmount: '0.000',
     });
 
     const [isLoadingRate, setIsLoadingRate] = useState(false);
@@ -113,6 +113,17 @@ export default function AddExpense() {
             return { step: '0.001', placeholder: '0.000', decimals: 3 };
         } else {
             return { step: '0.01', placeholder: '0.00', decimals: 2 };
+        }
+    };
+
+    // Helper function to format currency amounts with proper decimal places
+    const formatCurrencyAmount = (amount: number | string, currency: string) => {
+        const numericAmount = typeof amount === 'string' ? parseFloat(amount) || 0 : amount;
+        
+        if (currency === 'KWD') {
+            return numericAmount.toFixed(3); // 3 decimal places for KWD
+        } else {
+            return numericAmount.toFixed(2); // 2 decimal places for other currencies
         }
     };
 
@@ -225,15 +236,47 @@ export default function AddExpense() {
         // For numeric fields, handle conversions if needed
         const numericValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
 
+        // Handle primary amount changes - convert to secondary currency
+        if (field === 'amount' && formData.secondaryCurrency && formData.secondaryCurrency !== primaryCurrency) {
+            const exchangeRateValue = typeof formData.exchangeRate === 'string' 
+                ? parseFloat(formData.exchangeRate) || 1 
+                : formData.exchangeRate || 1;
+            
+            if (numericValue > 0 && exchangeRateValue > 0) {
+                const secondaryAmount = convertToSecondaryCurrency(numericValue, exchangeRateValue);
+                setFormData((prev) => ({
+                    ...prev,
+                    secondaryAmount: formatCurrencyAmount(secondaryAmount, formData.secondaryCurrency!),
+                }));
+            }
+        }
+
+        // Handle secondary amount changes - convert to primary currency
+        if (field === 'secondaryAmount' && formData.secondaryCurrency && formData.secondaryCurrency !== primaryCurrency) {
+            const exchangeRateValue = typeof formData.exchangeRate === 'string' 
+                ? parseFloat(formData.exchangeRate) || 1 
+                : formData.exchangeRate || 1;
+            
+            if (numericValue > 0 && exchangeRateValue > 0) {
+                const primaryAmount = convertToPrimaryCurrency(numericValue, exchangeRateValue);
+                setFormData((prev) => ({
+                    ...prev,
+                    amount: formatCurrencyAmount(primaryAmount, primaryCurrency),
+                }));
+            }
+        }
+
         // Update primary amount when exchange rate changes and secondary amount exists
-        if (field === 'exchangeRate' && formData.secondaryAmount) {
-            const secondaryNumeric =
-                typeof formData.secondaryAmount === 'string' ? parseFloat(formData.secondaryAmount) || 0 : formData.secondaryAmount;
-            if (secondaryNumeric > 0) {
+        if (field === 'exchangeRate' && formData.secondaryAmount && formData.secondaryCurrency !== primaryCurrency) {
+            const secondaryNumeric = typeof formData.secondaryAmount === 'string' 
+                ? parseFloat(formData.secondaryAmount) || 0 
+                : formData.secondaryAmount || 0;
+            
+            if (secondaryNumeric > 0 && numericValue > 0) {
                 const primaryAmount = convertToPrimaryCurrency(secondaryNumeric, numericValue);
                 setFormData((prev) => ({
                     ...prev,
-                    amount: primaryAmount.toString(),
+                    amount: formatCurrencyAmount(primaryAmount, primaryCurrency),
                 }));
             }
         }
@@ -243,52 +286,51 @@ export default function AddExpense() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Add Expense" />
             <div className="container mx-auto max-w-2xl py-6">
-                {/* Header */}
-                <div className="mb-6 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-                            <TrendingDown className="h-6 w-6 text-red-600" />
+                {/* Form Card with exact design from image */}
+                <Card className="rounded-xl border-red-200 shadow-lg">
+                    {/* Header Section - Light Red Background */}
+                    <CardHeader className="border-b-0 bg-red-50 p-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
+                                    <TrendingDown className="h-5 w-5 text-red-600" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-xl font-bold text-gray-900">Add Expense</CardTitle>
+                                    <CardDescription className="text-sm text-gray-600">Add a new expense transaction</CardDescription>
+                                </div>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => router.visit(route('transactions.index'))}
+                                className="border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                            >
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back to Ledger
+                            </Button>
                         </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Add Expense</h1>
-                            <p className="text-sm text-gray-600">Record a new expense transaction</p>
-                        </div>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => router.visit(route('transactions.index'))}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Transactions
-                    </Button>
-                </div>
-
-                {/* Form Card */}
-                <Card className="border-red-200 bg-red-50/30 shadow-lg">
-                    <CardHeader className="border-b border-red-200 bg-red-100/50">
-                        <CardTitle className="flex items-center gap-2 text-red-800">
-                            <TrendingDown className="h-5 w-5" />
-                            Expense Transaction Details
-                        </CardTitle>
-                        <CardDescription className="text-red-700">Enter the details of your expense transaction</CardDescription>
                     </CardHeader>
                     <CardContent className="bg-white p-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Amount and Date Row */}
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div className="space-y-2">
-                                    <Label htmlFor="amount" className="text-sm font-semibold text-gray-700">
+                                    <Label htmlFor="amount" className="text-sm font-medium text-gray-700">
                                         Amount ({primarySymbol}) *
                                     </Label>
                                     <Input
                                         id="amount"
                                         type="text"
-                                        placeholder={getCurrencyInputProps(primaryCurrency).placeholder}
+                                        placeholder="0.00"
                                         value={formData.amount ? formData.amount.toString() : ''}
                                         onChange={(e) => handleInputChange('amount', e.target.value)}
                                         required
-                                        className="h-10 text-base font-medium"
+                                        className="h-10 border-gray-300 text-base"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="date" className="text-sm font-semibold text-gray-700">
+                                    <Label htmlFor="date" className="text-sm font-medium text-gray-700">
                                         Date *
                                     </Label>
                                     <CustomDateInput
@@ -296,7 +338,7 @@ export default function AddExpense() {
                                         value={formData.date}
                                         onChange={(value) => handleInputChange('date', value)}
                                         required
-                                        className="h-10"
+                                        className="h-10 border-gray-300"
                                         placeholder="dd/mm/yyyy"
                                     />
                                 </div>
@@ -305,14 +347,14 @@ export default function AddExpense() {
                             {/* Currency Selection Row */}
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div className="space-y-2">
-                                    <Label htmlFor="secondaryCurrency" className="text-sm font-semibold text-gray-700">
+                                    <Label htmlFor="secondaryCurrency" className="text-sm font-medium text-gray-700">
                                         Secondary Currency
                                     </Label>
                                     <Select
                                         value={formData.secondaryCurrency || ''}
                                         onValueChange={(value) => handleInputChange('secondaryCurrency', value)}
                                     >
-                                        <SelectTrigger className="h-10">
+                                        <SelectTrigger className="h-10 border-gray-300">
                                             <SelectValue placeholder="Select currency (optional)" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -325,8 +367,8 @@ export default function AddExpense() {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="exchangeRate" className="text-sm font-semibold text-gray-700">
-                                        Rate (1 {formData.secondaryCurrency || 'Secondary'} = ? {primaryCurrency})
+                                    <Label htmlFor="exchangeRate" className="text-sm font-medium text-gray-700">
+                                        Rate (1{formData.secondaryCurrency || 'Secondary'} = ? {primaryCurrency})
                                     </Label>
                                     <div className="relative">
                                         <Input
@@ -336,7 +378,7 @@ export default function AddExpense() {
                                             value={formData.exchangeRate ? formData.exchangeRate.toString() : ''}
                                             onChange={(e) => handleInputChange('exchangeRate', e.target.value)}
                                             disabled={!formData.secondaryCurrency || isLoadingRate}
-                                            className="h-10 pr-10 text-base font-medium"
+                                            className="h-10 border-gray-300 pr-10 text-base"
                                         />
                                         {formData.secondaryCurrency && (
                                             <button
@@ -350,14 +392,13 @@ export default function AddExpense() {
                                             </button>
                                         )}
                                     </div>
-                                    {isLoadingRate && <p className="text-xs text-blue-600">Fetching latest rate...</p>}
                                 </div>
                             </div>
 
                             {/* Secondary Amount Row */}
                             {formData.secondaryCurrency && (
                                 <div className="space-y-2">
-                                    <Label htmlFor="secondaryAmount" className="text-sm font-semibold text-gray-700">
+                                    <Label htmlFor="secondaryAmount" className="text-sm font-medium text-gray-700">
                                         Amount in {formData.secondaryCurrency} (
                                         {currencies.find((c) => c.code === formData.secondaryCurrency)?.symbol})
                                     </Label>
@@ -366,21 +407,8 @@ export default function AddExpense() {
                                         type="text"
                                         placeholder={getCurrencyInputProps(formData.secondaryCurrency || 'USD').placeholder}
                                         value={formData.secondaryAmount !== undefined ? formData.secondaryAmount.toString() : ''}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            const numericValue = value === '' ? 0 : parseFloat(value) || 0;
-                                            const exchangeRateValue =
-                                                typeof formData.exchangeRate === 'string'
-                                                    ? parseFloat(formData.exchangeRate) || 1
-                                                    : formData.exchangeRate || 1;
-                                            const primaryAmount = convertToPrimaryCurrency(numericValue, exchangeRateValue);
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                secondaryAmount: value,
-                                                amount: primaryAmount.toString(),
-                                            }));
-                                        }}
-                                        className="h-10 text-base font-medium"
+                                        onChange={(e) => handleInputChange('secondaryAmount', e.target.value)}
+                                        className="h-10 border-gray-300 text-base"
                                     />
                                     <p className="text-xs text-gray-500">
                                         Enter amount in {formData.secondaryCurrency} - both amounts will be recorded
@@ -390,7 +418,7 @@ export default function AddExpense() {
 
                             {/* Description */}
                             <div className="space-y-2">
-                                <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
+                                <Label htmlFor="description" className="text-sm font-medium text-gray-700">
                                     Description *
                                 </Label>
                                 <Input
@@ -399,13 +427,13 @@ export default function AddExpense() {
                                     value={formData.description}
                                     onChange={(e) => handleInputChange('description', e.target.value)}
                                     required
-                                    className="h-10"
+                                    className="h-10 border-gray-300"
                                 />
                             </div>
 
                             {/* Source */}
                             <div className="space-y-2">
-                                <Label htmlFor="source" className="text-sm font-semibold text-gray-700">
+                                <Label htmlFor="source" className="text-sm font-medium text-gray-700">
                                     Source *
                                 </Label>
                                 <Input
@@ -414,17 +442,17 @@ export default function AddExpense() {
                                     value={formData.source}
                                     onChange={(e) => handleInputChange('source', e.target.value)}
                                     required
-                                    className="h-10"
+                                    className="h-10 border-gray-300"
                                 />
                             </div>
 
                             {/* Category */}
                             <div className="space-y-2">
-                                <Label htmlFor="category" className="text-sm font-semibold text-gray-700">
+                                <Label htmlFor="category" className="text-sm font-medium text-gray-700">
                                     Category *
                                 </Label>
                                 <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                                    <SelectTrigger className="h-10">
+                                    <SelectTrigger className="h-10 border-gray-300">
                                         <SelectValue placeholder="Select a category" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -439,7 +467,7 @@ export default function AddExpense() {
 
                             {/* Notes */}
                             <div className="space-y-2">
-                                <Label htmlFor="notes" className="text-sm font-semibold text-gray-700">
+                                <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
                                     Notes (Optional)
                                 </Label>
                                 <Textarea
@@ -448,7 +476,7 @@ export default function AddExpense() {
                                     value={formData.notes || ''}
                                     onChange={(e) => handleInputChange('notes', e.target.value)}
                                     rows={3}
-                                    className="resize-none text-sm"
+                                    className="resize-none border-gray-300 text-sm"
                                 />
                             </div>
 
@@ -459,7 +487,7 @@ export default function AddExpense() {
                                     variant="outline"
                                     size="default"
                                     onClick={() => router.visit(route('transactions.index'))}
-                                    className="w-full px-6 py-2 text-sm font-medium sm:w-auto"
+                                    className="w-full border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:w-auto"
                                 >
                                     Cancel
                                 </Button>

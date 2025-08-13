@@ -80,7 +80,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const id = Math.random().toString(36).substr(2, 9);
         const newToast: Toast = {
             id,
-            duration: 3000, // Reduced to 3 seconds for better UX
+            duration: 4000, // 4 seconds for better UX
             sound: true,
             ...toast,
         };
@@ -116,28 +116,36 @@ const ToastContainer: React.FC<{ toasts: Toast[]; removeToast: (id: string) => v
     if (toasts.length === 0) return null;
 
     return (
-        <div className="fixed inset-0 z-[9999] pointer-events-none">
-            <div className="flex flex-col items-center justify-center h-full p-4">
-                {toasts.map((toast) => (
+        <div className="fixed right-4 top-4 z-[9999] pointer-events-none space-y-4">
+            {toasts.map((toast, index) => (
+                <div
+                    key={toast.id}
+                    style={{
+                        transform: `translateY(${index * 20}px)`,
+                    }}
+                >
                     <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
-                ))}
-            </div>
+                </div>
+            ))}
         </div>
     );
 };
 
 const ToastItem: React.FC<{ toast: Toast; onRemove: (id: string) => void }> = ({ toast, onRemove }) => {
     const [isVisible, setIsVisible] = useState(false);
+    const [isExiting, setIsExiting] = useState(false);
 
     useEffect(() => {
-        // Trigger animation
+        // Trigger slide-in animation
         const timer = setTimeout(() => setIsVisible(true), 50);
         return () => clearTimeout(timer);
     }, []);
 
     const handleClose = () => {
-        setIsVisible(false);
-        setTimeout(() => onRemove(toast.id), 300);
+        setIsExiting(true);
+        setTimeout(() => {
+            onRemove(toast.id);
+        }, 300);
     };
 
     const getIcon = () => {
@@ -169,11 +177,13 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: string) => void }> = ({
     return (
         <div
             className={`
-                pointer-events-auto mb-4 max-w-md w-full mx-auto
-                transform transition-all duration-300 ease-in-out
-                ${isVisible
-                    ? 'translate-y-0 opacity-100 scale-100'
-                    : 'translate-y-4 opacity-0 scale-95'
+                pointer-events-auto w-96 max-w-sm
+                transform transition-all duration-300 ease-out
+                ${isVisible && !isExiting
+                    ? 'translate-x-0 opacity-100'
+                    : isExiting
+                    ? 'translate-x-full opacity-0'
+                    : 'translate-x-full opacity-0'
                 }
             `}
         >

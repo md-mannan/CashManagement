@@ -6,7 +6,8 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'App\\Events\\AdminNotificationSent' => $baseDir . '/app/Events/AdminNotificationSent.php',
+    'App\\Events\\NotificationDeleted' => $baseDir . '/app/Events/NotificationDeleted.php',
+    'App\\Events\\NotificationRead' => $baseDir . '/app/Events/NotificationRead.php',
     'App\\Events\\NotificationSent' => $baseDir . '/app/Events/NotificationSent.php',
     'App\\Http\\Controllers\\Admin\\ActivityLogController' => $baseDir . '/app/Http/Controllers/Admin/ActivityLogController.php',
     'App\\Http\\Controllers\\Admin\\AdminAnalyticsController' => $baseDir . '/app/Http/Controllers/Admin/AdminAnalyticsController.php',

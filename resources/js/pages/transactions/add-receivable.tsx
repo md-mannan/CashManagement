@@ -15,7 +15,7 @@ import { getExchangeRateForTransaction } from '../../services/exchangeRateServic
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Transactions',
+        title: 'Ledger',
         href: route('transactions.index'),
     },
     {
@@ -69,15 +69,15 @@ export default function AddReceivable() {
     const { auth } = usePage<SharedData>().props;
 
     const [formData, setFormData] = useState<ReceivableFormData>({
-        amount: '',
+        amount: '0.00',
         description: '',
         source: '',
         date: new Date().toISOString().split('T')[0],
         category: '',
         notes: '',
         secondaryCurrency: 'KWD',
-        exchangeRate: '3.25', // 1 KWD = 3.25 USD (default rate)
-        secondaryAmount: '',
+        exchangeRate: '3.27', // 1 KWD = 3.27 USD (default rate)
+        secondaryAmount: '0.000',
         dueDate: '',
     });
 
@@ -112,6 +112,17 @@ export default function AddReceivable() {
             return { step: '0.001', placeholder: '0.000', decimals: 3 };
         } else {
             return { step: '0.01', placeholder: '0.00', decimals: 2 };
+        }
+    };
+
+    // Helper function to format currency amounts with proper decimal places
+    const formatCurrencyAmount = (amount: number | string, currency: string) => {
+        const numericAmount = typeof amount === 'string' ? parseFloat(amount) || 0 : amount;
+        
+        if (currency === 'KWD') {
+            return numericAmount.toFixed(3); // 3 decimal places for KWD
+        } else {
+            return numericAmount.toFixed(2); // 2 decimal places for other currencies
         }
     };
 
@@ -225,15 +236,42 @@ export default function AddReceivable() {
         // For numeric fields, handle conversions if needed
         const numericValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
 
-        // Update primary amount when exchange rate changes and secondary amount exists
-        if (field === 'exchangeRate' && formData.secondaryAmount) {
+        // Handle primary amount changes - convert to secondary currency
+        if (field === 'amount' && formData.secondaryCurrency && formData.secondaryCurrency !== primaryCurrency) {
+            const exchangeRateValue = typeof formData.exchangeRate === 'string' ? parseFloat(formData.exchangeRate) || 1 : formData.exchangeRate || 1;
+
+            if (numericValue > 0 && exchangeRateValue > 0) {
+                const secondaryAmount = convertToSecondaryCurrency(numericValue, exchangeRateValue);
+                setFormData((prev) => ({
+                    ...prev,
+                    secondaryAmount: formatCurrencyAmount(secondaryAmount, formData.secondaryCurrency!),
+                }));
+            }
+        }
+
+                // Handle secondary amount changes - convert to primary currency
+        if (field === 'secondaryAmount' && formData.secondaryCurrency && formData.secondaryCurrency !== primaryCurrency) {
+            const exchangeRateValue = typeof formData.exchangeRate === 'string' ? parseFloat(formData.exchangeRate) || 1 : formData.exchangeRate || 1;
+            
+            if (numericValue > 0 && exchangeRateValue > 0) {
+                const primaryAmount = convertToPrimaryCurrency(numericValue, exchangeRateValue);
+                setFormData((prev) => ({
+                    ...prev,
+                    amount: formatCurrencyAmount(primaryAmount, primaryCurrency),
+                }));
+            }
+        }
+
+                // Update primary amount when exchange rate changes and secondary amount exists
+        if (field === 'exchangeRate' && formData.secondaryAmount && formData.secondaryCurrency !== primaryCurrency) {
             const secondaryNumeric =
-                typeof formData.secondaryAmount === 'string' ? parseFloat(formData.secondaryAmount) || 0 : formData.secondaryAmount;
-            if (secondaryNumeric > 0) {
+                typeof formData.secondaryAmount === 'string' ? parseFloat(formData.secondaryAmount) || 0 : formData.secondaryAmount || 0;
+            
+            if (secondaryNumeric > 0 && numericValue > 0) {
                 const primaryAmount = convertToPrimaryCurrency(secondaryNumeric, numericValue);
                 setFormData((prev) => ({
                     ...prev,
-                    amount: primaryAmount.toString(),
+                    amount: formatCurrencyAmount(primaryAmount, primaryCurrency),
                 }));
             }
         }
@@ -261,7 +299,7 @@ export default function AddReceivable() {
                 </div>
 
                 {/* Form Card */}
-                <Card className="border-blue-200 bg-blue-50/30 shadow-lg">
+                <Card className="rounded-xl border-blue-200 bg-blue-50/30 shadow-lg">
                     <CardHeader className="border-b border-blue-200 bg-blue-100/50">
                         <CardTitle className="flex items-center gap-2 text-blue-800">
                             <Banknote className="h-5 w-5" />
