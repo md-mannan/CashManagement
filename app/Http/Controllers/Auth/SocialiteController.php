@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -15,7 +16,17 @@ class SocialiteController extends Controller
 {
     public function redirect($provider)
     {
-        return Socialite::driver($provider)->redirect();
+        try {
+            return Socialite::driver($provider)->redirect();
+        } catch (\Exception $e) {
+            Log::error("Social authentication redirect failed for provider: {$provider}", [
+                'error' => $e->getMessage(),
+                'provider' => $provider
+            ]);
+
+            return redirect()->route('login')
+                ->withErrors(['email' => "Unable to connect to {$provider}. Please try again or use email login."]);
+        }
     }
 
     public function callback($provider)
@@ -31,6 +42,12 @@ class SocialiteController extends Controller
             if ($socialAccount) {
                 // User exists, log them in
                 $user = $socialAccount->user;
+
+                if (!$user->is_active) {
+                    return redirect()->route('login')
+                        ->withErrors(['email' => 'Your account has been deactivated. Please contact support.']);
+                }
+
                 Auth::login($user);
 
                 // Update last login
@@ -44,6 +61,12 @@ class SocialiteController extends Controller
 
             if ($user) {
                 // User exists but doesn't have this social account
+                // Check if account is active
+                if (!$user->is_active) {
+                    return redirect()->route('login')
+                        ->withErrors(['email' => 'Your account has been deactivated. Please contact support.']);
+                }
+
                 // Create social account and log them in
                 $this->createSocialAccount($user, $provider, $socialUser);
                 Auth::login($user);
@@ -63,15 +86,21 @@ class SocialiteController extends Controller
             return redirect()->intended('/dashboard');
 
         } catch (\Exception $e) {
+            Log::error("Social authentication callback failed for provider: {$provider}", [
+                'error' => $e->getMessage(),
+                'provider' => $provider,
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return redirect()->route('login')
-                ->withErrors(['email' => 'Social authentication failed. Please try again.']);
+                ->withErrors(['email' => 'Social authentication failed. Please try again or use email login.']);
         }
     }
 
     private function createUser($socialUser, $provider)
     {
         return User::create([
-            'name' => $socialUser->getName() ?: $socialUser->getNickname(),
+            'name' => $socialUser->getName() ?: $socialUser->getNickname() ?: 'User',
             'email' => $socialUser->getEmail(),
             'password' => Hash::make(Str::random(16)),
             'email_verified_at' => now(), // Social accounts are pre-verified
@@ -79,6 +108,21 @@ class SocialiteController extends Controller
             'permissions' => [],
             'is_active' => true,
             'last_login_at' => now(),
+            'primary_currency' => 'USD',
+            'primary_symbol' => '$',
+            'secondary_currency' => 'EUR',
+            'secondary_symbol' => '€',
+            'exchange_rate' => 1.0,
+            'appearance_mode' => 'system',
+            'theme' => 'default',
+            'timezone' => 'UTC',
+            'locale' => 'en',
+            'date_format' => 'd/m/Y',
+            'time_format' => 'H:i',
+            'enable_notifications' => true,
+            'enable_activity_logging' => true,
+            'enable_backup' => true,
+            'enable_social_login' => true,
         ]);
     }
 

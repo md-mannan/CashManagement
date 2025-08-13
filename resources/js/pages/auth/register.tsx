@@ -1,6 +1,6 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Chrome, Facebook, Github, LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -26,6 +26,7 @@ export default function Register() {
         password_confirmation: '',
     });
 
+    const [socialLoading, setSocialLoading] = useState<string | null>(null);
     const { showToast } = useToast();
 
     const submit: FormEventHandler = (e) => {
@@ -49,6 +50,13 @@ export default function Register() {
                 });
             },
             onFinish: () => reset('password', 'password_confirmation'),
+        });
+    };
+
+    const handleSocialLogin = (provider: string) => {
+        setSocialLoading(provider);
+        router.visit(route('socialite.redirect', provider), {
+            onFinish: () => setSocialLoading(null),
         });
     };
 
@@ -151,28 +159,39 @@ export default function Register() {
                     <Button
                         variant="outline"
                         type="button"
-                        onClick={() => (window.location.href = route('socialite.redirect', 'facebook'))}
+                        onClick={() => handleSocialLogin('facebook')}
+                        disabled={socialLoading !== null}
                         className="flex items-center gap-2"
                     >
-                        <Facebook className="h-4 w-4 text-blue-600" />
+                        {socialLoading === 'facebook' ? (
+                            <LoaderCircle className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <Facebook className="h-4 w-4 text-blue-600" />
+                        )}
                         Facebook
                     </Button>
                     <Button
                         variant="outline"
                         type="button"
-                        onClick={() => (window.location.href = route('socialite.redirect', 'google'))}
+                        onClick={() => handleSocialLogin('google')}
+                        disabled={socialLoading !== null}
                         className="flex items-center gap-2"
                     >
-                        <Chrome className="h-4 w-4 text-red-600" />
+                        {socialLoading === 'google' ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Chrome className="h-4 w-4 text-red-600" />}
                         Google
                     </Button>
                     <Button
                         variant="outline"
                         type="button"
-                        onClick={() => (window.location.href = route('socialite.redirect', 'github'))}
+                        onClick={() => handleSocialLogin('github')}
+                        disabled={socialLoading !== null}
                         className="flex items-center gap-2"
                     >
-                        <Github className="h-4 w-4 text-gray-800" />
+                        {socialLoading === 'github' ? (
+                            <LoaderCircle className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <Github className="h-4 w-4 text-gray-800" />
+                        )}
                         GitHub
                     </Button>
                 </div>
