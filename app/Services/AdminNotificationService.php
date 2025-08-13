@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Notification;
 use App\Models\User;
+use App\Events\NotificationSent;
 use Illuminate\Support\Facades\Log;
 
 class AdminNotificationService
@@ -69,6 +70,58 @@ class AdminNotificationService
     }
 
     /**
+     * Notify a specific user about their transaction changes
+     */
+    public static function notifyUserAboutTransactionAction(int $userId, string $action, string $transactionType, float $amount, string $currency = 'USD', string $adminName = null): void
+    {
+        try {
+            $description = "Your {$transactionType} transaction of {$currency} {$amount} was {$action}";
+            if ($adminName) {
+                $description .= " by admin {$adminName}";
+            }
+
+            Notification::createForUser(
+                $userId,
+                "transaction_{$action}",
+                'Transaction Update',
+                $description,
+                [
+                    'icon' => 'DollarSign',
+                    'color' => 'green',
+                    'is_important' => true,
+                    'data' => [
+                        'action' => $action,
+                        'transaction_type' => $transactionType,
+                        'amount' => $amount,
+                        'currency' => $currency,
+                        'admin_name' => $adminName,
+                        'timestamp' => now()->toISOString(),
+                    ],
+                ]
+            );
+
+            Log::info("User transaction notification sent: {$action}", [
+                'user_id' => $userId,
+                'action' => $action,
+                'transaction_type' => $transactionType,
+                'amount' => $amount,
+                'currency' => $currency,
+                'admin_name' => $adminName,
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Failed to send user transaction notification: {$action}", [
+                'error' => $e->getMessage(),
+                'user_id' => $userId,
+                'action' => $action,
+                'transaction_type' => $transactionType,
+                'amount' => $amount,
+                'currency' => $currency,
+                'admin_name' => $adminName,
+            ]);
+        }
+    }
+
+    /**
      * Notify admins about category operations
      */
     public static function notifyCategoryAction(string $action, string $userName, string $categoryName, string $categoryType): void
@@ -85,6 +138,55 @@ class AdminNotificationService
                 'category_type' => $categoryType,
             ]
         );
+    }
+
+    /**
+     * Notify a specific user about their category changes
+     */
+    public static function notifyUserAboutCategoryAction(int $userId, string $action, string $categoryName, string $categoryType, string $adminName = null): void
+    {
+        try {
+            $description = "Your {$categoryType} category '{$categoryName}' was {$action}";
+            if ($adminName) {
+                $description .= " by admin {$adminName}";
+            }
+
+            Notification::createForUser(
+                $userId,
+                "category_{$action}",
+                'Category Update',
+                $description,
+                [
+                    'icon' => 'Folder',
+                    'color' => 'blue',
+                    'is_important' => false,
+                    'data' => [
+                        'action' => $action,
+                        'category_name' => $categoryName,
+                        'category_type' => $categoryType,
+                        'admin_name' => $adminName,
+                        'timestamp' => now()->toISOString(),
+                    ],
+                ]
+            );
+
+            Log::info("User category notification sent: {$action}", [
+                'user_id' => $userId,
+                'action' => $action,
+                'category_name' => $categoryName,
+                'category_type' => $categoryType,
+                'admin_name' => $adminName,
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Failed to send user category notification: {$action}", [
+                'error' => $e->getMessage(),
+                'user_id' => $userId,
+                'action' => $action,
+                'category_name' => $categoryName,
+                'category_type' => $categoryType,
+                'admin_name' => $adminName,
+            ]);
+        }
     }
 
     /**
@@ -106,6 +208,52 @@ class AdminNotificationService
                 'details' => $details,
             ]
         );
+    }
+
+    /**
+     * Notify a specific user when their data is changed by an admin
+     */
+    public static function notifyUserAboutAdminAction(int $userId, string $action, string $adminName, string $details = ''): void
+    {
+        try {
+            $description = "Admin {$adminName} {$action} your account";
+            if ($details) {
+                $description .= ": {$details}";
+            }
+
+            Notification::createForUser(
+                $userId,
+                "admin_action_{$action}",
+                'Account Update Notification',
+                $description,
+                [
+                    'icon' => 'Shield',
+                    'color' => 'blue',
+                    'is_important' => true,
+                    'data' => [
+                        'action' => $action,
+                        'admin_name' => $adminName,
+                        'details' => $details,
+                        'timestamp' => now()->toISOString(),
+                    ],
+                ]
+            );
+
+            Log::info("User notification sent for admin action: {$action}", [
+                'user_id' => $userId,
+                'action' => $action,
+                'admin_name' => $adminName,
+                'details' => $details,
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Failed to send user notification for admin action: {$action}", [
+                'error' => $e->getMessage(),
+                'user_id' => $userId,
+                'action' => $action,
+                'admin_name' => $adminName,
+                'details' => $details,
+            ]);
+        }
     }
 
     /**

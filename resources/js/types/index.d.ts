@@ -1,6 +1,11 @@
 import { LucideIcon } from 'lucide-react';
 import type { Config } from 'ziggy-js';
 
+// Global route function declaration
+declare global {
+    function route(name: string, params?: Record<string, any>, absolute?: boolean): string;
+}
+
 export interface Auth {
     user: User;
 }

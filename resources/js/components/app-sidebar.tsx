@@ -51,7 +51,7 @@ export function AppSidebar() {
         },
         {
             title: 'Notifications',
-            href: '/admin/notifications',
+            href: route('admin.notifications.index'),
             icon: Bell,
         },
         {

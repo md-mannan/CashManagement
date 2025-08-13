@@ -88,7 +88,7 @@ export default function Currency() {
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        patch(route('currency.update'), {
+        patch(route('settings.currency.update'), {
             preserveScroll: true,
         });
     };

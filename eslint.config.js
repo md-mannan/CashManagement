@@ -18,9 +18,11 @@ export default [
             },
         },
         rules: {
+            'no-unused-vars': 'on',
             'react/react-in-jsx-scope': 'off',
             'react/prop-types': 'off',
             'react/no-unescaped-entities': 'off',
+
         },
         settings: {
             react: {

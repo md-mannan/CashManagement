@@ -13,6 +13,16 @@ import { ArrowLeft, Banknote, CreditCard, RefreshCw, TrendingDown, TrendingUp } 
 import React, { useCallback, useEffect, useState } from 'react';
 import { getExchangeRateForTransaction } from '../services/exchangeRateService';
 
+// Get transaction type from URL parameters
+const getTransactionTypeFromURL = (): 'income' | 'expense' | 'receivable' | 'payable' => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const type = urlParams.get('type');
+    if (type && ['income', 'expense', 'receivable', 'payable'].includes(type)) {
+        return type as 'income' | 'expense' | 'receivable' | 'payable';
+    }
+    return 'income'; // Default to income
+};
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Ledger',
@@ -105,6 +115,9 @@ export default function AddTransaction() {
     // Get transaction type from URL params or default to income
     const urlParams = new URLSearchParams(window.location.search);
     const type = (urlParams.get('type') as 'income' | 'expense' | 'receivable' | 'payable') || 'income';
+
+    // State for transaction type
+    const [transactionTypeState, setTransactionTypeState] = useState(type);
 
     const [formData, setFormData] = useState<TransactionFormData>({
         type,
@@ -330,40 +343,91 @@ export default function AddTransaction() {
         }
     };
 
+    // Get the current transaction type configuration
+    const currentTransactionType = transactionTypes[transactionTypeState];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`${transactionType.title} - Personal Account`} />
-
-            <div className="container mx-auto max-w-lg px-4 py-1 sm:px-6">
-                <div className="mt-4 mb-1 flex items-center justify-between">
-                    <div></div>
+            <Head title={`${currentTransactionType.title} - Personal Account`} />
+            <div className="container mx-auto max-w-2xl py-6">
+                {/* Header */}
+                <div className="mb-6 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-full ${currentTransactionType.bgColor}`}>
+                            <currentTransactionType.icon className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">{currentTransactionType.title}</h1>
+                            <p className="text-sm text-gray-600">{currentTransactionType.description}</p>
+                        </div>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => router.visit(route('ledger'))}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Ledger
+                    </Button>
                 </div>
 
-                <Card className={`mt-2 border-l-4 pt-0 shadow-lg ${transactionType.borderColor} relative overflow-hidden`}>
-                    {/* Back to Ledger button positioned in top-right corner of card */}
-                    <div className="absolute top-2 right-2 z-10">
-                        <Button variant="outline" size="sm" onClick={() => router.visit('/ledger')}>
-                            <ArrowLeft className="h-4 w-4" />
-                            <span className="hidden sm:inline">Back to Ledger</span>
-                            <span className="sm:hidden">Back</span>
-                        </Button>
-                    </div>
-
-                    <CardHeader className={`${transactionType.bgColor} border-b px-4 py-2 sm:px-6`}>
-                        <CardTitle className={`flex items-center gap-2 text-base sm:text-lg ${transactionType.color}`}>
-                            <div className={`rounded-lg bg-white/80 p-1.5 shadow-sm ${transactionType.color} sm:p-2`}>
-                                <IconComponent className="h-4 w-4 sm:h-5 sm:w-5" />
-                            </div>
-                            <span className="text-sm sm:text-base">{transactionType.title}</span>
+                {/* Form Card */}
+                <Card className={`border ${currentTransactionType.borderColor} ${currentTransactionType.bgColor}/30 shadow-lg`}>
+                    <CardHeader className={`border-b ${currentTransactionType.borderColor} ${currentTransactionType.bgColor}/50`}>
+                        <CardTitle className={`flex items-center gap-2 ${currentTransactionType.color}`}>
+                            <currentTransactionType.icon className="h-5 w-5" />
+                            {currentTransactionType.title} Transaction Details
                         </CardTitle>
-                        <CardDescription className="mt-0.5 text-xs sm:text-sm">{transactionType.description}</CardDescription>
+                        <CardDescription className={currentTransactionType.color}>
+                            Enter the details of your {transactionTypeState} transaction
+                        </CardDescription>
                     </CardHeader>
-                    <CardContent className="bg-white p-3 sm:p-4">
-                        <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4">
+                    <CardContent className="bg-white p-6">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Transaction Type Selector */}
+                            <div className="space-y-2">
+                                <Label htmlFor="type" className="text-sm font-semibold text-gray-700">
+                                    Transaction Type *
+                                </Label>
+                                <Select
+                                    value={transactionTypeState}
+                                    onValueChange={(value: 'income' | 'expense' | 'receivable' | 'payable') => {
+                                        setTransactionTypeState(value);
+                                        setFormData((prev) => ({ ...prev, type: value }));
+                                    }}
+                                >
+                                    <SelectTrigger className="h-10">
+                                        <SelectValue placeholder="Select transaction type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="income" className="text-green-600">
+                                            <div className="flex items-center gap-2">
+                                                <TrendingUp className="h-4 w-4" />
+                                                Income
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="expense" className="text-red-600">
+                                            <div className="flex items-center gap-2">
+                                                <TrendingDown className="h-4 w-4" />
+                                                Expense
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="receivable" className="text-blue-600">
+                                            <div className="flex items-center gap-2">
+                                                <Banknote className="h-4 w-4" />
+                                                Receivable
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="payable" className="text-orange-600">
+                                            <div className="flex items-center gap-2">
+                                                <CreditCard className="h-4 w-4" />
+                                                Payable
+                                            </div>
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
                             {/* Amount and Date Row */}
-                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
-                                <div className="space-y-1 sm:space-y-1.5">
-                                    <Label htmlFor="amount" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="amount" className="text-sm font-semibold text-gray-700">
                                         Amount ({primarySymbol}) *
                                     </Label>
                                     <Input
@@ -373,15 +437,14 @@ export default function AddTransaction() {
                                         value={formData.amount ? formData.amount.toString() : ''}
                                         onChange={(e) => {
                                             const value = e.target.value;
-                                            // Simple - no validation, store as string to preserve decimal input
                                             handleInputChange('amount', value);
                                         }}
                                         required
-                                        className="h-8 text-sm font-medium sm:h-9 sm:text-base"
+                                        className="h-10 text-base font-medium"
                                     />
                                 </div>
-                                <div className="space-y-1 sm:space-y-1.5">
-                                    <Label htmlFor="date" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                                <div className="space-y-2">
+                                    <Label htmlFor="date" className="text-sm font-semibold text-gray-700">
                                         Date *
                                     </Label>
                                     <CustomDateInput
@@ -389,23 +452,23 @@ export default function AddTransaction() {
                                         value={formData.date}
                                         onChange={(value) => handleInputChange('date', value)}
                                         required
-                                        className="h-8 sm:h-9"
+                                        className="h-10"
                                         placeholder="dd/mm/yyyy"
                                     />
                                 </div>
                             </div>
 
                             {/* Currency Selection Row */}
-                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
-                                <div className="space-y-1 sm:space-y-1.5">
-                                    <Label htmlFor="secondaryCurrency" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="secondaryCurrency" className="text-sm font-semibold text-gray-700">
                                         Secondary Currency
                                     </Label>
                                     <Select
                                         value={formData.secondaryCurrency || ''}
                                         onValueChange={(value) => handleInputChange('secondaryCurrency', value)}
                                     >
-                                        <SelectTrigger className="h-8 sm:h-9">
+                                        <SelectTrigger className="h-10">
                                             <SelectValue placeholder="Select currency (optional)" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -417,31 +480,10 @@ export default function AddTransaction() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="space-y-1 sm:space-y-1.5">
-                                    <div className="flex items-center justify-between">
-                                        <Label htmlFor="exchangeRate" className="text-xs font-semibold text-gray-700 sm:text-sm">
-                                            Rate (1 {formData.secondaryCurrency || 'Secondary'} = ? {primaryCurrency})
-                                        </Label>
-                                        <div className="flex items-center gap-2">
-                                            {isLoadingRate && (
-                                                <div className="flex items-center gap-1 text-xs text-blue-600">
-                                                    <RefreshCw className="h-3 w-3 animate-spin" />
-                                                    <span>Fetching...</span>
-                                                </div>
-                                            )}
-                                            {formData.secondaryCurrency && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => fetchRealTimeRate(formData.secondaryCurrency!)}
-                                                    disabled={isLoadingRate}
-                                                    className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400"
-                                                    title="Refresh exchange rate"
-                                                >
-                                                    <RefreshCw className="h-3 w-3" />
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="exchangeRate" className="text-sm font-semibold text-gray-700">
+                                        Rate (1 {formData.secondaryCurrency || 'Secondary'} = ? {primaryCurrency})
+                                    </Label>
                                     <div className="relative">
                                         <Input
                                             id="exchangeRate"
@@ -450,20 +492,31 @@ export default function AddTransaction() {
                                             value={formData.exchangeRate ? formData.exchangeRate.toString() : ''}
                                             onChange={(e) => {
                                                 const value = e.target.value;
-                                                // Simple - no validation, store as string to preserve decimal input
                                                 handleInputChange('exchangeRate', value);
                                             }}
                                             disabled={!formData.secondaryCurrency || isLoadingRate}
-                                            className="h-8 text-sm font-medium sm:h-9 sm:text-base"
+                                            className="h-10 pr-10 text-base font-medium"
                                         />
+                                        {formData.secondaryCurrency && (
+                                            <button
+                                                type="button"
+                                                onClick={() => fetchRealTimeRate(formData.secondaryCurrency!)}
+                                                disabled={isLoadingRate}
+                                                className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:text-gray-300"
+                                                title="Refresh exchange rate"
+                                            >
+                                                {isLoadingRate ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                                            </button>
+                                        )}
                                     </div>
+                                    {isLoadingRate && <p className="text-xs text-blue-600">Fetching latest rate...</p>}
                                 </div>
                             </div>
 
                             {/* Secondary Amount Row */}
                             {formData.secondaryCurrency && (
-                                <div className="space-y-1 sm:space-y-1.5">
-                                    <Label htmlFor="secondaryAmount" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                                <div className="space-y-2">
+                                    <Label htmlFor="secondaryAmount" className="text-sm font-semibold text-gray-700">
                                         Amount in {formData.secondaryCurrency} (
                                         {currencies.find((c) => c.code === formData.secondaryCurrency)?.symbol})
                                     </Label>
@@ -474,7 +527,6 @@ export default function AddTransaction() {
                                         value={formData.secondaryAmount !== undefined ? formData.secondaryAmount.toString() : ''}
                                         onChange={(e) => {
                                             const value = e.target.value;
-                                            // Simple - no validation, store as string and calculate conversion
                                             const numericValue = value === '' ? 0 : parseFloat(value) || 0;
                                             const exchangeRateValue =
                                                 typeof formData.exchangeRate === 'string'
@@ -487,7 +539,7 @@ export default function AddTransaction() {
                                                 amount: primaryAmount.toString(),
                                             }));
                                         }}
-                                        className="h-8 text-sm font-medium sm:h-9 sm:text-base"
+                                        className="h-10 text-base font-medium"
                                     />
                                     <p className="text-xs text-gray-500">
                                         Enter amount in {formData.secondaryCurrency} - both amounts will be recorded
@@ -496,8 +548,8 @@ export default function AddTransaction() {
                             )}
 
                             {/* Description */}
-                            <div className="space-y-1 sm:space-y-1.5">
-                                <Label htmlFor="description" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                            <div className="space-y-2">
+                                <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
                                     Description *
                                 </Label>
                                 <Input
@@ -506,13 +558,13 @@ export default function AddTransaction() {
                                     value={formData.description}
                                     onChange={(e) => handleInputChange('description', e.target.value)}
                                     required
-                                    className="h-8 sm:h-9"
+                                    className="h-10"
                                 />
                             </div>
 
                             {/* Source */}
-                            <div className="space-y-1 sm:space-y-1.5">
-                                <Label htmlFor="source" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                            <div className="space-y-2">
+                                <Label htmlFor="source" className="text-sm font-semibold text-gray-700">
                                     Source *
                                 </Label>
                                 <Input
@@ -521,21 +573,21 @@ export default function AddTransaction() {
                                     value={formData.source}
                                     onChange={(e) => handleInputChange('source', e.target.value)}
                                     required
-                                    className="h-8 sm:h-9"
+                                    className="h-10"
                                 />
                             </div>
 
                             {/* Category */}
-                            <div className="space-y-1 sm:space-y-1.5">
-                                <Label htmlFor="category" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                            <div className="space-y-2">
+                                <Label htmlFor="category" className="text-sm font-semibold text-gray-700">
                                     Category *
                                 </Label>
                                 <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                                    <SelectTrigger className="h-8 sm:h-9">
+                                    <SelectTrigger className="h-10">
                                         <SelectValue placeholder="Select a category" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {categories[type].map((category) => (
+                                        {categories[transactionTypeState].map((category) => (
                                             <SelectItem key={category} value={category}>
                                                 {category}
                                             </SelectItem>
@@ -545,8 +597,8 @@ export default function AddTransaction() {
                             </div>
 
                             {/* Notes */}
-                            <div className="space-y-1 sm:space-y-1.5">
-                                <Label htmlFor="notes" className="text-xs font-semibold text-gray-700 sm:text-sm">
+                            <div className="space-y-2">
+                                <Label htmlFor="notes" className="text-sm font-semibold text-gray-700">
                                     Notes (Optional)
                                 </Label>
                                 <Textarea
@@ -554,28 +606,28 @@ export default function AddTransaction() {
                                     placeholder="Add any additional notes..."
                                     value={formData.notes || ''}
                                     onChange={(e) => handleInputChange('notes', e.target.value)}
-                                    rows={2}
-                                    className="sm:rows-2 resize-none text-sm"
+                                    rows={3}
+                                    className="resize-none text-sm"
                                 />
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex flex-col gap-2 border-t border-gray-200 pt-3 sm:flex-row sm:justify-end sm:gap-3 sm:pt-4">
+                            <div className="flex flex-col gap-3 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end">
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    size="sm"
-                                    onClick={() => router.visit('/ledger')}
-                                    className="w-full px-3 py-1.5 text-sm sm:w-auto sm:px-4"
+                                    size="default"
+                                    onClick={() => router.visit(route('ledger'))}
+                                    className="w-full px-6 py-2 text-sm font-medium sm:w-auto"
                                 >
                                     Cancel
                                 </Button>
                                 <Button
                                     type="submit"
-                                    size="sm"
-                                    className={`w-full px-3 py-1.5 text-sm font-semibold text-white sm:w-auto sm:px-4 ${transactionType.buttonColor}`}
+                                    size="default"
+                                    className={`w-full px-6 py-2 text-sm font-semibold text-white sm:w-auto ${currentTransactionType.buttonColor}`}
                                 >
-                                    Add {type.charAt(0).toUpperCase() + type.slice(1)}
+                                    Add {transactionTypeState.charAt(0).toUpperCase() + transactionTypeState.slice(1)}
                                 </Button>
                             </div>
                         </form>

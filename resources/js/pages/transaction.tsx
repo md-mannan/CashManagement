@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomDateInput } from '@/components/ui/custom-date-input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Download, Edit, Eye, FileText, Filter, Plus, Printer, Search, Trash2 } from 'lucide-react';
+import { Banknote, CreditCard, Download, Edit, Eye, FileText, Filter, Plus, Printer, Search, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -24,11 +24,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 // Real transaction data comes from backend via Inertia props
 
 const transactionTypes = [
-    { value: 'all', label: 'All Types' },
-    { value: 'income', label: 'Income' },
-    { value: 'expense', label: 'Expense' },
-    { value: 'receivable', label: 'Receivable' },
-    { value: 'payable', label: 'Payable' },
+    { value: 'all', label: 'All Types', color: 'text-gray-600' },
+    { value: 'income', label: 'Income', color: 'text-green-600' },
+    { value: 'expense', label: 'Expense', color: 'text-red-600' },
+    { value: 'receivable', label: 'Receivable', color: 'text-blue-600' },
+    { value: 'payable', label: 'Payable', color: 'text-orange-600' },
 ];
 
 export default function Transaction() {
@@ -197,7 +197,7 @@ export default function Transaction() {
 
     const handleDeleteConfirm = () => {
         if (deleteConfirmation.transactionId) {
-            router.delete(`/transaction/${deleteConfirmation.transactionId}`, {
+            router.delete(route('transactions.destroy', deleteConfirmation.transactionId), {
                 onSuccess: () => {
                     showToast({
                         type: 'success',
@@ -221,7 +221,7 @@ export default function Transaction() {
 
     const handleEditConfirm = () => {
         if (editConfirmation.transactionId) {
-            router.visit(`/transaction/${editConfirmation.transactionId}/edit`);
+            router.visit(route('transactions.edit', editConfirmation.transactionId));
         }
         setEditConfirmation({ isOpen: false, transactionId: null });
     };
@@ -233,7 +233,7 @@ export default function Transaction() {
 
     // Handle view transaction
     const handleViewTransaction = (transactionId: number) => {
-        router.visit(`/transaction/${transactionId}`);
+        router.visit(route('transactions.show', transactionId));
     };
 
     // Export to Excel functionality
@@ -431,28 +431,28 @@ export default function Transaction() {
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem
                                 className="flex items-center gap-2 text-green-600"
-                                onClick={() => router.visit('/add-transaction?type=income')}
+                                onClick={() => router.visit(route('transactions.add-income'))}
                             >
                                 <Plus className="h-4 w-4" />
                                 Add Income
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 className="flex items-center gap-2 text-red-600"
-                                onClick={() => router.visit('/add-transaction?type=expense')}
+                                onClick={() => router.visit(route('transactions.add-expense'))}
                             >
                                 <Plus className="h-4 w-4" />
                                 Add Expense
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 className="flex items-center gap-2 text-blue-600"
-                                onClick={() => router.visit('/add-transaction?type=receivable')}
+                                onClick={() => router.visit(route('transactions.add-receivable'))}
                             >
                                 <Plus className="h-4 w-4" />
                                 Add Receivable
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 className="flex items-center gap-2 text-orange-600"
-                                onClick={() => router.visit('/add-transaction?type=payable')}
+                                onClick={() => router.visit(route('transactions.add-payable'))}
                             >
                                 <Plus className="h-4 w-4" />
                                 Add Payable
@@ -460,6 +460,186 @@ export default function Transaction() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
+
+                {/* Transaction Summary */}
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
+                            <TrendingUp className="h-4 w-4 text-green-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-green-600">
+                                {primarySymbol}
+                                {formatCurrency(
+                                    filteredTransactions.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0),
+                                    primaryCurrency,
+                                )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                {filteredTransactions.filter((t) => t.type === 'income').length} transactions
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+                            <TrendingDown className="h-4 w-4 text-red-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-red-600">
+                                {primarySymbol}
+                                {formatCurrency(
+                                    filteredTransactions.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0),
+                                    primaryCurrency,
+                                )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                {filteredTransactions.filter((t) => t.type === 'expense').length} transactions
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Receivables</CardTitle>
+                            <Banknote className="h-4 w-4 text-blue-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-blue-600">
+                                {primarySymbol}
+                                {formatCurrency(
+                                    filteredTransactions.filter((t) => t.type === 'receivable').reduce((sum, t) => sum + t.amount, 0),
+                                    primaryCurrency,
+                                )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                {filteredTransactions.filter((t) => t.type === 'receivable').length} transactions
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
+                            <FileText className="h-4 w-4 text-gray-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div
+                                className={`text-2xl font-bold ${
+                                    filteredTransactions
+                                        .filter((t) => t.type === 'income' || t.type === 'receivable')
+                                        .reduce((sum, t) => sum + t.amount, 0) -
+                                        filteredTransactions
+                                            .filter((t) => t.type === 'expense' || t.type === 'payable')
+                                            .reduce((sum, t) => sum + t.amount, 0) >=
+                                    0
+                                        ? 'text-green-600'
+                                        : 'text-red-600'
+                                }`}
+                            >
+                                {primarySymbol}
+                                {formatCurrency(
+                                    filteredTransactions
+                                        .filter((t) => t.type === 'income' || t.type === 'receivable')
+                                        .reduce((sum, t) => sum + t.amount, 0) -
+                                        filteredTransactions
+                                            .filter((t) => t.type === 'expense' || t.type === 'payable')
+                                            .reduce((sum, t) => sum + t.amount, 0),
+                                    primaryCurrency,
+                                )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">Income + Receivables - Expenses - Payables</p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Quick Add Transaction Cards */}
+                <Card className="border-0 bg-gradient-to-r from-gray-50 to-gray-100">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-gray-800">
+                            <Plus className="h-5 w-5" />
+                            Quick Add Transactions
+                        </CardTitle>
+                        <CardDescription>Click on any card below to quickly add a specific type of transaction</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            {/* Income Card */}
+                            <Card
+                                className="cursor-pointer border-green-200 bg-green-50/30 shadow-sm transition-colors hover:bg-green-100/50"
+                                onClick={() => router.visit(route('transactions.add-income'))}
+                            >
+                                <CardContent className="p-4">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                                            <TrendingUp className="h-5 w-5 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-green-800">Add Income</h3>
+                                            <p className="text-sm text-green-600">Record new income</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Expense Card */}
+                            <Card
+                                className="cursor-pointer border-red-200 bg-red-50/30 shadow-sm transition-colors hover:bg-red-100/50"
+                                onClick={() => router.visit(route('transactions.add-expense'))}
+                            >
+                                <CardContent className="p-4">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+                                            <TrendingDown className="h-5 w-5 text-red-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-red-800">Add Expense</h3>
+                                            <p className="text-sm text-red-600">Record new expense</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Receivable Card */}
+                            <Card
+                                className="cursor-pointer border-blue-200 bg-blue-50/30 shadow-sm transition-colors hover:bg-blue-100/50"
+                                onClick={() => router.visit(route('transactions.add-receivable'))}
+                            >
+                                <CardContent className="p-4">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                                            <Banknote className="h-5 w-5 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-blue-800">Add Receivable</h3>
+                                            <p className="text-sm text-blue-600">Record money owed to you</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Payable Card */}
+                            <Card
+                                className="cursor-pointer border-orange-200 bg-orange-50/30 shadow-sm transition-colors hover:bg-orange-100/50"
+                                onClick={() => router.visit(route('transactions.add-payable'))}
+                            >
+                                <CardContent className="p-4">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
+                                            <CreditCard className="h-5 w-5 text-orange-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-orange-800">Add Payable</h3>
+                                            <p className="text-sm text-orange-600">Record money you owe</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 {/* Filters */}
                 <Card>

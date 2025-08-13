@@ -164,7 +164,7 @@ export default function SystemAudit({ recentActivities, error }: SystemAuditProp
     });
 
     const handleViewLog = (activity: { id: number; action: string; user: string; target: string; created_at: string; ip_address: string }) => {
-        router.visit(`/admin/super-admin/audit/${activity.id}`);
+        router.visit(route('admin.super-admin.audit.show', activity.id));
     };
 
     return (

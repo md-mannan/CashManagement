@@ -325,28 +325,28 @@ export default function Ledger() {
                                 <DropdownMenuContent align="end" className="w-48">
                                     <DropdownMenuItem
                                         className="flex items-center gap-2 text-green-600"
-                                        onClick={() => router.visit('/add-transaction?type=income')}
+                                        onClick={() => router.visit(route('transactions.add-income'))}
                                     >
                                         <TrendingUp className="h-4 w-4" />
                                         Add Income
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         className="flex items-center gap-2 text-red-600"
-                                        onClick={() => router.visit('/add-transaction?type=expense')}
+                                        onClick={() => router.visit(route('transactions.add-expense'))}
                                     >
                                         <TrendingDown className="h-4 w-4" />
                                         Add Expense
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         className="flex items-center gap-2 text-blue-600"
-                                        onClick={() => router.visit('/add-transaction?type=receivable')}
+                                        onClick={() => router.visit(route('transactions.add-receivable'))}
                                     >
                                         <Banknote className="h-4 w-4" />
                                         Add Receivable
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         className="flex items-center gap-2 text-orange-600"
-                                        onClick={() => router.visit('/add-transaction?type=payable')}
+                                        onClick={() => router.visit(route('transactions.add-payable'))}
                                     >
                                         <CreditCard className="h-4 w-4" />
                                         Add Payable

@@ -4,10 +4,30 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { ToastProvider } from './components/ui/toast';
+import { RealTimeNotificationProvider } from './contexts/RealTimeNotificationContext';
 import { initializeTheme } from './hooks/use-appearance';
 
 // Import axios configuration
 import './lib/axios';
+import { configureEcho } from '@laravel/echo-react';
+
+// Import and make route function globally available
+import { route } from './lib/route';
+
+// Make route function globally available
+declare global {
+    interface Window {
+        route: typeof route;
+    }
+}
+
+if (typeof window !== 'undefined') {
+    window.route = route;
+}
+
+configureEcho({
+    broadcaster: 'reverb',
+});
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -19,7 +39,12 @@ createInertiaApp({
 
         root.render(
             <ToastProvider>
-                <App {...props} />
+                <RealTimeNotificationProvider 
+                    userId={props.initialPage.props.auth?.user?.id || 0} 
+                    userRole={props.initialPage.props.auth?.user?.role || 'user'}
+                >
+                    <App {...props} />
+                </RealTimeNotificationProvider>
             </ToastProvider>,
         );
     },

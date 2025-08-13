@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\ActivityLogService;
+use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -100,6 +101,21 @@ class SuperAdminController extends Controller
             ]
         );
 
+        // Notify admins about the promotion
+        AdminNotificationService::notifyUserAccountAction(
+            'promoted to super admin',
+            $user->name,
+            "Email: {$user->email}, Promoted by: " . auth()->user()->name
+        );
+
+        // Notify the promoted user
+        AdminNotificationService::notifyUserAboutAdminAction(
+            $user->id,
+            'promoted to super admin',
+            auth()->user()->name,
+            "You now have access to all system features and administrative functions"
+        );
+
         return redirect()->back()->with('success', 'User promoted to super admin successfully.');
     }
 
@@ -148,6 +164,21 @@ class SuperAdminController extends Controller
             ]
         );
 
+        // Notify admins about the demotion
+        AdminNotificationService::notifyUserAccountAction(
+            'demoted from super admin',
+            $user->name,
+            "Email: {$user->email}, New role: {$request->new_role}, Demoted by: " . auth()->user()->name
+        );
+
+        // Notify the demoted user
+        AdminNotificationService::notifyUserAboutAdminAction(
+            $user->id,
+            'demoted from super admin',
+            auth()->user()->name,
+            "Your role has been changed to {$request->new_role}. Some administrative features may no longer be available."
+        );
+
         return redirect()->back()->with('success', 'Super admin demoted successfully.');
     }
 
@@ -187,6 +218,21 @@ class SuperAdminController extends Controller
                 'old_permissions' => $oldPermissions,
                 'new_permissions' => $request->permissions ?? ['*'],
             ]
+        );
+
+        // Notify admins about the permission update
+        AdminNotificationService::notifyUserAccountAction(
+            'updated permissions for',
+            $user->name,
+            "Email: {$user->email}, Updated by: " . auth()->user()->name
+        );
+
+        // Notify the user about permission changes
+        AdminNotificationService::notifyUserAboutAdminAction(
+            $user->id,
+            'updated permissions',
+            auth()->user()->name,
+            "Your system permissions have been modified"
         );
 
         return redirect()->back()->with('success', 'Super admin permissions updated successfully.');

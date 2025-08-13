@@ -28,7 +28,7 @@ const applyTheme = (appearance: Appearance, theme: Theme = 'neutral') => {
 
     // Remove all theme classes
     document.documentElement.classList.remove('theme-violet');
-    
+
     // Add theme class if not neutral
     if (theme !== 'neutral') {
         document.documentElement.classList.add(`theme-${theme}`);
@@ -46,7 +46,7 @@ const handleSystemThemeChange = () => {
 
 export function initializeTheme() {
     const savedAppearance = (localStorage.getItem('appearance') as Appearance) || 'system';
-    const savedTheme = (localStorage.getItem('theme') as Theme) || 'neutral';
+    const savedTheme = (localStorage.getItem('theme') as Theme) || 'violet';
 
     applyTheme(savedAppearance, savedTheme);
 
@@ -56,36 +56,42 @@ export function initializeTheme() {
 
 export function useAppearance() {
     const [appearance, setAppearance] = useState<Appearance>('system');
-    const [theme, setTheme] = useState<Theme>('neutral');
+    const [theme, setTheme] = useState<Theme>('violet');
 
-    const updateAppearance = useCallback((mode: Appearance) => {
-        setAppearance(mode);
+    const updateAppearance = useCallback(
+        (mode: Appearance) => {
+            setAppearance(mode);
 
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('appearance', mode);
+            // Store in localStorage for client-side persistence...
+            localStorage.setItem('appearance', mode);
 
-        // Store in cookie for SSR...
-        setCookie('appearance', mode);
+            // Store in cookie for SSR...
+            setCookie('appearance', mode);
 
-        applyTheme(mode, theme);
-    }, [theme]);
+            applyTheme(mode, theme);
+        },
+        [theme],
+    );
 
-    const updateTheme = useCallback((newTheme: Theme) => {
-        setTheme(newTheme);
+    const updateTheme = useCallback(
+        (newTheme: Theme) => {
+            setTheme(newTheme);
 
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('theme', newTheme);
+            // Store in localStorage for client-side persistence...
+            localStorage.setItem('theme', newTheme);
 
-        // Store in cookie for SSR...
-        setCookie('theme', newTheme);
+            // Store in cookie for SSR...
+            setCookie('theme', newTheme);
 
-        applyTheme(appearance, newTheme);
-    }, [appearance]);
+            applyTheme(appearance, newTheme);
+        },
+        [appearance],
+    );
 
     useEffect(() => {
         const savedAppearance = localStorage.getItem('appearance') as Appearance | null;
-        const savedTheme = (localStorage.getItem('theme') as Theme) || 'neutral';
-        
+        const savedTheme = (localStorage.getItem('theme') as Theme) || 'violet';
+
         setAppearance(savedAppearance || 'system');
         setTheme(savedTheme);
         updateAppearance(savedAppearance || 'system');

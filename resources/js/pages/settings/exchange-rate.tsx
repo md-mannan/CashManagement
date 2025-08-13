@@ -42,7 +42,7 @@ export default function ExchangeRate({ user, providers }: Props) {
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        patch(route('exchange-rate.update'), {
+        patch(route('settings.exchange-rate.update'), {
             onSuccess: () => {
                 setTestResult(null);
             },
@@ -54,7 +54,7 @@ export default function ExchangeRate({ user, providers }: Props) {
         setTestResult(null);
 
         try {
-            const response = await fetch(route('exchange-rate.test'), {
+            const response = await fetch(route('settings.exchange-rate.test'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export default function ExchangeRate({ user, providers }: Props) {
     };
 
     const clearApiKey = () => {
-        destroy(route('exchange-rate.destroy'), {
+        destroy(route('settings.exchange-rate.destroy'), {
             onSuccess: () => {
                 setTestResult(null);
                 reset('exchange_rate_api_key');

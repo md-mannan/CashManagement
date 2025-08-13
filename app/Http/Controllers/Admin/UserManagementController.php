@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Notification;
+use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -109,6 +110,13 @@ class UserManagementController extends Controller
             ]
         );
 
+        // Notify admins about user creation
+        AdminNotificationService::notifyUserAccountAction(
+            'created',
+            $user->name,
+            "Role: {$request->role}, Email: {$user->email}"
+        );
+
         return redirect()->back()->with('success', 'User created successfully.');
     }
 
@@ -162,7 +170,21 @@ class UserManagementController extends Controller
                     'is_important' => true,
                 ]
             );
+
+            // Notify admins about role change
+            AdminNotificationService::notifyUserAccountAction(
+                'changed role',
+                $user->name,
+                "From {$oldRole} to {$request->role}"
+            );
         }
+
+        // Notify admins about user update
+        AdminNotificationService::notifyUserAccountAction(
+            'updated',
+            $user->name,
+            "Email: {$user->email}, Role: {$user->role}"
+        );
 
         return redirect()->back()->with('success', 'User updated successfully.');
     }
@@ -210,6 +232,13 @@ class UserManagementController extends Controller
 
         $user->delete();
 
+        // Notify admins about user deletion
+        AdminNotificationService::notifyUserAccountAction(
+            'deleted',
+            $user->name,
+            "Email: {$user->email}, Role: {$user->role}"
+        );
+
         return redirect()->back()->with('success', 'User deleted successfully.');
     }
 
@@ -242,6 +271,13 @@ class UserManagementController extends Controller
             ]
         );
 
+        // Notify admins about status change
+        AdminNotificationService::notifyUserAccountAction(
+            $status,
+            $user->name,
+            "Email: {$user->email}, Role: {$user->role}"
+        );
+
         return redirect()->back()->with('success', "User {$status} successfully.");
     }
 
@@ -267,6 +303,13 @@ class UserManagementController extends Controller
                 'color' => 'orange',
                 'is_important' => true,
             ]
+        );
+
+        // Notify admins about password reset
+        AdminNotificationService::notifyUserAccountAction(
+            'reset password for',
+            $user->name,
+            "Email: {$user->email}, Role: {$user->role}"
         );
 
         return redirect()->back()->with('success', 'User password reset successfully.');

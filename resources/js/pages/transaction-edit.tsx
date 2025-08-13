@@ -420,7 +420,7 @@ export default function TransactionEdit() {
                         <div className="text-center">
                             <h1 className="text-2xl font-bold text-gray-900">Transaction Not Found</h1>
                             <p className="mt-2 text-gray-600">The transaction you're trying to edit doesn't exist.</p>
-                            <Button onClick={() => router.visit('/transaction')} className="mt-4">
+                            <Button onClick={() => router.visit(route('transactions.index'))} className="mt-4">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Transactions
                             </Button>
@@ -438,7 +438,7 @@ export default function TransactionEdit() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Button variant="outline" onClick={() => router.visit(`/transaction/${transaction.id}`)}>
+                        <Button variant="outline" onClick={() => router.visit(route('transactions.show', transaction.id))}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Transaction
                         </Button>

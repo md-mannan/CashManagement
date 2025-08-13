@@ -128,7 +128,7 @@ export default function ActivityLogs({ activityLogs, filters, statistics, topAct
 
     const handleViewLog = (log: ActivityLog) => {
         // Navigate to the detailed view of the log
-        router.visit(`/admin/activity-logs/${log.id}`);
+        router.visit(route('admin.activity-logs.show', log.id));
     };
 
     const getActionColor = (action: string) => {

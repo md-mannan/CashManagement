@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Events\NotificationSent;
+use App\Events\NotificationRead;
+use App\Events\NotificationDeleted;
 use Carbon\Carbon;
 
 class Notification extends Model
@@ -67,6 +70,9 @@ class Notification extends Model
     public function markAsRead()
     {
         $this->update(['read_at' => Carbon::now()]);
+
+        // Dispatch real-time notification read event
+        event(new NotificationRead($this));
     }
 
     /**
@@ -111,7 +117,7 @@ class Notification extends Model
         string $message,
         array $options = []
     ): self {
-        return self::create([
+        $notification = self::create([
             'user_id' => $userId,
             'type' => $type,
             'title' => $title,
@@ -121,6 +127,11 @@ class Notification extends Model
             'data' => $options['data'] ?? null,
             'is_important' => $options['is_important'] ?? false,
         ]);
+
+        // Dispatch real-time notification event
+        event(new NotificationSent($notification));
+
+        return $notification;
     }
 
     /**
@@ -135,5 +146,18 @@ class Notification extends Model
             'info' => 'blue',
             default => 'blue',
         };
+    }
+
+    /**
+     * Boot method to handle model events
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($notification) {
+            // Dispatch real-time notification deleted event
+            event(new NotificationDeleted($notification->id, $notification->user_id));
+        });
     }
 }

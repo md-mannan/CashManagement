@@ -139,7 +139,12 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                             )}
                         </div>
                         <div className="border-t border-border p-2">
-                            <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => router.visit('/admin/notifications')}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full text-xs"
+                                onClick={() => router.visit(route('admin.notifications.index'))}
+                            >
                                 View all notifications
                             </Button>
                         </div>

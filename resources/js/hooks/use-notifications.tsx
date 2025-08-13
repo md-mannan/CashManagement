@@ -1,4 +1,5 @@
 import { notificationService, type NotificationData } from '@/services/notificationService';
+import webSocketService from '@/services/websocketService';
 import { useCallback, useEffect, useState } from 'react';
 
 export function useNotifications() {
@@ -91,10 +92,68 @@ export function useNotifications() {
     useEffect(() => {
         fetchNotifications();
 
-        // Set up polling for unread count updates every 30 seconds
+        // Set up real-time WebSocket listeners with error handling
+        let userListener = null;
+        let adminListener = null;
+        let readListener = null;
+        let deleteListener = null;
+
+        try {
+            userListener = webSocketService.listenToUserNotifications(
+                (window as any).user?.id || 0,
+                (notification: NotificationData) => {
+                    // Add new notification to the list
+                    setNotifications((prev) => [notification, ...prev]);
+                    setUnreadCount((prev) => prev + 1);
+                }
+            );
+
+            adminListener = webSocketService.listenToAdminNotifications(
+                (notification: NotificationData) => {
+                    // Add new notification to the list
+                    setNotifications((prev) => [notification, ...prev]);
+                    setUnreadCount((prev) => prev + 1);
+                }
+            );
+
+            readListener = webSocketService.listenToNotificationRead(
+                (data: { id: number }) => {
+                    // Update notification read status
+                    setNotifications((prev) =>
+                        prev.map((notification) =>
+                            notification.id === data.id ? { ...notification, is_read: true } : notification
+                        )
+                    );
+                    setUnreadCount((prev) => Math.max(0, prev - 1));
+                }
+            );
+
+            deleteListener = webSocketService.listenToNotificationDeleted(
+                (data: { id: number }) => {
+                    // Remove deleted notification
+                    setNotifications((prev) => prev.filter((notification) => notification.id !== data.id));
+                    // Recalculate unread count
+                    fetchUnreadCount();
+                }
+            );
+        } catch (error) {
+            console.warn('WebSocket setup failed, falling back to polling:', error);
+            // Continue with polling fallback
+        }
+
+        // Set up polling for unread count updates every 30 seconds (fallback)
         const interval = setInterval(fetchUnreadCount, 30000);
 
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            // Clean up WebSocket listeners
+            if (userListener) userListener.stopListening('.notification.sent');
+            if (adminListener) adminListener.stopListening('.notification.sent');
+            if (readListener?.userChannel) readListener.userChannel.stopListening('.notification.read');
+            if (readListener?.adminChannel) readListener.adminChannel.stopListening('.notification.read');
+            if (deleteListener?.userChannel) deleteListener.userChannel.stopListening('.notification.deleted');
+            if (deleteListener?.adminChannel) deleteListener.adminChannel.stopListening('.notification.deleted');
+        };
     }, [fetchNotifications, fetchUnreadCount]);
 
     return {
