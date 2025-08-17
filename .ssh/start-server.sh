@@ -36,10 +36,27 @@ export PHP_MEMORY_LIMIT=256M
 
 echo "⚙️ Starting Laravel application..."
 
-# Start the Laravel server on port 80
-# Using nohup to run in background
-nohup sudo -u $ACTUAL_USER php -d memory_limit=256M artisan serve --host=0.0.0.0 --port=80 > /var/log/cashmanagement.log 2>&1 &
-SERVER_PID=$!
+# Try to start on port 80, fallback to 8080 if permission denied
+echo "🔍 Attempting to start on port 80..."
+if sudo -u $ACTUAL_USER php -d memory_limit=256M artisan serve --host=0.0.0.0 --port=80 --timeout=5 2>/dev/null &
+then
+    SERVER_PID=$!
+    sleep 2
+    if kill -0 $SERVER_PID 2>/dev/null; then
+        echo "✅ Server started successfully on port 80"
+        PORT=80
+    else
+        echo "⚠️ Port 80 failed, trying port 8080..."
+        nohup sudo -u $ACTUAL_USER php -d memory_limit=256M artisan serve --host=0.0.0.0 --port=8080 > /var/log/cashmanagement.log 2>&1 &
+        SERVER_PID=$!
+        PORT=8080
+    fi
+else
+    echo "⚠️ Port 80 permission denied, using port 8080..."
+    nohup sudo -u $ACTUAL_USER php -d memory_limit=256M artisan serve --host=0.0.0.0 --port=8080 > /var/log/cashmanagement.log 2>&1 &
+    SERVER_PID=$!
+    PORT=8080
+fi
 
 # Start queue worker (optional, for background jobs)
 echo "🔄 Starting queue worker..."
@@ -51,10 +68,16 @@ echo $SERVER_PID > /var/run/cashmanagement-server.pid
 echo $QUEUE_PID > /var/run/cashmanagement-queue.pid
 
 echo "✅ CashManagement started successfully!"
-echo "🌐 Server running on: http://141.144.235.74"
+echo "🌐 Server running on: http://141.144.235.74:$PORT"
 echo "📊 Server PID: $SERVER_PID"
 echo "🔄 Queue PID: $QUEUE_PID"
 echo "📝 Logs: /var/log/cashmanagement.log"
+echo ""
+if [ "$PORT" = "8080" ]; then
+    echo "⚠️ Note: Running on port 8080 due to port 80 permissions"
+    echo "   Access via: http://141.144.235.74:8080"
+    echo "   To use port 80, see README.md for setup instructions"
+fi
 echo ""
 echo "To stop the server, run: sudo bash .ssh/stop-server.sh"
 echo "To check status: sudo bash .ssh/status.sh"

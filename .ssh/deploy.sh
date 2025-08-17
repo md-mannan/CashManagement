@@ -25,6 +25,11 @@ echo "📋 Copying project files..."
 cp -r . $PROJECT_DIR/
 cd $PROJECT_DIR
 
+# Fix git ownership issue
+echo "🔧 Fixing git repository ownership..."
+git config --global --add safe.directory $PROJECT_DIR
+chown -R $ACTUAL_USER:www-data $PROJECT_DIR/.git
+
 # Set proper file permissions
 echo "🔐 Setting file permissions..."
 # Directories should be 755
@@ -51,10 +56,21 @@ if [ ! -f "$PROJECT_DIR/.env" ]; then
     chmod 644 $PROJECT_DIR/.env
 fi
 
+# Clean vendor directory if it exists and has permission issues
+if [ -d "$PROJECT_DIR/vendor" ]; then
+    echo "🧹 Cleaning existing vendor directory..."
+    rm -rf $PROJECT_DIR/vendor
+fi
+
 # Install PHP dependencies (Composer)
 echo "📦 Installing PHP dependencies..."
 if command -v composer &> /dev/null; then
-    sudo -u $ACTUAL_USER composer install --no-dev --optimize-autoloader
+    # Set proper ownership before composer install
+    chown -R $ACTUAL_USER:www-data $PROJECT_DIR
+    sudo -u $ACTUAL_USER composer install --no-dev --optimize-autoloader --no-interaction
+    # Fix permissions after composer install
+    chown -R $ACTUAL_USER:www-data $PROJECT_DIR/vendor
+    chmod -R 755 $PROJECT_DIR/vendor
 else
     echo "⚠️ Composer not found. Install it first:"
     echo "curl -sS https://getcomposer.org/installer | php"
@@ -67,8 +83,20 @@ sudo -u $ACTUAL_USER php artisan key:generate
 
 # Set up database (if SQLite)
 echo "🗄️ Setting up database..."
+# Ensure database directory has correct permissions
+mkdir -p $PROJECT_DIR/database
+chown -R $ACTUAL_USER:www-data $PROJECT_DIR/database
+chmod 775 $PROJECT_DIR/database
+
 if [ ! -f "$PROJECT_DIR/database/database.sqlite" ]; then
+    echo "📄 Creating SQLite database file..."
     sudo -u $ACTUAL_USER touch $PROJECT_DIR/database/database.sqlite
+    chmod 664 $PROJECT_DIR/database/database.sqlite
+    chown $ACTUAL_USER:www-data $PROJECT_DIR/database/database.sqlite
+    echo "✅ Database file created successfully"
+else
+    echo "✅ Database file already exists"
+    # Fix permissions if file exists
     chmod 664 $PROJECT_DIR/database/database.sqlite
     chown $ACTUAL_USER:www-data $PROJECT_DIR/database/database.sqlite
 fi

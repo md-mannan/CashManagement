@@ -11,11 +11,14 @@ if [ -f "/var/run/cashmanagement-server.pid" ]; then
     if kill -0 $SERVER_PID 2>/dev/null; then
         echo "🟢 Server: RUNNING (PID: $SERVER_PID)"
         
-        # Check if port 80 is listening
+        # Check which port is listening
         if netstat -tuln | grep -q ":80 "; then
             echo "🌐 Port 80: LISTENING"
+        elif netstat -tuln | grep -q ":8080 "; then
+            echo "🌐 Port 8080: LISTENING"
+            echo "ℹ️  Access via: http://141.144.235.74:8080"
         else
-            echo "🔴 Port 80: NOT LISTENING"
+            echo "🔴 No web ports listening"
         fi
     else
         echo "🔴 Server: NOT RUNNING"
@@ -63,4 +66,11 @@ echo "🔍 Active PHP Processes:"
 ps aux | grep php | grep -v grep || echo "No PHP processes found"
 
 echo ""
-echo "🌐 Access your app at: http://141.144.235.74"
+echo "🌐 Access your app at:"
+if netstat -tuln | grep -q ":80 "; then
+    echo "   http://141.144.235.74"
+elif netstat -tuln | grep -q ":8080 "; then
+    echo "   http://141.144.235.74:8080"
+else
+    echo "   Server not running or no ports listening"
+fi
