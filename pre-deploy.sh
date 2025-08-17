@@ -123,6 +123,7 @@ create_package() {
         --exclude="$BUILD_DIR" \
         --exclude='pre-deploy.sh' \
         --exclude='docker-deploy.sh' \
+        --exclude='create-zip.sh' \
         --exclude='.phpunit.result.cache' \
         --exclude='phpunit.xml' \
         --exclude='vite.config.js' \
@@ -236,7 +237,10 @@ create_archive() {
             if ! command -v zip &> /dev/null; then
                 error "ZIP command not found. Install with: sudo apt-get install zip"
             fi
-            zip -r "$zip_name" "$BUILD_DIR"/* -x "*.git*" "*.DS_Store*" > /dev/null
+            # Create ZIP with files directly in root (no nested folder)
+            cd "$BUILD_DIR"
+            zip -r "../$zip_name" . -x "*.git*" "*.DS_Store*" > /dev/null
+            cd "$CURRENT_DIR"
             local zip_size=$(du -h "$zip_name" | cut -f1)
             log "ZIP archive created: $zip_name (Size: $zip_size)"
             created_files+=("$zip_name")
@@ -253,7 +257,9 @@ create_archive() {
             
             # Create ZIP
             if command -v zip &> /dev/null; then
-                zip -r "$zip_name" "$BUILD_DIR"/* -x "*.git*" "*.DS_Store*" > /dev/null
+                cd "$BUILD_DIR"
+                zip -r "../$zip_name" . -x "*.git*" "*.DS_Store*" > /dev/null
+                cd "$CURRENT_DIR"
                 local zip_size=$(du -h "$zip_name" | cut -f1)
                 log "ZIP archive created: $zip_name (Size: $zip_size)"
                 created_files+=("$zip_name")
@@ -294,16 +300,18 @@ create_archive() {
     if [[ " ${created_files[@]} " =~ " $zip_name " ]]; then
         echo -e "${BLUE}For ZIP file:${NC}"
         echo "1. Upload $zip_name to your server"
-        echo "2. Extract: sudo unzip $zip_name -d /var/www/html/cashmanagement"
-        echo "3. Run: cd /var/www/html/cashmanagement && sudo chmod +x deploy.sh && sudo ./deploy.sh"
+        echo "2. Create directory: sudo mkdir -p /var/www/html/cashmanagement"
+        echo "3. Extract: sudo unzip $zip_name -d /var/www/html/cashmanagement"
+        echo "4. Run: cd /var/www/html/cashmanagement && sudo chmod +x deploy.sh && sudo ./deploy.sh"
         echo
     fi
     
     if [[ " ${created_files[@]} " =~ " $tar_name " ]]; then
         echo -e "${BLUE}For TAR.GZ file:${NC}"
         echo "1. Upload $tar_name to your server"
-        echo "2. Extract: sudo tar -xzf $tar_name -C /var/www/html/cashmanagement"
-        echo "3. Run: cd /var/www/html/cashmanagement && sudo chmod +x deploy.sh && sudo ./deploy.sh"
+        echo "2. Create directory: sudo mkdir -p /var/www/html/cashmanagement"
+        echo "3. Extract: sudo tar -xzf $tar_name -C /var/www/html/cashmanagement"
+        echo "4. Run: cd /var/www/html/cashmanagement && sudo chmod +x deploy.sh && sudo ./deploy.sh"
         echo
     fi
     

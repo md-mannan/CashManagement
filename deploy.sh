@@ -147,27 +147,26 @@ check_dependencies() {
     log "All dependencies are satisfied."
 }
 
-# Create database if it doesn't exist
+# Database setup (manual - just inform user)
 setup_database() {
-    log "Setting up database..."
+    log "Database setup information..."
     
-    read -p "Enter MySQL root password: " -s mysql_root_pass
     echo
-    read -p "Enter database username (will be created if doesn't exist): " db_user
-    read -p "Enter database password: " -s db_pass
+    echo -e "${YELLOW}Manual Database Setup Required:${NC}"
+    echo "1. Create MySQL database: ${DB_NAME}"
+    echo "2. Create MySQL user with appropriate permissions"
+    echo "3. Update database credentials in .env file"
     echo
-    read -p "Enter database host (default: localhost): " db_host
-    db_host=${db_host:-localhost}
+    echo -e "${BLUE}Example MySQL commands:${NC}"
+    echo "mysql -u root -p"
+    echo "CREATE DATABASE ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    echo "CREATE USER 'cashmanagement_user'@'localhost' IDENTIFIED BY 'your_password';"
+    echo "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO 'cashmanagement_user'@'localhost';"
+    echo "FLUSH PRIVILEGES;"
+    echo "EXIT;"
+    echo
     
-    # Create database and user
-    mysql -u root -p${mysql_root_pass} -h ${db_host} -e "
-        CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-        CREATE USER IF NOT EXISTS '${db_user}'@'${db_host}' IDENTIFIED BY '${db_pass}';
-        GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${db_user}'@'${db_host}';
-        FLUSH PRIVILEGES;
-    " || error "Failed to setup database"
-    
-    log "Database setup completed."
+    log "Database setup information provided."
 }
 
 # Backup existing installation
@@ -209,23 +208,45 @@ deploy_files() {
 configure_environment() {
     log "Configuring environment..."
     
-    # Generate app key if .env doesn't exist
+    # Create .env file if it doesn't exist
     if [ ! -f "$APP_DIR/.env" ]; then
-        sudo cp "$APP_DIR/.env.example" "$APP_DIR/.env"
+        if [ -f "$APP_DIR/.env.example" ]; then
+            sudo cp "$APP_DIR/.env.example" "$APP_DIR/.env"
+            log "Created .env file from .env.example"
+        else
+            # Create basic .env file if .env.example doesn't exist
+            sudo tee "$APP_DIR/.env" > /dev/null <<EOF
+APP_NAME="CashManagement"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL=http://localhost/cashmanagement
+
+LOG_CHANNEL=stack
+LOG_LEVEL=error
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=cashmanagement_db
+DB_USERNAME=cashmanagement_user
+DB_PASSWORD=
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+EOF
+            log "Created basic .env file"
+        fi
         
         # Generate application key
         cd "$APP_DIR"
         sudo php artisan key:generate --force
         cd "$CURRENT_DIR"
     fi
-    
-    # Update .env file with database credentials
-    sudo sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=mysql/" "$APP_DIR/.env"
-    sudo sed -i "s/DB_HOST=.*/DB_HOST=${db_host}/" "$APP_DIR/.env"
-    sudo sed -i "s/DB_PORT=.*/DB_PORT=3306/" "$APP_DIR/.env"
-    sudo sed -i "s/DB_DATABASE=.*/DB_DATABASE=${DB_NAME}/" "$APP_DIR/.env"
-    sudo sed -i "s/DB_USERNAME=.*/DB_USERNAME=${db_user}/" "$APP_DIR/.env"
-    sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${db_pass}/" "$APP_DIR/.env"
     
     # Set APP_URL for subdirectory
     local server_ip=$(curl -s ifconfig.me || echo "YOUR_SERVER_IP")
@@ -236,6 +257,7 @@ configure_environment() {
     sudo sed -i "s/APP_DEBUG=.*/APP_DEBUG=false/" "$APP_DIR/.env"
     
     log "Environment configured."
+    warn "Please manually configure your database settings in $APP_DIR/.env"
 }
 
 # Set proper permissions
