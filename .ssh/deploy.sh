@@ -130,6 +130,28 @@ else
     chown $ACTUAL_USER:www-data $PROJECT_DIR/database/database.sqlite
 fi
 
+# Check if build assets exist
+echo "🔍 Checking build assets..."
+if [ ! -f "$PROJECT_DIR/public/build/.vite/manifest.json" ]; then
+    echo "❌ Vite build assets not found!"
+    echo "⚠️ You need to build assets locally and commit them to git"
+    echo ""
+    echo "📋 On your local machine, run:"
+    echo "   npm install"
+    echo "   npm run build"
+    echo "   git add public/build/"
+    echo "   git commit -m 'Add built assets'"
+    echo "   git push origin client"
+    echo ""
+    echo "🔧 Or use the optimize script:"
+    echo "   bash .ssh/optimize-for-cloud.sh"
+    echo ""
+    echo "⏸️ Deployment paused. Please build assets first."
+    exit 1
+else
+    echo "✅ Build assets found"
+fi
+
 # Run migrations
 sudo -u $ACTUAL_USER php artisan migrate --force
 
