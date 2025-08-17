@@ -34,7 +34,7 @@ export default defineConfig({
                 assetFileNames: 'assets/[name].[ext]',
             },
         },
-        cssCodeSplit: false,
+        cssCodeSplit: true,
         outDir: 'public/build',
         assetsDir: 'assets',
         manifest: true,

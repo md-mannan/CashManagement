@@ -508,6 +508,9 @@
       "resources/js/pages/transactions/add-income.tsx",
       "resources/js/pages/transactions/add-payable.tsx",
       "resources/js/pages/transactions/add-receivable.tsx"
+    ],
+    "css": [
+      "assets/app.css"
     ]
   },
   "resources/js/pages/add-transaction.tsx": {
@@ -1519,9 +1522,5 @@
       "_app-logo-icon.js",
       "_user.js"
     ]
-  },
-  "style.css": {
-    "file": "assets/style.css",
-    "src": "style.css"
   }
 }
