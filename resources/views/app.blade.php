@@ -61,7 +61,7 @@
 
         @routes
         @viteReactRefresh
-        @vite(['resources/js/app.tsx', 'resources/css/app.css'])
+        @vite(['resources/js/app.tsx'])
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
