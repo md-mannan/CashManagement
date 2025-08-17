@@ -84,6 +84,11 @@ sudo bash .ssh/stop-server.sh
 sudo bash .ssh/status.sh
 ```
 
+### Complete Redeploy (if issues)
+```bash
+sudo bash .ssh/cleanup-and-redeploy.sh
+```
+
 ### View Logs
 ```bash
 # Server logs
@@ -203,9 +208,9 @@ sudo chown -R $USER:www-data /var/www/cashmanagement/database
 sudo chmod 775 /var/www/cashmanagement/database
 ```
 
-**4. Complete Permission Reset (Nuclear Option):**
+**4. Complete Reset (Nuclear Option):**
 ```bash
-# Use this when multiple permission issues exist
+# Use this when multiple issues exist
 sudo bash .ssh/cleanup-and-redeploy.sh
 ```
 
@@ -237,9 +242,8 @@ sudo bash .ssh/start-server.sh
 
 **Missing .env file:**
 ```bash
-# Create .env file manually
-sudo bash .ssh/create-env.sh
-sudo php artisan key:generate
+# Redeploy to create .env automatically
+sudo bash .ssh/deploy.sh
 ```
 
 **Database not configured:**
