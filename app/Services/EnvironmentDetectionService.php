@@ -495,7 +495,7 @@ class EnvironmentDetectionService
     protected function getEnvironmentDescription(string $environmentType): string
     {
         $descriptions = [
-            'local' => 'Local development environment with full debugging capabilities',
+            'local' => 'Local development environment with MySQL database and full debugging capabilities',
             'shared_hosting' => 'Shared hosting with Reverb WebSocket support and database optimization',
             'vps' => 'Virtual Private Server with full Reverb control and background process support',
             'cloud' => 'Cloud hosting platform with Reverb WebSockets and managed services'

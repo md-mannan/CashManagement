@@ -27,12 +27,7 @@ return [
                     'log_level' => 'debug',
                 ],
                 'database' => [
-                    'default' => 'sqlite',
-                    'connections' => [
-                        'sqlite' => [
-                            'database' => database_path('database.sqlite'),
-                        ],
-                    ],
+                    'default' => 'mysql',
                 ],
                 'broadcasting' => [
                     'default' => 'reverb',

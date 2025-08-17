@@ -184,8 +184,12 @@ class EnvironmentConfigCommand extends Command
         $dbDefault = $config['database']['default'] ?? 'mysql';
         $content[] = "DB_CONNECTION={$dbDefault}";
         
-        if ($dbDefault === 'sqlite') {
-            $content[] = "DB_DATABASE=" . database_path('database.sqlite');
+        if ($environmentType === 'local') {
+            $content[] = "DB_HOST=127.0.0.1";
+            $content[] = "DB_PORT=3306";
+            $content[] = "DB_DATABASE=cashmanagement_local";
+            $content[] = "DB_USERNAME=root";
+            $content[] = "DB_PASSWORD=";
         } else {
             $content[] = "DB_HOST=127.0.0.1";
             $content[] = "DB_PORT=3306";

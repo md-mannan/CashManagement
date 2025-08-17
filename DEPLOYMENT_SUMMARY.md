@@ -76,7 +76,7 @@ composer install --no-dev --optimize-autoloader
 The system automatically detects and optimizes for:
 
 - **Local Development** (`localhost`, `.local`, `.test`)
-  - SQLite database, file cache, Reverb WebSockets, debug enabled
+  - MySQL database, file cache, Reverb WebSockets, debug enabled
 
 - **Shared Hosting** (cPanel, Plesk, DirectAdmin)
   - MySQL database, Reverb WebSockets (optimized), database cache/sessions
@@ -88,7 +88,7 @@ The system automatically detects and optimizes for:
   - Managed services, Reverb WebSockets, cloud queues (SQS)
 
 ### **🔧 Smart Configuration**
-- **Database**: Auto-selects best option (SQLite for local, MySQL for production)
+- **Database**: MySQL for all environments (consistency between local and production)
 - **WebSockets**: Uses Reverb for all environments with optimized settings
 - **Caching**: Redis for performance, database for compatibility
 - **Queues**: Adapts to hosting limitations
@@ -179,8 +179,14 @@ QUEUE_CONNECTION=redis
 ### **Local Development**
 ```env
 # Automatically configured
-DB_CONNECTION=sqlite
+DB_CONNECTION=mysql
+DB_DATABASE=cashmanagement_local
+DB_USERNAME=root
+DB_PASSWORD=
 BROADCAST_CONNECTION=reverb
+REVERB_HOST="localhost"
+REVERB_PORT=8080
+REVERB_SCHEME=http
 CACHE_STORE=file
 SESSION_DRIVER=file
 QUEUE_CONNECTION=sync

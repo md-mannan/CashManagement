@@ -99,7 +99,8 @@ class EnvironmentDetectCommand extends Command
         $tips = [
             'local' => [
                 'Use `php artisan serve` for development server',
-                'SQLite database is configured for easy setup',
+                'MySQL database is configured for local development',
+                'Create database: CREATE DATABASE cashmanagement_local;',
                 'Reverb WebSockets are enabled for real-time features',
                 'Debug mode is enabled - don\'t use in production!'
             ],
