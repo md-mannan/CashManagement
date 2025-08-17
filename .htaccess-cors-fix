@@ -1,0 +1,73 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# CORS Headers - Specifically for your domain
+<IfModule mod_headers.c>
+    # Set CORS headers for your specific domain
+    Header always set Access-Control-Allow-Origin "https://accounts.mannnan.space"
+    
+    # Allow all necessary headers for Vite/React
+    Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-CSRF-TOKEN, X-Socket-ID, Cache-Control, Pragma"
+    
+    # Allow all HTTP methods
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
+    
+    # Allow credentials
+    Header always set Access-Control-Allow-Credentials "true"
+    
+    # Set max age for preflight requests
+    Header always set Access-Control-Max-Age "86400"
+    
+    # Handle preflight OPTIONS requests immediately
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ - [R=200,L,E=HTTP_ORIGIN:%{HTTP:Origin}]
+</IfModule>
+
+# Special handling for build assets
+<Directory "build">
+    <IfModule mod_headers.c>
+        # Allow cross-origin requests for all build assets
+        Header always set Access-Control-Allow-Origin "*"
+        Header always set Access-Control-Allow-Methods "GET, OPTIONS"
+        Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept"
+        
+        # Cache build assets aggressively
+        <FilesMatch "\.(js|css|map|json)$">
+            Header set Cache-Control "public, max-age=31536000, immutable"
+        </FilesMatch>
+    </IfModule>
+</Directory>
+
+# Specific handling for Vite manifest and assets
+<FilesMatch "manifest\.json$">
+    <IfModule mod_headers.c>
+        Header always set Access-Control-Allow-Origin "*"
+        Header always set Content-Type "application/json"
+    </IfModule>
+</FilesMatch>
+
+<FilesMatch "build/assets/.*\.(js|css)$">
+    <IfModule mod_headers.c>
+        Header always set Access-Control-Allow-Origin "*"
+        Header always set Access-Control-Allow-Methods "GET"
+    </IfModule>
+</FilesMatch>
