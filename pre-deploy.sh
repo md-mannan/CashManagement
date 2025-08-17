@@ -213,34 +213,101 @@ EOF
     log "Deployment package created in $BUILD_DIR"
 }
 
-# Create compressed archive
+# Create compressed archive with user choice
 create_archive() {
     log "Creating compressed archive..."
     
-    local archive_name="${APP_NAME}_production_$(date +%Y%m%d_%H%M%S).tar.gz"
+    echo
+    echo -e "${BLUE}Choose compression format:${NC}"
+    echo "1) ZIP (.zip) - Easy to handle, widely supported"
+    echo "2) TAR.GZ (.tar.gz) - Standard Linux format, smaller size"
+    echo "3) Both formats"
+    echo
+    read -p "Select option (1-3): " compress_choice
     
-    tar -czf "$archive_name" -C "$BUILD_DIR" .
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local zip_name="${APP_NAME}_production_${timestamp}.zip"
+    local tar_name="${APP_NAME}_production_${timestamp}.tar.gz"
+    local created_files=()
     
-    # Get archive size
-    local size=$(du -h "$archive_name" | cut -f1)
-    
-    log "Archive created: $archive_name (Size: $size)"
+    case $compress_choice in
+        1)
+            log "Creating ZIP archive..."
+            if ! command -v zip &> /dev/null; then
+                error "ZIP command not found. Install with: sudo apt-get install zip"
+            fi
+            zip -r "$zip_name" "$BUILD_DIR"/* -x "*.git*" "*.DS_Store*" > /dev/null
+            local zip_size=$(du -h "$zip_name" | cut -f1)
+            log "ZIP archive created: $zip_name (Size: $zip_size)"
+            created_files+=("$zip_name")
+            ;;
+        2)
+            log "Creating TAR.GZ archive..."
+            tar -czf "$tar_name" -C "$BUILD_DIR" .
+            local tar_size=$(du -h "$tar_name" | cut -f1)
+            log "TAR.GZ archive created: $tar_name (Size: $tar_size)"
+            created_files+=("$tar_name")
+            ;;
+        3)
+            log "Creating both ZIP and TAR.GZ archives..."
+            
+            # Create ZIP
+            if command -v zip &> /dev/null; then
+                zip -r "$zip_name" "$BUILD_DIR"/* -x "*.git*" "*.DS_Store*" > /dev/null
+                local zip_size=$(du -h "$zip_name" | cut -f1)
+                log "ZIP archive created: $zip_name (Size: $zip_size)"
+                created_files+=("$zip_name")
+            else
+                warn "ZIP command not found. Skipping ZIP creation."
+            fi
+            
+            # Create TAR.GZ
+            tar -czf "$tar_name" -C "$BUILD_DIR" .
+            local tar_size=$(du -h "$tar_name" | cut -f1)
+            log "TAR.GZ archive created: $tar_name (Size: $tar_size)"
+            created_files+=("$tar_name")
+            ;;
+        *)
+            warn "Invalid choice. Creating TAR.GZ by default..."
+            tar -czf "$tar_name" -C "$BUILD_DIR" .
+            local tar_size=$(du -h "$tar_name" | cut -f1)
+            log "TAR.GZ archive created: $tar_name (Size: $tar_size)"
+            created_files+=("$tar_name")
+            ;;
+    esac
     
     # Clean up build directory
     rm -rf "$BUILD_DIR"
     
     echo
     echo -e "${BLUE}=== Pre-deployment Summary ===${NC}"
-    echo -e "Archive: ${GREEN}$archive_name${NC}"
-    echo -e "Size: ${GREEN}$size${NC}"
+    
+    for file in "${created_files[@]}"; do
+        local size=$(du -h "$file" | cut -f1)
+        local ext="${file##*.}"
+        echo -e "Created: ${GREEN}$file${NC} (Size: ${GREEN}$size${NC})"
+    done
+    
     echo
     echo -e "${YELLOW}Next Steps:${NC}"
-    echo "1. Upload $archive_name to your server"
-    echo "2. Extract: tar -xzf $archive_name -C /var/www/html/cashmanagement"
-    echo "3. Run: chmod +x deploy.sh && ./deploy.sh"
-    echo "4. Or use the deployment script on your server"
-    echo
-    echo -e "${GREEN}Production build completed!${NC}"
+    
+    if [[ " ${created_files[@]} " =~ " $zip_name " ]]; then
+        echo -e "${BLUE}For ZIP file:${NC}"
+        echo "1. Upload $zip_name to your server"
+        echo "2. Extract: sudo unzip $zip_name -d /var/www/html/cashmanagement"
+        echo "3. Run: cd /var/www/html/cashmanagement && sudo chmod +x deploy.sh && sudo ./deploy.sh"
+        echo
+    fi
+    
+    if [[ " ${created_files[@]} " =~ " $tar_name " ]]; then
+        echo -e "${BLUE}For TAR.GZ file:${NC}"
+        echo "1. Upload $tar_name to your server"
+        echo "2. Extract: sudo tar -xzf $tar_name -C /var/www/html/cashmanagement"
+        echo "3. Run: cd /var/www/html/cashmanagement && sudo chmod +x deploy.sh && sudo ./deploy.sh"
+        echo
+    fi
+    
+    echo -e "${GREEN}Production build completed! 🚀${NC}"
 }
 
 # Generate deployment instructions
