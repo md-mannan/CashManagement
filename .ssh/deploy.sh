@@ -150,6 +150,15 @@ if [ ! -f "$PROJECT_DIR/public/build/.vite/manifest.json" ]; then
     exit 1
 else
     echo "✅ Build assets found"
+    
+    # Copy .vite/manifest.json to manifest.json for Laravel compatibility
+    if [ -f "$PROJECT_DIR/public/build/.vite/manifest.json" ] && [ ! -f "$PROJECT_DIR/public/build/manifest.json" ]; then
+        echo "📋 Copying Vite manifest for Laravel compatibility..."
+        cp "$PROJECT_DIR/public/build/.vite/manifest.json" "$PROJECT_DIR/public/build/manifest.json"
+        chown $ACTUAL_USER:www-data "$PROJECT_DIR/public/build/manifest.json"
+        chmod 644 "$PROJECT_DIR/public/build/manifest.json"
+        echo "✅ Manifest copied successfully"
+    fi
 fi
 
 # Run migrations
