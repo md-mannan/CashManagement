@@ -12,6 +12,8 @@
    ```bash
    sudo bash .ssh/deploy.sh
    ```
+   
+   **Note:** If you don't have a `.env.example` file, the script will automatically create a production `.env` file for you.
 
 3. **Start the server:**
    ```bash
@@ -232,6 +234,25 @@ sudo bash .ssh/start-server.sh
 ```
 
 ### Database Issues
+
+**Missing .env file:**
+```bash
+# Create .env file manually
+sudo bash .ssh/create-env.sh
+sudo php artisan key:generate
+```
+
+**Database not configured:**
+```bash
+# Check .env database settings
+cat /var/www/cashmanagement/.env | grep DB_
+
+# Should show:
+# DB_CONNECTION=sqlite
+# DB_DATABASE=/var/www/cashmanagement/database/database.sqlite
+```
+
+**Reset database:**
 ```bash
 # Reset database
 php artisan migrate:fresh --seed

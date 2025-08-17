@@ -48,12 +48,41 @@ chmod -R 775 $PROJECT_DIR/bootstrap/cache
 chown -R $ACTUAL_USER:www-data $PROJECT_DIR/storage
 chown -R $ACTUAL_USER:www-data $PROJECT_DIR/bootstrap/cache
 
-# Create .env from example if not exists
+# Create .env file if not exists
 if [ ! -f "$PROJECT_DIR/.env" ]; then
-    echo "⚙️ Creating .env file..."
-    cp $PROJECT_DIR/.env.example $PROJECT_DIR/.env
+    echo "⚙️ Creating production .env file..."
+    
+    # Check if .env.example exists, if not create .env directly
+    if [ -f "$PROJECT_DIR/.env.example" ]; then
+        cp $PROJECT_DIR/.env.example $PROJECT_DIR/.env
+    else
+        echo "📄 No .env.example found, creating .env directly..."
+        bash $PROJECT_DIR/.ssh/create-env.sh
+        return 0
+    fi
+    
+    # Configure database for production
+    echo "🗄️ Configuring database settings..."
+    sed -i "s|DB_CONNECTION=.*|DB_CONNECTION=sqlite|g" $PROJECT_DIR/.env
+    sed -i "s|DB_DATABASE=.*|DB_DATABASE=$PROJECT_DIR/database/database.sqlite|g" $PROJECT_DIR/.env
+    
+    # Set production environment
+    sed -i "s|APP_ENV=.*|APP_ENV=production|g" $PROJECT_DIR/.env
+    sed -i "s|APP_DEBUG=.*|APP_DEBUG=false|g" $PROJECT_DIR/.env
+    sed -i "s|APP_URL=.*|APP_URL=http://141.144.235.74|g" $PROJECT_DIR/.env
+    
+    # Set proper ownership and permissions
     chown $ACTUAL_USER:www-data $PROJECT_DIR/.env
     chmod 644 $PROJECT_DIR/.env
+    
+    echo "✅ .env configured for production with SQLite database"
+else
+    echo "✅ .env file already exists"
+    # Update database path if it's not set correctly
+    if ! grep -q "DB_DATABASE=$PROJECT_DIR/database/database.sqlite" $PROJECT_DIR/.env; then
+        echo "🔧 Updating database path in existing .env..."
+        sed -i "s|DB_DATABASE=.*|DB_DATABASE=$PROJECT_DIR/database/database.sqlite|g" $PROJECT_DIR/.env
+    fi
 fi
 
 # Clean vendor directory if it exists and has permission issues

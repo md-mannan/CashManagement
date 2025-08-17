@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# Create Production .env File for CashManagement
+# This script creates a properly configured .env file for production
+
+echo "⚙️ Creating production .env file..."
+
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then
+    echo "❌ This script needs to run as root"
+    echo "Run: sudo bash .ssh/create-env.sh"
+    exit 1
+fi
+
+# Get actual user
+ACTUAL_USER=${SUDO_USER:-$USER}
+PROJECT_DIR="/var/www/cashmanagement"
+
+# Create .env file with production settings
+cat > $PROJECT_DIR/.env << 'EOF'
+APP_NAME="CashManagement"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_TIMEZONE=UTC
+APP_URL=http://141.144.235.74
+
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=en_US
+
+APP_MAINTENANCE_DRIVER=file
+APP_MAINTENANCE_STORE=database
+
+BCRYPT_ROUNDS=12
+
+LOG_CHANNEL=single
+LOG_STACK=single
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=error
+
+DB_CONNECTION=sqlite
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=/var/www/cashmanagement/database/database.sqlite
+DB_USERNAME=
+DB_PASSWORD=
+
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=null
+
+BROADCAST_CONNECTION=log
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=database
+
+CACHE_STORE=file
+CACHE_PREFIX=
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=log
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+VITE_APP_NAME="${APP_NAME}"
+EOF
+
+# Set proper permissions
+chown $ACTUAL_USER:www-data $PROJECT_DIR/.env
+chmod 644 $PROJECT_DIR/.env
+
+echo "✅ Production .env file created successfully!"
+echo "📍 Location: $PROJECT_DIR/.env"
+echo "🗄️ Database: SQLite at $PROJECT_DIR/database/database.sqlite"
+echo ""
+echo "🔑 Next step: Generate application key"
+echo "   cd $PROJECT_DIR && php artisan key:generate"
