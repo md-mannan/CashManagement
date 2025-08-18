@@ -59,10 +59,24 @@ class TransactionController extends Controller
             $query->where('user_id', $request->user_id);
         }
 
+        // Get all transactions for summary calculation (without pagination)
+        $allTransactions = $query->get();
+        
+        // Calculate summary data from all transactions
+        $summary = [
+            'total_income' => $allTransactions->where('type', 'income')->sum('amount'),
+            'total_expenses' => $allTransactions->where('type', 'expense')->sum('amount'),
+            'total_receivables' => $allTransactions->where('type', 'receivable')->sum('amount'),
+            'total_payables' => $allTransactions->where('type', 'payable')->sum('amount'),
+            'net_balance' => ($allTransactions->where('type', 'income')->sum('amount') - $allTransactions->where('type', 'expense')->sum('amount')) + ($allTransactions->where('type', 'receivable')->sum('amount') - $allTransactions->where('type', 'payable')->sum('amount')),
+        ];
+
+        // Get paginated transactions for the table
         $transactions = $query->paginate(10);
 
         return Inertia::render('transaction', [
             'transactions' => $transactions,
+            'summary' => $summary,
             'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id', 'user_id']),
             'isAdmin' => $user->isAdmin(),
         ]);
@@ -114,7 +128,7 @@ class TransactionController extends Controller
             'total_expenses' => $transactions->where('type', 'expense')->sum('amount'),
             'total_receivables' => $transactions->where('type', 'receivable')->sum('amount'),
             'total_payables' => $transactions->where('type', 'payable')->sum('amount'),
-            'net_balance' => ($transactions->where('type', 'income')->sum('amount') + $transactions->where('type', 'receivable')->sum('amount')) - ($transactions->where('type', 'expense')->sum('amount') + $transactions->where('type', 'payable')->sum('amount')),
+            'net_balance' => ($transactions->where('type', 'income')->sum('amount') - $transactions->where('type', 'expense')->sum('amount')) + ($transactions->where('type', 'receivable')->sum('amount') - $transactions->where('type', 'payable')->sum('amount')),
         ];
 
         return Inertia::render('ledger', [
@@ -170,14 +184,16 @@ class TransactionController extends Controller
         // Create notification for transaction creation
         $this->createTransactionNotification($transaction, 'created');
 
-        // Notify admins about the transaction creation
-        AdminNotificationService::notifyTransactionAction(
-            'created',
-            Auth::user()->name,
-            $transaction->type,
-            $transaction->amount,
-            $transaction->currency
-        );
+        // Notify admins about the transaction creation (but not if the user is already an admin)
+        if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
+            AdminNotificationService::notifyTransactionAction(
+                'created',
+                Auth::user()->name,
+                $transaction->type,
+                $transaction->amount,
+                $transaction->currency
+            );
+        }
 
         // Redirect to transaction list with success message
         return to_route('transaction')->with('success', 'Transaction created successfully.');
@@ -228,7 +244,7 @@ class TransactionController extends Controller
             default => 'blue',
         };
 
-        Notification::createForUser(
+        $notification = Notification::createForUser(
             $user->id,
             'success',
             $title,
@@ -242,8 +258,14 @@ class TransactionController extends Controller
                     'type' => $transaction->type,
                     'amount' => $transaction->amount,
                 ],
+                'is_important' => false,
             ]
         );
+
+        // Auto-mark transaction notifications as read after 30 seconds to reduce notification clutter
+        dispatch(function() use ($notification) {
+            $notification->markAsRead();
+        })->delay(now()->addSeconds(30));
     }
 
     /**
@@ -380,14 +402,16 @@ class TransactionController extends Controller
         // Create notification for transaction update
         $this->createTransactionNotification($transaction, 'updated');
 
-        // Notify admins about the transaction update
-        AdminNotificationService::notifyTransactionAction(
-            'updated',
-            Auth::user()->name,
-            $transaction->type,
-            $transaction->amount,
-            $transaction->currency
-        );
+        // Notify admins about the transaction update (but not if the user is already an admin)
+        if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
+            AdminNotificationService::notifyTransactionAction(
+                'updated',
+                Auth::user()->name,
+                $transaction->type,
+                $transaction->amount,
+                $transaction->currency
+            );
+        }
 
         // Redirect to transaction list with success message
         return to_route('transaction')->with('success', 'Transaction updated successfully.');
@@ -432,16 +456,66 @@ class TransactionController extends Controller
 
         $transaction->delete();
 
-        // Notify admins about the transaction deletion
-        AdminNotificationService::notifyTransactionAction(
-            'deleted',
-            Auth::user()->name,
-            $transactionInfo['type'],
-            $transactionInfo['amount'],
-            $transactionInfo['currency']
-        );
+        // Notify admins about the transaction deletion (but not if the user is already an admin)
+        if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
+            AdminNotificationService::notifyTransactionAction(
+                'deleted',
+                Auth::user()->name,
+                $transactionInfo['type'],
+                $transactionInfo['amount'],
+                $transactionInfo['currency']
+            );
+        }
 
         // Return success response for Inertia (frontend will handle any redirect)
         return back()->with('success', 'Transaction deleted successfully.');
+    }
+
+    /**
+     * Show the form for creating a new income transaction.
+     */
+    public function addIncome()
+    {
+        $categories = Category::active()->ofType('income')->orderBy('name')->get();
+
+        return Inertia::render('transactions/add-income', [
+            'categories' => $categories,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new expense transaction.
+     */
+    public function addExpense()
+    {
+        $categories = Category::active()->ofType('expense')->orderBy('name')->get();
+
+        return Inertia::render('transactions/add-expense', [
+            'categories' => $categories,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new receivable transaction.
+     */
+    public function addReceivable()
+    {
+        $categories = Category::active()->ofType('receivable')->orderBy('name')->get();
+
+        return Inertia::render('transactions/add-receivable', [
+            'categories' => $categories,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new payable transaction.
+     */
+    public function addPayable()
+    {
+        $categories = Category::active()->ofType('payable')->orderBy('name')->get();
+
+        return Inertia::render('transactions/add-payable', [
+            'categories' => $categories,
+        ]);
     }
 }

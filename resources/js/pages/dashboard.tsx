@@ -454,7 +454,7 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-semibold tracking-tight">Financial Summary</h2>
-                            <p className="text-sm text-muted-foreground">Overview of your current financial position</p>
+                            <p className="text-sm text-muted-foreground">Overview of your overall financial position (all transactions)</p>
                         </div>
                     </div>
 
@@ -483,10 +483,8 @@ export default function Dashboard() {
                                                 typeof currentSummary.secondary_amounts.total_receivables === 'number' &&
                                                 typeof currentSummary.secondary_amounts.total_expenses === 'number' &&
                                                 typeof currentSummary.secondary_amounts.total_payables === 'number'
-                                                ? currentSummary.secondary_amounts.total_income +
-                                                      currentSummary.secondary_amounts.total_receivables -
-                                                      (currentSummary.secondary_amounts.total_expenses +
-                                                          currentSummary.secondary_amounts.total_payables)
+                                                ? (currentSummary.secondary_amounts.total_income - currentSummary.secondary_amounts.total_expenses) +
+                                                  (currentSummary.secondary_amounts.total_receivables - currentSummary.secondary_amounts.total_payables)
                                                 : convertAmount(financialSummary.balance, secondaryCurrency),
                                             secondaryCurrency,
                                         )}
@@ -581,49 +579,10 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
 
-                        {/* Payable Card */}
-                        <Card
-                            className={`border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                            style={{ animationDelay: '400ms' }}
-                        >
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-orange-800">Payable</CardTitle>
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-200">
-                                    <CreditCard className="h-4 w-4 text-orange-700" />
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-orange-800">
-                                    {primarySymbol} {formatCurrency(financialSummary.totalPayable, primaryCurrency)}
-                                </div>
-                                <div className="space-y-1 text-sm text-orange-600">
-                                    <div>
-                                        {secondarySymbol}{' '}
-                                        {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_payables &&
-                                                typeof currentSummary.secondary_amounts.total_payables === 'number' &&
-                                                !isNaN(currentSummary.secondary_amounts.total_payables)
-                                                ? currentSummary.secondary_amounts.total_payables
-                                                : convertAmount(financialSummary.totalPayable, secondaryCurrency),
-                                            secondaryCurrency,
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="mt-1 text-xs text-orange-600">
-                                    {changes?.payables_change
-                                        ? changes.payables_change >= 0
-                                            ? `+${changes.payables_change.toFixed(1)}%`
-                                            : `${changes.payables_change.toFixed(1)}%`
-                                        : 'Total payables'}{' '}
-                                    from last month
-                                </p>
-                            </CardContent>
-                        </Card>
-
                         {/* Receivable Card */}
                         <Card
                             className={`border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                            style={{ animationDelay: '500ms' }}
+                            style={{ animationDelay: '400ms' }}
                         >
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-blue-800">Receivable</CardTitle>
@@ -654,6 +613,45 @@ export default function Dashboard() {
                                             ? `+${changes.receivables_change.toFixed(1)}%`
                                             : `${changes.receivables_change.toFixed(1)}%`
                                         : 'Total receivables'}{' '}
+                                    from last month
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                        {/* Payable Card */}
+                        <Card
+                            className={`border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                            style={{ animationDelay: '500ms' }}
+                        >
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-orange-800">Payable</CardTitle>
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-200">
+                                    <CreditCard className="h-4 w-4 text-orange-700" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-orange-800">
+                                    {primarySymbol} {formatCurrency(financialSummary.totalPayable, primaryCurrency)}
+                                </div>
+                                <div className="space-y-1 text-sm text-orange-600">
+                                    <div>
+                                        {secondarySymbol}{' '}
+                                        {formatCurrency(
+                                            currentSummary?.secondary_amounts?.total_payables &&
+                                                typeof currentSummary.secondary_amounts.total_payables === 'number' &&
+                                                !isNaN(currentSummary.secondary_amounts.total_payables)
+                                                ? currentSummary.secondary_amounts.total_payables
+                                                : convertAmount(financialSummary.totalPayable, secondaryCurrency),
+                                            secondaryCurrency,
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="mt-1 text-xs text-orange-600">
+                                    {changes?.payables_change
+                                        ? changes.payables_change >= 0
+                                            ? `+${changes.payables_change.toFixed(1)}%`
+                                            : `${changes.payables_change.toFixed(1)}%`
+                                        : 'Total payables'}{' '}
                                     from last month
                                 </p>
                             </CardContent>

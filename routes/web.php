@@ -124,21 +124,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [TransactionController::class, 'store'])->name('store');
 
         // Add Transaction Type Pages (must come before {transaction} routes)
-        Route::get('/add-income', function () {
-            return Inertia::render('transactions/add-income');
-        })->name('add-income');
-
-        Route::get('/add-expense', function () {
-            return Inertia::render('transactions/add-expense');
-        })->name('add-expense');
-
-        Route::get('/add-receivable', function () {
-            return Inertia::render('transactions/add-receivable');
-        })->name('add-receivable');
-
-        Route::get('/add-payable', function () {
-            return Inertia::render('transactions/add-payable');
-        })->name('add-payable');
+        Route::get('/add-income', [TransactionController::class, 'addIncome'])->name('add-income');
+        Route::get('/add-expense', [TransactionController::class, 'addExpense'])->name('add-expense');
+        Route::get('/add-receivable', [TransactionController::class, 'addReceivable'])->name('add-receivable');
+        Route::get('/add-payable', [TransactionController::class, 'addPayable'])->name('add-payable');
 
         // Generic transaction routes (must come after specific routes)
         Route::get('/{transaction}', [TransactionController::class, 'show'])->name('show')->where('transaction', '[0-9]+');

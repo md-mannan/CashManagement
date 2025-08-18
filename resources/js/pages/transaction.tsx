@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Banknote, CreditCard, Download, Edit, Eye, FileText, Filter, Plus, Printer, Search, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
+import { Banknote, CreditCard, Download, Edit, Eye, FileText, Filter, Plus, Printer, Search, Trash2, TrendingDown, TrendingUp, ArrowDownLeft } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -32,7 +32,7 @@ const transactionTypes = [
 ];
 
 export default function Transaction() {
-    const { auth, transactions } = usePage<
+    const { auth, transactions, summary } = usePage<
         SharedData & {
             transactions: {
                 data: Array<{
@@ -63,6 +63,13 @@ export default function Transaction() {
                 last_page: number;
                 per_page: number;
                 total: number;
+            };
+            summary: {
+                total_income: number;
+                total_expenses: number;
+                total_receivables: number;
+                total_payables: number;
+                net_balance: number;
             };
         }
     >().props;
@@ -482,7 +489,22 @@ export default function Transaction() {
                 </div>
 
                 {/* Transaction Summary */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                    {/* Net Balance - First Card */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
+                            <FileText className="h-4 w-4 text-gray-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className={`text-2xl font-bold ${summary.net_balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {primarySymbol}
+                                {formatCurrency(summary.net_balance, primaryCurrency)}
+                            </div>
+                            <p className="text-xs text-muted-foreground">(Income - Expenses) + (Receivables - Payables)</p>
+                        </CardContent>
+                    </Card>
+
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Income</CardTitle>
@@ -491,10 +513,7 @@ export default function Transaction() {
                         <CardContent>
                             <div className="text-2xl font-bold text-green-600">
                                 {primarySymbol}
-                                {formatCurrency(
-                                    filteredTransactions.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0),
-                                    primaryCurrency,
-                                )}
+                                {formatCurrency(summary.total_income, primaryCurrency)}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'income').length} transactions
@@ -510,10 +529,7 @@ export default function Transaction() {
                         <CardContent>
                             <div className="text-2xl font-bold text-red-600">
                                 {primarySymbol}
-                                {formatCurrency(
-                                    filteredTransactions.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0),
-                                    primaryCurrency,
-                                )}
+                                {formatCurrency(summary.total_expenses, primaryCurrency)}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'expense').length} transactions
@@ -529,10 +545,7 @@ export default function Transaction() {
                         <CardContent>
                             <div className="text-2xl font-bold text-blue-600">
                                 {primarySymbol}
-                                {formatCurrency(
-                                    filteredTransactions.filter((t) => t.type === 'receivable').reduce((sum, t) => sum + t.amount, 0),
-                                    primaryCurrency,
-                                )}
+                                {formatCurrency(summary.total_receivables, primaryCurrency)}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'receivable').length} transactions
@@ -542,35 +555,17 @@ export default function Transaction() {
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
-                            <FileText className="h-4 w-4 text-gray-600" />
+                            <CardTitle className="text-sm font-medium">Payables</CardTitle>
+                            <ArrowDownLeft className="h-4 w-4 text-orange-600" />
                         </CardHeader>
                         <CardContent>
-                            <div
-                                className={`text-2xl font-bold ${
-                                    filteredTransactions
-                                        .filter((t) => t.type === 'income' || t.type === 'receivable')
-                                        .reduce((sum, t) => sum + t.amount, 0) -
-                                        filteredTransactions
-                                            .filter((t) => t.type === 'expense' || t.type === 'payable')
-                                            .reduce((sum, t) => sum + t.amount, 0) >=
-                                    0
-                                        ? 'text-green-600'
-                                        : 'text-red-600'
-                                }`}
-                            >
+                            <div className="text-2xl font-bold text-orange-600">
                                 {primarySymbol}
-                                {formatCurrency(
-                                    filteredTransactions
-                                        .filter((t) => t.type === 'income' || t.type === 'receivable')
-                                        .reduce((sum, t) => sum + t.amount, 0) -
-                                        filteredTransactions
-                                            .filter((t) => t.type === 'expense' || t.type === 'payable')
-                                            .reduce((sum, t) => sum + t.amount, 0),
-                                    primaryCurrency,
-                                )}
+                                {formatCurrency(summary.total_payables, primaryCurrency)}
                             </div>
-                            <p className="text-xs text-muted-foreground">Income + Receivables - Expenses - Payables</p>
+                            <p className="text-xs text-muted-foreground">
+                                {filteredTransactions.filter((t) => t.type === 'payable').length} transactions
+                            </p>
                         </CardContent>
                     </Card>
                 </div>

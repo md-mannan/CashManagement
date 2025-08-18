@@ -8,6 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+
+interface Category {
+    id: number;
+    name: string;
+    type: string;
+    color: string;
+    is_active: boolean;
+}
 import { Head, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, RefreshCw, TrendingUp } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -36,18 +44,7 @@ interface IncomeFormData {
     secondaryAmount?: number | string;
 }
 
-const incomeCategories = [
-    'Salary',
-    'Freelance',
-    'Investment',
-    'Dividend',
-    'Rental Income',
-    'Business Income',
-    'Commission',
-    'Bonus',
-    'Refund',
-    'Other Income',
-];
+// Categories will come from backend props
 
 // Available currencies for selection
 const currencies = [
@@ -66,7 +63,7 @@ const currencies = [
 ];
 
 export default function AddIncome() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, categories } = usePage<SharedData & { categories: Category[] }>().props;
 
     const [formData, setFormData] = useState<IncomeFormData>({
         amount: '0.00',
@@ -456,9 +453,9 @@ export default function AddIncome() {
                                         <SelectValue placeholder="Select a category" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {incomeCategories.map((category) => (
-                                            <SelectItem key={category} value={category}>
-                                                {category}
+                                        {categories.map((category) => (
+                                            <SelectItem key={category.id} value={category.name}>
+                                                {category.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

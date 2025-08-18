@@ -196,7 +196,7 @@ export default function Ledger() {
             total_expenses: originalExpenses,
             total_receivables: originalReceivables,
             total_payables: originalPayables,
-            net_balance: originalIncome + originalReceivables - (originalExpenses + originalPayables),
+            net_balance: (originalIncome - originalExpenses) + (originalReceivables - originalPayables),
         };
     };
 

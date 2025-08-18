@@ -41,11 +41,8 @@ class DashboardController extends Controller
                 ->limit(10)
                 ->get();
 
-            // System-wide financial summary
-            $currentSummary = $this->transactionService->getSystemFinancialSummary(
-                $currentMonth,
-                Carbon::now()->endOfMonth()
-            );
+            // System-wide financial summary (all-time data for main cards)
+            $currentSummary = $this->transactionService->getSystemFinancialSummary();
 
             $previousMonth = Carbon::now()->subMonth()->startOfMonth();
             $previousSummary = $this->transactionService->getSystemFinancialSummary(
@@ -64,12 +61,8 @@ class DashboardController extends Controller
             $totalTransactions = Transaction::forUser($user->id)->count();
             $allUsers = null;
 
-            // User-specific financial summary
-            $currentSummary = $this->transactionService->getFinancialSummary(
-                $user,
-                $currentMonth,
-                Carbon::now()->endOfMonth()
-            );
+            // User-specific financial summary (all-time data for main cards)
+            $currentSummary = $this->transactionService->getFinancialSummary($user);
 
             $previousMonth = Carbon::now()->subMonth()->startOfMonth();
             $previousSummary = $this->transactionService->getFinancialSummary(
