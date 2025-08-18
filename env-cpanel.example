@@ -63,18 +63,27 @@ MAIL_FROM_NAME="${APP_NAME}"
 # MAIL_HOST=localhost
 # MAIL_PORT=25
 
-# Broadcasting Configuration (Pusher for shared hosting)
-BROADCAST_CONNECTION=pusher
-PUSHER_APP_ID=your_pusher_app_id
-PUSHER_APP_KEY=your_pusher_app_key
-PUSHER_APP_SECRET=your_pusher_app_secret
-PUSHER_HOST=
-PUSHER_PORT=443
-PUSHER_SCHEME=https
-PUSHER_APP_CLUSTER=mt1
+# Broadcasting Configuration (Laravel Reverb for WebSockets)
+BROADCAST_CONNECTION=reverb
+REVERB_APP_ID=cpanel_app_id
+REVERB_APP_KEY=cpanel_app_key
+REVERB_APP_SECRET=cpanel_app_secret
+REVERB_HOST=yourdomain.com
+REVERB_PORT=8080
+REVERB_SCHEME=https
 
-# Alternative: Disable WebSockets for basic shared hosting
+# Alternative: Disable WebSockets if not needed
 # BROADCAST_CONNECTION=null
+
+# Pusher Configuration (if you prefer Pusher over Reverb)
+# BROADCAST_CONNECTION=pusher
+# PUSHER_APP_ID=your_pusher_app_id
+# PUSHER_APP_KEY=your_pusher_app_key
+# PUSHER_APP_SECRET=your_pusher_app_secret
+# PUSHER_HOST=
+# PUSHER_PORT=443
+# PUSHER_SCHEME=https
+# PUSHER_APP_CLUSTER=mt1
 
 # Filesystem Configuration
 FILESYSTEM_DISK=public

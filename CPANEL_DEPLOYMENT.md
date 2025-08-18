@@ -144,8 +144,17 @@ MAIL_PASSWORD=your_email_password
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@yourdomain.com
 
-# Disable WebSockets for basic shared hosting
-BROADCAST_CONNECTION=null
+# Broadcasting (Laravel Reverb for WebSockets)
+BROADCAST_CONNECTION=reverb
+REVERB_APP_ID=cpanel_app_id
+REVERB_APP_KEY=cpanel_app_key
+REVERB_APP_SECRET=cpanel_app_secret
+REVERB_HOST=yourdomain.com
+REVERB_PORT=8080
+REVERB_SCHEME=https
+
+# Alternative: Disable WebSockets if not needed
+# BROADCAST_CONNECTION=null
 ```
 
 ### 5. Laravel Setup Commands
@@ -309,6 +318,70 @@ php /home/username/public_html/cashmanagement/artisan schedule:run
 /opt/cpanel/ea-php82/root/usr/bin/php /home/username/public_html/cashmanagement/artisan schedule:run
 ```
 
+### WebSocket Server Setup (Laravel Reverb)
+
+#### Option 1: Using Node.js (if available on cPanel)
+If your cPanel hosting supports Node.js applications:
+
+1. **Enable Node.js in cPanel**:
+   - Go to "Node.js Apps"
+   - Create new Node.js app
+   - Set startup file to `server.js`
+
+2. **Create Reverb startup script**:
+```javascript
+// server.js
+const { spawn } = require('child_process');
+const path = require('path');
+
+const laravelPath = '/home/username/public_html/cashmanagement';
+const reverbProcess = spawn('php', [
+    path.join(laravelPath, 'artisan'),
+    'reverb:start',
+    '--host=0.0.0.0',
+    '--port=8080'
+], {
+    cwd: laravelPath,
+    stdio: 'inherit'
+});
+
+reverbProcess.on('close', (code) => {
+    console.log(`Reverb process exited with code ${code}`);
+    // Restart the process
+    setTimeout(() => {
+        spawn(process.argv[0], process.argv.slice(1), {
+            detached: true,
+            stdio: 'inherit'
+        });
+    }, 5000);
+});
+```
+
+#### Option 2: Background Process (SSH required)
+If you have SSH access:
+
+```bash
+# Start Reverb in background
+nohup php artisan reverb:start --host=0.0.0.0 --port=8080 > /dev/null 2>&1 &
+
+# Check if it's running
+ps aux | grep reverb
+
+# Stop Reverb (if needed)
+pkill -f "artisan reverb:start"
+```
+
+#### Option 3: Disable WebSockets (Fallback)
+If WebSocket server cannot be run on shared hosting:
+
+```env
+# In .env file
+BROADCAST_CONNECTION=null
+
+# Or use polling instead of WebSockets in frontend
+VITE_WEBSOCKET_ENABLED=false
+```
+
 ### Email Configuration
 
 #### cPanel Email Setup
@@ -418,6 +491,38 @@ MAIL_HOST=localhost
 MAIL_PORT=25
 ```
 
+### 6. WebSocket/Reverb Issues
+
+#### Reverb Server Won't Start
+```bash
+# Check if port 8080 is available
+netstat -tulpn | grep :8080
+
+# Try different port
+php artisan reverb:start --port=8081
+
+# Check hosting provider limitations
+# Some shared hosts block WebSocket connections
+```
+
+#### WebSocket Connection Failed
+- **Check firewall settings** - Many shared hosts block WebSocket ports
+- **Contact hosting provider** - Ask about WebSocket support
+- **Use alternative port** - Try ports 80, 443, 8080, 8081
+- **Fallback to polling** - Set `BROADCAST_CONNECTION=null`
+
+#### Real-time Features Not Working
+```env
+# Disable WebSockets and use polling instead
+BROADCAST_CONNECTION=null
+VITE_WEBSOCKET_ENABLED=false
+
+# Or try different WebSocket configuration
+REVERB_HOST=your-domain.com
+REVERB_PORT=443
+REVERB_SCHEME=https
+```
+
 ---
 
 ## 🔒 Security Best Practices
@@ -490,6 +595,8 @@ MAIL_PORT=25
 - [ ] Email sending functional
 - [ ] File uploads working (if applicable)
 - [ ] SSL certificate valid and enforcing HTTPS
+- [ ] WebSocket/Reverb server running (if enabled)
+- [ ] Real-time notifications working
 
 ### Security Checks
 - [ ] .env file not publicly accessible
