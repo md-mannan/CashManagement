@@ -32,6 +32,10 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # Skip Laravel routing for build assets
+    RewriteCond %{REQUEST_URI} ^/build/
+    RewriteRule ^ - [L]
+    
     # Send Requests To Front Controller
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -50,7 +54,7 @@
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
     
     # Content Security Policy for cPanel (Vite-compatible)
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'nonce-vite'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' wss: https:; worker-src 'self' blob:;"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' wss: https:; worker-src 'self' blob:;"
     
     # Remove server information (if possible)
     Header unset Server
@@ -176,6 +180,27 @@
     </IfModule>
 </DirectoryMatch>
 
+# Allow access to build assets (Vite built files)
+<Directory "build">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</Directory>
+
+<DirectoryMatch "build/assets">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</DirectoryMatch>
+
 # Deny access to node_modules (if accidentally uploaded)
 <DirectoryMatch "node_modules">
     <IfModule mod_authz_core.c>
@@ -224,6 +249,19 @@
         Deny from all
     </IfModule>
 </FilesMatch>
+
+# MIME Type Configuration for JavaScript modules
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType application/javascript .mjs
+    AddType text/css .css
+    AddType application/json .json
+    AddType image/svg+xml .svg
+    AddType font/woff2 .woff2
+    AddType font/woff .woff
+    AddType font/ttf .ttf
+    AddType font/eot .eot
+</IfModule>
 
 # PHP Configuration (if allowed by hosting provider)
 # These may not work on all shared hosting providers

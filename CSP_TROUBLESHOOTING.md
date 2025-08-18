@@ -35,7 +35,10 @@ cp public/.htaccess.local public/.htaccess
 
 #### **Development CSP Policy** (in `.htaccess.local`):
 ```apache
-Header always set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173; connect-src 'self' ws: wss: http: https: http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173; style-src 'self' 'unsafe-inline' http://localhost:5173 http://127.0.0.1:5173;"
+# CSP is completely disabled for local development
+# This allows all Vite dev server resources without conflicts
+# Uncomment the line below if you need basic CSP in development:
+# Header always set Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"
 ```
 
 ### **2. For Production Deployment**

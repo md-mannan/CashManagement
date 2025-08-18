@@ -9,13 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        @if (app()->environment('local', 'development'))
-        {{-- Development: More permissive CSP for Vite dev server --}}
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173; connect-src 'self' ws: wss: http: https: http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173; style-src 'self' 'unsafe-inline' http://localhost:5173 http://127.0.0.1:5173;">
-        @else
-        {{-- Production: Secure CSP but Vite-compatible --}}
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' wss: https:; worker-src 'self' blob:;">
-        @endif
+        {{-- CSP is handled by .htaccess files for better compatibility --}}
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
@@ -74,8 +68,26 @@
             @viteReactRefresh
             @vite(['resources/js/app.tsx'])
         @else
-            {{-- Production: Use built assets --}}
-            @vite(['resources/js/app.tsx'])
+            {{-- Production: Use built assets from manifest --}}
+            @php
+                $manifest = public_path('build/.vite/manifest.json');
+                if (file_exists($manifest)) {
+                    $manifestData = json_decode(file_get_contents($manifest), true);
+                    $appJs = $manifestData['resources/js/app.tsx']['file'] ?? null;
+                    $appCss = $manifestData['resources/js/app.tsx']['css'][0] ?? null;
+                }
+            @endphp
+            
+            @if(isset($appCss))
+                <link rel="stylesheet" href="{{ asset('build/' . $appCss) }}">
+            @endif
+            
+            @if(isset($appJs))
+                <script type="module" src="{{ asset('build/' . $appJs) }}"></script>
+            @else
+                {{-- Fallback to @vite directive --}}
+                @vite(['resources/js/app.tsx'])
+            @endif
         @endif
         
         @inertiaHead

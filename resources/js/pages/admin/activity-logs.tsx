@@ -297,8 +297,8 @@ export default function ActivityLogs({ activityLogs, filters, statistics, topAct
                                             <TableCell>
                                                 {log.user ? (
                                                     <div>
-                                                        <div className="font-medium">{log.user.name}</div>
-                                                        <div className="text-sm text-gray-500">{log.user.email}</div>
+                                                        <div className="font-medium">{log.user?.name || 'Unknown User'}</div>
+                                                        <div className="text-sm text-gray-500">{log.user?.email || 'No email'}</div>
                                                     </div>
                                                 ) : (
                                                     <span className="text-gray-500">System</span>
@@ -378,8 +378,8 @@ export default function ActivityLogs({ activityLogs, filters, statistics, topAct
                                             <div className="flex items-center space-x-2">
                                                 <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
                                                 <div>
-                                                    <div className="text-sm font-medium">{user.user.name}</div>
-                                                    <div className="text-xs text-gray-500">{user.user.email}</div>
+                                                    <div className="text-sm font-medium">{user.user?.name || 'Unknown User'}</div>
+                                                    <div className="text-xs text-gray-500">{user.user?.email || 'No email'}</div>
                                                 </div>
                                             </div>
                                             <Badge variant="secondary">{user.count}</Badge>

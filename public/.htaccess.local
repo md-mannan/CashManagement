@@ -29,8 +29,9 @@
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-Content-Type-Options "nosniff"
     
-    # Relaxed CSP for development (allows Vite dev server)
-    Header always set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173; connect-src 'self' ws: wss: http: https: http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173; style-src 'self' 'unsafe-inline' http://localhost:5173 http://127.0.0.1:5173;"
+    # Disable CSP completely for local development (allows all resources)
+    # Header always set Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"
+    # CSP disabled for development - uncomment above line if you need basic CSP
     
     # CORS for local development
     Header always set Access-Control-Allow-Origin "*"
