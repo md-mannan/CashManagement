@@ -15,9 +15,8 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        // Only seed categories (required for the app to function)
+        // Seed essential data only
         $this->call([
-            CategorySeeder::class,
             SuperAdminSeeder::class,
             // TransactionSeeder::class, // Commented out - no sample transactions
         ]);

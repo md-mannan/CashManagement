@@ -110,5 +110,100 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * Clear all notifications for the authenticated user.
+     * Environment-aware with enhanced error handling and logging.
+     */
+    public function clearAll(): JsonResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            \Log::warning('Unauthenticated attempt to clear all notifications', [
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
 
+        try {
+            // Log the operation start
+            \Log::info('Starting clear all notifications operation', [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+            ]);
+
+            $deletedCount = $user->notifications()->count();
+            
+            if ($deletedCount === 0) {
+                return response()->json([
+                    'message' => 'No notifications to clear',
+                    'unread_count' => 0,
+                    'deleted_count' => 0,
+                ]);
+            }
+
+            // Perform the deletion
+            $deleted = $user->notifications()->delete();
+            
+            // Log successful operation
+            \Log::info('Successfully cleared all notifications', [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'deleted_count' => $deletedCount,
+            ]);
+
+            // Environment-specific response
+            $response = [
+                'message' => "All {$deletedCount} notifications have been cleared",
+                'unread_count' => 0,
+                'deleted_count' => $deletedCount,
+            ];
+
+            // Add debug info in non-production environments
+            if (!app()->environment('production')) {
+                $response['debug'] = [
+                    'environment' => app()->environment(),
+                    'user_id' => $user->id,
+                    'operation_time' => now()->toISOString(),
+                ];
+            }
+
+            return response()->json($response);
+            
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Database-specific error handling
+            \Log::error('Database error while clearing notifications', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'sql' => $e->getSql(),
+                'bindings' => $e->getBindings(),
+            ]);
+
+            $message = app()->environment('production') 
+                ? 'Database error occurred while clearing notifications'
+                : 'Database error: ' . $e->getMessage();
+
+            return response()->json([
+                'error' => $message,
+                'code' => 'DATABASE_ERROR',
+            ], 500);
+            
+        } catch (\Exception $e) {
+            // General error handling
+            \Log::error('Unexpected error while clearing notifications', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'trace' => app()->environment('production') ? null : $e->getTraceAsString(),
+            ]);
+
+            $message = app()->environment('production') 
+                ? 'An unexpected error occurred while clearing notifications'
+                : 'Error: ' . $e->getMessage();
+
+            return response()->json([
+                'error' => $message,
+                'code' => 'GENERAL_ERROR',
+            ], 500);
+        }
+    }
 }

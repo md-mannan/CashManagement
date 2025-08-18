@@ -155,12 +155,13 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Super Admin Management" />
 
-                <div className="space-y-6">
+                <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-2 sm:p-4 w-full max-w-full">
+                    <div className="space-y-6">
                     {/* Header */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
-                            <h1 className="mt-6 text-3xl font-bold tracking-tight">Super Admin Management</h1>
-                            <p className="text-muted-foreground">Manage super admin accounts and system-wide permissions</p>
+                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">Super Admin Management</h1>
+                            <p className="text-sm text-muted-foreground">Manage super admin accounts and system-wide permissions</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <Button asChild variant="outline">
@@ -173,7 +174,7 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
                     </div>
 
                     {/* System Statistics */}
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -305,7 +306,7 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
                             </Table>
                         </CardContent>
                     </Card>
-                </div>
+                    </div>
 
                 {/* Promote User Dialog */}
                 <Dialog open={isPromoteDialogOpen} onOpenChange={setIsPromoteDialogOpen}>
@@ -415,6 +416,7 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+                </div>
             </AppLayout>
         </AdminRouteGuard>
     );

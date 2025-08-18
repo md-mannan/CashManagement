@@ -110,11 +110,12 @@ class UserManagementController extends Controller
             ]
         );
 
-        // Notify admins about user creation
+        // Notify admins about user creation (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
             'created',
             $user->name,
-            "Role: {$request->role}, Email: {$user->email}"
+            "Role: {$request->role}, Email: {$user->email}",
+            auth()->id()
         );
 
         return redirect()->back()->with('success', 'User created successfully.');
@@ -171,20 +172,22 @@ class UserManagementController extends Controller
                 ]
             );
 
-            // Notify admins about role change
+            // Notify admins about role change (excluding current admin to avoid duplicates)
             AdminNotificationService::notifyUserAccountAction(
                 'changed role',
                 $user->name,
-                "From {$oldRole} to {$request->role}"
+                "From {$oldRole} to {$request->role}",
+                auth()->id()
+            );
+        } else {
+            // Only notify about general update if role didn't change (excluding current admin)
+            AdminNotificationService::notifyUserAccountAction(
+                'updated',
+                $user->name,
+                "Email: {$user->email}, Role: {$user->role}",
+                auth()->id()
             );
         }
-
-        // Notify admins about user update
-        AdminNotificationService::notifyUserAccountAction(
-            'updated',
-            $user->name,
-            "Email: {$user->email}, Role: {$user->role}"
-        );
 
         return redirect()->back()->with('success', 'User updated successfully.');
     }
@@ -232,11 +235,12 @@ class UserManagementController extends Controller
 
         $user->delete();
 
-        // Notify admins about user deletion
+        // Notify admins about user deletion (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
             'deleted',
             $user->name,
-            "Email: {$user->email}, Role: {$user->role}"
+            "Email: {$user->email}, Role: {$user->role}",
+            auth()->id()
         );
 
         return redirect()->back()->with('success', 'User deleted successfully.');
@@ -271,11 +275,12 @@ class UserManagementController extends Controller
             ]
         );
 
-        // Notify admins about status change
+        // Notify admins about status change (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
             $status,
             $user->name,
-            "Email: {$user->email}, Role: {$user->role}"
+            "Email: {$user->email}, Role: {$user->role}",
+            auth()->id()
         );
 
         return redirect()->back()->with('success', "User {$status} successfully.");
@@ -305,11 +310,12 @@ class UserManagementController extends Controller
             ]
         );
 
-        // Notify admins about password reset
+        // Notify admins about password reset (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
             'reset password for',
             $user->name,
-            "Email: {$user->email}, Role: {$user->role}"
+            "Email: {$user->email}, Role: {$user->role}",
+            auth()->id()
         );
 
         return redirect()->back()->with('success', 'User password reset successfully.');

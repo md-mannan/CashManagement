@@ -74,7 +74,7 @@ export default function AddPayable() {
         category: '',
         notes: '',
         secondaryCurrency: 'KWD',
-        exchangeRate: '3.27', // 1 KWD = 3.27 USD (default rate)
+        exchangeRate: '0.0090', // 1 BDT = 0.0090 KWD (default rate)
         secondaryAmount: '0.000',
         dueDate: '',
     });
@@ -83,8 +83,8 @@ export default function AddPayable() {
     const [rateSource, setRateSource] = useState<string>('Default');
 
     // User's primary currency from settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
 
     const { showToast } = useToast();
 
@@ -308,7 +308,7 @@ export default function AddPayable() {
                     <CardContent className="bg-white p-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Amount and Date Row */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="amount" className="text-sm font-semibold text-gray-700">
                                         Amount ({primarySymbol}) *
@@ -354,7 +354,7 @@ export default function AddPayable() {
                             </div>
 
                             {/* Currency Selection Row */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="secondaryCurrency" className="text-sm font-semibold text-gray-700">
                                         Secondary Currency

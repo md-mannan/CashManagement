@@ -83,8 +83,8 @@ export default function TransactionView() {
     }
 
     // User's primary currency from settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
 
     // Format currency
     const formatCurrency = (amount: number, currency: string = primaryCurrency) => {

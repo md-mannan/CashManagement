@@ -71,41 +71,50 @@ A modern, full-featured financial management application built with Laravel 12 a
 
 ### **Installation**
 
+#### 🖥️ **Local Development**
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd CashManagement
 
-# Install dependencies
-composer install
-npm install
-
-# Environment setup
-cp .env.example .env
-php artisan key:generate
-
-# Dynamic environment configuration
-php artisan env:detect
-php artisan env:config --generate
-
-# Database setup
-php artisan migrate
-php artisan db:seed
+# Quick setup with local template
+cp env-local.example .env
+composer install && npm install
+php artisan key:generate && php artisan migrate --seed
 
 # Start development servers
 composer run dev
+# OR manually:
+php artisan serve & npm run dev & php artisan reverb:start
 ```
 
-This will start:
+#### 🌐 **Production Deployment**
+```bash
+# Clone the repository
+git clone <repository-url>
+cd CashManagement
+
+# Production setup
+cp env-production.example .env
+# Edit .env with your production values
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan key:generate && php artisan migrate --force
+cp public/.htaccess.production public/.htaccess
+```
+
+**Development servers include:**
 - Laravel development server (http://localhost:8000)
 - Vite development server (hot reloading)
+- WebSocket server for real-time features
 - Queue worker for background jobs
 
 ## 📖 **Documentation**
 
 ### **Setup Guides**
-- 📚 [**Local Development Guide**](LOCAL_DEVELOPMENT.md) - Complete local setup instructions
-- 🚀 [**Production Setup Guide**](PRODUCTION_SETUP.md) - Deploy to production servers
+- 📚 [**Local Development Guide**](LOCAL_DEVELOPMENT.md) - Complete local development setup
+- 🚀 [**Production Deployment Guide**](PRODUCTION_DEPLOYMENT.md) - Step-by-step production deployment
+- 🔧 [**Environment Configuration Guide**](NOTIFICATION_PRODUCTION_GUIDE.md) - Environment-aware features
 
 ### **Key Features Documentation**
 

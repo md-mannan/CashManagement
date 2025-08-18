@@ -60,8 +60,16 @@
         <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
         @routes
-        @viteReactRefresh
-        @vite(['resources/js/app.tsx'])
+        
+        @if (app()->environment('local', 'development'))
+            {{-- Development: Use Vite dev server with hot reload --}}
+            @viteReactRefresh
+            @vite(['resources/js/app.tsx'])
+        @else
+            {{-- Production: Use built assets --}}
+            @vite(['resources/js/app.tsx'])
+        @endif
+        
         @inertiaHead
     </head>
     <body class="font-sans antialiased">

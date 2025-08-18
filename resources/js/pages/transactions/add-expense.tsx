@@ -73,7 +73,7 @@ export default function AddExpense() {
         category: '',
         notes: '',
         secondaryCurrency: 'KWD',
-        exchangeRate: '3.27', // 1 KWD = 3.27 USD (default rate)
+        exchangeRate: '0.0090', // 1 BDT = 0.0090 KWD (default rate)
         secondaryAmount: '0.000',
     });
 
@@ -81,8 +81,8 @@ export default function AddExpense() {
     const [rateSource, setRateSource] = useState<string>('Default');
 
     // User's primary currency from settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
 
     const { showToast } = useToast();
 
@@ -284,14 +284,14 @@ export default function AddExpense() {
                 {/* Form Card with exact design from image */}
                 <Card className="rounded-xl border-red-200 shadow-lg">
                     {/* Header Section - Light Red Background */}
-                    <CardHeader className="border-b-0 bg-red-50 p-6">
-                        <div className="flex items-center justify-between">
+                    <CardHeader className="border-b-0 bg-red-50 p-4 sm:p-6">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
                                     <TrendingDown className="h-5 w-5 text-red-600" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-xl font-bold text-gray-900">Add Expense</CardTitle>
+                                    <CardTitle className="text-lg sm:text-xl font-bold text-gray-900">Add Expense</CardTitle>
                                     <CardDescription className="text-sm text-gray-600">Add a new expense transaction</CardDescription>
                                 </div>
                             </div>
@@ -299,7 +299,7 @@ export default function AddExpense() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => router.visit(route('transactions.index'))}
-                                className="border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                                className="border-gray-300 bg-white text-gray-700 hover:bg-gray-50 w-full sm:w-auto"
                             >
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Ledger
@@ -309,7 +309,7 @@ export default function AddExpense() {
                     <CardContent className="bg-white p-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Amount and Date Row */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="amount" className="text-sm font-medium text-gray-700">
                                         Amount ({primarySymbol}) *
@@ -340,7 +340,7 @@ export default function AddExpense() {
                             </div>
 
                             {/* Currency Selection Row */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="secondaryCurrency" className="text-sm font-medium text-gray-700">
                                         Secondary Currency

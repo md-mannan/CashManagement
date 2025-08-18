@@ -95,8 +95,8 @@ export default function Transaction() {
     });
 
     // User's primary currency from settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
 
     const { showToast } = useToast();
 
@@ -441,12 +441,12 @@ export default function Transaction() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Transaction" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-2 sm:p-4 w-full max-w-full">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
-                        <p className="text-muted-foreground">Manage and view all your transactions</p>
+                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Transactions</h1>
+                        <p className="text-sm text-muted-foreground">Manage and view all your transactions</p>
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -489,7 +489,7 @@ export default function Transaction() {
                 </div>
 
                 {/* Transaction Summary */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 w-full max-w-full">
                     {/* Net Balance - First Card */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -582,7 +582,7 @@ export default function Transaction() {
                         <p className="text-sm text-muted-foreground">Filters apply instantly as you type. Clear fields to reset.</p>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                             {/* Search */}
                             <div className="space-y-2">
                                 <Label htmlFor="search">Search</Label>
@@ -636,7 +636,7 @@ export default function Transaction() {
                 </Card>
 
                 {/* Results Summary */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-6">
                         <p className="text-sm text-muted-foreground">
                             Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredTransactions.length)} of{' '}
@@ -670,20 +670,22 @@ export default function Transaction() {
                 {/* Transactions Table */}
                 <Card>
                     <CardContent className="p-0">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-16">SL</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Source</TableHead>
-                                    <TableHead>Category</TableHead>
-
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead className="w-32">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
+                        {/* Desktop & Tablet Table */}
+                        <div className="hidden sm:block">
+                            <div className="mobile-table-wrapper">
+                                <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-16">SL</TableHead>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Description</TableHead>
+                                        <TableHead>Type</TableHead>
+                                        <TableHead>Source</TableHead>
+                                        <TableHead>Category</TableHead>
+                                        <TableHead>Amount</TableHead>
+                                        <TableHead className="w-32">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
                             <TableBody>
                                 {paginatedTransactions.length === 0 ? (
                                     <TableRow>
@@ -751,6 +753,78 @@ export default function Transaction() {
                                 )}
                             </TableBody>
                         </Table>
+                            </div>
+                        </div>
+
+                        {/* Mobile Card Layout */}
+                        <div className="block sm:hidden">
+                            <div className="space-y-3 p-4">
+                                {paginatedTransactions.length === 0 ? (
+                                    <div className="py-8 text-center text-muted-foreground">
+                                        No transactions found matching your criteria.
+                                    </div>
+                                ) : (
+                                    paginatedTransactions.map((transaction, index) => (
+                                        <div key={transaction.id} className="border rounded-lg p-3 bg-white dark:bg-gray-800">
+                                            <div className="flex items-start justify-between mb-2">
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-sm">{transaction.description}</div>
+                                                    <div className="text-xs text-muted-foreground mt-1">
+                                                        {formatDate(transaction.date)} • {transaction.category.name}
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-1 ml-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleViewTransaction(transaction.id)}
+                                                        className="h-8 w-8 p-0"
+                                                    >
+                                                        <Eye className="h-3 w-3" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleEditClick(transaction.id)}
+                                                        className="h-8 w-8 p-0"
+                                                    >
+                                                        <Edit className="h-3 w-3" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteClick(transaction.id)}
+                                                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                                                    >
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <span
+                                                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
+                                                    >
+                                                        {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">{transaction.source}</span>
+                                                </div>
+                                                <div
+                                                    className={`font-medium text-sm ${
+                                                        transaction.type === 'income' || transaction.type === 'receivable'
+                                                            ? 'text-green-600'
+                                                            : 'text-red-600'
+                                                    }`}
+                                                >
+                                                    {transaction.user?.primary_symbol || primarySymbol}{' '}
+                                                    {formatCurrency(transaction.amount, primaryCurrency)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
 

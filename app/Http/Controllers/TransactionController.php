@@ -184,16 +184,16 @@ class TransactionController extends Controller
         // Create notification for transaction creation
         $this->createTransactionNotification($transaction, 'created');
 
-        // Notify admins about the transaction creation (but not if the user is already an admin)
-        if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
-            AdminNotificationService::notifyTransactionAction(
-                'created',
-                Auth::user()->name,
-                $transaction->type,
-                $transaction->amount,
-                $transaction->currency
-            );
-        }
+        // Notify admins about the transaction creation (exclude current user if they're an admin)
+        $excludeUserId = in_array(Auth::user()->role, ['admin', 'super_admin']) ? Auth::id() : null;
+        AdminNotificationService::notifyTransactionAction(
+            'created',
+            Auth::user()->name,
+            $transaction->type,
+            $transaction->amount,
+            $transaction->currency,
+            $excludeUserId
+        );
 
         // Redirect to transaction list with success message
         return to_route('transaction')->with('success', 'Transaction created successfully.');
@@ -402,16 +402,16 @@ class TransactionController extends Controller
         // Create notification for transaction update
         $this->createTransactionNotification($transaction, 'updated');
 
-        // Notify admins about the transaction update (but not if the user is already an admin)
-        if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
-            AdminNotificationService::notifyTransactionAction(
-                'updated',
-                Auth::user()->name,
-                $transaction->type,
-                $transaction->amount,
-                $transaction->currency
-            );
-        }
+        // Notify admins about the transaction update (exclude current user if they're an admin)
+        $excludeUserId = in_array(Auth::user()->role, ['admin', 'super_admin']) ? Auth::id() : null;
+        AdminNotificationService::notifyTransactionAction(
+            'updated',
+            Auth::user()->name,
+            $transaction->type,
+            $transaction->amount,
+            $transaction->currency,
+            $excludeUserId
+        );
 
         // Redirect to transaction list with success message
         return to_route('transaction')->with('success', 'Transaction updated successfully.');
@@ -456,16 +456,16 @@ class TransactionController extends Controller
 
         $transaction->delete();
 
-        // Notify admins about the transaction deletion (but not if the user is already an admin)
-        if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
-            AdminNotificationService::notifyTransactionAction(
-                'deleted',
-                Auth::user()->name,
-                $transactionInfo['type'],
-                $transactionInfo['amount'],
-                $transactionInfo['currency']
-            );
-        }
+        // Notify admins about the transaction deletion (exclude current user if they're an admin)
+        $excludeUserId = in_array(Auth::user()->role, ['admin', 'super_admin']) ? Auth::id() : null;
+        AdminNotificationService::notifyTransactionAction(
+            'deleted',
+            Auth::user()->name,
+            $transactionInfo['type'],
+            $transactionInfo['amount'],
+            $transactionInfo['currency'],
+            $excludeUserId
+        );
 
         // Return success response for Inertia (frontend will handle any redirect)
         return back()->with('success', 'Transaction deleted successfully.');

@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Broadcast;
+use Inertia\Inertia;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\RolePermissionController;
@@ -31,7 +32,6 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\ExchangeRateController as ApiExchangeRateController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -141,6 +141,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // Notifications
+    Route::get('notifications', function () {
+        return Inertia::render('notifications');
+    })->name('notifications');
 
     // Settings
     Route::redirect('settings', '/settings/profile');
@@ -321,6 +326,7 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
         Route::post('/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
         Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
+        Route::post('/clear-all', [NotificationController::class, 'clearAll'])->name('clear-all');
         Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
     });
 

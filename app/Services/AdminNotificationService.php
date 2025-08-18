@@ -12,13 +12,19 @@ class AdminNotificationService
     /**
      * Notify all admins and super admins about user actions
      */
-    public static function notifyAdmins(string $action, string $description, array $data = []): void
+    public static function notifyAdmins(string $action, string $description, array $data = [], ?int $excludeUserId = null): void
     {
         try {
             // Get all admin and super admin users
-            $admins = User::whereIn('role', ['admin', 'super_admin'])
-                ->where('is_active', true)
-                ->get();
+            $query = User::whereIn('role', ['admin', 'super_admin'])
+                ->where('is_active', true);
+            
+            // Exclude specific user if provided (to avoid duplicate notifications)
+            if ($excludeUserId) {
+                $query->where('id', '!=', $excludeUserId);
+            }
+            
+            $admins = $query->get();
 
             foreach ($admins as $admin) {
                 Notification::createForUser(
@@ -38,6 +44,7 @@ class AdminNotificationService
             Log::info("Admin notifications sent for action: {$action}", [
                 'action' => $action,
                 'admin_count' => $admins->count(),
+                'excluded_user_id' => $excludeUserId,
                 'data' => $data,
             ]);
         } catch (\Exception $e) {
@@ -52,7 +59,7 @@ class AdminNotificationService
     /**
      * Notify admins about transaction operations
      */
-    public static function notifyTransactionAction(string $action, string $userName, string $transactionType, float $amount, string $currency = 'USD'): void
+    public static function notifyTransactionAction(string $action, string $userName, string $transactionType, float $amount, string $currency = 'USD', ?int $excludeUserId = null): void
     {
         $description = "User {$userName} {$action} a {$transactionType} transaction of {$currency} {$amount}";
 
@@ -65,7 +72,8 @@ class AdminNotificationService
                 'transaction_type' => $transactionType,
                 'amount' => $amount,
                 'currency' => $currency,
-            ]
+            ],
+            $excludeUserId
         );
     }
 
@@ -124,7 +132,7 @@ class AdminNotificationService
     /**
      * Notify admins about category operations
      */
-    public static function notifyCategoryAction(string $action, string $userName, string $categoryName, string $categoryType): void
+    public static function notifyCategoryAction(string $action, string $userName, string $categoryName, string $categoryType, ?int $excludeUserId = null): void
     {
         $description = "User {$userName} {$action} a {$categoryType} category: {$categoryName}";
 
@@ -136,7 +144,8 @@ class AdminNotificationService
                 'user_name' => $userName,
                 'category_name' => $categoryName,
                 'category_type' => $categoryType,
-            ]
+            ],
+            $excludeUserId
         );
     }
 
@@ -192,7 +201,7 @@ class AdminNotificationService
     /**
      * Notify admins about user account operations
      */
-    public static function notifyUserAccountAction(string $action, string $userName, string $details = ''): void
+    public static function notifyUserAccountAction(string $action, string $userName, string $details = '', ?int $excludeUserId = null): void
     {
         $description = "User {$userName} {$action}";
         if ($details) {
@@ -206,7 +215,8 @@ class AdminNotificationService
                 'action' => $action,
                 'user_name' => $userName,
                 'details' => $details,
-            ]
+            ],
+            $excludeUserId
         );
     }
 

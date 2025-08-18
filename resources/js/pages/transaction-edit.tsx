@@ -32,12 +32,7 @@ const transactionTypes = [
     { value: 'payable', label: 'Payable' },
 ];
 
-const categories = {
-    income: ['Salary', 'Freelance', 'Investment', 'Dividend', 'Rental Income', 'Business Income', 'Other Income'],
-    expense: ['Food & Dining', 'Transportation', 'Utilities', 'Entertainment', 'Shopping', 'Healthcare', 'Education', 'Other Expenses'],
-    receivable: ['Client Payment', 'Loan Repayment', 'Rental Payment', 'Investment Return', 'Other Receivable'],
-    payable: ['Bills', 'Loan Payment', 'Credit Card', 'Rent', 'Taxes', 'Other Payable'],
-};
+// Categories are now loaded dynamically from backend
 
 interface TransactionFormData {
     date: string;
@@ -129,10 +124,10 @@ export default function TransactionEdit() {
     const { showToast } = useToast();
 
     // User's primary currency from settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
-    const secondaryCurrency = auth.user.secondary_currency || 'EUR';
-    const secondarySymbol = auth.user.secondary_symbol || '€';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
+    const secondaryCurrency = auth.user.secondary_currency || 'KWD';
+    const secondarySymbol = auth.user.secondary_symbol || 'د.ك';
     const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
 
     // Helper function to calculate converted amount
@@ -644,20 +639,14 @@ export default function TransactionEdit() {
                                                 <SelectValue placeholder="Select a category" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {/* Use backend categories filtered by type, with fallback to hardcoded ones */}
-                                                {backendCategories?.filter((cat) => cat.type === formData.type).length > 0
-                                                    ? backendCategories
-                                                          .filter((cat) => cat.type === formData.type)
-                                                          .map((category) => (
-                                                              <SelectItem key={category.name} value={category.name}>
-                                                                  {category.name}
-                                                              </SelectItem>
-                                                          ))
-                                                    : categories[formData.type]?.map((category) => (
-                                                          <SelectItem key={category} value={category}>
-                                                              {category}
-                                                          </SelectItem>
-                                                      ))}
+                                                {/* Use backend categories filtered by type */}
+                                                {backendCategories
+                                                    ?.filter((cat) => cat.type === formData.type)
+                                                    .map((category) => (
+                                                        <SelectItem key={category.name} value={category.name}>
+                                                            {category.name}
+                                                        </SelectItem>
+                                                    ))}
                                             </SelectContent>
                                         </Select>
                                     </div>

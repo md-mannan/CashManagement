@@ -9,13 +9,6 @@
       "_index.js"
     ]
   },
-  "_activity.js": {
-    "file": "assets/activity.js",
-    "name": "activity",
-    "imports": [
-      "resources/js/app.tsx"
-    ]
-  },
   "_admin-route-guard.js": {
     "file": "assets/admin-route-guard.js",
     "name": "admin-route-guard",
@@ -43,6 +36,7 @@
       "_index4.js",
       "_index.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_vendor.js",
       "_user.js"
     ]
@@ -168,13 +162,6 @@
       "_calendar.js"
     ]
   },
-  "_database2.js": {
-    "file": "assets/database2.js",
-    "name": "database",
-    "imports": [
-      "resources/js/app.tsx"
-    ]
-  },
   "_dialog.js": {
     "file": "assets/dialog.js",
     "name": "dialog",
@@ -197,13 +184,6 @@
   "_eye.js": {
     "file": "assets/eye.js",
     "name": "eye",
-    "imports": [
-      "resources/js/app.tsx"
-    ]
-  },
-  "_file-text.js": {
-    "file": "assets/file-text.js",
-    "name": "file-text",
     "imports": [
       "resources/js/app.tsx"
     ]
@@ -324,13 +304,6 @@
   "_mail.js": {
     "file": "assets/mail.js",
     "name": "mail",
-    "imports": [
-      "resources/js/app.tsx"
-    ]
-  },
-  "_monitor.js": {
-    "file": "assets/monitor.js",
-    "name": "monitor",
     "imports": [
       "resources/js/app.tsx"
     ]
@@ -503,6 +476,7 @@
       "resources/js/pages/categories.tsx",
       "resources/js/pages/dashboard.tsx",
       "resources/js/pages/ledger.tsx",
+      "resources/js/pages/notifications.tsx",
       "resources/js/pages/settings/appearance.tsx",
       "resources/js/pages/settings/currency.tsx",
       "resources/js/pages/settings/exchange-rate.tsx",
@@ -550,6 +524,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -569,7 +544,6 @@
       "_arrow-left.js",
       "_user.js",
       "_user-check.js",
-      "_monitor.js",
       "_clock.js",
       "_calendar.js",
       "_vendor.js",
@@ -578,7 +552,8 @@
       "_index2.js",
       "_Combination.js",
       "_index4.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_lock.js"
     ]
   },
   "resources/js/pages/admin/activity-logs.tsx": {
@@ -600,7 +575,6 @@
       "_table.js",
       "_download.js",
       "_trash-2.js",
-      "_activity.js",
       "_clock.js",
       "_calendar.js",
       "_search.js",
@@ -611,6 +585,7 @@
       "_Combination.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js",
       "_index3.js"
     ]
@@ -628,8 +603,6 @@
       "_app-layout.js",
       "_chart-config.js",
       "_credit-card.js",
-      "_activity.js",
-      "_database2.js",
       "_eye.js",
       "_trending-up.js",
       "_vendor.js",
@@ -639,6 +612,7 @@
       "_index.js",
       "_Combination.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -659,10 +633,8 @@
       "_table.js",
       "_app-layout.js",
       "_plus.js",
-      "_database2.js",
       "_hard-drive.js",
       "_clock.js",
-      "_file-text.js",
       "_download.js",
       "_trash-2.js",
       "_vendor.js",
@@ -672,6 +644,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -691,7 +664,6 @@
       "_trending-up.js",
       "_trending-down.js",
       "_user-check.js",
-      "_activity.js",
       "_plus.js",
       "_vendor.js",
       "_index2.js",
@@ -699,6 +671,7 @@
       "_index.js",
       "_Combination.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -717,14 +690,13 @@
       "_index.js",
       "_table.js",
       "_app-layout.js",
-      "_database2.js",
       "_hard-drive.js",
-      "_activity.js",
       "_clock.js",
       "_vendor.js",
       "_Combination.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -759,15 +731,16 @@
       "_badge.js",
       "_button.js",
       "_card.js",
+      "_dialog.js",
       "_input.js",
       "_select.js",
       "_app-layout.js",
       "_refresh-cw.js",
+      "_trash-2.js",
       "_arrow-down-left.js",
       "_arrow-up-right.js",
       "_trending-down.js",
       "_trending-up.js",
-      "_activity.js",
       "_vendor.js",
       "_index.js",
       "_index2.js",
@@ -775,6 +748,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -808,6 +782,7 @@
       "_index.js",
       "_Combination.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -870,6 +845,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -892,6 +868,7 @@
       "_index.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -912,7 +889,6 @@
       "_textarea.js",
       "_app-layout.js",
       "_mail.js",
-      "_database2.js",
       "_lock.js",
       "_vendor.js",
       "_index.js",
@@ -955,6 +931,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -974,8 +951,6 @@
       "_app-layout.js",
       "_arrow-left.js",
       "_user.js",
-      "_activity.js",
-      "_database2.js",
       "_mail.js",
       "_vendor.js",
       "_index.js",
@@ -983,7 +958,8 @@
       "_index2.js",
       "_Combination.js",
       "_index4.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_lock.js"
     ]
   },
   "resources/js/pages/auth/confirm-password.tsx": {
@@ -1118,6 +1094,7 @@
       "resources/js/app.tsx",
       "_button.js",
       "_card.js",
+      "_dialog.js",
       "_input.js",
       "_select.js",
       "_table.js",
@@ -1136,6 +1113,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -1160,6 +1138,7 @@
       "_index.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -1181,7 +1160,6 @@
       "_banknote.js",
       "_credit-card.js",
       "_download.js",
-      "_file-text.js",
       "_vendor.js",
       "_input.js",
       "_calendar.js",
@@ -1190,6 +1168,36 @@
       "_index.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
+      "_user.js"
+    ]
+  },
+  "resources/js/pages/notifications.tsx": {
+    "file": "assets/notifications2.js",
+    "name": "notifications",
+    "src": "resources/js/pages/notifications.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_input.js",
+      "_select.js",
+      "_app-layout.js",
+      "_refresh-cw.js",
+      "_arrow-down-left.js",
+      "_arrow-up-right.js",
+      "_trending-down.js",
+      "_trending-up.js",
+      "_vendor.js",
+      "_index.js",
+      "_index2.js",
+      "_Combination.js",
+      "_index3.js",
+      "_index4.js",
+      "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -1200,9 +1208,8 @@
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
-      "_monitor.js",
-      "_heading-small.js",
       "_app-layout.js",
+      "_heading-small.js",
       "_layout.js",
       "_vendor.js",
       "_button.js",
@@ -1211,6 +1218,7 @@
       "_index.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js",
       "_separator.js",
       "_index5.js"
@@ -1241,6 +1249,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js",
       "_separator.js",
       "_index5.js"
@@ -1291,6 +1300,7 @@
       "_index.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js",
       "_separator.js",
       "_index5.js"
@@ -1318,6 +1328,7 @@
       "_Combination.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js",
       "_separator.js",
       "_index5.js"
@@ -1349,6 +1360,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -1371,6 +1383,7 @@
       "_index.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -1391,7 +1404,6 @@
       "_table.js",
       "_xlsx.js",
       "_plus.js",
-      "_file-text.js",
       "_trending-up.js",
       "_trending-down.js",
       "_banknote.js",
@@ -1408,6 +1420,7 @@
       "_index.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js",
       "_index3.js"
     ]
@@ -1439,6 +1452,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -1469,6 +1483,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -1499,6 +1514,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   },
@@ -1529,6 +1545,7 @@
       "_index3.js",
       "_index4.js",
       "_app-logo-icon.js",
+      "_lock.js",
       "_user.js"
     ]
   }

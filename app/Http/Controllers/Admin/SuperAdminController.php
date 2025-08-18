@@ -101,11 +101,12 @@ class SuperAdminController extends Controller
             ]
         );
 
-        // Notify admins about the promotion
+        // Notify admins about the promotion (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
             'promoted to super admin',
             $user->name,
-            "Email: {$user->email}, Promoted by: " . auth()->user()->name
+            "Email: {$user->email}, Promoted by: " . auth()->user()->name,
+            auth()->id()
         );
 
         // Notify the promoted user
@@ -164,11 +165,12 @@ class SuperAdminController extends Controller
             ]
         );
 
-        // Notify admins about the demotion
+        // Notify admins about the demotion (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
             'demoted from super admin',
             $user->name,
-            "Email: {$user->email}, New role: {$request->new_role}, Demoted by: " . auth()->user()->name
+            "Email: {$user->email}, New role: {$request->new_role}, Demoted by: " . auth()->user()->name,
+            auth()->id()
         );
 
         // Notify the demoted user
@@ -220,11 +222,12 @@ class SuperAdminController extends Controller
             ]
         );
 
-        // Notify admins about the permission update
+        // Notify admins about the permission update (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
             'updated permissions for',
             $user->name,
-            "Email: {$user->email}, Updated by: " . auth()->user()->name
+            "Email: {$user->email}, Updated by: " . auth()->user()->name,
+            auth()->id()
         );
 
         // Notify the user about permission changes
