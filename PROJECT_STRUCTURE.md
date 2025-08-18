@@ -453,10 +453,12 @@ tests/
 ### **Environment Templates**
 - `env-local.example` - Local development environment
 - `env-production.example` - Production environment
+- `env-cpanel.example` - cPanel/shared hosting environment
 
 ### **Web Server Configuration**
 - `public/.htaccess.local` - Apache config for local development
 - `public/.htaccess.production` - Apache config for production
+- `public/.htaccess.cpanel` - Apache config for cPanel/shared hosting
 
 ### **Package Management**
 - `composer.json` - PHP dependencies and scripts
@@ -479,10 +481,9 @@ tests/
 - `README.md` - Main project documentation
 - `LOCAL_DEVELOPMENT.md` - Local development setup guide
 - `PRODUCTION_DEPLOYMENT.md` - Production deployment guide
+- `CPANEL_DEPLOYMENT.md` - cPanel/shared hosting deployment guide
 - `PROJECT_STRUCTURE.md` - This file
 - `NOTIFICATION_PRODUCTION_GUIDE.md` - Environment-aware features guide
-- `DEPLOYMENT.md` - General deployment information
-- `PRODUCTION-READY.md` - Production readiness checklist
 
 ---
 

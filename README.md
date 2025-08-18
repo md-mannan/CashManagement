@@ -103,6 +103,19 @@ php artisan key:generate && php artisan migrate --force
 cp public/.htaccess.production public/.htaccess
 ```
 
+#### 🏠 **cPanel/Shared Hosting**
+```bash
+# Prepare files locally
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+
+# Upload to cPanel and configure
+cp env-cpanel.example .env
+# Edit .env with your cPanel database details
+cp public/.htaccess.cpanel public/.htaccess
+# Run setup via browser or SSH
+```
+
 **Development servers include:**
 - Laravel development server (http://localhost:8000)
 - Vite development server (hot reloading)
@@ -114,6 +127,7 @@ cp public/.htaccess.production public/.htaccess
 ### **Setup Guides**
 - 📚 [**Local Development Guide**](LOCAL_DEVELOPMENT.md) - Complete local development setup
 - 🚀 [**Production Deployment Guide**](PRODUCTION_DEPLOYMENT.md) - Step-by-step production deployment
+- 🏠 [**cPanel/Shared Hosting Guide**](CPANEL_DEPLOYMENT.md) - Deploy to cPanel shared hosting
 - 🔧 [**Environment Configuration Guide**](NOTIFICATION_PRODUCTION_GUIDE.md) - Environment-aware features
 
 ### **Key Features Documentation**
