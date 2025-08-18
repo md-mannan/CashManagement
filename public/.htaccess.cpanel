@@ -49,8 +49,8 @@
     # HSTS (only if SSL is properly configured)
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
     
-    # Basic Content Security Policy (adjust as needed)
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' wss: https:;"
+    # Content Security Policy for cPanel (Vite-compatible)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'nonce-vite'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' wss: https:; worker-src 'self' blob:;"
     
     # Remove server information (if possible)
     Header unset Server
