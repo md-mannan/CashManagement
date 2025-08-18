@@ -18,7 +18,28 @@ class WebSocketService {
     private reconnectDelay = 1000;
 
     constructor() {
-        this.initializeEcho();
+        // Don't initialize immediately - wait for explicit initialization
+    }
+
+    public initialize(user?: any) {
+        // Only initialize if user is provided or can be determined
+        if (user || this.isUserAuthenticated()) {
+            console.log('Initializing WebSocket with user:', user);
+            this.initializeEcho();
+        } else {
+            console.log('WebSocket initialization skipped - user not authenticated');
+        }
+    }
+
+    private isUserAuthenticated(): boolean {
+        // Check if user is authenticated by looking for Inertia page data
+        try {
+            const pageData = (window as any).Laravel?.page;
+            return pageData && pageData.props && pageData.props.auth && pageData.props.auth.user && pageData.props.auth.user.id;
+        } catch (error) {
+            // If we can't determine auth status, assume not authenticated
+            return false;
+        }
     }
 
     private initializeEcho() {
@@ -42,9 +63,12 @@ class WebSocketService {
                 forceTLS: websocketConfig.reverb.forceTLS,
                 enabledTransports: websocketConfig.reverb.enabledTransports,
                 disableStats: websocketConfig.reverb.disableStats,
+                authEndpoint: '/broadcasting/auth',
                 auth: {
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                     },
                 },
             });

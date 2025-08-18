@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TransactionController;
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\RolePermissionController;
@@ -54,6 +55,12 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 })->name('home');
+
+// ============================================================================
+// BROADCASTING AUTHENTICATION ROUTES
+// ============================================================================
+
+Broadcast::routes(['middleware' => ['web', 'auth']]);
 
 // ============================================================================
 // AUTHENTICATION ROUTES
@@ -134,10 +141,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('add-payable');
 
         // Generic transaction routes (must come after specific routes)
-        Route::get('/{transaction}', [TransactionController::class, 'show'])->name('show');
-        Route::get('/{transaction}/edit', [TransactionController::class, 'edit'])->name('edit');
-        Route::put('/{transaction}', [TransactionController::class, 'update'])->name('update');
-        Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy');
+        Route::get('/{transaction}', [TransactionController::class, 'show'])->name('show')->where('transaction', '[0-9]+');
+        Route::get('/{transaction}/edit', [TransactionController::class, 'edit'])->name('edit')->where('transaction', '[0-9]+');
+        Route::put('/{transaction}', [TransactionController::class, 'update'])->name('update')->where('transaction', '[0-9]+');
+        Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy')->where('transaction', '[0-9]+');
     });
 
     // Categories
@@ -188,17 +195,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('transactions.create');
     })->name('add-transaction');
 
-    Route::get('transaction/{transaction}', function ($transaction) {
-        return redirect()->route('transactions.show', $transaction);
-    })->name('transaction.view');
+    Route::get('transaction/{transaction}', [TransactionController::class, 'show'])->name('transaction.view')->where('transaction', '[0-9]+');
 
-    Route::get('transaction/{transaction}/edit', function ($transaction) {
-        return redirect()->route('transactions.edit', $transaction);
-    })->name('transaction.edit');
+    Route::get('transaction/{transaction}/edit', [TransactionController::class, 'edit'])->name('transaction.edit')->where('transaction', '[0-9]+');
 
-    Route::delete('transaction/{transaction}', function ($transaction) {
-        return redirect()->route('transactions.destroy', $transaction);
-    })->name('transaction.delete');
+    Route::delete('transaction/{transaction}', [TransactionController::class, 'destroy'])->name('transaction.delete')->where('transaction', '[0-9]+');
 
     // Redirect authenticated users to dashboard
     Route::get('/home', function () {

@@ -197,6 +197,8 @@ export default function Transaction() {
 
     const handleDeleteConfirm = () => {
         if (deleteConfirmation.transactionId) {
+            console.log('Delete transaction clicked:', deleteConfirmation.transactionId);
+            console.log('Generated route:', route('transactions.destroy', deleteConfirmation.transactionId));
             router.delete(route('transactions.destroy', deleteConfirmation.transactionId), {
                 onSuccess: () => {
                     showToast({
@@ -207,6 +209,7 @@ export default function Transaction() {
                     });
                 },
                 onError: (errors) => {
+                    console.error('Delete error:', errors);
                     showToast({
                         type: 'error',
                         title: 'Delete Failed!',
@@ -221,6 +224,8 @@ export default function Transaction() {
 
     const handleEditConfirm = () => {
         if (editConfirmation.transactionId) {
+            console.log('Edit transaction clicked:', editConfirmation.transactionId);
+            console.log('Generated route:', route('transactions.edit', editConfirmation.transactionId));
             router.visit(route('transactions.edit', editConfirmation.transactionId));
         }
         setEditConfirmation({ isOpen: false, transactionId: null });
@@ -233,6 +238,8 @@ export default function Transaction() {
 
     // Handle view transaction
     const handleViewTransaction = (transactionId: number) => {
+        console.log('View transaction clicked:', transactionId);
+        console.log('Generated route:', route('transactions.show', transactionId));
         router.visit(route('transactions.show', transactionId));
     };
 

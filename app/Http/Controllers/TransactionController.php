@@ -253,9 +253,35 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
 
+        // Debug logging
+        \Log::info('=== TRANSACTION SHOW ACCESSED ===', [
+            'transaction_id' => $transaction->id,
+            'transaction_user_id' => $transaction->user_id,
+            'current_user_id' => $user ? $user->id : 'NOT_AUTHENTICATED',
+            'user_is_admin' => $user ? $user->isAdmin() : false,
+            'request_url' => request()->fullUrl(),
+            'request_method' => request()->method(),
+            'user_name' => $user ? $user->name : 'NOT_AUTHENTICATED',
+        ]);
+
+        // Check if user is authenticated
+        if (!$user) {
+            \Log::warning('Unauthenticated user trying to access transaction', [
+                'transaction_id' => $transaction->id,
+                'request_url' => request()->fullUrl(),
+            ]);
+            return redirect()->route('dashboard')->with('error', 'Please log in to access transactions.');
+        }
+
         // Admins and super admins can view any transaction
         if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
-            abort(403);
+            \Log::warning('Transaction access denied', [
+                'transaction_id' => $transaction->id,
+                'user_id' => $user->id,
+            ]);
+            // Instead of abort(403), redirect to transactions index with error message
+            return redirect()->route('transactions.index')
+                ->with('error', 'You do not have permission to view this transaction.');
         }
 
         $transaction->load('category');
@@ -273,9 +299,23 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
 
+        // Debug logging
+        \Log::info('Transaction edit accessed', [
+            'transaction_id' => $transaction->id,
+            'transaction_user_id' => $transaction->user_id,
+            'current_user_id' => $user->id,
+            'user_is_admin' => $user->isAdmin(),
+        ]);
+
         // Admins and super admins can edit any transaction
         if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
-            abort(403);
+            \Log::warning('Transaction edit access denied', [
+                'transaction_id' => $transaction->id,
+                'user_id' => $user->id,
+            ]);
+            // Instead of abort(403), redirect to transactions index with error message
+            return redirect()->route('transactions.index')
+                ->with('error', 'You do not have permission to edit this transaction.');
         }
 
         $categories = Category::active()->get();
@@ -357,9 +397,27 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
 
+        // Debug logging
+        \Log::info('Transaction destroy accessed', [
+            'transaction_id' => $transaction->id,
+            'transaction_user_id' => $transaction->user_id,
+            'current_user_id' => $user->id,
+            'user_is_admin' => $user->isAdmin(),
+        ]);
+
         // Admins and super admins can delete any transaction
         if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
-            abort(403);
+            \Log::warning('Transaction delete access denied', [
+                'transaction_id' => $transaction->id,
+                'user_id' => $user->id,
+            ]);
+            // Return JSON error for AJAX requests
+            if (request()->expectsJson()) {
+                return response()->json(['error' => 'You do not have permission to delete this transaction.'], 403);
+            }
+            // Otherwise redirect with error message
+            return redirect()->route('transactions.index')
+                ->with('error', 'You do not have permission to delete this transaction.');
         }
 
         // Store transaction info before deletion for admin notification

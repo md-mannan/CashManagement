@@ -4,11 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import { ArcElement, BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js';
 import { Activity, BarChart3, CreditCard, Database, DollarSign, Eye, TrendingUp, Users } from 'lucide-react';
 import { Chart } from 'react-chartjs-2';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
+// Import chart configuration to ensure all controllers are registered
+import '@/lib/chart-config';
 
 // Function to get currency symbol
 const getCurrencySymbol = (currencyCode: string): string => {

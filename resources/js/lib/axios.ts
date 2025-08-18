@@ -32,6 +32,9 @@ axios.interceptors.request.use(
     },
 );
 
+// Set request timeout
+axios.defaults.timeout = 10000; // 10 seconds
+
 // Add response interceptor for error handling
 axios.interceptors.response.use(
     (response) => {
@@ -41,6 +44,9 @@ axios.interceptors.response.use(
         if (error.response?.status === 419) {
             // CSRF token mismatch - reload the page to get a new token
             window.location.reload();
+        }
+        if (error.code === 'ECONNABORTED') {
+            console.error('Request timeout - server might be slow or unavailable');
         }
         return Promise.reject(error);
     },
