@@ -3,7 +3,7 @@ import type { Config } from 'ziggy-js';
 
 // Global route function declaration
 declare global {
-    function route(name: string, params?: Record<string, any>, absolute?: boolean): string;
+    function route(name: string, params?: Record<string, any> | string | number, absolute?: boolean): string;
 }
 
 export interface Auth {

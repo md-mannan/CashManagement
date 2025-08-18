@@ -262,6 +262,7 @@ class TransactionController extends Controller
             'request_url' => request()->fullUrl(),
             'request_method' => request()->method(),
             'user_name' => $user ? $user->name : 'NOT_AUTHENTICATED',
+            'headers' => request()->headers->all(),
         ]);
 
         // Check if user is authenticated
@@ -269,6 +270,8 @@ class TransactionController extends Controller
             \Log::warning('Unauthenticated user trying to access transaction', [
                 'transaction_id' => $transaction->id,
                 'request_url' => request()->fullUrl(),
+                'session_id' => session()->getId(),
+                'has_session' => session()->has('_token'),
             ]);
             return redirect()->route('dashboard')->with('error', 'Please log in to access transactions.');
         }

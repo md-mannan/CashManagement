@@ -239,8 +239,21 @@ export default function Transaction() {
     // Handle view transaction
     const handleViewTransaction = (transactionId: number) => {
         console.log('View transaction clicked:', transactionId);
-        console.log('Generated route:', route('transactions.show', transactionId));
-        router.visit(route('transactions.show', transactionId));
+        try {
+            const generatedRoute = route('transactions.show', transactionId);
+            console.log('Generated route:', generatedRoute);
+            console.log('Auth user:', auth.user);
+            console.log('About to navigate to:', generatedRoute);
+            
+            router.visit(generatedRoute, {
+                preserveState: false,
+                preserveScroll: false,
+            });
+        } catch (error) {
+            console.error('Route generation error:', error);
+            console.error('Transaction ID:', transactionId);
+            console.error('Available routes:', Object.keys(window.Ziggy?.routes || {}));
+        }
     };
 
     // Export to Excel functionality
@@ -562,91 +575,7 @@ export default function Transaction() {
                     </Card>
                 </div>
 
-                {/* Quick Add Transaction Cards */}
-                <Card className="border-0 bg-gradient-to-r from-gray-50 to-gray-100">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-gray-800">
-                            <Plus className="h-5 w-5" />
-                            Quick Add Transactions
-                        </CardTitle>
-                        <CardDescription>Click on any card below to quickly add a specific type of transaction</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                            {/* Income Card */}
-                            <Card
-                                className="cursor-pointer border-green-200 bg-green-50/30 shadow-sm transition-colors hover:bg-green-100/50"
-                                onClick={() => router.visit(route('transactions.add-income'))}
-                            >
-                                <CardContent className="p-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                                            <TrendingUp className="h-5 w-5 text-green-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-green-800">Add Income</h3>
-                                            <p className="text-sm text-green-600">Record new income</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
 
-                            {/* Expense Card */}
-                            <Card
-                                className="cursor-pointer border-red-200 bg-red-50/30 shadow-sm transition-colors hover:bg-red-100/50"
-                                onClick={() => router.visit(route('transactions.add-expense'))}
-                            >
-                                <CardContent className="p-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-                                            <TrendingDown className="h-5 w-5 text-red-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-red-800">Add Expense</h3>
-                                            <p className="text-sm text-red-600">Record new expense</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Receivable Card */}
-                            <Card
-                                className="cursor-pointer border-blue-200 bg-blue-50/30 shadow-sm transition-colors hover:bg-blue-100/50"
-                                onClick={() => router.visit(route('transactions.add-receivable'))}
-                            >
-                                <CardContent className="p-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                                            <Banknote className="h-5 w-5 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-blue-800">Add Receivable</h3>
-                                            <p className="text-sm text-blue-600">Record money owed to you</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Payable Card */}
-                            <Card
-                                className="cursor-pointer border-orange-200 bg-orange-50/30 shadow-sm transition-colors hover:bg-orange-100/50"
-                                onClick={() => router.visit(route('transactions.add-payable'))}
-                            >
-                                <CardContent className="p-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-                                            <CreditCard className="h-5 w-5 text-orange-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-orange-800">Add Payable</h3>
-                                            <p className="text-sm text-orange-600">Record money you owe</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </CardContent>
-                </Card>
 
                 {/* Filters */}
                 <Card>
@@ -784,11 +713,11 @@ export default function Transaction() {
                                             <TableCell>{transaction.category.name}</TableCell>
 
                                             <TableCell
-                                                className={
+                                                className={`${
                                                     transaction.type === 'income' || transaction.type === 'receivable'
                                                         ? 'text-green-600'
                                                         : 'text-red-600'
-                                                }
+                                                }`}
                                             >
                                                 {transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'}{' '}
                                                 {transaction.user?.primary_symbol || primarySymbol}{' '}

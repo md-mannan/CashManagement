@@ -12,7 +12,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Route helper function
-export function route(name: string, params?: Record<string, any>, absolute?: boolean): string {
+export function route(name: string, params?: Record<string, any> | string | number, absolute?: boolean): string {
     const route = Ziggy.routes[name];
 
     if (!route) {
@@ -21,17 +21,24 @@ export function route(name: string, params?: Record<string, any>, absolute?: boo
 
     let uri = route.uri;
 
-    // Replace route parameters
+    // Handle parameters
     if (params) {
-        Object.keys(params).forEach((key) => {
-            const value = params[key];
-            uri = uri.replace(`{${key}}`, value);
-        });
+        // If params is a primitive value and route has only one parameter, use it directly
+        if ((typeof params === 'string' || typeof params === 'number') && route.parameters && route.parameters.length === 1) {
+            const paramName = route.parameters[0];
+            uri = uri.replace(`{${paramName}}`, String(params));
+        } else if (typeof params === 'object') {
+            // Replace route parameters from object
+            Object.keys(params).forEach((key) => {
+                const value = params[key];
+                uri = uri.replace(`{${key}}`, value);
+            });
+        }
     }
 
     // Add query parameters
     const queryParams = { ...Ziggy.defaults };
-    if (params) {
+    if (params && typeof params === 'object') {
         Object.keys(params).forEach((key) => {
             if (!route.parameters?.includes(key)) {
                 queryParams[key] = params[key];

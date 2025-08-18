@@ -71,6 +71,15 @@ class EnvironmentDetectionService
             }
         }
 
+        // Check APP_ENV for explicit local environment setting
+        if (isset($indicators['app_env'])) {
+            $currentEnv = env('APP_ENV', 'production');
+            if ($currentEnv === $indicators['app_env']) {
+                $score += 20; // High priority for explicit environment setting
+                $details['app_env_match'] = $currentEnv;
+            }
+        }
+
         // Check server names
         if (isset($indicators['server_names'])) {
             $serverName = $_SERVER['SERVER_NAME'] ?? '';
@@ -378,10 +387,12 @@ class EnvironmentDetectionService
 
         // Configure ports based on environment
         if ($environmentType === 'local') {
-            Config::set('reverb.servers.reverb.port', $reverbConfig['development_port'] ?? 8080);
-            Config::set('reverb.apps.apps.0.options.port', $reverbConfig['development_port'] ?? 8080);
-            Config::set('reverb.apps.apps.0.options.scheme', 'http');
-            Config::set('reverb.apps.apps.0.options.useTLS', false);
+            // Use environment variable if set, otherwise use default development port
+            $localPort = env('REVERB_SERVER_PORT', $reverbConfig['development_port'] ?? 8080);
+            Config::set('reverb.servers.reverb.port', $localPort);
+            Config::set('reverb.apps.apps.0.options.port', env('REVERB_PORT', $localPort));
+            Config::set('reverb.apps.apps.0.options.scheme', env('REVERB_SCHEME', 'http'));
+            Config::set('reverb.apps.apps.0.options.useTLS', env('REVERB_SCHEME', 'http') === 'https');
         } else {
             // Production environment configuration
             $port = $reverbConfig['production_port'] ?? 443;
