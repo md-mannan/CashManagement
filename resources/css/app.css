@@ -262,6 +262,34 @@
         color: rgb(156 163 175) !important;
     }
 
+    /* Production-specific notification fixes */
+    .notification-toast-container {
+        position: fixed !important;
+        right: 0.5rem !important;
+        top: 1rem !important;
+        z-index: 9997 !important;
+        pointer-events: none !important;
+    }
+
+    @media (min-width: 640px) {
+        .notification-toast-container {
+            right: 1rem !important;
+        }
+    }
+
+    .notification-toast-item {
+        pointer-events: auto !important;
+        max-width: calc(100vw - 1rem) !important;
+        width: 100% !important;
+    }
+
+    @media (min-width: 640px) {
+        .notification-toast-item {
+            width: 24rem !important;
+            max-width: 24rem !important;
+        }
+    }
+
     .dark .text-gray-500 {
         color: rgb(107 114 128) !important;
     }
