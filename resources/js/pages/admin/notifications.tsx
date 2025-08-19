@@ -306,13 +306,16 @@ export default function NotificationsPage() {
                             <Button onClick={handleMarkAllAsRead} disabled={unreadCount === 0}>
                                 Mark all as read
                             </Button>
+                            <Button 
+                                variant="destructive" 
+                                disabled={notifications.length === 0}
+                                onClick={() => setIsClearDialogOpen(true)}
+                            >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Clear All
+                            </Button>
+                            
                             <Dialog open={isClearDialogOpen} onOpenChange={setIsClearDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button variant="destructive" disabled={notifications.length === 0}>
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        Clear All
-                                    </Button>
-                                </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
                                         <DialogTitle>Clear All Notifications</DialogTitle>
