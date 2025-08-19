@@ -275,10 +275,13 @@ export default function NotificationsPage() {
             setIsClearDialogOpen(false);
             showToast({
                 title: 'Success',
-                message: response.message,
+                message: response.message || 'All notifications cleared successfully',
                 type: 'success',
             });
+            // Refresh notifications after clearing
+            refresh();
         } catch (error) {
+            setIsClearDialogOpen(false);
             showToast({
                 title: 'Error',
                 message: 'Failed to clear all notifications',
@@ -308,7 +311,7 @@ export default function NotificationsPage() {
                             </Button>
                             <Button 
                                 variant="destructive" 
-                                disabled={notifications.length === 0}
+                                disabled={notifications.length === 0 || isClearDialogOpen}
                                 onClick={() => setIsClearDialogOpen(true)}
                             >
                                 <Trash2 className="mr-2 h-4 w-4" />
@@ -328,8 +331,7 @@ export default function NotificationsPage() {
                                             Cancel
                                         </Button>
                                         <Button variant="destructive" onClick={handleClearAll}>
-                                            <Trash2 className="mr-2 h-4 w-4" />
-                                            Clear All Notifications
+                                            Confirm Delete
                                         </Button>
                                     </DialogFooter>
                                 </DialogContent>
