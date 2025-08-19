@@ -1,12 +1,30 @@
 {
+  "_Combination-legacy.js": {
+    "file": "assets/Combination-legacy.js",
+    "name": "Combination",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_index-legacy5.js",
+      "_button-legacy.js",
+      "_index-legacy4.js"
+    ]
+  },
   "_Combination.js": {
     "file": "assets/Combination.js",
     "name": "Combination",
     "imports": [
       "resources/js/app.tsx",
-      "_index2.js",
+      "_index5.js",
       "_button.js",
-      "_index.js"
+      "_index4.js"
+    ]
+  },
+  "_admin-route-guard-legacy.js": {
+    "file": "assets/admin-route-guard-legacy.js",
+    "name": "admin-route-guard",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js"
     ]
   },
   "_admin-route-guard.js": {
@@ -17,6 +35,14 @@
       "_app-layout.js"
     ]
   },
+  "_alert-legacy.js": {
+    "file": "assets/alert-legacy.js",
+    "name": "alert",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js"
+    ]
+  },
   "_alert.js": {
     "file": "assets/alert.js",
     "name": "alert",
@@ -25,20 +51,43 @@
       "_button.js"
     ]
   },
+  "_app-layout-legacy.js": {
+    "file": "assets/app-layout-legacy.js",
+    "name": "app-layout",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy7.js",
+      "_index-legacy4.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_vendor-legacy.js",
+      "_user-legacy.js"
+    ]
+  },
   "_app-layout.js": {
     "file": "assets/app-layout.js",
     "name": "app-layout",
     "imports": [
       "resources/js/app.tsx",
       "_button.js",
-      "_index2.js",
+      "_index5.js",
       "_Combination.js",
+      "_index7.js",
       "_index4.js",
-      "_index.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_vendor.js",
       "_user.js"
+    ]
+  },
+  "_app-logo-icon-legacy.js": {
+    "file": "assets/app-logo-icon-legacy.js",
+    "name": "app-logo-icon",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_app-logo-icon.js": {
@@ -48,11 +97,25 @@
       "resources/js/app.tsx"
     ]
   },
+  "_arrow-down-left-legacy.js": {
+    "file": "assets/arrow-down-left-legacy.js",
+    "name": "arrow-down-left",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_arrow-down-left.js": {
     "file": "assets/arrow-down-left.js",
     "name": "arrow-down-left",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_arrow-left-legacy.js": {
+    "file": "assets/arrow-left-legacy.js",
+    "name": "arrow-left",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_arrow-left.js": {
@@ -62,11 +125,44 @@
       "resources/js/app.tsx"
     ]
   },
+  "_arrow-up-right-legacy.js": {
+    "file": "assets/arrow-up-right-legacy.js",
+    "name": "arrow-up-right",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_arrow-up-right.js": {
     "file": "assets/arrow-up-right.js",
     "name": "arrow-up-right",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_assign-legacy.js": {
+    "file": "assets/assign-legacy.js",
+    "name": "assign",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_assign.js": {
+    "file": "assets/assign.js",
+    "name": "assign",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_auth-layout-legacy.js": {
+    "file": "assets/auth-layout-legacy.js",
+    "name": "auth-layout",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_app-logo-icon-legacy.js"
     ]
   },
   "_auth-layout.js": {
@@ -77,12 +173,27 @@
       "_app-logo-icon.js"
     ]
   },
+  "_badge-legacy.js": {
+    "file": "assets/badge-legacy.js",
+    "name": "badge",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js"
+    ]
+  },
   "_badge.js": {
     "file": "assets/badge.js",
     "name": "badge",
     "imports": [
       "resources/js/app.tsx",
       "_button.js"
+    ]
+  },
+  "_banknote-legacy.js": {
+    "file": "assets/banknote-legacy.js",
+    "name": "banknote",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_banknote.js": {
@@ -92,11 +203,25 @@
       "resources/js/app.tsx"
     ]
   },
+  "_button-legacy.js": {
+    "file": "assets/button-legacy.js",
+    "name": "button",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_button.js": {
     "file": "assets/button.js",
     "name": "button",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_calendar-legacy.js": {
+    "file": "assets/calendar-legacy.js",
+    "name": "calendar",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_calendar.js": {
@@ -106,11 +231,25 @@
       "resources/js/app.tsx"
     ]
   },
+  "_card-legacy.js": {
+    "file": "assets/card-legacy.js",
+    "name": "card",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_card.js": {
     "file": "assets/card.js",
     "name": "card",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_chart-config-legacy.js": {
+    "file": "assets/chart-config-legacy.js",
+    "name": "chart-config",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_chart-config.js": {
@@ -120,16 +259,35 @@
       "resources/js/app.tsx"
     ]
   },
+  "_checkbox-legacy.js": {
+    "file": "assets/checkbox-legacy.js",
+    "name": "checkbox",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_index-legacy5.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_index-legacy4.js"
+    ]
+  },
   "_checkbox.js": {
     "file": "assets/checkbox.js",
     "name": "checkbox",
     "imports": [
       "resources/js/app.tsx",
       "_button.js",
-      "_index2.js",
-      "_index3.js",
-      "_index4.js",
-      "_index.js"
+      "_index5.js",
+      "_index6.js",
+      "_index7.js",
+      "_index4.js"
+    ]
+  },
+  "_chrome-legacy.js": {
+    "file": "assets/chrome-legacy.js",
+    "name": "chrome",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_chrome.js": {
@@ -139,6 +297,13 @@
       "resources/js/app.tsx"
     ]
   },
+  "_clock-legacy.js": {
+    "file": "assets/clock-legacy.js",
+    "name": "clock",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_clock.js": {
     "file": "assets/clock.js",
     "name": "clock",
@@ -146,11 +311,27 @@
       "resources/js/app.tsx"
     ]
   },
+  "_credit-card-legacy.js": {
+    "file": "assets/credit-card-legacy.js",
+    "name": "credit-card",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_credit-card.js": {
     "file": "assets/credit-card.js",
     "name": "credit-card",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_custom-date-input-legacy.js": {
+    "file": "assets/custom-date-input-legacy.js",
+    "name": "custom-date-input",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_input-legacy.js",
+      "_calendar-legacy.js"
     ]
   },
   "_custom-date-input.js": {
@@ -162,12 +343,27 @@
       "_calendar.js"
     ]
   },
+  "_dialog-legacy.js": {
+    "file": "assets/dialog-legacy.js",
+    "name": "dialog",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js"
+    ]
+  },
   "_dialog.js": {
     "file": "assets/dialog.js",
     "name": "dialog",
     "imports": [
       "resources/js/app.tsx",
       "_app-layout.js"
+    ]
+  },
+  "_download-legacy.js": {
+    "file": "assets/download-legacy.js",
+    "name": "download",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_download.js": {
@@ -177,15 +373,107 @@
       "resources/js/app.tsx"
     ]
   },
+  "_ends-with-legacy.js": {
+    "file": "assets/ends-with-legacy.js",
+    "name": "ends-with",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_ends-with.js": {
+    "file": "assets/ends-with.js",
+    "name": "ends-with",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_entry-unbind-legacy.js": {
+    "file": "assets/entry-unbind-legacy.js",
+    "name": "entry-unbind",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_entry-unbind.js": {
+    "file": "assets/entry-unbind.js",
+    "name": "entry-unbind",
+    "imports": [
+      "resources/js/app.tsx"
+    ]
+  },
+  "_exchangeRateService-legacy.js": {
+    "file": "assets/exchangeRateService-legacy.js",
+    "name": "exchangeRateService"
+  },
   "_exchangeRateService.js": {
     "file": "assets/exchangeRateService.js",
     "name": "exchangeRateService"
+  },
+  "_eye-legacy.js": {
+    "file": "assets/eye-legacy.js",
+    "name": "eye",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
   },
   "_eye.js": {
     "file": "assets/eye.js",
     "name": "eye",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_find-index-legacy.js": {
+    "file": "assets/find-index-legacy.js",
+    "name": "find-index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_find-index.js": {
+    "file": "assets/find-index.js",
+    "name": "find-index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_find-legacy.js": {
+    "file": "assets/find-legacy.js",
+    "name": "find",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_find.js": {
+    "file": "assets/find.js",
+    "name": "find",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_github-legacy.js": {
+    "file": "assets/github-legacy.js",
+    "name": "github",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_github.js": {
@@ -195,11 +483,25 @@
       "resources/js/app.tsx"
     ]
   },
+  "_hard-drive-legacy.js": {
+    "file": "assets/hard-drive-legacy.js",
+    "name": "hard-drive",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_hard-drive.js": {
     "file": "assets/hard-drive.js",
     "name": "hard-drive",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_heading-small-legacy.js": {
+    "file": "assets/heading-small-legacy.js",
+    "name": "heading-small",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_heading-small.js": {
@@ -209,26 +511,141 @@
       "resources/js/app.tsx"
     ]
   },
+  "_includes-legacy.js": {
+    "file": "assets/includes-legacy.js",
+    "name": "includes",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_includes-legacy2.js": {
+    "file": "assets/includes-legacy2.js",
+    "name": "includes",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_includes.js": {
+    "file": "assets/includes.js",
+    "name": "includes",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_includes2.js": {
+    "file": "assets/includes2.js",
+    "name": "includes",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_index-legacy.js": {
+    "file": "assets/index-legacy.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_index-legacy2.js": {
+    "file": "assets/index-legacy2.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "_url-search-params-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_index-legacy3.js": {
+    "file": "assets/index-legacy3.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "_url-search-params-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_index-legacy4.js": {
+    "file": "assets/index-legacy4.js",
+    "name": "index",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_vendor-legacy.js",
+      "_button-legacy.js"
+    ]
+  },
+  "_index-legacy5.js": {
+    "file": "assets/index-legacy5.js",
+    "name": "index",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_index-legacy6.js": {
+    "file": "assets/index-legacy6.js",
+    "name": "index",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_index-legacy7.js": {
+    "file": "assets/index-legacy7.js",
+    "name": "index",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_index-legacy5.js"
+    ]
+  },
+  "_index-legacy8.js": {
+    "file": "assets/index-legacy8.js",
+    "name": "index",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_index-legacy4.js"
+    ]
+  },
   "_index.js": {
     "file": "assets/index.js",
     "name": "index",
+    "isDynamicEntry": true,
     "imports": [
-      "resources/js/app.tsx",
       "_vendor.js",
-      "_button.js"
+      "resources/js/app.tsx"
     ]
   },
   "_index2.js": {
     "file": "assets/index2.js",
     "name": "index",
+    "isDynamicEntry": true,
     "imports": [
+      "_vendor.js",
+      "_url-search-params.js",
       "resources/js/app.tsx"
     ]
   },
   "_index3.js": {
     "file": "assets/index3.js",
     "name": "index",
+    "isDynamicEntry": true,
     "imports": [
+      "_vendor.js",
+      "_url-search-params.js",
       "resources/js/app.tsx"
     ]
   },
@@ -237,16 +654,46 @@
     "name": "index",
     "imports": [
       "resources/js/app.tsx",
-      "_button.js",
-      "_index2.js"
+      "_vendor.js",
+      "_button.js"
     ]
   },
   "_index5.js": {
     "file": "assets/index5.js",
     "name": "index",
     "imports": [
+      "resources/js/app.tsx"
+    ]
+  },
+  "_index6.js": {
+    "file": "assets/index6.js",
+    "name": "index",
+    "imports": [
+      "resources/js/app.tsx"
+    ]
+  },
+  "_index7.js": {
+    "file": "assets/index7.js",
+    "name": "index",
+    "imports": [
       "resources/js/app.tsx",
-      "_index.js"
+      "_button.js",
+      "_index5.js"
+    ]
+  },
+  "_index8.js": {
+    "file": "assets/index8.js",
+    "name": "index",
+    "imports": [
+      "resources/js/app.tsx",
+      "_index4.js"
+    ]
+  },
+  "_input-error-legacy.js": {
+    "file": "assets/input-error-legacy.js",
+    "name": "input-error",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_input-error.js": {
@@ -256,11 +703,41 @@
       "resources/js/app.tsx"
     ]
   },
+  "_input-legacy.js": {
+    "file": "assets/input-legacy.js",
+    "name": "input",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_input.js": {
     "file": "assets/input.js",
     "name": "input",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_intersection-observer-legacy.js": {
+    "file": "assets/intersection-observer-legacy.js",
+    "name": "intersection-observer",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js"
+    ]
+  },
+  "_intersection-observer.js": {
+    "file": "assets/intersection-observer.js",
+    "name": "intersection-observer",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js"
+    ]
+  },
+  "_key-legacy.js": {
+    "file": "assets/key-legacy.js",
+    "name": "key",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_key.js": {
@@ -270,12 +747,29 @@
       "resources/js/app.tsx"
     ]
   },
+  "_label-legacy.js": {
+    "file": "assets/label-legacy.js",
+    "name": "label",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_index-legacy4.js"
+    ]
+  },
   "_label.js": {
     "file": "assets/label.js",
     "name": "label",
     "imports": [
       "resources/js/app.tsx",
-      "_index.js"
+      "_index4.js"
+    ]
+  },
+  "_layout-legacy.js": {
+    "file": "assets/layout-legacy.js",
+    "name": "layout",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_separator-legacy.js"
     ]
   },
   "_layout.js": {
@@ -287,11 +781,25 @@
       "_separator.js"
     ]
   },
+  "_loader-circle-legacy.js": {
+    "file": "assets/loader-circle-legacy.js",
+    "name": "loader-circle",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_loader-circle.js": {
     "file": "assets/loader-circle.js",
     "name": "loader-circle",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_lock-legacy.js": {
+    "file": "assets/lock-legacy.js",
+    "name": "lock",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_lock.js": {
@@ -301,11 +809,25 @@
       "resources/js/app.tsx"
     ]
   },
+  "_mail-legacy.js": {
+    "file": "assets/mail-legacy.js",
+    "name": "mail",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_mail.js": {
     "file": "assets/mail.js",
     "name": "mail",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_plus-legacy.js": {
+    "file": "assets/plus-legacy.js",
+    "name": "plus",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_plus.js": {
@@ -315,11 +837,25 @@
       "resources/js/app.tsx"
     ]
   },
+  "_refresh-cw-legacy.js": {
+    "file": "assets/refresh-cw-legacy.js",
+    "name": "refresh-cw",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_refresh-cw.js": {
     "file": "assets/refresh-cw.js",
     "name": "refresh-cw",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_search-legacy.js": {
+    "file": "assets/search-legacy.js",
+    "name": "search",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_search.js": {
@@ -329,16 +865,36 @@
       "resources/js/app.tsx"
     ]
   },
+  "_select-legacy.js": {
+    "file": "assets/select-legacy.js",
+    "name": "select",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_button-legacy.js",
+      "_index-legacy6.js"
+    ]
+  },
   "_select.js": {
     "file": "assets/select.js",
     "name": "select",
     "imports": [
       "resources/js/app.tsx",
-      "_index.js",
-      "_index2.js",
+      "_index4.js",
+      "_index5.js",
       "_Combination.js",
       "_button.js",
-      "_index3.js"
+      "_index6.js"
+    ]
+  },
+  "_separator-legacy.js": {
+    "file": "assets/separator-legacy.js",
+    "name": "separator",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_index-legacy8.js"
     ]
   },
   "_separator.js": {
@@ -346,7 +902,14 @@
     "name": "separator",
     "imports": [
       "resources/js/app.tsx",
-      "_index5.js"
+      "_index8.js"
+    ]
+  },
+  "_square-pen-legacy.js": {
+    "file": "assets/square-pen-legacy.js",
+    "name": "square-pen",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_square-pen.js": {
@@ -356,6 +919,33 @@
       "resources/js/app.tsx"
     ]
   },
+  "_starts-with-legacy.js": {
+    "file": "assets/starts-with-legacy.js",
+    "name": "starts-with",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_starts-with.js": {
+    "file": "assets/starts-with.js",
+    "name": "starts-with",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_table-legacy.js": {
+    "file": "assets/table-legacy.js",
+    "name": "table",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_table.js": {
     "file": "assets/table.js",
     "name": "table",
@@ -363,16 +953,35 @@
       "resources/js/app.tsx"
     ]
   },
+  "_tabs-legacy.js": {
+    "file": "assets/tabs-legacy.js",
+    "name": "tabs",
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_index-legacy5.js",
+      "_app-layout-legacy.js",
+      "_index-legacy7.js",
+      "_index-legacy4.js",
+      "_Combination-legacy.js"
+    ]
+  },
   "_tabs.js": {
     "file": "assets/tabs.js",
     "name": "tabs",
     "imports": [
       "resources/js/app.tsx",
-      "_index2.js",
+      "_index5.js",
       "_app-layout.js",
+      "_index7.js",
       "_index4.js",
-      "_index.js",
       "_Combination.js"
+    ]
+  },
+  "_text-link-legacy.js": {
+    "file": "assets/text-link-legacy.js",
+    "name": "text-link",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_text-link.js": {
@@ -382,11 +991,25 @@
       "resources/js/app.tsx"
     ]
   },
+  "_textarea-legacy.js": {
+    "file": "assets/textarea-legacy.js",
+    "name": "textarea",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_textarea.js": {
     "file": "assets/textarea.js",
     "name": "textarea",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_transition-legacy.js": {
+    "file": "assets/transition-legacy.js",
+    "name": "transition",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_transition.js": {
@@ -396,11 +1019,25 @@
       "resources/js/app.tsx"
     ]
   },
+  "_trash-2-legacy.js": {
+    "file": "assets/trash-2-legacy.js",
+    "name": "trash-2",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_trash-2.js": {
     "file": "assets/trash-2.js",
     "name": "trash-2",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_trending-down-legacy.js": {
+    "file": "assets/trending-down-legacy.js",
+    "name": "trending-down",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_trending-down.js": {
@@ -410,11 +1047,39 @@
       "resources/js/app.tsx"
     ]
   },
+  "_trending-up-legacy.js": {
+    "file": "assets/trending-up-legacy.js",
+    "name": "trending-up",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_trending-up.js": {
     "file": "assets/trending-up.js",
     "name": "trending-up",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_url-search-params-legacy.js": {
+    "file": "assets/url-search-params-legacy.js",
+    "name": "url-search-params",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_url-search-params.js": {
+    "file": "assets/url-search-params.js",
+    "name": "url-search-params",
+    "imports": [
+      "resources/js/app.tsx"
+    ]
+  },
+  "_user-check-legacy.js": {
+    "file": "assets/user-check-legacy.js",
+    "name": "user-check",
+    "imports": [
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_user-check.js": {
@@ -424,6 +1089,13 @@
       "resources/js/app.tsx"
     ]
   },
+  "_user-legacy.js": {
+    "file": "assets/user-legacy.js",
+    "name": "user",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
   "_user.js": {
     "file": "assets/user.js",
     "name": "user",
@@ -431,15 +1103,112 @@
       "resources/js/app.tsx"
     ]
   },
+  "_vendor-legacy.js": {
+    "file": "assets/vendor-legacy.js",
+    "name": "vendor"
+  },
   "_vendor.js": {
     "file": "assets/vendor.js",
     "name": "vendor"
+  },
+  "_xlsx-legacy.js": {
+    "file": "assets/xlsx-legacy.js",
+    "name": "xlsx",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
   },
   "_xlsx.js": {
     "file": "assets/xlsx.js",
     "name": "xlsx",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "node_modules/@juggle/resize-observer/lib/exports/resize-observer-legacy.js": {
+    "file": "assets/resize-observer-legacy.js",
+    "name": "resize-observer",
+    "src": "node_modules/@juggle/resize-observer/lib/exports/resize-observer-legacy.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/@juggle/resize-observer/lib/exports/resize-observer.js": {
+    "file": "assets/resize-observer.js",
+    "name": "resize-observer",
+    "src": "node_modules/@juggle/resize-observer/lib/exports/resize-observer.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/whatwg-fetch/fetch-legacy.js": {
+    "file": "assets/fetch-legacy.js",
+    "name": "fetch",
+    "src": "node_modules/whatwg-fetch/fetch-legacy.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/whatwg-fetch/fetch.js": {
+    "file": "assets/fetch.js",
+    "name": "fetch",
+    "src": "node_modules/whatwg-fetch/fetch.js",
+    "isDynamicEntry": true
+  },
+  "resources/js/app-legacy.tsx": {
+    "file": "assets/app-legacy.js",
+    "name": "app",
+    "src": "resources/js/app-legacy.tsx",
+    "isEntry": true,
+    "imports": [
+      "_vendor-legacy.js"
+    ],
+    "dynamicImports": [
+      "node_modules/whatwg-fetch/fetch-legacy.js",
+      "_index-legacy.js",
+      "_assign-legacy.js",
+      "_includes-legacy.js",
+      "_find-legacy.js",
+      "_find-index-legacy.js",
+      "_includes-legacy2.js",
+      "_starts-with-legacy.js",
+      "_ends-with-legacy.js",
+      "_index-legacy2.js",
+      "_index-legacy3.js",
+      "_intersection-observer-legacy.js",
+      "node_modules/@juggle/resize-observer/lib/exports/resize-observer-legacy.js",
+      "resources/js/pages/add-transaction-legacy.tsx",
+      "resources/js/pages/admin/activity-log-view-legacy.tsx",
+      "resources/js/pages/admin/activity-logs-legacy.tsx",
+      "resources/js/pages/admin/analytics-legacy.tsx",
+      "resources/js/pages/admin/backup-legacy.tsx",
+      "resources/js/pages/admin/dashboard-legacy.tsx",
+      "resources/js/pages/admin/database-legacy.tsx",
+      "resources/js/pages/admin/notification-detail-legacy.tsx",
+      "resources/js/pages/admin/notifications-legacy.tsx",
+      "resources/js/pages/admin/role-permission-legacy.tsx",
+      "resources/js/pages/admin/super-admin-legacy.tsx",
+      "resources/js/pages/admin/system-audit-legacy.tsx",
+      "resources/js/pages/admin/system-health-legacy.tsx",
+      "resources/js/pages/admin/system-settings-legacy.tsx",
+      "resources/js/pages/admin/user-management-legacy.tsx",
+      "resources/js/pages/admin/user-profile-legacy.tsx",
+      "resources/js/pages/auth/confirm-password-legacy.tsx",
+      "resources/js/pages/auth/forgot-password-legacy.tsx",
+      "resources/js/pages/auth/login-legacy.tsx",
+      "resources/js/pages/auth/register-legacy.tsx",
+      "resources/js/pages/auth/reset-password-legacy.tsx",
+      "resources/js/pages/auth/verify-email-legacy.tsx",
+      "resources/js/pages/categories-legacy.tsx",
+      "resources/js/pages/dashboard-legacy.tsx",
+      "resources/js/pages/ledger-legacy.tsx",
+      "resources/js/pages/notifications-legacy.tsx",
+      "resources/js/pages/settings/appearance-legacy.tsx",
+      "resources/js/pages/settings/currency-legacy.tsx",
+      "resources/js/pages/settings/exchange-rate-legacy.tsx",
+      "resources/js/pages/settings/password-legacy.tsx",
+      "resources/js/pages/settings/profile-legacy.tsx",
+      "resources/js/pages/transaction-edit-legacy.tsx",
+      "resources/js/pages/transaction-view-legacy.tsx",
+      "resources/js/pages/transaction-legacy.tsx",
+      "resources/js/pages/transactions/add-expense-legacy.tsx",
+      "resources/js/pages/transactions/add-income-legacy.tsx",
+      "resources/js/pages/transactions/add-payable-legacy.tsx",
+      "resources/js/pages/transactions/add-receivable-legacy.tsx"
     ]
   },
   "resources/js/app.tsx": {
@@ -451,6 +1220,19 @@
       "_vendor.js"
     ],
     "dynamicImports": [
+      "node_modules/whatwg-fetch/fetch.js",
+      "_index.js",
+      "_assign.js",
+      "_includes.js",
+      "_find.js",
+      "_find-index.js",
+      "_includes2.js",
+      "_starts-with.js",
+      "_ends-with.js",
+      "_index2.js",
+      "_index3.js",
+      "_intersection-observer.js",
+      "node_modules/@juggle/resize-observer/lib/exports/resize-observer.js",
       "resources/js/pages/add-transaction.tsx",
       "resources/js/pages/admin/activity-log-view.tsx",
       "resources/js/pages/admin/activity-logs.tsx",
@@ -494,6 +1276,40 @@
       "assets/app.css"
     ]
   },
+  "resources/js/pages/add-transaction-legacy.tsx": {
+    "file": "assets/add-transaction-legacy.js",
+    "name": "add-transaction",
+    "src": "resources/js/pages/add-transaction-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "_app-layout-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_credit-card-legacy.js",
+      "_banknote-legacy.js",
+      "_trending-down-legacy.js",
+      "_trending-up-legacy.js",
+      "_arrow-left-legacy.js",
+      "_refresh-cw-legacy.js",
+      "_vendor-legacy.js",
+      "_calendar-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
+    ]
+  },
   "resources/js/pages/add-transaction.tsx": {
     "file": "assets/add-transaction.js",
     "name": "add-transaction",
@@ -518,14 +1334,42 @@
       "_refresh-cw.js",
       "_vendor.js",
       "_calendar.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/activity-log-view-legacy.tsx": {
+    "file": "assets/activity-log-view-legacy.js",
+    "name": "activity-log-view",
+    "src": "resources/js/pages/admin/activity-log-view-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_label-legacy.js",
+      "_separator-legacy.js",
+      "_app-layout-legacy.js",
+      "_arrow-left-legacy.js",
+      "_user-legacy.js",
+      "_user-check-legacy.js",
+      "_clock-legacy.js",
+      "_calendar-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy8.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js"
     ]
   },
   "resources/js/pages/admin/activity-log-view.tsx": {
@@ -547,13 +1391,47 @@
       "_clock.js",
       "_calendar.js",
       "_vendor.js",
-      "_index.js",
-      "_index5.js",
-      "_index2.js",
-      "_Combination.js",
       "_index4.js",
+      "_index8.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js"
+    ]
+  },
+  "resources/js/pages/admin/activity-logs-legacy.tsx": {
+    "file": "assets/activity-logs-legacy.js",
+    "name": "activity-logs",
+    "src": "resources/js/pages/admin/activity-logs-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_app-layout-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_download-legacy.js",
+      "_trash-2-legacy.js",
+      "_clock-legacy.js",
+      "_calendar-legacy.js",
+      "_search-legacy.js",
+      "_eye-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js",
+      "_index-legacy6.js"
     ]
   },
   "resources/js/pages/admin/activity-logs.tsx": {
@@ -580,14 +1458,40 @@
       "_search.js",
       "_eye.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js",
-      "_index3.js"
+      "_index6.js"
+    ]
+  },
+  "resources/js/pages/admin/analytics-legacy.tsx": {
+    "file": "assets/analytics-legacy.js",
+    "name": "analytics",
+    "src": "resources/js/pages/admin/analytics-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_card-legacy.js",
+      "_tabs-legacy.js",
+      "_app-layout-legacy.js",
+      "_chart-config-legacy.js",
+      "_credit-card-legacy.js",
+      "_eye-legacy.js",
+      "_trending-up-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy5.js",
+      "_index-legacy7.js",
+      "_button-legacy.js",
+      "_index-legacy4.js",
+      "_Combination-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/analytics.tsx": {
@@ -606,14 +1510,46 @@
       "_eye.js",
       "_trending-up.js",
       "_vendor.js",
-      "_index2.js",
-      "_index4.js",
+      "_index5.js",
+      "_index7.js",
       "_button.js",
-      "_index.js",
+      "_index4.js",
       "_Combination.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/backup-legacy.tsx": {
+    "file": "assets/backup-legacy.js",
+    "name": "backup",
+    "src": "resources/js/pages/admin/backup-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_plus-legacy.js",
+      "_hard-drive-legacy.js",
+      "_clock-legacy.js",
+      "_download-legacy.js",
+      "_trash-2-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/backup.tsx": {
@@ -638,14 +1574,41 @@
       "_download.js",
       "_trash-2.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/dashboard-legacy.tsx": {
+    "file": "assets/dashboard-legacy.js",
+    "name": "dashboard",
+    "src": "resources/js/pages/admin/dashboard-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_tabs-legacy.js",
+      "_app-layout-legacy.js",
+      "_trending-up-legacy.js",
+      "_trending-down-legacy.js",
+      "_user-check-legacy.js",
+      "_plus-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy5.js",
+      "_index-legacy7.js",
+      "_index-legacy4.js",
+      "_Combination-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/dashboard.tsx": {
@@ -666,13 +1629,38 @@
       "_user-check.js",
       "_plus.js",
       "_vendor.js",
-      "_index2.js",
+      "_index5.js",
+      "_index7.js",
       "_index4.js",
-      "_index.js",
       "_Combination.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/database-legacy.tsx": {
+    "file": "assets/database-legacy.js",
+    "name": "database",
+    "src": "resources/js/pages/admin/database-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_index-legacy5.js",
+      "_index-legacy4.js",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_hard-drive-legacy.js",
+      "_clock-legacy.js",
+      "_vendor-legacy.js",
+      "_Combination-legacy.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/database.tsx": {
@@ -686,18 +1674,38 @@
       "_badge.js",
       "_button.js",
       "_card.js",
-      "_index2.js",
-      "_index.js",
+      "_index5.js",
+      "_index4.js",
       "_table.js",
       "_app-layout.js",
       "_hard-drive.js",
       "_clock.js",
       "_vendor.js",
       "_Combination.js",
-      "_index4.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/notification-detail-legacy.tsx": {
+    "file": "assets/notification-detail-legacy.js",
+    "name": "notification-detail",
+    "src": "resources/js/pages/admin/notification-detail-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_separator-legacy.js",
+      "_arrow-left-legacy.js",
+      "_trash-2-legacy.js",
+      "_clock-legacy.js",
+      "_user-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy8.js",
+      "_index-legacy4.js"
     ]
   },
   "resources/js/pages/admin/notification-detail.tsx": {
@@ -716,8 +1724,40 @@
       "_clock.js",
       "_user.js",
       "_vendor.js",
-      "_index5.js",
-      "_index.js"
+      "_index8.js",
+      "_index4.js"
+    ]
+  },
+  "resources/js/pages/admin/notifications-legacy.tsx": {
+    "file": "assets/notifications-legacy.js",
+    "name": "notifications",
+    "src": "resources/js/pages/admin/notifications-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_dialog-legacy.js",
+      "_input-legacy.js",
+      "_select-legacy.js",
+      "_app-layout-legacy.js",
+      "_refresh-cw-legacy.js",
+      "_trash-2-legacy.js",
+      "_arrow-down-left-legacy.js",
+      "_arrow-up-right-legacy.js",
+      "_trending-down-legacy.js",
+      "_trending-up-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/notifications.tsx": {
@@ -742,14 +1782,48 @@
       "_trending-down.js",
       "_trending-up.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/role-permission-legacy.tsx": {
+    "file": "assets/role-permission-legacy.js",
+    "name": "role-permission",
+    "src": "resources/js/pages/admin/role-permission-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_checkbox-legacy.js",
+      "_dialog-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_tabs-legacy.js",
+      "_app-layout-legacy.js",
+      "_download-legacy.js",
+      "_square-pen-legacy.js",
+      "_key-legacy.js",
+      "_github-legacy.js",
+      "_chrome-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy5.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_index-legacy4.js",
+      "_Combination-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/role-permission.tsx": {
@@ -776,14 +1850,44 @@
       "_github.js",
       "_chrome.js",
       "_vendor.js",
-      "_index2.js",
-      "_index3.js",
+      "_index5.js",
+      "_index6.js",
+      "_index7.js",
       "_index4.js",
-      "_index.js",
       "_Combination.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/super-admin-legacy.tsx": {
+    "file": "assets/super-admin-legacy.js",
+    "name": "super-admin",
+    "src": "resources/js/pages/admin/super-admin-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_dialog-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_eye-legacy.js",
+      "_key-legacy.js",
+      "_lock-legacy.js",
+      "_github-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/super-admin.tsx": {
@@ -807,13 +1911,46 @@
       "_lock.js",
       "_github.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/system-audit-legacy.tsx": {
+    "file": "assets/system-audit-legacy.js",
+    "name": "system-audit",
+    "src": "resources/js/pages/admin/system-audit-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_arrow-left-legacy.js",
+      "_download-legacy.js",
+      "_search-legacy.js",
+      "_clock-legacy.js",
+      "_calendar-legacy.js",
+      "_eye-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/system-audit.tsx": {
@@ -839,14 +1976,37 @@
       "_calendar.js",
       "_eye.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/system-health-legacy.tsx": {
+    "file": "assets/system-health-legacy.js",
+    "name": "system-health",
+    "src": "resources/js/pages/admin/system-health-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_alert-legacy.js",
+      "_badge-legacy.js",
+      "_card-legacy.js",
+      "_app-layout-legacy.js",
+      "_vendor-legacy.js",
+      "_button-legacy.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/system-health.tsx": {
@@ -863,13 +2023,41 @@
       "_app-layout.js",
       "_vendor.js",
       "_button.js",
-      "_index2.js",
+      "_index5.js",
       "_Combination.js",
-      "_index.js",
       "_index4.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/system-settings-legacy.tsx": {
+    "file": "assets/system-settings-legacy.js",
+    "name": "system-settings",
+    "src": "resources/js/pages/admin/system-settings-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_tabs-legacy.js",
+      "_textarea-legacy.js",
+      "_app-layout-legacy.js",
+      "_mail-legacy.js",
+      "_lock-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/system-settings.tsx": {
@@ -891,13 +2079,48 @@
       "_mail.js",
       "_lock.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/user-management-legacy.tsx": {
+    "file": "assets/user-management-legacy.js",
+    "name": "user-management",
+    "src": "resources/js/pages/admin/user-management-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_dialog-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_tabs-legacy.js",
+      "_index-legacy5.js",
+      "_index-legacy4.js",
+      "_app-layout-legacy.js",
+      "_plus-legacy.js",
+      "_square-pen-legacy.js",
+      "_key-legacy.js",
+      "_user-check-legacy.js",
+      "_trash-2-legacy.js",
+      "_github-legacy.js",
+      "_chrome-legacy.js",
+      "_vendor-legacy.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/admin/user-management.tsx": {
@@ -916,8 +2139,8 @@
       "_select.js",
       "_table.js",
       "_tabs.js",
-      "_index2.js",
-      "_index.js",
+      "_index5.js",
+      "_index4.js",
       "_app-layout.js",
       "_plus.js",
       "_square-pen.js",
@@ -928,11 +2151,38 @@
       "_chrome.js",
       "_vendor.js",
       "_Combination.js",
-      "_index3.js",
-      "_index4.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/admin/user-profile-legacy.tsx": {
+    "file": "assets/user-profile-legacy.js",
+    "name": "user-profile",
+    "src": "resources/js/pages/admin/user-profile-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_label-legacy.js",
+      "_separator-legacy.js",
+      "_app-layout-legacy.js",
+      "_arrow-left-legacy.js",
+      "_user-legacy.js",
+      "_mail-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy8.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js"
     ]
   },
   "resources/js/pages/admin/user-profile.tsx": {
@@ -953,13 +2203,31 @@
       "_user.js",
       "_mail.js",
       "_vendor.js",
-      "_index.js",
-      "_index5.js",
-      "_index2.js",
-      "_Combination.js",
       "_index4.js",
+      "_index8.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js"
+    ]
+  },
+  "resources/js/pages/auth/confirm-password-legacy.tsx": {
+    "file": "assets/confirm-password-legacy.js",
+    "name": "confirm-password",
+    "src": "resources/js/pages/auth/confirm-password-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_input-error-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_auth-layout-legacy.js",
+      "_loader-circle-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_app-logo-icon-legacy.js"
     ]
   },
   "resources/js/pages/auth/confirm-password.tsx": {
@@ -976,8 +2244,29 @@
       "_auth-layout.js",
       "_loader-circle.js",
       "_vendor.js",
-      "_index.js",
+      "_index4.js",
       "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/forgot-password-legacy.tsx": {
+    "file": "assets/forgot-password-legacy.js",
+    "name": "forgot-password",
+    "src": "resources/js/pages/auth/forgot-password-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_text-link-legacy.js",
+      "_alert-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_auth-layout-legacy.js",
+      "_mail-legacy.js",
+      "_arrow-left-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_app-logo-icon-legacy.js"
     ]
   },
   "resources/js/pages/auth/forgot-password.tsx": {
@@ -997,8 +2286,34 @@
       "_mail.js",
       "_arrow-left.js",
       "_vendor.js",
-      "_index.js",
+      "_index4.js",
       "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/login-legacy.tsx": {
+    "file": "assets/login-legacy.js",
+    "name": "login",
+    "src": "resources/js/pages/auth/login-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_input-error-legacy.js",
+      "_text-link-legacy.js",
+      "_button-legacy.js",
+      "_checkbox-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_auth-layout-legacy.js",
+      "_index-legacy8.js",
+      "_loader-circle-legacy.js",
+      "_github-legacy.js",
+      "_chrome-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy5.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_index-legacy4.js",
+      "_app-logo-icon-legacy.js"
     ]
   },
   "resources/js/pages/auth/login.tsx": {
@@ -1015,16 +2330,38 @@
       "_input.js",
       "_label.js",
       "_auth-layout.js",
-      "_index5.js",
+      "_index8.js",
       "_loader-circle.js",
       "_github.js",
       "_chrome.js",
       "_vendor.js",
-      "_index2.js",
-      "_index3.js",
+      "_index5.js",
+      "_index6.js",
+      "_index7.js",
       "_index4.js",
-      "_index.js",
       "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/register-legacy.tsx": {
+    "file": "assets/register-legacy.js",
+    "name": "register",
+    "src": "resources/js/pages/auth/register-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_input-error-legacy.js",
+      "_text-link-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_auth-layout-legacy.js",
+      "_index-legacy8.js",
+      "_loader-circle-legacy.js",
+      "_github-legacy.js",
+      "_chrome-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_app-logo-icon-legacy.js"
     ]
   },
   "resources/js/pages/auth/register.tsx": {
@@ -1040,13 +2377,34 @@
       "_input.js",
       "_label.js",
       "_auth-layout.js",
-      "_index5.js",
+      "_index8.js",
       "_loader-circle.js",
       "_github.js",
       "_chrome.js",
       "_vendor.js",
-      "_index.js",
+      "_index4.js",
       "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/reset-password-legacy.tsx": {
+    "file": "assets/reset-password-legacy.js",
+    "name": "reset-password",
+    "src": "resources/js/pages/auth/reset-password-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_text-link-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_auth-layout-legacy.js",
+      "_lock-legacy.js",
+      "_eye-legacy.js",
+      "_arrow-left-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_app-logo-icon-legacy.js"
     ]
   },
   "resources/js/pages/auth/reset-password.tsx": {
@@ -1066,8 +2424,23 @@
       "_eye.js",
       "_arrow-left.js",
       "_vendor.js",
-      "_index.js",
+      "_index4.js",
       "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/verify-email-legacy.tsx": {
+    "file": "assets/verify-email-legacy.js",
+    "name": "verify-email",
+    "src": "resources/js/pages/auth/verify-email-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_text-link-legacy.js",
+      "_button-legacy.js",
+      "_auth-layout-legacy.js",
+      "_loader-circle-legacy.js",
+      "_vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
     ]
   },
   "resources/js/pages/auth/verify-email.tsx": {
@@ -1083,6 +2456,38 @@
       "_loader-circle.js",
       "_vendor.js",
       "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/categories-legacy.tsx": {
+    "file": "assets/categories-legacy.js",
+    "name": "categories",
+    "src": "resources/js/pages/categories-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_dialog-legacy.js",
+      "_input-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_trending-up-legacy.js",
+      "_trending-down-legacy.js",
+      "_plus-legacy.js",
+      "_square-pen-legacy.js",
+      "_trash-2-legacy.js",
+      "_arrow-down-left-legacy.js",
+      "_arrow-up-right-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/categories.tsx": {
@@ -1107,14 +2512,39 @@
       "_arrow-down-left.js",
       "_arrow-up-right.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/dashboard-legacy.tsx": {
+    "file": "assets/dashboard-legacy2.js",
+    "name": "dashboard",
+    "src": "resources/js/pages/dashboard-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_card-legacy.js",
+      "_chart-config-legacy.js",
+      "_trending-up-legacy.js",
+      "_trending-down-legacy.js",
+      "_banknote-legacy.js",
+      "_credit-card-legacy.js",
+      "_vendor-legacy.js",
+      "_button-legacy.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/dashboard.tsx": {
@@ -1133,13 +2563,43 @@
       "_credit-card.js",
       "_vendor.js",
       "_button.js",
-      "_index2.js",
+      "_index5.js",
       "_Combination.js",
-      "_index.js",
       "_index4.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/ledger-legacy.tsx": {
+    "file": "assets/ledger-legacy.js",
+    "name": "ledger",
+    "src": "resources/js/pages/ledger-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_app-layout-legacy.js",
+      "_xlsx-legacy.js",
+      "_plus-legacy.js",
+      "_trending-up-legacy.js",
+      "_trending-down-legacy.js",
+      "_banknote-legacy.js",
+      "_credit-card-legacy.js",
+      "_download-legacy.js",
+      "_vendor-legacy.js",
+      "_input-legacy.js",
+      "_calendar-legacy.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/ledger.tsx": {
@@ -1163,13 +2623,42 @@
       "_vendor.js",
       "_input.js",
       "_calendar.js",
-      "_index2.js",
+      "_index5.js",
       "_Combination.js",
-      "_index.js",
       "_index4.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/notifications-legacy.tsx": {
+    "file": "assets/notifications-legacy2.js",
+    "name": "notifications",
+    "src": "resources/js/pages/notifications-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_select-legacy.js",
+      "_app-layout-legacy.js",
+      "_refresh-cw-legacy.js",
+      "_arrow-down-left-legacy.js",
+      "_arrow-up-right-legacy.js",
+      "_trending-down-legacy.js",
+      "_trending-up-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/notifications.tsx": {
@@ -1191,14 +2680,37 @@
       "_trending-down.js",
       "_trending-up.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/settings/appearance-legacy.tsx": {
+    "file": "assets/appearance-legacy.js",
+    "name": "appearance",
+    "src": "resources/js/pages/settings/appearance-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_heading-small-legacy.js",
+      "_layout-legacy.js",
+      "_vendor-legacy.js",
+      "_button-legacy.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js",
+      "_separator-legacy.js",
+      "_index-legacy8.js"
     ]
   },
   "resources/js/pages/settings/appearance.tsx": {
@@ -1213,15 +2725,46 @@
       "_layout.js",
       "_vendor.js",
       "_button.js",
-      "_index2.js",
+      "_index5.js",
       "_Combination.js",
-      "_index.js",
       "_index4.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js",
       "_separator.js",
-      "_index5.js"
+      "_index8.js"
+    ]
+  },
+  "resources/js/pages/settings/currency-legacy.tsx": {
+    "file": "assets/currency-legacy.js",
+    "name": "currency",
+    "src": "resources/js/pages/settings/currency-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_exchangeRateService-legacy.js",
+      "_heading-small-legacy.js",
+      "_input-error-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_app-layout-legacy.js",
+      "_layout-legacy.js",
+      "_refresh-cw-legacy.js",
+      "_transition-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js",
+      "_separator-legacy.js",
+      "_index-legacy8.js"
     ]
   },
   "resources/js/pages/settings/currency.tsx": {
@@ -1243,16 +2786,40 @@
       "_refresh-cw.js",
       "_transition.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js",
       "_separator.js",
-      "_index5.js"
+      "_index8.js"
+    ]
+  },
+  "resources/js/pages/settings/exchange-rate-legacy.tsx": {
+    "file": "assets/exchange-rate-legacy.js",
+    "name": "exchange-rate",
+    "src": "resources/js/pages/settings/exchange-rate-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_input-error-legacy.js",
+      "_alert-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_separator-legacy.js",
+      "_layout-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy8.js"
     ]
   },
   "resources/js/pages/settings/exchange-rate.tsx": {
@@ -1272,11 +2839,38 @@
       "_separator.js",
       "_layout.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
+      "_index4.js",
+      "_index5.js",
       "_Combination.js",
-      "_index3.js",
-      "_index5.js"
+      "_index6.js",
+      "_index8.js"
+    ]
+  },
+  "resources/js/pages/settings/password-legacy.tsx": {
+    "file": "assets/password-legacy.js",
+    "name": "password",
+    "src": "resources/js/pages/settings/password-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_input-error-legacy.js",
+      "_app-layout-legacy.js",
+      "_layout-legacy.js",
+      "_heading-small-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_transition-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js",
+      "_separator-legacy.js",
+      "_index-legacy8.js"
     ]
   },
   "resources/js/pages/settings/password.tsx": {
@@ -1295,15 +2889,43 @@
       "_label.js",
       "_transition.js",
       "_vendor.js",
-      "_index2.js",
+      "_index5.js",
       "_Combination.js",
-      "_index.js",
       "_index4.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js",
       "_separator.js",
-      "_index5.js"
+      "_index8.js"
+    ]
+  },
+  "resources/js/pages/settings/profile-legacy.tsx": {
+    "file": "assets/profile-legacy.js",
+    "name": "profile",
+    "src": "resources/js/pages/settings/profile-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_input-error-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_heading-small-legacy.js",
+      "_dialog-legacy.js",
+      "_app-layout-legacy.js",
+      "_layout-legacy.js",
+      "_transition-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js",
+      "_separator-legacy.js",
+      "_index-legacy8.js"
     ]
   },
   "resources/js/pages/settings/profile.tsx": {
@@ -1323,15 +2945,45 @@
       "_layout.js",
       "_transition.js",
       "_vendor.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js",
       "_separator.js",
-      "_index5.js"
+      "_index8.js"
+    ]
+  },
+  "resources/js/pages/transaction-edit-legacy.tsx": {
+    "file": "assets/transaction-edit-legacy.js",
+    "name": "transaction-edit",
+    "src": "resources/js/pages/transaction-edit-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "_app-layout-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_arrow-left-legacy.js",
+      "_refresh-cw-legacy.js",
+      "_vendor-legacy.js",
+      "_calendar-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/transaction-edit.tsx": {
@@ -1354,14 +3006,75 @@
       "_refresh-cw.js",
       "_vendor.js",
       "_calendar.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/transaction-legacy.tsx": {
+    "file": "assets/transaction-legacy.js",
+    "name": "transaction",
+    "src": "resources/js/pages/transaction-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_app-layout-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_xlsx-legacy.js",
+      "_plus-legacy.js",
+      "_trending-up-legacy.js",
+      "_trending-down-legacy.js",
+      "_banknote-legacy.js",
+      "_arrow-down-left-legacy.js",
+      "_search-legacy.js",
+      "_download-legacy.js",
+      "_eye-legacy.js",
+      "_square-pen-legacy.js",
+      "_trash-2-legacy.js",
+      "_vendor-legacy.js",
+      "_calendar-legacy.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js",
+      "_index-legacy6.js"
+    ]
+  },
+  "resources/js/pages/transaction-view-legacy.tsx": {
+    "file": "assets/transaction-view-legacy.js",
+    "name": "transaction-view",
+    "src": "resources/js/pages/transaction-view-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_app-layout-legacy.js",
+      "_arrow-left-legacy.js",
+      "_square-pen-legacy.js",
+      "_trash-2-legacy.js",
+      "_vendor-legacy.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/transaction-view.tsx": {
@@ -1378,10 +3091,10 @@
       "_square-pen.js",
       "_trash-2.js",
       "_vendor.js",
-      "_index2.js",
+      "_index5.js",
       "_Combination.js",
-      "_index.js",
       "_index4.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
@@ -1415,14 +3128,45 @@
       "_trash-2.js",
       "_vendor.js",
       "_calendar.js",
-      "_index2.js",
+      "_index5.js",
       "_Combination.js",
-      "_index.js",
       "_index4.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js",
-      "_index3.js"
+      "_index6.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-expense-legacy.tsx": {
+    "file": "assets/add-expense-legacy.js",
+    "name": "add-expense",
+    "src": "resources/js/pages/transactions/add-expense-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "_app-layout-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_trending-down-legacy.js",
+      "_arrow-left-legacy.js",
+      "_refresh-cw-legacy.js",
+      "_vendor-legacy.js",
+      "_calendar-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/transactions/add-expense.tsx": {
@@ -1446,14 +3190,45 @@
       "_refresh-cw.js",
       "_vendor.js",
       "_calendar.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-income-legacy.tsx": {
+    "file": "assets/add-income-legacy.js",
+    "name": "add-income",
+    "src": "resources/js/pages/transactions/add-income-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "_app-layout-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_trending-up-legacy.js",
+      "_arrow-left-legacy.js",
+      "_refresh-cw-legacy.js",
+      "_vendor-legacy.js",
+      "_calendar-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/transactions/add-income.tsx": {
@@ -1477,14 +3252,45 @@
       "_refresh-cw.js",
       "_vendor.js",
       "_calendar.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-payable-legacy.tsx": {
+    "file": "assets/add-payable-legacy.js",
+    "name": "add-payable",
+    "src": "resources/js/pages/transactions/add-payable-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "_app-layout-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_credit-card-legacy.js",
+      "_arrow-left-legacy.js",
+      "_refresh-cw-legacy.js",
+      "_vendor-legacy.js",
+      "_calendar-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/transactions/add-payable.tsx": {
@@ -1508,14 +3314,45 @@
       "_refresh-cw.js",
       "_vendor.js",
       "_calendar.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-receivable-legacy.tsx": {
+    "file": "assets/add-receivable-legacy.js",
+    "name": "add-receivable",
+    "src": "resources/js/pages/transactions/add-receivable-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "_app-layout-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_banknote-legacy.js",
+      "_arrow-left-legacy.js",
+      "_refresh-cw-legacy.js",
+      "_vendor-legacy.js",
+      "_calendar-legacy.js",
+      "_index-legacy4.js",
+      "_index-legacy5.js",
+      "_Combination-legacy.js",
+      "_index-legacy6.js",
+      "_index-legacy7.js",
+      "_app-logo-icon-legacy.js",
+      "_lock-legacy.js",
+      "_user-legacy.js"
     ]
   },
   "resources/js/pages/transactions/add-receivable.tsx": {
@@ -1539,14 +3376,20 @@
       "_refresh-cw.js",
       "_vendor.js",
       "_calendar.js",
-      "_index.js",
-      "_index2.js",
-      "_Combination.js",
-      "_index3.js",
       "_index4.js",
+      "_index5.js",
+      "_Combination.js",
+      "_index6.js",
+      "_index7.js",
       "_app-logo-icon.js",
       "_lock.js",
       "_user.js"
     ]
+  },
+  "vite/legacy-polyfills-legacy": {
+    "file": "assets/polyfills-legacy.js",
+    "name": "polyfills",
+    "src": "vite/legacy-polyfills-legacy",
+    "isEntry": true
   }
 }

@@ -1,3 +1,9 @@
+// Load polyfills first for older browser support
+import './polyfills';
+
+// Initialize feature detection
+import './utils/feature-detection';
+
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';

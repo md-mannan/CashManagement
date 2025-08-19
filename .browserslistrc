@@ -1,0 +1,22 @@
+# Browsers that we support
+# This configuration is used by Autoprefixer, Babel, and other tools
+
+# Production browsers
+> 0.5%
+last 2 versions
+not dead
+not ie 11
+not op_mini all
+
+# Development browsers (more lenient)
+[development]
+last 1 chrome version
+last 1 firefox version
+last 1 safari version
+
+# Legacy support (if needed for specific clients)
+[legacy]
+> 1%
+last 3 versions
+not dead
+ie >= 11

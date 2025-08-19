@@ -245,6 +245,180 @@
         color-scheme: dark;
     }
 
+    /* Browser compatibility fixes */
+    
+    /* Flexbox fallbacks for older browsers */
+    .flex {
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -webkit-flex;     /* NEW - Safari 6.1+. iOS 7.1+ */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: flex;             /* NEW - Chrome 21+, Opera 12.1+ */
+    }
+    
+    .flex-col {
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+    }
+    
+    .items-center {
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        -ms-flex-align: center;
+        align-items: center;
+    }
+    
+    .justify-center {
+        -webkit-box-pack: center;
+        -webkit-justify-content: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+    }
+
+    /* Grid fallbacks for older browsers */
+    .grid {
+        display: -ms-grid;
+        display: grid;
+    }
+    
+    /* CSS Custom Properties fallbacks */
+    :root {
+        /* Fallback colors for browsers that don't support CSS custom properties */
+        --border-fallback: #e2e8f0;
+        --input-fallback: #ffffff;
+        --background-fallback: #ffffff;
+        --foreground-fallback: #0f172a;
+        --primary-fallback: #3b82f6;
+        --secondary-fallback: #f1f5f9;
+    }
+
+    /* Fallbacks for oklch colors */
+    html {
+        background-color: #ffffff; /* Fallback */
+        background-color: oklch(1 0 0);
+    }
+
+    html.dark {
+        background-color: #0f172a; /* Fallback */
+        background-color: oklch(0.145 0 0);
+    }
+
+    html.theme-violet {
+        background-color: #faf9ff; /* Fallback */
+        background-color: oklch(0.99 0.005 280);
+    }
+
+    html.theme-violet.dark {
+        background-color: #1e1b2e; /* Fallback */
+        background-color: oklch(0.12 0.02 280);
+    }
+
+    /* Feature-based CSS fallbacks */
+    
+    /* Grid fallbacks for browsers without grid support */
+    .no-grid .grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .no-grid .grid-cols-1 > * {
+        flex: 1 1 100%;
+    }
+
+    .no-grid .grid-cols-2 > * {
+        flex: 1 1 50%;
+    }
+
+    .no-grid .grid-cols-3 > * {
+        flex: 1 1 33.333%;
+    }
+
+    .no-grid .grid-cols-4 > * {
+        flex: 1 1 25%;
+    }
+
+    /* Flexbox fallbacks for older browsers */
+    .no-flexbox .flex {
+        display: block;
+    }
+
+    .no-flexbox .flex > * {
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    /* CSS Variables fallbacks */
+    .no-css-vars {
+        --border: #e2e8f0;
+        --input: #ffffff;
+        --background: #ffffff;
+        --foreground: #0f172a;
+        --primary: #3b82f6;
+        --secondary: #f1f5f9;
+    }
+
+    .no-css-vars.dark {
+        --border: #374151;
+        --input: #1f2937;
+        --background: #111827;
+        --foreground: #f9fafb;
+        --primary: #60a5fa;
+        --secondary: #374151;
+    }
+
+    /* Modern color fallbacks */
+    .no-modern-colors html {
+        background-color: #ffffff !important;
+    }
+
+    .no-modern-colors html.dark {
+        background-color: #0f172a !important;
+    }
+
+    .no-modern-colors html.theme-violet {
+        background-color: #faf9ff !important;
+    }
+
+    .no-modern-colors html.theme-violet.dark {
+        background-color: #1e1b2e !important;
+    }
+
+    /* Touch device optimizations */
+    .touch-device {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .touch-device button,
+    .touch-device [role="button"] {
+        min-height: 44px; /* Minimum touch target size */
+        min-width: 44px;
+    }
+
+    /* No-touch optimizations */
+    .no-touch :hover {
+        transition: all 0.2s ease;
+    }
+
+    /* WebSocket unavailable fallbacks */
+    .no-websocket .realtime-indicator {
+        display: none;
+    }
+
+    .no-websocket .offline-notice {
+        display: block;
+        background: #fef3c7;
+        color: #92400e;
+        padding: 0.5rem;
+        text-align: center;
+        font-size: 0.875rem;
+    }
+
     /* Ensure text is visible in dark mode */
     .dark .text-gray-900 {
         color: rgb(243 244 246) !important;
