@@ -73,10 +73,13 @@ export function NotificationToast({ notification, onClose, duration = 5000 }: No
     return (
         <div
             className={cn(
-                'fixed right-4 top-4 z-50 w-96 max-w-sm rounded-lg border p-4 shadow-lg transition-all duration-300',
+                'fixed right-2 sm:right-4 top-4 z-[9998] w-[calc(100vw-1rem)] sm:w-96 max-w-sm rounded-lg border p-4 shadow-lg transition-all duration-300 pointer-events-auto',
                 getColorClasses(notification.color),
                 isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'
             )}
+            style={{
+                maxWidth: 'calc(100vw - 1rem)',
+            }}
         >
             <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0">
@@ -95,7 +98,7 @@ export function NotificationToast({ notification, onClose, duration = 5000 }: No
                         </h4>
                         <button
                             onClick={handleClose}
-                            className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+                            className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors ml-2"
                         >
                             <X className="h-4 w-4" />
                         </button>
@@ -121,13 +124,15 @@ interface NotificationToastContainerProps {
 
 export function NotificationToastContainer({ notifications, onClose }: NotificationToastContainerProps) {
     return (
-        <div className="fixed right-4 top-4 z-50 space-y-4">
+        <div className="fixed right-2 sm:right-4 top-4 z-[9997] space-y-4 pointer-events-none">
             {notifications.map((notification, index) => (
                 <div
                     key={notification.id}
                     style={{
-                        transform: `translateY(${index * 20}px)`,
+                        transform: `translateY(${index * 80}px)`,
+                        zIndex: 9998 - index,
                     }}
+                    className="pointer-events-none"
                 >
                     <NotificationToast
                         notification={notification}

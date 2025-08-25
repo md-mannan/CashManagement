@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('primary_currency', 3)->default('USD')->after('email');
-            $table->string('secondary_currency', 3)->default('EUR')->after('primary_currency');
-            $table->string('primary_symbol', 5)->default('$')->after('secondary_currency');
-            $table->string('secondary_symbol', 5)->default('€')->after('primary_symbol');
+            $table->string('primary_currency', 3)->default('BDT')->after('email');
+            $table->string('secondary_currency', 3)->default('KWD')->after('primary_currency');
+            $table->string('primary_symbol', 5)->default('৳')->after('secondary_currency');
+            $table->string('secondary_symbol', 5)->default('د.ك')->after('primary_symbol');
             $table->decimal('exchange_rate', 10, 4)->default(1.0)->after('secondary_symbol');
         });
     }

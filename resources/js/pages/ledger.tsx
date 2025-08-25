@@ -64,10 +64,10 @@ export default function Ledger() {
     >().props;
 
     // User's primary currency from settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
-    const secondaryCurrency = auth.user.secondary_currency || 'EUR';
-    const secondarySymbol = auth.user.secondary_symbol || '€';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
+    const secondaryCurrency = auth.user.secondary_currency || 'KWD';
+    const secondarySymbol = auth.user.secondary_symbol || 'د.ك';
     const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
 
     // Helper function to calculate converted amount (used for secondary currency conversion)
@@ -196,7 +196,7 @@ export default function Ledger() {
             total_expenses: originalExpenses,
             total_receivables: originalReceivables,
             total_payables: originalPayables,
-            net_balance: originalIncome + originalReceivables - (originalExpenses + originalPayables),
+            net_balance: (originalIncome - originalExpenses) + (originalReceivables - originalPayables),
         };
     };
 
@@ -294,17 +294,114 @@ export default function Ledger() {
     };
 
     const exportToPDF = () => {
-        window.print(); // Simple print to PDF approach
+        // Create a new window with the ledger data
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) return;
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>General Ledger - ${new Date().toLocaleDateString()}</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        margin: 20px; 
+                        font-size: 12px;
+                    }
+                    h1 { 
+                        text-align: center; 
+                        color: #333; 
+                        margin-bottom: 20px;
+                        font-size: 24px;
+                    }
+                    .header-info {
+                        text-align: center;
+                        margin-bottom: 30px;
+                        color: #666;
+                    }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-top: 20px;
+                    }
+                    th, td { 
+                        border: 1px solid #ddd; 
+                        padding: 8px; 
+                        text-align: left;
+                    }
+                    th { 
+                        background-color: #f5f5f5; 
+                        font-weight: bold;
+                        text-align: center;
+                    }
+                    .text-right { text-align: right; }
+                    .text-red { color: #dc2626; }
+                    .text-green { color: #16a34a; }
+                    .font-bold { font-weight: bold; }
+                    @media print {
+                        body { margin: 0; }
+                        @page { margin: 1cm; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>General Ledger</h1>
+                <div class="header-info">
+                    <p>Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}</p>
+                    <p>Total Transactions: ${ledgerEntries.length}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Source</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${ledgerEntries.map((entry) => `
+                            <tr>
+                                <td>${new Date(entry.date).toLocaleDateString('en-GB')}</td>
+                                <td>${entry.description}</td>
+                                <td>${entry.source}</td>
+                                <td class="text-right">
+                                    ${entry.debit ? `<span class="text-red">${primarySymbol} ${formatCurrency(entry.debit, primaryCurrency)}</span>` : '-'}
+                                </td>
+                                <td class="text-right">
+                                    ${entry.credit ? `<span class="text-green">${primarySymbol} ${formatCurrency(entry.credit, primaryCurrency)}</span>` : '-'}
+                                </td>
+                                <td class="text-right font-bold">${primarySymbol} ${formatCurrency(entry.balance, primaryCurrency)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+        
+        // Wait for content to load, then print
+        printWindow.onload = () => {
+            printWindow.print();
+            printWindow.close();
+        };
     };
 
     const printLedger = () => {
-        window.print();
+        // Use the same PDF export functionality for printing
+        exportToPDF();
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Ledger" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-2 sm:p-4 w-full max-w-full">
                 <div className="space-y-6">
                     {/* Financial Summary Section */}
                     <div className="financial-summary space-y-4">
@@ -355,7 +452,7 @@ export default function Ledger() {
                             </DropdownMenu>
                         </div>
 
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                             {/* Cash Balance Card */}
                             <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -470,7 +567,7 @@ export default function Ledger() {
                             <p className="text-sm text-muted-foreground print:hidden">Complete transaction history with running balance</p>
                         </div>
 
-                        <Card className="print:border-0 print:shadow-none">
+                        <Card className="print:border-0 print:shadow-none print-content">
                             <CardHeader className="print:pb-2">
                                 <div className="flex items-center justify-between">
                                     <div>

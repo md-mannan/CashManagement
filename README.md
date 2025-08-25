@@ -1,527 +1,385 @@
-# Cash Management System - Professional Edition
+# 💰 Cash Management System
 
-A comprehensive, enterprise-grade cash management application designed for businesses, organizations, and financial professionals. Built with modern technologies and best practices, this system provides robust financial tracking, user management, and real-time monitoring capabilities.
+A modern, full-featured financial management application built with Laravel 12 and React 19. Track income, expenses, manage categories, handle multiple currencies, and get real-time notifications with a beautiful, responsive interface.
 
-## 🌟 **Product Overview**
+![Cash Management Dashboard](https://img.shields.io/badge/Laravel-12.x-red?style=flat-square&logo=laravel)
+![React](https://img.shields.io/badge/React-19.x-blue?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript)
+![PHP](https://img.shields.io/badge/PHP-8.2+-purple?style=flat-square&logo=php)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-The Cash Management System is a complete financial management solution that helps businesses:
+## ✨ **Key Features**
 
-- **Track Income & Expenses** with detailed categorization
-- **Manage Multi-Currency Operations** with real-time exchange rates
-- **Monitor Financial Health** through comprehensive dashboards
-- **Control User Access** with role-based permissions
-- **Maintain Audit Trails** for compliance and transparency
-- **Generate Financial Reports** for decision-making
+### 📊 **Financial Management**
+- **Transaction Tracking** - Income, expenses, payables, and receivables
+- **Category Management** - Organize transactions with custom categories
+- **Multi-Currency Support** - Handle multiple currencies with real-time exchange rates
+- **Financial Reports** - Comprehensive analytics and reporting
+- **Export/Import** - Excel/CSV export and import functionality
 
-## 🚀 **Key Features**
+### 🎨 **Modern Interface**
+- **Responsive Design** - Beautiful UI that works on all devices
+- **Dark/Light Mode** - Toggle between themes with system preference detection
+- **Theme Customization** - Multiple color themes (Neutral, Violet)
+- **Real-time Updates** - Live notifications and data updates via WebSockets
 
-### 💰 **Financial Management**
+### 🔐 **Security & Administration**
+- **Role-based Access Control** - Admin, Super Admin, and User roles
+- **User Management** - Complete user administration panel
+- **Activity Logging** - Comprehensive audit trail
+- **Social Authentication** - Login with Google, GitHub, etc.
+- **Secure Authentication** - Laravel Sanctum with session management
 
-- **Transaction Tracking**: Complete CRUD operations for income/expenses
-- **Category Management**: Customizable transaction categories
-- **Multi-Currency Support**: USD, EUR, KWD, BDT, AED, SAR, QAR, BHD, OMR, JOD, LBP, EGP
-- **Exchange Rate Integration**: Real-time currency conversion via API
-- **Ledger View**: Comprehensive financial overview with advanced filtering
-
-### 👥 **User Management**
-
-- **Multi-Role System**: User, Admin, and Super Admin roles
-- **Permission Control**: Granular access control for different functions
-- **User Activity Monitoring**: Track all user actions and system changes
-- **Account Management**: User creation, role assignment, and status control
-
-### 🔔 **Smart Notifications**
-
-- **Bidirectional Alerts**:
-    - Users get notified of account changes, role updates, and password resets
-    - Admins receive alerts about user activities, transactions, and system events
-- **Real-time Delivery**: Instant notification system
-- **Customizable Types**: Success, warning, error, info, and custom notifications
-
-### 🛡️ **Security & Compliance**
-
-- **Authentication System**: Secure login with Laravel Breeze
-- **CSRF Protection**: Built-in security measures
-- **Role-based Access Control**: Secure permission system
-- **Activity Logging**: Complete audit trail for compliance
-- **Session Management**: Secure user sessions
-
-### 📊 **Admin Dashboard**
-
-- **System Overview**: Key metrics and performance indicators
-- **User Management**: Comprehensive user administration
-- **System Health**: Database, cache, storage, and performance monitoring
-- **Activity Logs**: Detailed system activity tracking
-- **Backup & Restore**: Database backup and restoration
-- **System Audit**: User activity monitoring and reporting
+### 🚀 **Technical Excellence**
+- **Dynamic Environment Detection** - Automatic configuration for different hosting types
+- **WebSocket Integration** - Laravel Reverb for real-time features
+- **Modern Frontend** - React 19 with TypeScript and Tailwind CSS
+- **API Ready** - RESTful API endpoints for mobile/external integrations
+- **Testing Suite** - Comprehensive test coverage with Pest PHP
 
 ## 🛠️ **Technology Stack**
 
 ### **Backend**
-
-- **Laravel 12**: Modern PHP framework with enterprise features
-- **MySQL 8.0+**: Robust, scalable database system
-- **Eloquent ORM**: Advanced database relationships and queries
-- **Laravel Breeze**: Professional authentication scaffolding
+- **Laravel 12** - Modern PHP framework
+- **PHP 8.2+** - Latest PHP features
+- **MySQL 8.0** - Reliable database
+- **Laravel Reverb** - Real-time WebSocket server
+- **Inertia.js** - SPA-like experience without API complexity
 
 ### **Frontend**
+- **React 19** - Latest React with concurrent features
+- **TypeScript 5.7** - Type-safe JavaScript
+- **Tailwind CSS 4.0** - Utility-first CSS framework
+- **Vite 7** - Fast build tool and dev server
+- **Shadcn/ui** - Beautiful, accessible UI components
 
-- **React 18**: Modern, performant UI library
-- **TypeScript**: Type-safe development for reliability
-- **Inertia.js**: Seamless single-page application experience
-- **Tailwind CSS**: Utility-first CSS framework for rapid development
-- **Shadcn UI**: Professional, accessible component library
-- **Lucide Icons**: Consistent, scalable icon system
+### **Development Tools**
+- **Pest PHP** - Modern PHP testing framework
+- **ESLint** - JavaScript/TypeScript linting
+- **Prettier** - Code formatting
+- **Laravel Pint** - PHP code style fixer
+- **Concurrently** - Run multiple dev servers
 
-### **Development & Deployment**
+## 🚀 **Quick Start**
 
-- **Vite**: Lightning-fast build tool and development server
-- **ESLint**: Code quality and consistency enforcement
-- **PHPUnit**: Comprehensive testing framework
-- **Artisan CLI**: Powerful command-line interface
+### **Prerequisites**
+- PHP 8.2 or higher
+- MySQL 8.0 or higher  
+- Composer 2.0+
+- Node.js 18+ and npm
+- Git
 
-## 📋 **System Requirements**
+### **Installation**
 
-### **Server Requirements**
-
-- **PHP**: 8.2 or higher
-- **Database**: MySQL 8.0+ or MariaDB 10.4+
-- **Web Server**: Apache 2.4+ or Nginx 1.18+
-- **Memory**: Minimum 512MB RAM (1GB+ recommended)
-- **Storage**: Minimum 100MB available space
-
-### **Client Requirements**
-
-- **Browser**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
-- **JavaScript**: Must be enabled
-- **Internet**: Required for exchange rate updates and external APIs
-
-## 🚀 **Installation Guide**
-
-### **Quick Start (cPanel Deployment)**
-
-1. **Prepare Your Project**
-
-    ```bash
-    # Windows
-    deploy-cpanel.bat
-
-    # Linux/Mac
-    ./deploy-cpanel.sh
-    ```
-
-2. **Upload to cPanel**
-    - Upload the generated deployment package to your `public_html` directory
-    - Maintain the exact directory structure
-
-3. **Configure Database**
-    - Create MySQL database in cPanel
-    - Update `.env` file with database credentials
-
-4. **Run Setup Commands**
-
-    ```bash
-    php artisan migrate
-    php artisan db:seed  # Optional
-    php artisan key:generate
-    ```
-
-5. **Set Permissions**
-
-    ```bash
-    chmod 755 storage bootstrap/cache
-    chmod 644 .env
-    ```
-
-6. **Access Your Application**
-    - Visit your domain
-    - Create your first user account
-    - Start managing your finances!
-
-### **Detailed Deployment Guide**
-
-For comprehensive deployment instructions, see [CPANEL_DEPLOYMENT_GUIDE.md](CPANEL_DEPLOYMENT_GUIDE.md)
-
-### **Local Development**
-
+#### 🖥️ **Local Development**
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone <repository-url>
 cd CashManagement
 
-# Install dependencies
-composer install
-npm install
+# Quick setup with local template
+cp env-local.example .env
+composer install && npm install
+php artisan key:generate && php artisan migrate --seed
 
-# Copy environment file
-cp .env.example .env
-
-# Generate application key
-php artisan key:generate
-
-# Run migrations
-php artisan migrate
-
-# Seed database (optional)
-php artisan db:seed
-
-# Start development server
-npm run dev
-php artisan serve
+# Start development servers
+composer run dev
+# OR manually:
+php artisan serve & npm run dev & php artisan reverb:start
 ```
 
-## 🔑 **Default Accounts**
+#### 🌐 **Production Deployment**
+```bash
+# Clone the repository
+git clone <repository-url>
+cd CashManagement
 
-### **Super Admin (Created During Installation)**
+# Production setup
+cp env-production.example .env
+# Edit .env with your production values
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan key:generate && php artisan migrate --force
+cp public/.htaccess.production public/.htaccess
+```
 
-- **Email**: Set during installation
-- **Password**: Set during installation
-- **Capabilities**: Full system access, user management, system configuration
+#### 🏠 **cPanel/Shared Hosting**
+```bash
+# Prepare files locally
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
 
-### **Admin User (Optional)**
+# Upload to cPanel and configure
+cp env-cpanel.example .env
+# Edit .env with your cPanel database details
+cp public/.htaccess.cpanel public/.htaccess
+# Run setup via browser or SSH
+```
 
-- **Email**: Set during installation
-- **Password**: Set during installation
-- **Capabilities**: User management, system monitoring, limited configuration
+**Development servers include:**
+- Laravel development server (http://localhost:8000)
+- Vite development server (hot reloading)
+- WebSocket server for real-time features
+- Queue worker for background jobs
 
-## 📱 **Client Usage Guide**
+## 📖 **Documentation**
 
-### **Getting Started**
+### **Setup Guides**
+- 📚 [**Local Development Guide**](LOCAL_DEVELOPMENT.md) - Complete local development setup
+- 🚀 [**Production Deployment Guide**](PRODUCTION_DEPLOYMENT.md) - Step-by-step production deployment
+- 🏠 [**cPanel/Shared Hosting Guide**](CPANEL_DEPLOYMENT.md) - Deploy to cPanel shared hosting
+- 🔧 [**Environment Configuration Guide**](NOTIFICATION_PRODUCTION_GUIDE.md) - Environment-aware features
 
-1. **First Login**
-    - Access the system using your admin credentials
-    - Complete the initial setup wizard
-    - Configure your business preferences (currency, timezone, etc.)
+### **Key Features Documentation**
 
-2. **User Setup**
-    - Create user accounts for team members
-    - Assign appropriate roles and permissions
-    - Set up notification preferences
+#### **Dynamic Environment System**
+Automatically detects and configures your environment:
 
-### **Daily Operations**
+```bash
+# Detect current environment
+php artisan env:detect
 
-#### **For Business Owners/Managers**
+# Generate optimized .env file
+php artisan env:config --generate --force
+```
 
-1. **Dashboard Overview**
-    - View total balance and financial summary
-    - Monitor recent transactions and trends
-    - Check system health and user activity
+**Supported Environments:**
+- **Local Development** - Optimized for development with debug tools
+- **Shared Hosting** - cPanel/Plesk compatible with database sessions
+- **VPS/Dedicated** - Full server control with Redis caching
+- **Cloud Platforms** - AWS/GCP/Azure with managed services
 
-2. **Financial Management**
-    - Add income and expense transactions
-    - Categorize transactions for better organization
-    - Set up recurring transactions if needed
-    - Monitor cash flow and budget adherence
+#### **WebSocket Real-time Features**
+Laravel Reverb provides real-time functionality:
 
-3. **Reporting & Analysis**
-    - Generate financial reports
-    - Analyze spending patterns by category
-    - Track performance over time
-    - Export data for external analysis
+```bash
+# Start WebSocket server
+php artisan reverb:start
+```
 
-#### **For Regular Users**
+**Real-time Features:**
+- Live notifications
+- Transaction updates
+- User activity tracking
+- Admin dashboard updates
 
-1. **Transaction Entry**
-    - Add new transactions with details
-    - Select appropriate categories
-    - Attach receipts or notes
-    - Submit for approval if required
+## 🎨 **User Interface**
 
-2. **Personal Dashboard**
-    - View personal transaction history
-    - Monitor assigned budgets
-    - Check notification center
-    - Update personal preferences
+### **Dashboard Features**
+- **Financial Overview** - Income, expenses, balance at a glance
+- **Transaction History** - Searchable and filterable transaction list
+- **Category Analytics** - Visual breakdown by categories
+- **Currency Exchange** - Real-time exchange rate display
+- **Quick Actions** - Fast transaction entry
 
-#### **For Administrators**
+### **Admin Panel**
+- **User Management** - Create, edit, delete users and roles
+- **System Settings** - Application configuration
+- **Activity Logs** - Comprehensive audit trail
+- **Database Management** - Backup and restore functionality
+- **Analytics Dashboard** - System-wide financial analytics
 
-1. **User Management**
-    - Create and manage user accounts
-    - Assign roles and permissions
-    - Monitor user activity
-    - Handle password resets
+### **Responsive Design**
+- **Mobile First** - Optimized for mobile devices
+- **Tablet Support** - Perfect tablet experience
+- **Desktop Enhanced** - Full desktop functionality
+- **Touch Friendly** - Gesture support for mobile interactions
 
-2. **System Administration**
-    - Monitor system performance
-    - Review activity logs
-    - Manage backup schedules
-    - Configure system settings
-
-### **Advanced Features**
-
-1. **Multi-Currency Operations**
-    - Set primary and secondary currencies
-    - Configure exchange rate APIs
-    - Handle international transactions
-    - Generate multi-currency reports
-
-2. **Category Management**
-    - Create custom transaction categories
-    - Set budget limits per category
-    - Track spending by business area
-    - Generate category-based reports
-
-3. **Notification System**
-    - Configure alert preferences
-    - Set up email notifications
-    - Manage real-time alerts
-    - Customize notification types
-
-## 🔧 **Configuration Options**
+## 🔧 **Configuration**
 
 ### **Environment Variables**
 
 ```env
-# Application Settings
-APP_NAME="Your Business Name"
-APP_URL=https://yourdomain.com
-APP_TIMEZONE=UTC
-APP_LOCALE=en
+# Application
+APP_NAME="Cash Management"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
 
-# Database Configuration
+# Database
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=cash_management
-DB_USERNAME=cash_user
-DB_PASSWORD=secure_password
+DB_DATABASE=cashmanagement_local
+DB_USERNAME=root
+DB_PASSWORD=
 
-# Currency Settings
-DEFAULT_CURRENCY=USD
-DEFAULT_SECONDARY_CURRENCY=EUR
-ENABLE_NOTIFICATIONS=true
-ENABLE_ACTIVITY_LOGGING=true
-ENABLE_BACKUP=true
-ENABLE_SOCIAL_LOGIN=false
+# WebSockets (Laravel Reverb)
+BROADCAST_CONNECTION=reverb
+REVERB_APP_KEY=your-reverb-key
+REVERB_HOST="localhost"
+REVERB_PORT=8080
 
-# Exchange Rate API
-EXCHANGE_RATE_API_KEY=your_api_key
-EXCHANGE_RATE_API_PROVIDER=exchangerate-api.com
+# Mail Configuration
+MAIL_MAILER=log  # or smtp for production
+
+# Social Authentication (Optional)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
 
 ### **Customization Options**
 
-- **Themes**: Light, dark, and system themes
-- **Color Schemes**: Multiple professional color options
-- **Date Formats**: Customizable date and time displays
-- **Language Support**: Multi-language interface (extensible)
+**Themes:** Neutral (default), Violet
+**Appearance:** Light, Dark, System
+**Currency:** Multiple currency support with real-time rates
+**Localization:** Ready for multi-language support
 
-## 📊 **Database Schema**
+## 🧪 **Testing**
 
-### **Core Tables**
-
-- `users`: User accounts, roles, and preferences
-- `transactions`: Financial transaction records
-- `categories`: Transaction categorization system
-- `notifications`: System and user notifications
-- `activity_logs`: Comprehensive activity tracking
-- `exchange_rates`: Currency conversion data
-
-### **Data Relationships**
-
-- Users → Transactions (one-to-many)
-- Categories → Transactions (one-to-many)
-- Users → Notifications (one-to-many)
-- Users → Activity Logs (one-to-many)
-
-## 🧪 **Testing & Quality Assurance**
-
-### **Automated Testing**
-
+### **Backend Testing**
 ```bash
-# Run complete test suite
+# Run all tests
 php artisan test
 
-# Run specific test categories
-php artisan test --filter=TransactionTest
-php artisan test --filter=UserTest
-php artisan test --filter=AdminTest
+# Run with coverage
+php artisan test --coverage
+
+# Run specific test suite
+php artisan test --testsuite=Feature
 ```
 
-### **Quality Checks**
+### **Frontend Testing**
+```bash
+# Type checking
+npm run types
 
-- **Code Quality**: ESLint, PHPStan, and Laravel Pint
-- **Security**: Automated security scanning
-- **Performance**: Database query optimization
-- **Accessibility**: WCAG 2.1 compliance
+# Linting
+npm run lint
 
-## 📝 **API Documentation**
+# Format code
+npm run format
+```
 
-### **Authentication Endpoints**
+### **Test Coverage**
+- **Feature Tests** - Complete user workflows
+- **Unit Tests** - Individual component testing
+- **API Tests** - Endpoint validation
+- **Authentication Tests** - Security verification
 
-- `POST /api/login`: User authentication
-- `POST /api/logout`: User logout
-- `POST /api/refresh`: Token refresh
-
-### **Transaction Management**
-
-- `GET /api/transactions`: List transactions with filtering
-- `POST /api/transactions`: Create new transaction
-- `PUT /api/transactions/{id}`: Update transaction
-- `DELETE /api/transactions/{id}`: Delete transaction
-
-### **User Management**
-
-- `GET /api/users`: List users (admin only)
-- `POST /api/users`: Create user (admin only)
-- `PUT /api/users/{id}`: Update user (admin only)
-- `DELETE /api/users/{id}`: Delete user (admin only)
-
-### **Admin Functions**
-
-- `GET /api/admin/dashboard`: System overview
-- `GET /api/admin/users`: User management
-- `GET /api/admin/notifications`: System notifications
-- `GET /api/admin/system-health`: System health check
-
-## 🔒 **Security Features**
-
-### **Authentication & Authorization**
-
-- **Multi-factor Authentication**: Optional 2FA support
-- **Session Management**: Secure session handling
-- **Password Policies**: Enforced password requirements
-- **Account Lockout**: Protection against brute force attacks
-
-### **Data Protection**
-
-- **CSRF Protection**: All forms protected
-- **SQL Injection Prevention**: Parameterized queries
-- **XSS Protection**: Input sanitization
-- **Data Encryption**: Sensitive data encryption
-
-### **Compliance Features**
-
-- **Audit Logging**: Complete activity tracking
-- **Data Retention**: Configurable data retention policies
-- **GDPR Compliance**: Data privacy controls
-- **Export Rights**: User data export capabilities
-
-## 📈 **Performance & Scalability**
+## 📊 **Performance**
 
 ### **Optimization Features**
+- **Laravel Caching** - Config, route, and view caching
+- **Database Optimization** - Efficient queries and indexing
+- **Asset Optimization** - Vite build optimization
+- **Lazy Loading** - Frontend component lazy loading
+- **Image Optimization** - Responsive image handling
 
-- **Database Indexing**: Optimized query performance
-- **Caching System**: Multi-level caching (database, application, file)
-- **Asset Optimization**: Minified and compressed assets
-- **Lazy Loading**: Efficient data loading strategies
+### **Production Performance**
+- **OPcache** - PHP bytecode caching
+- **Redis** - Session and cache storage (VPS/Cloud)
+- **CDN Ready** - Static asset distribution
+- **Database Indexing** - Optimized database queries
 
-### **Scalability Options**
+## 🔐 **Security**
 
-- **Horizontal Scaling**: Support for multiple servers
-- **Load Balancing**: Database and application load balancing
-- **CDN Integration**: Content delivery network support
-- **Database Sharding**: Large dataset handling
+### **Security Features**
+- **CSRF Protection** - Cross-site request forgery prevention
+- **XSS Protection** - Cross-site scripting prevention
+- **SQL Injection Prevention** - Parameterized queries
+- **Rate Limiting** - API and login attempt limiting
+- **Secure Headers** - Security headers implementation
 
-## 🚧 **Current Development Status**
+### **Authentication**
+- **Multi-factor Ready** - Prepared for 2FA implementation
+- **Social Login** - OAuth integration with major providers
+- **Password Security** - Bcrypt hashing with salt
+- **Session Security** - Secure session management
 
-### **Completed Features** ✅
+## 🌍 **Deployment**
 
-- Core transaction management system
-- User management and role system
-- Notification system (bidirectional)
-- Admin dashboard and monitoring
-- Multi-currency support
-- Activity logging and audit trails
-- Backup and restore functionality
-- Web-based installer system
-- Responsive design and themes
+### **Supported Hosting Types**
 
-### **In Progress** 🔄
+**Shared Hosting (cPanel)**
+- Automatic detection and configuration
+- Database session storage for reliability
+- Optimized for shared hosting limitations
 
-- Advanced reporting features
-- Mobile application development
-- API rate limiting and optimization
-- Performance monitoring tools
+**VPS/Dedicated Servers**
+- Full server control features
+- Redis caching support
+- Background job processing
 
-### **Planned Features** 📋
+**Cloud Platforms**
+- AWS, Google Cloud, Azure support
+- Managed service integration
+- Auto-scaling ready
 
-- AI-powered financial insights
-- Advanced analytics dashboard
-- Banking API integrations
-- Multi-tenant architecture
-- Advanced workflow automation
+## 📈 **Roadmap**
 
-## 🤝 **Support & Maintenance**
+### **Upcoming Features**
+- [ ] **Mobile App** - React Native companion app
+- [ ] **Multi-language Support** - Internationalization
+- [ ] **Advanced Reporting** - Custom report builder
+- [ ] **Budget Planning** - Budget creation and tracking
+- [ ] **Receipt Scanning** - OCR receipt processing
+- [ ] **Bank Integration** - Direct bank account connectivity
+- [ ] **Investment Tracking** - Portfolio management
+- [ ] **Team Collaboration** - Multi-user workspace
 
-### **Documentation**
+### **Technical Improvements**
+- [ ] **GraphQL API** - Alternative to REST API
+- [ ] **PWA Support** - Progressive Web App features
+- [ ] **Offline Mode** - Local data synchronization
+- [ ] **Advanced Analytics** - Machine learning insights
+- [ ] **Microservices** - Service-oriented architecture
 
-- **User Manual**: Comprehensive usage guide
-- **Admin Guide**: System administration manual
-- **API Reference**: Complete API documentation
-- **Video Tutorials**: Step-by-step video guides
+## 🤝 **Contributing**
 
-### **Support Channels**
+We welcome contributions! Please follow these steps:
 
-- **Email Support**: Technical support via email
-- **Documentation**: Self-service help system
-- **Community Forum**: User community support
-- **Priority Support**: Premium support for enterprise clients
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Make your changes**
+4. **Add tests** for new functionality
+5. **Run the test suite** (`php artisan test && npm run lint`)
+6. **Commit your changes** (`git commit -m 'Add amazing feature'`)
+7. **Push to the branch** (`git push origin feature/amazing-feature`)
+8. **Open a Pull Request**
 
-### **Maintenance Services**
+### **Development Guidelines**
+- Follow PSR-12 PHP coding standards
+- Use TypeScript for all frontend code
+- Write tests for new features
+- Update documentation as needed
+- Follow conventional commit messages
 
-- **Regular Updates**: Security and feature updates
-- **Performance Monitoring**: Continuous system monitoring
-- **Backup Management**: Automated backup services
-- **Security Audits**: Regular security assessments
+## 📄 **License**
 
-## 📄 **License & Commercial Use**
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### **License Information**
+## 🆘 **Support**
 
-This software is licensed under the MIT License, allowing for:
+### **Getting Help**
+- **Documentation** - Check the guides in this repository
+- **Issues** - Report bugs or request features via GitHub Issues
+- **Discussions** - Community discussions and Q&A
 
-- Commercial use and distribution
-- Modification and adaptation
-- Private and public deployment
-- Integration with other systems
+### **Common Issues**
+- **CORS Errors** - Check production setup guide
+- **Database Connection** - Verify MySQL credentials
+- **Asset Loading** - Ensure build files are present
+- **WebSocket Issues** - Check Reverb server status
 
-### **Commercial Deployment**
+## 🏆 **Acknowledgments**
 
-- **Single License**: One installation per license
-- **Multi-Site**: Contact for multi-site licensing
-- **Enterprise**: Custom enterprise solutions available
-- **White Label**: Branding customization options
+### **Built With**
+- [Laravel](https://laravel.com) - The PHP framework for web artisans
+- [React](https://react.dev) - A JavaScript library for building user interfaces
+- [Inertia.js](https://inertiajs.com) - The modern monolith
+- [Tailwind CSS](https://tailwindcss.com) - A utility-first CSS framework
+- [Shadcn/ui](https://ui.shadcn.com) - Beautifully designed components
 
-## 🎯 **Roadmap & Future Development**
-
-### **Short Term (3-6 months)**
-
-- Enhanced reporting and analytics
-- Mobile application (iOS/Android)
-- Advanced workflow automation
-- Performance optimization
-
-### **Medium Term (6-12 months)**
-
-- AI-powered financial insights
-- Advanced security features
-- Multi-tenant architecture
-- Banking API integrations
-
-### **Long Term (12+ months)**
-
-- Enterprise-grade features
-- Advanced compliance tools
-- Machine learning capabilities
-- Blockchain integration options
-
-## 📞 **Contact & Sales**
-
-### **Sales Inquiries**
-
-- **Email**: sales@cashmanagement.com
-- **Phone**: +1 (555) 123-4567
-- **Website**: https://cashmanagement.com
-
-### **Technical Support**
-
-- **Email**: support@cashmanagement.com
-- **Documentation**: https://docs.cashmanagement.com
-- **Community**: https://community.cashmanagement.com
+### **Special Thanks**
+- Laravel community for the excellent framework
+- React team for the powerful UI library
+- All contributors and testers
 
 ---
 
-**Cash Management System** - Professional financial management for modern businesses.
+## 🚀 **Get Started Today**
 
-_Built with ❤️ using Laravel, React, and modern web technologies._
+Ready to take control of your finances? Follow our [Local Development Guide](LOCAL_DEVELOPMENT.md) to get started, or check out the [Production Setup Guide](PRODUCTION_SETUP.md) to deploy your own instance.
+
+**Happy financial management! 💰**

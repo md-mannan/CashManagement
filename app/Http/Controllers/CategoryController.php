@@ -69,12 +69,13 @@ class CategoryController extends Controller
         // Create notification for category creation
         $this->createCategoryNotification($category, 'created');
 
-        // Notify admins about the category creation
+        // Notify admins about the category creation (excluding current user to avoid duplicates)
         AdminNotificationService::notifyCategoryAction(
             'created',
             Auth::user()->name,
             $category->name,
-            $category->type
+            $category->type,
+            Auth::id() // Pass current user ID to exclude them
         );
 
         return back()->with('success', 'Category created successfully.');
@@ -123,12 +124,13 @@ class CategoryController extends Controller
         // Create notification for category update
         $this->createCategoryNotification($category, 'updated');
 
-        // Notify admins about the category update
+        // Notify admins about the category update (excluding current user to avoid duplicates)
         AdminNotificationService::notifyCategoryAction(
             'updated',
             Auth::user()->name,
             $category->name,
-            $category->type
+            $category->type,
+            Auth::id() // Pass current user ID to exclude them
         );
 
         return back()->with('success', 'Category updated successfully.');
@@ -149,12 +151,13 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        // Notify admins about the category deletion
+        // Notify admins about the category deletion (excluding current user to avoid duplicates)
         AdminNotificationService::notifyCategoryAction(
             'deleted',
             Auth::user()->name,
             $categoryInfo['name'],
-            $categoryInfo['type']
+            $categoryInfo['type'],
+            Auth::id() // Pass current user ID to exclude them
         );
 
         return back()->with('success', 'Category deleted successfully.');

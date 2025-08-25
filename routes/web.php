@@ -3,6 +3,8 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TransactionController;
+use Illuminate\Support\Facades\Broadcast;
+use Inertia\Inertia;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\RolePermissionController;
@@ -30,7 +32,6 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\ExchangeRateController as ApiExchangeRateController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,12 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 })->name('home');
+
+// ============================================================================
+// BROADCASTING AUTHENTICATION ROUTES
+// ============================================================================
+
+Broadcast::routes(['middleware' => ['web', 'auth']]);
 
 // ============================================================================
 // AUTHENTICATION ROUTES
@@ -117,27 +124,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [TransactionController::class, 'store'])->name('store');
 
         // Add Transaction Type Pages (must come before {transaction} routes)
-        Route::get('/add-income', function () {
-            return Inertia::render('transactions/add-income');
-        })->name('add-income');
-
-        Route::get('/add-expense', function () {
-            return Inertia::render('transactions/add-expense');
-        })->name('add-expense');
-
-        Route::get('/add-receivable', function () {
-            return Inertia::render('transactions/add-receivable');
-        })->name('add-receivable');
-
-        Route::get('/add-payable', function () {
-            return Inertia::render('transactions/add-payable');
-        })->name('add-payable');
+        Route::get('/add-income', [TransactionController::class, 'addIncome'])->name('add-income');
+        Route::get('/add-expense', [TransactionController::class, 'addExpense'])->name('add-expense');
+        Route::get('/add-receivable', [TransactionController::class, 'addReceivable'])->name('add-receivable');
+        Route::get('/add-payable', [TransactionController::class, 'addPayable'])->name('add-payable');
 
         // Generic transaction routes (must come after specific routes)
-        Route::get('/{transaction}', [TransactionController::class, 'show'])->name('show');
-        Route::get('/{transaction}/edit', [TransactionController::class, 'edit'])->name('edit');
-        Route::put('/{transaction}', [TransactionController::class, 'update'])->name('update');
-        Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy');
+        Route::get('/{transaction}', [TransactionController::class, 'show'])->name('show')->where('transaction', '[0-9]+');
+        Route::get('/{transaction}/edit', [TransactionController::class, 'edit'])->name('edit')->where('transaction', '[0-9]+');
+        Route::put('/{transaction}', [TransactionController::class, 'update'])->name('update')->where('transaction', '[0-9]+');
+        Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy')->where('transaction', '[0-9]+');
     });
 
     // Categories
@@ -145,6 +141,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // Notifications
+    Route::get('notifications', function () {
+        return Inertia::render('notifications');
+    })->name('notifications');
 
     // Settings
     Route::redirect('settings', '/settings/profile');
@@ -188,17 +189,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('transactions.create');
     })->name('add-transaction');
 
-    Route::get('transaction/{transaction}', function ($transaction) {
-        return redirect()->route('transactions.show', $transaction);
-    })->name('transaction.view');
+    Route::get('transaction/{transaction}', [TransactionController::class, 'show'])->name('transaction.view')->where('transaction', '[0-9]+');
 
-    Route::get('transaction/{transaction}/edit', function ($transaction) {
-        return redirect()->route('transactions.edit', $transaction);
-    })->name('transaction.edit');
+    Route::get('transaction/{transaction}/edit', [TransactionController::class, 'edit'])->name('transaction.edit')->where('transaction', '[0-9]+');
 
-    Route::delete('transaction/{transaction}', function ($transaction) {
-        return redirect()->route('transactions.destroy', $transaction);
-    })->name('transaction.delete');
+    Route::delete('transaction/{transaction}', [TransactionController::class, 'destroy'])->name('transaction.delete')->where('transaction', '[0-9]+');
 
     // Redirect authenticated users to dashboard
     Route::get('/home', function () {
@@ -331,6 +326,7 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
         Route::post('/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
         Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
+        Route::post('/clear-all', [NotificationController::class, 'clearAll'])->name('clear-all');
         Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
     });
 

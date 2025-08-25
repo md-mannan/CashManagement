@@ -2,7 +2,25 @@ import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BarChart3, Bell, Crown, DollarSign, LayoutGrid, Receipt, Shield, Tag, Users } from 'lucide-react';
+import { 
+    Activity, 
+    BarChart3, 
+    Bell, 
+    Crown, 
+    Database, 
+    DollarSign, 
+    FileText, 
+    HardDrive, 
+    LayoutGrid, 
+    Lock, 
+    Receipt, 
+    Settings, 
+    Shield, 
+    Tag, 
+    Users,
+    Archive,
+    Monitor
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
 export function AppSidebar() {
@@ -47,7 +65,7 @@ export function AppSidebar() {
         {
             title: 'Role & Permissions',
             href: '/admin/role-permission',
-            icon: Shield,
+            icon: Lock,
         },
         {
             title: 'Notifications',
@@ -72,7 +90,7 @@ export function AppSidebar() {
         {
             title: 'System Settings',
             href: '/settings',
-            icon: Shield,
+            icon: Settings,
         },
     ];
 
@@ -85,27 +103,27 @@ export function AppSidebar() {
         {
             title: 'System Audit',
             href: '/admin/super-admin/audit',
-            icon: Shield,
+            icon: FileText,
         },
         {
             title: 'Activity Logs',
             href: '/admin/activity-logs',
-            icon: Shield,
+            icon: Activity,
         },
         {
             title: 'System Health',
             href: '/admin/system-health',
-            icon: Shield,
+            icon: Monitor,
         },
         {
             title: 'Database Management',
             href: '/admin/database',
-            icon: Shield,
+            icon: Database,
         },
         {
             title: 'Backup & Restore',
             href: '/admin/backup',
-            icon: Shield,
+            icon: Archive,
         },
     ];
 

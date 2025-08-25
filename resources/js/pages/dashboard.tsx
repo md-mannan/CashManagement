@@ -3,25 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import {
-    ArcElement,
-    BarElement,
-    CategoryScale,
-    Chart as ChartJS,
-    Filler,
-    Legend,
-    LinearScale,
-    LineElement,
-    PointElement,
-    Title,
-    Tooltip,
-} from 'chart.js';
 import { Banknote, BarChart3, CreditCard, PieChart, Shield, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
-
-// Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler, ArcElement);
+// Import chart configuration to ensure all controllers are registered
+import '@/lib/chart-config';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -140,10 +126,10 @@ export default function Dashboard() {
     }, []);
 
     // User's currency settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
-    const secondaryCurrency = auth.user.secondary_currency || 'EUR';
-    const secondarySymbol = auth.user.secondary_symbol || '€';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
+    const secondaryCurrency = auth.user.secondary_currency || 'KWD';
+    const secondarySymbol = auth.user.secondary_symbol || 'د.ك';
     const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
 
     // Helper function to check if chart data has actual values
@@ -357,6 +343,7 @@ export default function Dashboard() {
                     padding: 15,
                     boxWidth: 12,
                     boxHeight: 12,
+                    color: document.documentElement.classList.contains('dark') ? 'rgb(229, 231, 235)' : 'rgb(55, 65, 81)',
                     font: {
                         size: 12,
                         weight: 'bold' as const,
@@ -432,25 +419,25 @@ export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-2 sm:p-4 w-full max-w-full">
                 {/* Welcome Section */}
                 <div
-                    className={`flex items-center justify-between transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
+                    className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
                 >
                     <div>
-                        <h1 className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-3xl font-bold tracking-tight text-transparent">
+                        <h1 className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-2xl sm:text-3xl font-bold tracking-tight text-transparent">
                             Financial Dashboard
                         </h1>
-                        <p className="text-muted-foreground">Your financial overview at a glance</p>
+                        <p className="text-sm text-muted-foreground">Your financial overview at a glance</p>
                     </div>
                     {auth.user.role && ['admin', 'super_admin'].includes(auth.user.role) && (
-                        <div className="flex items-center gap-2">
-                            <div className="rounded-lg border border-red-200 bg-gradient-to-r from-red-50 to-red-100 p-3">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <div className="rounded-lg border border-red-200 bg-gradient-to-r from-red-50 to-red-100 p-2 sm:p-3 w-full sm:w-auto">
                                 <div className="flex items-center gap-2">
-                                    <Shield className="h-5 w-5 text-red-600" />
+                                    <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
                                     <div>
-                                        <p className="text-sm font-medium text-red-800">Admin Access</p>
-                                        <p className="text-xs text-red-600">You have administrative privileges</p>
+                                        <p className="text-xs sm:text-sm font-medium text-red-800">Admin Access</p>
+                                        <p className="text-xs text-red-600 hidden sm:block">You have administrative privileges</p>
                                     </div>
                                 </div>
                             </div>
@@ -468,11 +455,11 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-semibold tracking-tight">Financial Summary</h2>
-                            <p className="text-sm text-muted-foreground">Overview of your current financial position</p>
+                            <p className="text-sm text-muted-foreground">Overview of your overall financial position (all transactions)</p>
                         </div>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 w-full max-w-full">
                         {/* Net Balance Card */}
                         <Card
                             className={`border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
@@ -497,10 +484,8 @@ export default function Dashboard() {
                                                 typeof currentSummary.secondary_amounts.total_receivables === 'number' &&
                                                 typeof currentSummary.secondary_amounts.total_expenses === 'number' &&
                                                 typeof currentSummary.secondary_amounts.total_payables === 'number'
-                                                ? currentSummary.secondary_amounts.total_income +
-                                                      currentSummary.secondary_amounts.total_receivables -
-                                                      (currentSummary.secondary_amounts.total_expenses +
-                                                          currentSummary.secondary_amounts.total_payables)
+                                                ? (currentSummary.secondary_amounts.total_income - currentSummary.secondary_amounts.total_expenses) +
+                                                  (currentSummary.secondary_amounts.total_receivables - currentSummary.secondary_amounts.total_payables)
                                                 : convertAmount(financialSummary.balance, secondaryCurrency),
                                             secondaryCurrency,
                                         )}
@@ -595,49 +580,10 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
 
-                        {/* Payable Card */}
-                        <Card
-                            className={`border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                            style={{ animationDelay: '400ms' }}
-                        >
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-orange-800">Payable</CardTitle>
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-200">
-                                    <CreditCard className="h-4 w-4 text-orange-700" />
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-orange-800">
-                                    {primarySymbol} {formatCurrency(financialSummary.totalPayable, primaryCurrency)}
-                                </div>
-                                <div className="space-y-1 text-sm text-orange-600">
-                                    <div>
-                                        {secondarySymbol}{' '}
-                                        {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_payables &&
-                                                typeof currentSummary.secondary_amounts.total_payables === 'number' &&
-                                                !isNaN(currentSummary.secondary_amounts.total_payables)
-                                                ? currentSummary.secondary_amounts.total_payables
-                                                : convertAmount(financialSummary.totalPayable, secondaryCurrency),
-                                            secondaryCurrency,
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="mt-1 text-xs text-orange-600">
-                                    {changes?.payables_change
-                                        ? changes.payables_change >= 0
-                                            ? `+${changes.payables_change.toFixed(1)}%`
-                                            : `${changes.payables_change.toFixed(1)}%`
-                                        : 'Total payables'}{' '}
-                                    from last month
-                                </p>
-                            </CardContent>
-                        </Card>
-
                         {/* Receivable Card */}
                         <Card
                             className={`border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                            style={{ animationDelay: '500ms' }}
+                            style={{ animationDelay: '400ms' }}
                         >
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-blue-800">Receivable</CardTitle>
@@ -672,6 +618,45 @@ export default function Dashboard() {
                                 </p>
                             </CardContent>
                         </Card>
+
+                        {/* Payable Card */}
+                        <Card
+                            className={`border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                            style={{ animationDelay: '500ms' }}
+                        >
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-orange-800">Payable</CardTitle>
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-200">
+                                    <CreditCard className="h-4 w-4 text-orange-700" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-orange-800">
+                                    {primarySymbol} {formatCurrency(financialSummary.totalPayable, primaryCurrency)}
+                                </div>
+                                <div className="space-y-1 text-sm text-orange-600">
+                                    <div>
+                                        {secondarySymbol}{' '}
+                                        {formatCurrency(
+                                            currentSummary?.secondary_amounts?.total_payables &&
+                                                typeof currentSummary.secondary_amounts.total_payables === 'number' &&
+                                                !isNaN(currentSummary.secondary_amounts.total_payables)
+                                                ? currentSummary.secondary_amounts.total_payables
+                                                : convertAmount(financialSummary.totalPayable, secondaryCurrency),
+                                            secondaryCurrency,
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="mt-1 text-xs text-orange-600">
+                                    {changes?.payables_change
+                                        ? changes.payables_change >= 0
+                                            ? `+${changes.payables_change.toFixed(1)}%`
+                                            : `${changes.payables_change.toFixed(1)}%`
+                                        : 'Total payables'}{' '}
+                                    from last month
+                                </p>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 
@@ -683,7 +668,7 @@ export default function Dashboard() {
                             <h2 className="text-xl font-semibold tracking-tight">Analytics Overview</h2>
                             <p className="text-sm text-muted-foreground">Transaction trends over time</p>
                         </div>
-                        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+                        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                             {/* Monthly Bar Chart */}
                             <Card
                                 className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
@@ -748,7 +733,7 @@ export default function Dashboard() {
                             <h2 className="text-xl font-semibold tracking-tight">Transaction Distribution</h2>
                             <p className="text-sm text-muted-foreground">Breakdown by transaction types</p>
                         </div>
-                        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+                        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                             {/* Monthly Transaction Distribution */}
                             <Card
                                 className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}

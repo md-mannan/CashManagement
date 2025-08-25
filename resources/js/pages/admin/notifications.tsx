@@ -2,6 +2,7 @@ import { AdminRouteGuard } from '@/components/admin-route-guard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
@@ -21,6 +22,7 @@ import {
     RefreshCw,
     Shield,
     Tag,
+    Trash2,
     TrendingDown,
     TrendingUp,
     X,
@@ -58,7 +60,7 @@ interface NotificationData {
 }
 
 export default function NotificationsPage() {
-    const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification, refresh } = useNotifications();
+    const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification, clearAllNotifications, refresh } = useNotifications();
     const { showToast } = useToast();
     const [filteredNotifications, setFilteredNotifications] = useState<NotificationData[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -82,6 +84,7 @@ export default function NotificationsPage() {
         | 'user_activity_login'
         | 'user_activity_logout'
     >('all');
+    const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
 
     // Filter notifications based on search and filters
     useEffect(() => {
@@ -266,11 +269,32 @@ export default function NotificationsPage() {
         });
     };
 
+    const handleClearAll = async () => {
+        try {
+            const response = await clearAllNotifications();
+            setIsClearDialogOpen(false);
+            showToast({
+                title: 'Success',
+                message: response.message || 'All notifications cleared successfully',
+                type: 'success',
+            });
+            // Refresh notifications after clearing
+            refresh();
+        } catch (error) {
+            setIsClearDialogOpen(false);
+            showToast({
+                title: 'Error',
+                message: 'Failed to clear all notifications',
+                type: 'error',
+            });
+        }
+    };
+
     return (
         <AdminRouteGuard>
             <Head title="Notifications" />
             <AppLayout>
-                <div className="container mx-auto py-6">
+                <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
                     {/* Header */}
                     <div className="mb-6 flex items-center justify-between">
                         <div>
@@ -285,6 +309,33 @@ export default function NotificationsPage() {
                             <Button onClick={handleMarkAllAsRead} disabled={unreadCount === 0}>
                                 Mark all as read
                             </Button>
+                            <Button 
+                                variant="destructive" 
+                                disabled={notifications.length === 0 || isClearDialogOpen}
+                                onClick={() => setIsClearDialogOpen(true)}
+                            >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Clear All
+                            </Button>
+                            
+                            <Dialog open={isClearDialogOpen} onOpenChange={setIsClearDialogOpen}>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Clear All Notifications</DialogTitle>
+                                        <DialogDescription>
+                                            Are you sure you want to permanently delete all {notifications.length} notifications? This action cannot be undone.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                        <Button variant="outline" onClick={() => setIsClearDialogOpen(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button variant="destructive" onClick={handleClearAll}>
+                                            Confirm Delete
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                         </div>
                     </div>
 

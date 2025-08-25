@@ -143,7 +143,13 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                                 variant="ghost"
                                 size="sm"
                                 className="w-full text-xs"
-                                onClick={() => router.visit(route('admin.notifications.index'))}
+                                onClick={() => {
+                                    // Route based on user role
+                                    const notificationsRoute = auth.user.role === 'admin' || auth.user.role === 'super_admin' 
+                                        ? route('admin.notifications.index')
+                                        : route('notifications');
+                                    router.visit(notificationsRoute);
+                                }}
                             >
                                 View all notifications
                             </Button>

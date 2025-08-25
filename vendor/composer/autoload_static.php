@@ -699,9 +699,12 @@ class ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871
     );
 
     public static $classMap = array (
+        'App\\Console\\Commands\\EnvironmentConfigCommand' => __DIR__ . '/../..' . '/app/Console/Commands/EnvironmentConfigCommand.php',
+        'App\\Console\\Commands\\EnvironmentDetectCommand' => __DIR__ . '/../..' . '/app/Console/Commands/EnvironmentDetectCommand.php',
         'App\\Events\\NotificationDeleted' => __DIR__ . '/../..' . '/app/Events/NotificationDeleted.php',
         'App\\Events\\NotificationRead' => __DIR__ . '/../..' . '/app/Events/NotificationRead.php',
         'App\\Events\\NotificationSent' => __DIR__ . '/../..' . '/app/Events/NotificationSent.php',
+        'App\\Facades\\EnvironmentDetector' => __DIR__ . '/../..' . '/app/Facades/EnvironmentDetector.php',
         'App\\Http\\Controllers\\Admin\\ActivityLogController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/ActivityLogController.php',
         'App\\Http\\Controllers\\Admin\\AdminAnalyticsController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/AdminAnalyticsController.php',
         'App\\Http\\Controllers\\Admin\\AdminDashboardController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/AdminDashboardController.php',
@@ -755,8 +758,10 @@ class ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871
         'App\\Models\\Transaction' => __DIR__ . '/../..' . '/app/Models/Transaction.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
+        'App\\Providers\\DynamicEnvironmentServiceProvider' => __DIR__ . '/../..' . '/app/Providers/DynamicEnvironmentServiceProvider.php',
         'App\\Services\\ActivityLogService' => __DIR__ . '/../..' . '/app/Services/ActivityLogService.php',
         'App\\Services\\AdminNotificationService' => __DIR__ . '/../..' . '/app/Services/AdminNotificationService.php',
+        'App\\Services\\EnvironmentDetectionService' => __DIR__ . '/../..' . '/app/Services/EnvironmentDetectionService.php',
         'App\\Services\\ExchangeRateService' => __DIR__ . '/../..' . '/app/Services/ExchangeRateService.php',
         'App\\Services\\TransactionService' => __DIR__ . '/../..' . '/app/Services/TransactionService.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',

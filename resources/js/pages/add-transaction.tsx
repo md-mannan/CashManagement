@@ -86,12 +86,7 @@ const transactionTypes = {
     },
 };
 
-const categories = {
-    income: ['Salary', 'Freelance', 'Investment', 'Dividend', 'Rental Income', 'Business Income', 'Other Income'],
-    expense: ['Food & Dining', 'Transportation', 'Utilities', 'Entertainment', 'Shopping', 'Healthcare', 'Education', 'Other Expenses'],
-    receivable: ['Client Payment', 'Loan Repayment', 'Rental Payment', 'Investment Return', 'Other Receivable'],
-    payable: ['Bills', 'Loan Payment', 'Credit Card', 'Rent', 'Taxes', 'Other Payable'],
-};
+// Categories are now loaded dynamically from backend
 
 // Available currencies for selection
 const currencies = [
@@ -109,8 +104,16 @@ const currencies = [
     { code: 'EGP', name: 'Egyptian Pound', symbol: 'ج.م' },
 ];
 
+interface Category {
+    id: number;
+    name: string;
+    type: 'income' | 'expense' | 'receivable' | 'payable';
+    color: string;
+    icon: string;
+}
+
 export default function AddTransaction() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, categories } = usePage<SharedData & { categories: Category[] }>().props;
 
     // Get transaction type from URL params or default to income
     const urlParams = new URLSearchParams(window.location.search);
@@ -128,7 +131,7 @@ export default function AddTransaction() {
         category: '',
         notes: '',
         secondaryCurrency: 'KWD',
-        exchangeRate: '3.25', // 1 KWD = 3.25 USD (default rate)
+        exchangeRate: '0.0090', // 1 BDT = 0.0090 KWD (default rate)
         secondaryAmount: '',
     });
 
@@ -136,8 +139,8 @@ export default function AddTransaction() {
     const [rateSource, setRateSource] = useState<string>('Default');
 
     // User's primary currency from settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
 
     const { showToast } = useToast();
 
@@ -224,7 +227,7 @@ export default function AddTransaction() {
         e.preventDefault();
 
         // Find the category by name to get the category_id
-        const selectedCategory = categories[formData.type].find((cat) => cat === formData.category);
+        const selectedCategory = categories.find((cat) => cat.name === formData.category && cat.type === formData.type);
 
         // Convert string values to numbers for backend
         const amountNumeric = typeof formData.amount === 'string' ? parseFloat(formData.amount) || 0 : formData.amount;
@@ -587,11 +590,13 @@ export default function AddTransaction() {
                                         <SelectValue placeholder="Select a category" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {categories[transactionTypeState].map((category) => (
-                                            <SelectItem key={category} value={category}>
-                                                {category}
-                                            </SelectItem>
-                                        ))}
+                                        {categories
+                                            .filter((cat) => cat.type === transactionTypeState)
+                                            .map((category) => (
+                                                <SelectItem key={category.name} value={category.name}>
+                                                    {category.name}
+                                                </SelectItem>
+                                            ))}
                                     </SelectContent>
                                 </Select>
                             </div>

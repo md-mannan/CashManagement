@@ -87,6 +87,23 @@ export function useNotifications() {
     }, []);
 
     /**
+     * Clear all notifications
+     */
+    const clearAllNotifications = useCallback(async () => {
+        try {
+            const response = await notificationService.clearAllNotifications();
+            setUnreadCount(0);
+
+            // Clear all notifications from the local state
+            setNotifications([]);
+            return response;
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to clear all notifications');
+            throw err;
+        }
+    }, []);
+
+    /**
      * Initialize notifications on mount
      */
     useEffect(() => {
@@ -166,6 +183,7 @@ export function useNotifications() {
         markAsRead,
         markAllAsRead,
         deleteNotification,
+        clearAllNotifications,
         refresh: fetchNotifications,
     };
 }

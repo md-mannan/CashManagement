@@ -1,0 +1,156 @@
+# cPanel/Shared Hosting Environment Configuration
+# Copy this file to .env for cPanel/shared hosting deployment
+
+# Application Configuration
+APP_NAME="Cash Management System"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_TIMEZONE=UTC
+APP_URL=https://yourdomain.com
+
+# Logging Configuration (File-based for shared hosting)
+LOG_CHANNEL=single
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=error
+
+# Database Configuration (cPanel MySQL)
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=cpanel_username_dbname
+DB_USERNAME=cpanel_username_dbuser
+DB_PASSWORD=your_database_password
+
+# Session Configuration (Database-based for shared hosting)
+SESSION_DRIVER=database
+SESSION_LIFETIME=1440
+SESSION_ENCRYPT=true
+SESSION_PATH=/
+SESSION_DOMAIN=.yourdomain.com
+SESSION_SECURE_COOKIE=true
+SESSION_HTTP_ONLY=true
+SESSION_SAME_SITE=lax
+
+# Cache Configuration (File-based for shared hosting)
+CACHE_STORE=file
+CACHE_PREFIX=cashmanagement_cpanel
+
+# Redis Configuration (Usually not available on shared hosting)
+# Leave these as default values
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_DB=0
+
+# Queue Configuration (Database-based for shared hosting)
+QUEUE_CONNECTION=database
+QUEUE_FAILED_DRIVER=database-uuids
+
+# Mail Configuration (cPanel Email)
+MAIL_MAILER=smtp
+MAIL_HOST=mail.yourdomain.com
+MAIL_PORT=587
+MAIL_USERNAME=noreply@yourdomain.com
+MAIL_PASSWORD=your_email_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@yourdomain.com
+MAIL_FROM_NAME="${APP_NAME}"
+
+# Alternative Mail Configuration (if SMTP doesn't work)
+# MAIL_MAILER=sendmail
+# MAIL_HOST=localhost
+# MAIL_PORT=25
+
+# Broadcasting Configuration (Laravel Reverb for WebSockets)
+BROADCAST_CONNECTION=reverb
+REVERB_APP_ID=cpanel_app_id
+REVERB_APP_KEY=cpanel_app_key
+REVERB_APP_SECRET=cpanel_app_secret
+REVERB_HOST=yourdomain.com
+REVERB_PORT=8080
+REVERB_SCHEME=https
+
+# Alternative: Disable WebSockets if not needed
+# BROADCAST_CONNECTION=null
+
+# Pusher Configuration (if you prefer Pusher over Reverb)
+# BROADCAST_CONNECTION=pusher
+# PUSHER_APP_ID=your_pusher_app_id
+# PUSHER_APP_KEY=your_pusher_app_key
+# PUSHER_APP_SECRET=your_pusher_app_secret
+# PUSHER_HOST=
+# PUSHER_PORT=443
+# PUSHER_SCHEME=https
+# PUSHER_APP_CLUSTER=mt1
+
+# Filesystem Configuration
+FILESYSTEM_DISK=public
+
+# AWS S3 Configuration (Optional for file storage)
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+# Social Authentication (Optional)
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_REDIRECT_URI="${APP_URL}/auth/github/callback"
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI="${APP_URL}/auth/google/callback"
+
+# Security Configuration
+FORCE_HTTPS=true
+HSTS_MAX_AGE=31536000
+CONTENT_SECURITY_POLICY=true
+
+# Performance Configuration (Shared hosting optimizations)
+AUTO_DETECT_ENVIRONMENT=true
+AUTO_MIGRATE=false
+AUTO_SEED=false
+
+# Backup Configuration (Limited on shared hosting)
+BACKUP_ENABLED=false
+BACKUP_RETENTION_DAYS=7
+
+# Monitoring and Analytics (Use external services)
+ERROR_TRACKING_ENABLED=false
+PERFORMANCE_MONITORING=false
+
+# Exchange Rate API (Optional)
+EXCHANGE_RATE_API_KEY=your_exchange_rate_api_key
+EXCHANGE_RATE_UPDATE_INTERVAL=3600
+
+# Shared Hosting Optimizations
+OPTIMIZE_AUTOLOADER=true
+VIEW_CACHE_ENABLED=true
+ROUTE_CACHE_ENABLED=true
+CONFIG_CACHE_ENABLED=true
+
+# cPanel Specific Settings
+CPANEL_USERNAME=your_cpanel_username
+CPANEL_DOMAIN=yourdomain.com
+CPANEL_SUBDOMAIN=
+
+# PHP Configuration (if supported by hosting provider)
+PHP_MEMORY_LIMIT=256M
+PHP_MAX_EXECUTION_TIME=300
+PHP_MAX_INPUT_TIME=300
+PHP_UPLOAD_MAX_FILESIZE=10M
+PHP_POST_MAX_SIZE=10M
+
+# File Permissions (for reference)
+# Directories: 755
+# Files: 644
+# Storage and cache: 775
+
+# Common Shared Hosting Paths (for reference)
+# Document Root: public_html/
+# Laravel App: public_html/laravel/ (or similar)
+# Public Files: public_html/
+# Storage: outside public_html/storage/

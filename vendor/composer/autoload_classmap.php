@@ -6,9 +6,12 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Console\\Commands\\EnvironmentConfigCommand' => $baseDir . '/app/Console/Commands/EnvironmentConfigCommand.php',
+    'App\\Console\\Commands\\EnvironmentDetectCommand' => $baseDir . '/app/Console/Commands/EnvironmentDetectCommand.php',
     'App\\Events\\NotificationDeleted' => $baseDir . '/app/Events/NotificationDeleted.php',
     'App\\Events\\NotificationRead' => $baseDir . '/app/Events/NotificationRead.php',
     'App\\Events\\NotificationSent' => $baseDir . '/app/Events/NotificationSent.php',
+    'App\\Facades\\EnvironmentDetector' => $baseDir . '/app/Facades/EnvironmentDetector.php',
     'App\\Http\\Controllers\\Admin\\ActivityLogController' => $baseDir . '/app/Http/Controllers/Admin/ActivityLogController.php',
     'App\\Http\\Controllers\\Admin\\AdminAnalyticsController' => $baseDir . '/app/Http/Controllers/Admin/AdminAnalyticsController.php',
     'App\\Http\\Controllers\\Admin\\AdminDashboardController' => $baseDir . '/app/Http/Controllers/Admin/AdminDashboardController.php',
@@ -62,8 +65,10 @@ return array(
     'App\\Models\\Transaction' => $baseDir . '/app/Models/Transaction.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
+    'App\\Providers\\DynamicEnvironmentServiceProvider' => $baseDir . '/app/Providers/DynamicEnvironmentServiceProvider.php',
     'App\\Services\\ActivityLogService' => $baseDir . '/app/Services/ActivityLogService.php',
     'App\\Services\\AdminNotificationService' => $baseDir . '/app/Services/AdminNotificationService.php',
+    'App\\Services\\EnvironmentDetectionService' => $baseDir . '/app/Services/EnvironmentDetectionService.php',
     'App\\Services\\ExchangeRateService' => $baseDir . '/app/Services/ExchangeRateService.php',
     'App\\Services\\TransactionService' => $baseDir . '/app/Services/TransactionService.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',

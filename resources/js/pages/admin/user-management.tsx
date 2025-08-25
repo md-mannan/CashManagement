@@ -419,40 +419,278 @@ export default function UserManagement() {
                             </Card>
                         </TabsContent>
 
-                        {/* Other tabs would show filtered data */}
+                        {/* Active Users Tab */}
                         <TabsContent value="active" className="space-y-4">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Active Users</CardTitle>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <UserCheck className="h-5 w-5" />
+                                        Active Users
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-muted-foreground">Showing {users.data.filter((u) => u.is_active).length} active users</p>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>User</TableHead>
+                                                <TableHead>Role</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead>Social</TableHead>
+                                                <TableHead>Last Login</TableHead>
+                                                <TableHead>Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {users.data.filter((u) => u.is_active).length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                                                        No active users found
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                users.data.filter((u) => u.is_active).map((user) => (
+                                                <TableRow key={user.id}>
+                                                    <TableCell>
+                                                        <div>
+                                                            <div className="font-medium">{user.name}</div>
+                                                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span
+                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}
+                                                        >
+                                                            {user.role.replace('_', ' ').toUpperCase()}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span
+                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getStatusColor(user.is_active)}`}
+                                                        >
+                                                            {user.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex gap-1">
+                                                            {user.social_accounts.map((account, index) => (
+                                                                <div key={index} className="flex items-center gap-1">
+                                                                    {getProviderIcon(account.provider)}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-2">
+                                                            <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
+                                                                <Edit className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button variant="outline" size="sm" onClick={() => openPasswordDialog(user)}>
+                                                                <Key className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(user)}>
+                                                                {user.is_active ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                                                            </Button>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => openDeleteDialog(user)}
+                                                                className="text-red-600 hover:text-red-700"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )))}
+                                        </TableBody>
+                                    </Table>
                                 </CardContent>
                             </Card>
                         </TabsContent>
 
+                        {/* Administrators Tab */}
                         <TabsContent value="admins" className="space-y-4">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Administrators</CardTitle>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <UserCheck className="h-5 w-5" />
+                                        Administrators
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-muted-foreground">
-                                        Showing {users.data.filter((u) => ['admin', 'super_admin'].includes(u.role)).length} admin users
-                                    </p>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>User</TableHead>
+                                                <TableHead>Role</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead>Social</TableHead>
+                                                <TableHead>Last Login</TableHead>
+                                                <TableHead>Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {users.data.filter((u) => ['admin', 'super_admin'].includes(u.role)).length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                                                        No administrators found
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                users.data.filter((u) => ['admin', 'super_admin'].includes(u.role)).map((user) => (
+                                                <TableRow key={user.id}>
+                                                    <TableCell>
+                                                        <div>
+                                                            <div className="font-medium">{user.name}</div>
+                                                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span
+                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}
+                                                        >
+                                                            {user.role.replace('_', ' ').toUpperCase()}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span
+                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getStatusColor(user.is_active)}`}
+                                                        >
+                                                            {user.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex gap-1">
+                                                            {user.social_accounts.map((account, index) => (
+                                                                <div key={index} className="flex items-center gap-1">
+                                                                    {getProviderIcon(account.provider)}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-2">
+                                                            <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
+                                                                <Edit className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button variant="outline" size="sm" onClick={() => openPasswordDialog(user)}>
+                                                                <Key className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(user)}>
+                                                                {user.is_active ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                                                            </Button>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => openDeleteDialog(user)}
+                                                                className="text-red-600 hover:text-red-700"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )))}
+                                        </TableBody>
+                                    </Table>
                                 </CardContent>
                             </Card>
                         </TabsContent>
 
+                        {/* Social Users Tab */}
                         <TabsContent value="social" className="space-y-4">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Social Users</CardTitle>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Users className="h-5 w-5" />
+                                        Social Users
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-muted-foreground">
-                                        Showing {users.data.filter((u) => u.social_accounts.length > 0).length} users with social accounts
-                                    </p>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>User</TableHead>
+                                                <TableHead>Role</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead>Social</TableHead>
+                                                <TableHead>Last Login</TableHead>
+                                                <TableHead>Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {users.data.filter((u) => u.social_accounts.length > 0).length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                                                        No social users found
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                users.data.filter((u) => u.social_accounts.length > 0).map((user) => (
+                                                <TableRow key={user.id}>
+                                                    <TableCell>
+                                                        <div>
+                                                            <div className="font-medium">{user.name}</div>
+                                                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span
+                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}
+                                                        >
+                                                            {user.role.replace('_', ' ').toUpperCase()}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span
+                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getStatusColor(user.is_active)}`}
+                                                        >
+                                                            {user.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex gap-1">
+                                                            {user.social_accounts.map((account, index) => (
+                                                                <div key={index} className="flex items-center gap-1">
+                                                                    {getProviderIcon(account.provider)}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-2">
+                                                            <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
+                                                                <Edit className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button variant="outline" size="sm" onClick={() => openPasswordDialog(user)}>
+                                                                <Key className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(user)}>
+                                                                {user.is_active ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                                                            </Button>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => openDeleteDialog(user)}
+                                                                className="text-red-600 hover:text-red-700"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )))}
+                                        </TableBody>
+                                    </Table>
                                 </CardContent>
                             </Card>
                         </TabsContent>

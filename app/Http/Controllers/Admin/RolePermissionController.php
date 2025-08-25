@@ -141,19 +141,12 @@ class RolePermissionController extends Controller
             ]
         );
 
-        // Notify admins about the role change
+        // Notify admins about the role change (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
             'changed role for',
             $user->name,
-            "From {$oldRole} to {$request->role}, Email: {$user->email}"
-        );
-
-        // Notify the user about the admin action
-        AdminNotificationService::notifyUserAboutAdminAction(
-            $user->id,
-            'changed your role',
-            auth()->user()->name,
-            "Your role has been changed from {$oldRole} to {$request->role}"
+            "From {$oldRole} to {$request->role}, Email: {$user->email}",
+            auth()->id()
         );
 
         // Log the action using ActivityLogService
@@ -197,19 +190,12 @@ class RolePermissionController extends Controller
             'permissions' => $request->permissions ?? [],
         ]);
 
-        // Notify admins about the permission update
+        // Notify admins about the permission update (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
             'updated permissions for',
             $user->name,
-            "Email: {$user->email}, Updated by: " . auth()->user()->name
-        );
-
-        // Notify the user about the admin action
-        AdminNotificationService::notifyUserAboutAdminAction(
-            $user->id,
-            'updated your permissions',
-            auth()->user()->name,
-            "Your system permissions have been modified"
+            "Email: {$user->email}, Updated by: " . auth()->user()->name,
+            auth()->id()
         );
 
         // Log the action using ActivityLogService
@@ -275,20 +261,14 @@ class RolePermissionController extends Controller
                 ]
             );
 
-            // Notify the user about the admin action
-            AdminNotificationService::notifyUserAboutAdminAction(
-                $user->id,
-                'changed your role',
-                auth()->user()->name,
-                "Your role has been changed from {$oldRole} to {$request->role}"
-            );
+
 
             // Log each individual role change
             ActivityLogService::logRoleChanged($user, $oldRole, $request->role, $request);
             $updatedCount++;
         }
 
-        // Notify admins about the bulk role update
+        // Notify admins about the bulk role update (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyAdmins(
             'bulk_role_update',
             "Bulk role update: {$updatedCount} users updated to {$request->role} role by " . auth()->user()->name,
@@ -297,7 +277,8 @@ class RolePermissionController extends Controller
                 'new_role' => $request->role,
                 'user_ids' => $request->user_ids,
                 'admin_name' => auth()->user()->name,
-            ]
+            ],
+            auth()->id()
         );
 
         // Log the bulk action

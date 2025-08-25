@@ -116,13 +116,15 @@ const ToastContainer: React.FC<{ toasts: Toast[]; removeToast: (id: string) => v
     if (toasts.length === 0) return null;
 
     return (
-        <div className="fixed right-4 top-4 z-[9999] pointer-events-none space-y-4">
+        <div className="fixed right-2 sm:right-4 top-4 z-[9999] pointer-events-none space-y-4">
             {toasts.map((toast, index) => (
                 <div
                     key={toast.id}
                     style={{
-                        transform: `translateY(${index * 20}px)`,
+                        transform: `translateY(${index * 80}px)`,
+                        zIndex: 9999 - index,
                     }}
+                    className="pointer-events-none"
                 >
                     <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
                 </div>
@@ -177,7 +179,7 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: string) => void }> = ({
     return (
         <div
             className={`
-                pointer-events-auto w-96 max-w-sm
+                pointer-events-auto w-[calc(100vw-1rem)] sm:w-96 max-w-sm
                 transform transition-all duration-300 ease-out
                 ${isVisible && !isExiting
                     ? 'translate-x-0 opacity-100'
@@ -186,6 +188,9 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: string) => void }> = ({
                     : 'translate-x-full opacity-0'
                 }
             `}
+            style={{
+                maxWidth: 'calc(100vw - 1rem)',
+            }}
         >
             <div className={`
                 rounded-lg border p-4 shadow-lg backdrop-blur-sm

@@ -8,6 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+
+interface Category {
+    id: number;
+    name: string;
+    type: string;
+    color: string;
+    is_active: boolean;
+}
 import { Head, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, Banknote, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -37,17 +45,7 @@ interface ReceivableFormData {
     dueDate?: string;
 }
 
-const receivableCategories = [
-    'Client Payment',
-    'Loan Repayment',
-    'Rental Payment',
-    'Investment Return',
-    'Commission',
-    'Refund',
-    'Insurance Claim',
-    'Legal Settlement',
-    'Other Receivable',
-];
+// Categories will come from backend props
 
 // Available currencies for selection
 const currencies = [
@@ -66,7 +64,7 @@ const currencies = [
 ];
 
 export default function AddReceivable() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, categories } = usePage<SharedData & { categories: Category[] }>().props;
 
     const [formData, setFormData] = useState<ReceivableFormData>({
         amount: '0.00',
@@ -76,7 +74,7 @@ export default function AddReceivable() {
         category: '',
         notes: '',
         secondaryCurrency: 'KWD',
-        exchangeRate: '3.27', // 1 KWD = 3.27 USD (default rate)
+        exchangeRate: '0.0090', // 1 BDT = 0.0090 KWD (default rate)
         secondaryAmount: '0.000',
         dueDate: '',
     });
@@ -85,8 +83,8 @@ export default function AddReceivable() {
     const [rateSource, setRateSource] = useState<string>('Default');
 
     // User's primary currency from settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
 
     const { showToast } = useToast();
 
@@ -310,7 +308,7 @@ export default function AddReceivable() {
                     <CardContent className="bg-white p-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Amount and Date Row */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="amount" className="text-sm font-semibold text-gray-700">
                                         Amount ({primarySymbol}) *
@@ -356,7 +354,7 @@ export default function AddReceivable() {
                             </div>
 
                             {/* Currency Selection Row */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="secondaryCurrency" className="text-sm font-semibold text-gray-700">
                                         Secondary Currency
@@ -481,9 +479,9 @@ export default function AddReceivable() {
                                         <SelectValue placeholder="Select a category" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {receivableCategories.map((category) => (
-                                            <SelectItem key={category} value={category}>
-                                                {category}
+                                        {categories.map((category) => (
+                                            <SelectItem key={category.id} value={category.name}>
+                                                {category.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

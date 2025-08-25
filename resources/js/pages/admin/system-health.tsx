@@ -145,7 +145,7 @@ export default function SystemHealth({ systemHealth }: SystemHealthProps) {
                         <p className="text-muted-foreground">Monitor the health and performance of your system components</p>
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         {/* Database Health */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

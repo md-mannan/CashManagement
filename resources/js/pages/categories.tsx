@@ -1,12 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { ArrowDownLeft, ArrowUpRight, Edit, Plus, Tag, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
+import { AlertTriangle, ArrowDownLeft, ArrowUpRight, Edit, Plus, Tag, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
 interface Category {
@@ -32,6 +33,8 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
     const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense' | 'receivable' | 'payable'>('all');
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         type: 'income' as const,
@@ -146,24 +149,33 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
             return;
         }
 
-        if (confirm(`Are you sure you want to delete the category "${category.name}"?`)) {
-            router.delete(`/categories/${category.id}`, {
-                onSuccess: () => {
-                    showToast({
-                        title: 'Success',
-                        message: 'Category deleted successfully',
-                        type: 'success',
-                    });
-                },
-                onError: (errors) => {
-                    showToast({
-                        title: 'Error',
-                        message: Object.values(errors).join(', '),
-                        type: 'error',
-                    });
-                },
-            });
-        }
+        setCategoryToDelete(category);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (!categoryToDelete) return;
+
+        router.delete(`/categories/${categoryToDelete.id}`, {
+            onSuccess: () => {
+                showToast({
+                    title: 'Success',
+                    message: 'Category deleted successfully',
+                    type: 'success',
+                });
+                setIsDeleteDialogOpen(false);
+                setCategoryToDelete(null);
+            },
+            onError: (errors) => {
+                showToast({
+                    title: 'Error',
+                    message: Object.values(errors).join(', '),
+                    type: 'error',
+                });
+                setIsDeleteDialogOpen(false);
+                setCategoryToDelete(null);
+            },
+        });
     };
 
     const startEdit = (category: Category) => {
@@ -184,7 +196,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
     return (
         <AppLayout>
             <Head title="Categories" />
-            <div className="container mx-auto py-6">
+            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
                 <div className="mb-6">
                     <h1 className="text-3xl font-bold">Categories</h1>
                     <p className="text-muted-foreground">Manage your transaction categories</p>
@@ -417,6 +429,36 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Delete Category Confirmation Dialog */}
+                <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                                <AlertTriangle className="h-5 w-5 text-red-500" />
+                                Delete Category
+                            </DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to delete the category "{categoryToDelete?.name}"? This action cannot be undone.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => {
+                                    setIsDeleteDialogOpen(false);
+                                    setCategoryToDelete(null);
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button variant="destructive" onClick={confirmDelete}>
+                                Delete Category
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );

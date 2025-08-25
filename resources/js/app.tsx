@@ -1,3 +1,9 @@
+// Load polyfills first for older browser support
+import './polyfills';
+
+// Initialize feature detection
+import './utils/feature-detection';
+
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
@@ -6,6 +12,7 @@ import { createRoot } from 'react-dom/client';
 import { ToastProvider } from './components/ui/toast';
 import { RealTimeNotificationProvider } from './contexts/RealTimeNotificationContext';
 import { initializeTheme } from './hooks/use-appearance';
+import webSocketService from './services/websocketService';
 
 // Import axios configuration
 import './lib/axios';
@@ -36,6 +43,12 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
     setup({ el, App, props }) {
         const root = createRoot(el);
+
+        // Initialize WebSocket service if user is authenticated
+        // Temporarily disabled to fix 403 errors
+        // if (props.initialPage.props.auth?.user) {
+        //     webSocketService.initialize(props.initialPage.props.auth.user);
+        // }
 
         root.render(
             <ToastProvider>

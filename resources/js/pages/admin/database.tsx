@@ -131,7 +131,7 @@ export default function DatabaseManagement({ databaseStatus, tables, performance
         <AdminRouteGuard>
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Database Management" />
-                <div className="container mx-auto p-6">
+                <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
                     {/* Header */}
                     <div className="mb-6">
                         <div className="flex items-center justify-between">

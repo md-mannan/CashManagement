@@ -9,6 +9,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        {{-- CSP is handled by .htaccess files for better compatibility --}}
+
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
             (function() {
@@ -60,8 +62,34 @@
         <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
         @routes
-        @viteReactRefresh
-        @vite(['resources/js/app.tsx'])
+        
+        @if (app()->environment('local', 'development'))
+            {{-- Development: Use Vite dev server with hot reload --}}
+            @viteReactRefresh
+            @vite(['resources/js/app.tsx'])
+        @else
+            {{-- Production: Use built assets from manifest --}}
+            @php
+                $manifest = public_path('build/.vite/manifest.json');
+                if (file_exists($manifest)) {
+                    $manifestData = json_decode(file_get_contents($manifest), true);
+                    $appJs = $manifestData['resources/js/app.tsx']['file'] ?? null;
+                    $appCss = $manifestData['resources/js/app.tsx']['css'][0] ?? null;
+                }
+            @endphp
+            
+            @if(isset($appCss))
+                <link rel="stylesheet" href="{{ asset('build/' . $appCss) }}">
+            @endif
+            
+            @if(isset($appJs))
+                <script type="module" src="{{ asset('build/' . $appJs) }}"></script>
+            @else
+                {{-- Fallback to @vite directive --}}
+                @vite(['resources/js/app.tsx'])
+            @endif
+        @endif
+        
         @inertiaHead
     </head>
     <body class="font-sans antialiased">

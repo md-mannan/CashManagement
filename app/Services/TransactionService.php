@@ -44,7 +44,7 @@ class TransactionService
             'total_expenses' => $totalExpenses,
             'total_receivables' => $totalReceivables,
             'total_payables' => $totalPayables,
-            'net_balance' => ($totalIncome + $totalReceivables) - ($totalExpenses + $totalPayables),
+            'net_balance' => ($totalIncome - $totalExpenses) + ($totalReceivables - $totalPayables),
             'pending_receivables' => $transactions->where('type', 'receivable')->where('status', 'pending')->sum('amount'),
             'pending_payables' => $transactions->where('type', 'payable')->where('status', 'pending')->sum('amount'),
             // Add secondary currency amounts (original entered amounts)

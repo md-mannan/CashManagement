@@ -4,11 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import { ArcElement, BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js';
 import { Activity, BarChart3, CreditCard, Database, DollarSign, Eye, TrendingUp, Users } from 'lucide-react';
 import { Chart } from 'react-chartjs-2';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
+// Import chart configuration to ensure all controllers are registered
+import '@/lib/chart-config';
 
 // Function to get currency symbol
 const getCurrencySymbol = (currencyCode: string): string => {
@@ -221,7 +220,7 @@ export default function AdminAnalytics() {
                     </div>
 
                     {/* System Overview Cards */}
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -276,7 +275,7 @@ export default function AdminAnalytics() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                                 <div className="text-center">
                                     <div className="text-2xl font-bold text-green-600">
                                         {getCurrencySymbol(primaryCurrency)}

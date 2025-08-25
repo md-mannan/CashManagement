@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Banknote, CreditCard, Download, Edit, Eye, FileText, Filter, Plus, Printer, Search, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
+import { Banknote, CreditCard, Download, Edit, Eye, FileText, Filter, Plus, Printer, Search, Trash2, TrendingDown, TrendingUp, ArrowDownLeft } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -32,7 +32,7 @@ const transactionTypes = [
 ];
 
 export default function Transaction() {
-    const { auth, transactions } = usePage<
+    const { auth, transactions, summary } = usePage<
         SharedData & {
             transactions: {
                 data: Array<{
@@ -64,6 +64,13 @@ export default function Transaction() {
                 per_page: number;
                 total: number;
             };
+            summary: {
+                total_income: number;
+                total_expenses: number;
+                total_receivables: number;
+                total_payables: number;
+                net_balance: number;
+            };
         }
     >().props;
 
@@ -88,8 +95,8 @@ export default function Transaction() {
     });
 
     // User's primary currency from settings
-    const primaryCurrency = auth.user.primary_currency || 'USD';
-    const primarySymbol = auth.user.primary_symbol || '$';
+    const primaryCurrency = auth.user.primary_currency || 'BDT';
+    const primarySymbol = auth.user.primary_symbol || '৳';
 
     const { showToast } = useToast();
 
@@ -197,6 +204,8 @@ export default function Transaction() {
 
     const handleDeleteConfirm = () => {
         if (deleteConfirmation.transactionId) {
+            console.log('Delete transaction clicked:', deleteConfirmation.transactionId);
+            console.log('Generated route:', route('transactions.destroy', deleteConfirmation.transactionId));
             router.delete(route('transactions.destroy', deleteConfirmation.transactionId), {
                 onSuccess: () => {
                     showToast({
@@ -207,6 +216,7 @@ export default function Transaction() {
                     });
                 },
                 onError: (errors) => {
+                    console.error('Delete error:', errors);
                     showToast({
                         type: 'error',
                         title: 'Delete Failed!',
@@ -221,6 +231,8 @@ export default function Transaction() {
 
     const handleEditConfirm = () => {
         if (editConfirmation.transactionId) {
+            console.log('Edit transaction clicked:', editConfirmation.transactionId);
+            console.log('Generated route:', route('transactions.edit', editConfirmation.transactionId));
             router.visit(route('transactions.edit', editConfirmation.transactionId));
         }
         setEditConfirmation({ isOpen: false, transactionId: null });
@@ -233,7 +245,22 @@ export default function Transaction() {
 
     // Handle view transaction
     const handleViewTransaction = (transactionId: number) => {
-        router.visit(route('transactions.show', transactionId));
+        console.log('View transaction clicked:', transactionId);
+        try {
+            const generatedRoute = route('transactions.show', transactionId);
+            console.log('Generated route:', generatedRoute);
+            console.log('Auth user:', auth.user);
+            console.log('About to navigate to:', generatedRoute);
+            
+            router.visit(generatedRoute, {
+                preserveState: false,
+                preserveScroll: false,
+            });
+        } catch (error) {
+            console.error('Route generation error:', error);
+            console.error('Transaction ID:', transactionId);
+            console.error('Available routes:', Object.keys(window.Ziggy?.routes || {}));
+        }
     };
 
     // Export to Excel functionality
@@ -414,12 +441,12 @@ export default function Transaction() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Transaction" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-2 sm:p-4 w-full max-w-full">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
-                        <p className="text-muted-foreground">Manage and view all your transactions</p>
+                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Transactions</h1>
+                        <p className="text-sm text-muted-foreground">Manage and view all your transactions</p>
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -462,7 +489,22 @@ export default function Transaction() {
                 </div>
 
                 {/* Transaction Summary */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 w-full max-w-full">
+                    {/* Net Balance - First Card */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
+                            <FileText className="h-4 w-4 text-gray-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className={`text-2xl font-bold ${summary.net_balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {primarySymbol}
+                                {formatCurrency(summary.net_balance, primaryCurrency)}
+                            </div>
+                            <p className="text-xs text-muted-foreground">(Income - Expenses) + (Receivables - Payables)</p>
+                        </CardContent>
+                    </Card>
+
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Income</CardTitle>
@@ -471,10 +513,7 @@ export default function Transaction() {
                         <CardContent>
                             <div className="text-2xl font-bold text-green-600">
                                 {primarySymbol}
-                                {formatCurrency(
-                                    filteredTransactions.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0),
-                                    primaryCurrency,
-                                )}
+                                {formatCurrency(summary.total_income, primaryCurrency)}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'income').length} transactions
@@ -490,10 +529,7 @@ export default function Transaction() {
                         <CardContent>
                             <div className="text-2xl font-bold text-red-600">
                                 {primarySymbol}
-                                {formatCurrency(
-                                    filteredTransactions.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0),
-                                    primaryCurrency,
-                                )}
+                                {formatCurrency(summary.total_expenses, primaryCurrency)}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'expense').length} transactions
@@ -509,10 +545,7 @@ export default function Transaction() {
                         <CardContent>
                             <div className="text-2xl font-bold text-blue-600">
                                 {primarySymbol}
-                                {formatCurrency(
-                                    filteredTransactions.filter((t) => t.type === 'receivable').reduce((sum, t) => sum + t.amount, 0),
-                                    primaryCurrency,
-                                )}
+                                {formatCurrency(summary.total_receivables, primaryCurrency)}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'receivable').length} transactions
@@ -522,124 +555,22 @@ export default function Transaction() {
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
-                            <FileText className="h-4 w-4 text-gray-600" />
+                            <CardTitle className="text-sm font-medium">Payables</CardTitle>
+                            <ArrowDownLeft className="h-4 w-4 text-orange-600" />
                         </CardHeader>
                         <CardContent>
-                            <div
-                                className={`text-2xl font-bold ${
-                                    filteredTransactions
-                                        .filter((t) => t.type === 'income' || t.type === 'receivable')
-                                        .reduce((sum, t) => sum + t.amount, 0) -
-                                        filteredTransactions
-                                            .filter((t) => t.type === 'expense' || t.type === 'payable')
-                                            .reduce((sum, t) => sum + t.amount, 0) >=
-                                    0
-                                        ? 'text-green-600'
-                                        : 'text-red-600'
-                                }`}
-                            >
+                            <div className="text-2xl font-bold text-orange-600">
                                 {primarySymbol}
-                                {formatCurrency(
-                                    filteredTransactions
-                                        .filter((t) => t.type === 'income' || t.type === 'receivable')
-                                        .reduce((sum, t) => sum + t.amount, 0) -
-                                        filteredTransactions
-                                            .filter((t) => t.type === 'expense' || t.type === 'payable')
-                                            .reduce((sum, t) => sum + t.amount, 0),
-                                    primaryCurrency,
-                                )}
+                                {formatCurrency(summary.total_payables, primaryCurrency)}
                             </div>
-                            <p className="text-xs text-muted-foreground">Income + Receivables - Expenses - Payables</p>
+                            <p className="text-xs text-muted-foreground">
+                                {filteredTransactions.filter((t) => t.type === 'payable').length} transactions
+                            </p>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Quick Add Transaction Cards */}
-                <Card className="border-0 bg-gradient-to-r from-gray-50 to-gray-100">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-gray-800">
-                            <Plus className="h-5 w-5" />
-                            Quick Add Transactions
-                        </CardTitle>
-                        <CardDescription>Click on any card below to quickly add a specific type of transaction</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                            {/* Income Card */}
-                            <Card
-                                className="cursor-pointer border-green-200 bg-green-50/30 shadow-sm transition-colors hover:bg-green-100/50"
-                                onClick={() => router.visit(route('transactions.add-income'))}
-                            >
-                                <CardContent className="p-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                                            <TrendingUp className="h-5 w-5 text-green-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-green-800">Add Income</h3>
-                                            <p className="text-sm text-green-600">Record new income</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
 
-                            {/* Expense Card */}
-                            <Card
-                                className="cursor-pointer border-red-200 bg-red-50/30 shadow-sm transition-colors hover:bg-red-100/50"
-                                onClick={() => router.visit(route('transactions.add-expense'))}
-                            >
-                                <CardContent className="p-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-                                            <TrendingDown className="h-5 w-5 text-red-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-red-800">Add Expense</h3>
-                                            <p className="text-sm text-red-600">Record new expense</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Receivable Card */}
-                            <Card
-                                className="cursor-pointer border-blue-200 bg-blue-50/30 shadow-sm transition-colors hover:bg-blue-100/50"
-                                onClick={() => router.visit(route('transactions.add-receivable'))}
-                            >
-                                <CardContent className="p-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                                            <Banknote className="h-5 w-5 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-blue-800">Add Receivable</h3>
-                                            <p className="text-sm text-blue-600">Record money owed to you</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Payable Card */}
-                            <Card
-                                className="cursor-pointer border-orange-200 bg-orange-50/30 shadow-sm transition-colors hover:bg-orange-100/50"
-                                onClick={() => router.visit(route('transactions.add-payable'))}
-                            >
-                                <CardContent className="p-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-                                            <CreditCard className="h-5 w-5 text-orange-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-orange-800">Add Payable</h3>
-                                            <p className="text-sm text-orange-600">Record money you owe</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </CardContent>
-                </Card>
 
                 {/* Filters */}
                 <Card>
@@ -651,7 +582,7 @@ export default function Transaction() {
                         <p className="text-sm text-muted-foreground">Filters apply instantly as you type. Clear fields to reset.</p>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                             {/* Search */}
                             <div className="space-y-2">
                                 <Label htmlFor="search">Search</Label>
@@ -705,7 +636,7 @@ export default function Transaction() {
                 </Card>
 
                 {/* Results Summary */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-6">
                         <p className="text-sm text-muted-foreground">
                             Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredTransactions.length)} of{' '}
@@ -739,20 +670,22 @@ export default function Transaction() {
                 {/* Transactions Table */}
                 <Card>
                     <CardContent className="p-0">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-16">SL</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Source</TableHead>
-                                    <TableHead>Category</TableHead>
-
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead className="w-32">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
+                        {/* Desktop & Tablet Table */}
+                        <div className="hidden sm:block">
+                            <div className="mobile-table-wrapper">
+                                <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-16">SL</TableHead>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Description</TableHead>
+                                        <TableHead>Type</TableHead>
+                                        <TableHead>Source</TableHead>
+                                        <TableHead>Category</TableHead>
+                                        <TableHead>Amount</TableHead>
+                                        <TableHead className="w-32">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
                             <TableBody>
                                 {paginatedTransactions.length === 0 ? (
                                     <TableRow>
@@ -777,11 +710,11 @@ export default function Transaction() {
                                             <TableCell>{transaction.category.name}</TableCell>
 
                                             <TableCell
-                                                className={
+                                                className={`${
                                                     transaction.type === 'income' || transaction.type === 'receivable'
                                                         ? 'text-green-600'
                                                         : 'text-red-600'
-                                                }
+                                                }`}
                                             >
                                                 {transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'}{' '}
                                                 {transaction.user?.primary_symbol || primarySymbol}{' '}
@@ -820,6 +753,78 @@ export default function Transaction() {
                                 )}
                             </TableBody>
                         </Table>
+                            </div>
+                        </div>
+
+                        {/* Mobile Card Layout */}
+                        <div className="block sm:hidden">
+                            <div className="space-y-3 p-4">
+                                {paginatedTransactions.length === 0 ? (
+                                    <div className="py-8 text-center text-muted-foreground">
+                                        No transactions found matching your criteria.
+                                    </div>
+                                ) : (
+                                    paginatedTransactions.map((transaction, index) => (
+                                        <div key={transaction.id} className="border rounded-lg p-3 bg-white dark:bg-gray-800">
+                                            <div className="flex items-start justify-between mb-2">
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-sm">{transaction.description}</div>
+                                                    <div className="text-xs text-muted-foreground mt-1">
+                                                        {formatDate(transaction.date)} • {transaction.category.name}
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-1 ml-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleViewTransaction(transaction.id)}
+                                                        className="h-8 w-8 p-0"
+                                                    >
+                                                        <Eye className="h-3 w-3" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleEditClick(transaction.id)}
+                                                        className="h-8 w-8 p-0"
+                                                    >
+                                                        <Edit className="h-3 w-3" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteClick(transaction.id)}
+                                                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                                                    >
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <span
+                                                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
+                                                    >
+                                                        {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">{transaction.source}</span>
+                                                </div>
+                                                <div
+                                                    className={`font-medium text-sm ${
+                                                        transaction.type === 'income' || transaction.type === 'receivable'
+                                                            ? 'text-green-600'
+                                                            : 'text-red-600'
+                                                    }`}
+                                                >
+                                                    {transaction.user?.primary_symbol || primarySymbol}{' '}
+                                                    {formatCurrency(transaction.amount, primaryCurrency)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
 

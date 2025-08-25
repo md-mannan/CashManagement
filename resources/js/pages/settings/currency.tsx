@@ -76,10 +76,10 @@ export default function Currency() {
     >().props;
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<CurrencyForm>>({
-        primary_currency: user_preferences.primary_currency || 'USD',
-        secondary_currency: user_preferences.secondary_currency || 'EUR',
-        primary_symbol: user_preferences.primary_symbol || '$',
-        secondary_symbol: user_preferences.secondary_symbol || '€',
+        primary_currency: user_preferences.primary_currency || 'BDT',
+        secondary_currency: user_preferences.secondary_currency || 'KWD',
+        primary_symbol: user_preferences.primary_symbol || '৳',
+        secondary_symbol: user_preferences.secondary_symbol || 'د.ك',
         exchange_rate: user_preferences.exchange_rate || '1.0',
     });
 
