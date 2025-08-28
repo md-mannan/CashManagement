@@ -29,12 +29,68 @@ class TransactionService
             }
         }
 
-        $transactions = $query->get();
+        $transactions = $query->with('relatedTransaction')->get();
 
+        // Calculate basic transaction totals
         $totalIncome = $transactions->where('type', 'income')->sum('amount');
         $totalExpenses = $transactions->where('type', 'expense')->sum('amount');
-        $totalReceivables = $transactions->where('type', 'receivable')->sum('amount');
-        $totalPayables = $transactions->where('type', 'payable')->sum('amount');
+        
+        // Calculate payable/receivable totals (excluding settlements)
+        $totalReceivables = $transactions->where('type', 'receivable')
+            ->whereNull('related_transaction_id') // Exclude settlement transactions
+            ->sum('amount');
+        $totalPayables = $transactions->where('type', 'payable')
+            ->whereNull('related_transaction_id') // Exclude settlement transactions
+            ->sum('amount');
+        
+        // Calculate settlement totals - separate receivable and payable settlements
+        // We need to use separate queries since whereHas doesn't work on Collections
+        $receivableSettlements = 0;
+        $payableSettlements = 0;
+        
+        // Get settlement transactions and check their related transactions
+        $settlementTransactions = $transactions->where('type', 'settlement');
+        foreach ($settlementTransactions as $settlement) {
+            if ($settlement->relatedTransaction) {
+                if ($settlement->relatedTransaction->type === 'receivable') {
+                    $receivableSettlements += $settlement->amount;
+                } elseif ($settlement->relatedTransaction->type === 'payable') {
+                    $payableSettlements += $settlement->amount;
+                }
+            }
+        }
+            
+        $totalSettlements = $receivableSettlements + $payableSettlements;
+        
+        // Calculate REMAINING payable/receivable amounts (after settlements)
+        $remainingPayables = $totalPayables - $payableSettlements;
+        $remainingReceivables = $totalReceivables - $receivableSettlements;
+        
+        // Only payable settlements are expenses - receivable settlements are NOT expenses
+        // Receivable settlements increase net balance directly (money returned to you)
+        $totalExpensesWithPayableSettlements = $totalExpenses + $payableSettlements;
+        
+        // Calculate net balance with correct business logic:
+        // Income + Total Payables - Payable Settlements - REMAINING Receivables + Receivable Settlements
+        // Note: 
+        // - REMAINING Receivables DECREASE net balance (money you've still lent out)
+        // - Receivable Settlements INCREASE net balance directly (money returned to you)
+        // Note: Payables are money you owe to others, not money you have available
+        // Net Balance = Income - Expenses - Total Receivables + Receivable Settlements
+        // (Total Receivables = money you've lent out, Receivable Settlements = money returned)
+        $netBalance = $totalIncome - $totalExpenses - $totalReceivables + $receivableSettlements;
+        
+        // Temporary debug logging to check values
+        \Log::info('Net Balance Calculation Debug', [
+            'totalIncome' => $totalIncome,
+            'totalExpenses' => $totalExpenses,
+            'totalReceivables' => $totalReceivables,
+            'receivableSettlements' => $receivableSettlements,
+            'calculatedNetBalance' => $netBalance,
+            'formula' => "{$totalIncome} - {$totalExpenses} - {$totalReceivables} + {$receivableSettlements} = {$netBalance}"
+        ]);
+
+
 
         // Calculate original entered amounts in secondary currency (only for single user view)
         $secondaryAmounts = $user ? $this->calculateSecondaryAmountSums($transactions, $user) : [];
@@ -42,11 +98,21 @@ class TransactionService
         return [
             'total_income' => $totalIncome,
             'total_expenses' => $totalExpenses,
+            'total_expenses_with_payable_settlements' => $totalExpensesWithPayableSettlements,
             'total_receivables' => $totalReceivables,
             'total_payables' => $totalPayables,
-            'net_balance' => ($totalIncome - $totalExpenses) + ($totalReceivables - $totalPayables),
-            'pending_receivables' => $transactions->where('type', 'receivable')->where('status', 'pending')->sum('amount'),
-            'pending_payables' => $transactions->where('type', 'payable')->where('status', 'pending')->sum('amount'),
+            'remaining_receivables' => $remainingReceivables,
+            'remaining_payables' => $remainingPayables,
+            'total_settlements' => $totalSettlements,
+            'receivable_settlements' => $receivableSettlements,
+            'payable_settlements' => $payableSettlements,
+            'net_balance' => $netBalance,
+            'pending_receivables' => $transactions->where('type', 'receivable')
+                ->whereNull('related_transaction_id')
+                ->where('status', 'pending')->sum('amount'),
+            'pending_payables' => $transactions->where('type', 'payable')
+                ->whereNull('related_transaction_id')
+                ->where('status', 'pending')->sum('amount'),
             // Add secondary currency amounts (original entered amounts)
             'secondary_amounts' => $secondaryAmounts,
         ];
@@ -62,26 +128,23 @@ class TransactionService
             'total_expenses' => 0,
             'total_receivables' => 0,
             'total_payables' => 0,
+            'receivable_settlements' => 0,
+            'payable_settlements' => 0,
         ];
 
         foreach ($transactions as $transaction) {
             $originalSecondaryAmount = 0;
 
-            // If transaction was entered in secondary currency, use the original amount
+            // Only use secondary amount if it was actually entered in secondary currency
             if ($transaction->metadata &&
                 isset($transaction->metadata['secondary_currency']) &&
                 isset($transaction->metadata['secondary_amount']) &&
                 $transaction->metadata['secondary_currency'] === $user->secondary_currency) {
 
                 $originalSecondaryAmount = $transaction->metadata['secondary_amount'];
-            } else {
-                // Transaction was entered in primary currency, convert using current rate
-                $exchangeRate = $user->exchange_rate ?: 1;
-                if ($exchangeRate <= 0) {
-                    $exchangeRate = 1; // Prevent division by zero
-                }
-                $originalSecondaryAmount = $transaction->amount / $exchangeRate;
             }
+            // If transaction was entered in primary currency, don't convert - leave as 0
+            // This ensures secondary amounts only show actual secondary currency entries
 
             // Add to appropriate total
             switch ($transaction->type) {
@@ -90,6 +153,16 @@ class TransactionService
                     break;
                 case 'expense':
                     $totals['total_expenses'] += $originalSecondaryAmount;
+                    break;
+                case 'settlement':
+                    // Check if this is a receivable or payable settlement
+                    if ($transaction->relatedTransaction && $transaction->relatedTransaction->type === 'receivable') {
+                        // Receivable settlement - money returned to you (NOT an expense)
+                        $totals['receivable_settlements'] += $originalSecondaryAmount;
+                    } else {
+                        // Payable settlement - money you paid (IS an expense)
+                        $totals['payable_settlements'] += $originalSecondaryAmount;
+                    }
                     break;
                 case 'receivable':
                     $totals['total_receivables'] += $originalSecondaryAmount;
@@ -139,6 +212,14 @@ class TransactionService
                     'backgroundColor' => 'rgba(249, 115, 22, 0.8)',
                     'type' => 'bar',
                 ],
+                // Settlements are now included in expenses, so no separate dataset needed
+                // [
+                //     'label' => 'Settlements',
+                //     'data' => [],
+                //     'borderColor' => 'rgb(139, 92, 246)',
+                //     'backgroundColor' => 'rgba(139, 92, 246, 0.8)',
+                //     'type' => 'bar',
+                // ],
             ],
         ];
 
@@ -180,9 +261,16 @@ class TransactionService
 
             $data['labels'][] = $startOfMonth->format('M Y');
             $data['datasets'][0]['data'][] = (float) $transactions->where('type', 'income')->sum('amount');
-            $data['datasets'][1]['data'][] = (float) $transactions->where('type', 'expense')->sum('amount');
-            $data['datasets'][2]['data'][] = (float) $transactions->where('type', 'receivable')->sum('amount');
-            $data['datasets'][3]['data'][] = (float) $transactions->where('type', 'payable')->sum('amount');
+            // Include settlements in expenses since they are expense transactions (money spent to pay off debt)
+            $monthlyExpenses = $transactions->where('type', 'expense')->sum('amount');
+            $monthlySettlements = $transactions->where('type', 'settlement')->sum('amount');
+            $data['datasets'][1]['data'][] = (float) ($monthlyExpenses + $monthlySettlements);
+            $data['datasets'][2]['data'][] = (float) $transactions->where('type', 'receivable')
+                ->whereNull('related_transaction_id')->sum('amount');
+            $data['datasets'][3]['data'][] = (float) $transactions->where('type', 'payable')
+                ->whereNull('related_transaction_id')->sum('amount');
+            // Remove settlements as separate dataset since they're now included in expenses
+            // $data['datasets'][4]['data'][] = (float) $transactions->where('type', 'settlement')->sum('amount');
         }
 
         return $data;
@@ -263,7 +351,10 @@ class TransactionService
 
             $data['labels'][] = $period->year;
             $data['datasets'][0]['data'][] = (float) $transactions->where('type', 'income')->sum('amount');
-            $data['datasets'][1]['data'][] = (float) $transactions->where('type', 'expense')->sum('amount');
+            // Include settlements in expenses since they are expense transactions (money spent to pay off debt)
+            $yearlyExpenses = $transactions->where('type', 'expense')->sum('amount');
+            $yearlySettlements = $transactions->where('type', 'settlement')->sum('amount');
+            $data['datasets'][1]['data'][] = (float) ($yearlyExpenses + $yearlySettlements);
             $data['datasets'][2]['data'][] = (float) $transactions->where('type', 'receivable')->sum('amount');
             $data['datasets'][3]['data'][] = (float) $transactions->where('type', 'payable')->sum('amount');
         }
@@ -372,29 +463,7 @@ class TransactionService
         return $this->getCategoryBreakdown($user, $startOfYear, $endOfYear);
     }
 
-    /**
-     * Get upcoming transactions (receivables and payables)
-     */
-    public function getUpcomingTransactions(?User $user = null, int $days = 30): Collection
-    {
-        if ($user) {
-            return $user->transactions()
-                ->with('category')
-                ->whereIn('type', ['receivable', 'payable'])
-                ->where('status', 'pending')
-                ->where('due_date', '<=', Carbon::now()->addDays($days))
-                ->orderBy('due_date', 'asc')
-                ->get();
-        } else {
-            // Admin view - all transactions
-            return Transaction::with(['category', 'user'])
-                ->whereIn('type', ['receivable', 'payable'])
-                ->where('status', 'pending')
-                ->where('due_date', '<=', Carbon::now()->addDays($days))
-                ->orderBy('due_date', 'asc')
-                ->get();
-        }
-    }
+
 
     /**
      * Calculate percentage change between two values

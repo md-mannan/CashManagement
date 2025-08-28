@@ -27,6 +27,7 @@ const transactionTypes = [
     { value: 'all', label: 'All Types', color: 'text-gray-600' },
     { value: 'income', label: 'Income', color: 'text-green-600' },
     { value: 'expense', label: 'Expense', color: 'text-red-600' },
+    { value: 'settlement', label: 'Settlements', color: 'text-purple-600' },
     { value: 'receivable', label: 'Receivable', color: 'text-blue-600' },
     { value: 'payable', label: 'Payable', color: 'text-orange-600' },
 ];
@@ -39,7 +40,7 @@ export default function Transaction() {
                     id: number;
                     date: string;
                     description: string;
-                    type: 'income' | 'expense' | 'receivable' | 'payable';
+                    type: 'income' | 'expense' | 'receivable' | 'payable' | 'settlement';
                     amount: number;
                     source: string;
                     category: {
@@ -67,9 +68,23 @@ export default function Transaction() {
             summary: {
                 total_income: number;
                 total_expenses: number;
+                total_expenses_with_payable_settlements: number;
                 total_receivables: number;
                 total_payables: number;
+                remaining_receivables: number;
+                remaining_payables: number;
+                total_settlements: number;
+                receivable_settlements: number;
+                payable_settlements: number;
                 net_balance: number;
+                secondary_currency_totals?: {
+                    income: number;
+                    expenses: number;
+                    receivables: number;
+                    payables: number;
+                    settlements: number;
+                    net_balance?: number; // Backend should calculate this using same formula as primary
+                };
             };
         }
     >().props;
@@ -97,11 +112,87 @@ export default function Transaction() {
     // User's primary currency from settings
     const primaryCurrency = auth.user.primary_currency || 'BDT';
     const primarySymbol = auth.user.primary_symbol || '৳';
+    const secondaryCurrency = auth.user.secondary_currency || 'KWD';
+    const secondarySymbol = auth.user.secondary_symbol || 'د.ك';
+    const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
+
+    // Helper function to calculate converted amount (used for secondary currency conversion)
+    const convertAmount = (amount: number, targetCurrency: string) => {
+        if (targetCurrency === primaryCurrency) return amount;
+        if (targetCurrency === secondaryCurrency) {
+            // Convert from primary to secondary currency using user's exchange rate
+            const convertedAmount = amount / exchangeRate;
+            // Use appropriate decimal precision
+            if (secondaryCurrency === 'KWD') {
+                return Math.round(convertedAmount * 1000) / 1000; // 3 decimals for KWD
+            }
+            return Math.round(convertedAmount * 100) / 100; // 2 decimals for others
+        }
+        return amount;
+    };
 
     const { showToast } = useToast();
 
     // Client-side filtering logic
     const filteredTransactions = useMemo(() => {
+        // Comprehensive debug logging for net balance calculation
+        console.log('=== NET BALANCE CALCULATION DEBUG ===');
+        console.log('Primary Currency Values (BDT):');
+        console.log('- totalIncome:', summary.total_income);
+        console.log('- totalExpenses:', summary.total_expenses);
+        console.log('- remainingReceivables:', summary.remaining_receivables);
+        console.log('- receivableSettlements:', summary.receivable_settlements);
+        console.log('- payableSettlements:', summary.payable_settlements);
+        console.log('- totalPayables:', summary.total_payables);
+        console.log('- totalReceivables:', summary.total_receivables);
+        
+        console.log('\nSecondary Currency Values (KWD):');
+        if (summary.secondary_currency_totals) {
+            console.log('- income:', summary.secondary_currency_totals.income);
+            console.log('- expenses:', summary.secondary_currency_totals.expenses);
+            console.log('- receivables:', summary.secondary_currency_totals.receivables);
+            console.log('- payables:', summary.secondary_currency_totals.payables);
+            console.log('- settlements:', summary.secondary_currency_totals.settlements);
+        }
+        
+        console.log('\nCalculated Net Balance:');
+        console.log('Primary Formula: totalIncome - totalExpenses - remainingReceivables + receivableSettlements');
+        console.log('Primary Result:', summary.total_income - summary.total_expenses - summary.remaining_receivables + summary.receivable_settlements);
+        
+        if (summary.secondary_currency_totals) {
+            console.log('Secondary Formula: income - expenses - receivables + payables');
+            console.log('Secondary Result:', summary.secondary_currency_totals.income - summary.secondary_currency_totals.expenses - summary.secondary_currency_totals.receivables + summary.secondary_currency_totals.payables);
+        }
+        
+        console.log('\nTransaction Breakdown by Type:');
+        const typeCounts = allTransactions.reduce((acc, t) => {
+            acc[t.type] = (acc[t.type] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+        console.log('Type Counts:', typeCounts);
+        
+        console.log('\nTransaction Breakdown by Category:');
+        const categoryAmounts = allTransactions.reduce((acc, t) => {
+            const category = t.category.name;
+            if (!acc[category]) acc[category] = { count: 0, total: 0 };
+            acc[category].count += 1;
+            acc[category].total += typeof t.amount === 'string' ? parseFloat(t.amount) : t.amount;
+            return acc;
+        }, {} as Record<string, { count: number; total: number }>);
+        console.log('Category Breakdown:', categoryAmounts);
+        
+        console.log('=== END DEBUG ===\n');
+        
+        // Temporary debug logging
+        console.log('Frontend Net Balance Debug:', {
+            netBalance: summary.net_balance,
+            totalIncome: summary.total_income,
+            totalExpenses: summary.total_expenses,
+            remainingReceivables: summary.remaining_receivables,
+            receivableSettlements: summary.receivable_settlements,
+            formula: `${summary.total_income} - ${summary.total_expenses} - ${summary.remaining_receivables} + ${summary.receivable_settlements} = ${summary.net_balance}`
+        });
+        
         let filtered = [...allTransactions];
 
         // Search filter (no reloading - instant)
@@ -193,6 +284,35 @@ export default function Transaction() {
         }
     };
 
+    const getAmountDisplay = (transaction: any) => {
+        const { type, category, amount } = transaction;
+        
+        // Handle settlement transactions based on category
+        if (type === 'settlement') {
+            if (category.name.includes('Pay') || category.name.includes('pay')) {
+                // Payable settlement (paying back borrowed money) - negative
+                return { sign: '-', color: 'text-red-600' };
+            } else if (category.name.includes('Return') || category.name.includes('return')) {
+                // Receivable settlement (getting money back) - positive
+                return { sign: '+', color: 'text-green-600' };
+            }
+        }
+        
+        // Handle regular transaction types
+        switch (type) {
+            case 'income':
+                return { sign: '+', color: 'text-green-600' };
+            case 'expense':
+                return { sign: '-', color: 'text-red-600' };
+            case 'payable':
+                return { sign: '+', color: 'text-orange-600' };
+            case 'receivable':
+                return { sign: '-', color: 'text-blue-600' };
+            default:
+                return { sign: '+', color: 'text-gray-600' };
+        }
+    };
+
     // Confirmation handlers
     const handleDeleteClick = (transactionId: number) => {
         setDeleteConfirmation({ isOpen: true, transactionId });
@@ -270,10 +390,10 @@ export default function Transaction() {
             SL: startIndex + index + 1,
             Date: formatDate(transaction.date),
             Description: transaction.description,
-            Type: transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
+            Type: transaction.type === 'settlement' ? transaction.category.name : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
             Source: transaction.source,
             Category: transaction.category,
-            Amount: `${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}`,
+            Amount: `${getAmountDisplay(transaction).sign} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}`,
         }));
 
         // Create workbook and worksheet
@@ -395,7 +515,7 @@ export default function Transaction() {
                                 <td style="text-align: center;">${startIndex + index + 1}</td>
                                 <td>${formatDate(transaction.date)}</td>
                                 <td>${transaction.description}</td>
-                                <td style="text-transform: capitalize;">${transaction.type}</td>
+                                                                        <td style="text-transform: capitalize;">${transaction.type === 'settlement' ? transaction.category.name : transaction.type}</td>
                                 <td>${transaction.source}</td>
                                 <td>${transaction.category.name}</td>
                                 <td class="amount ${transaction.type === 'income' || transaction.type === 'receivable' ? 'income' : 'expense'}">${transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}</td>
@@ -499,9 +619,31 @@ export default function Transaction() {
                         <CardContent>
                             <div className={`text-2xl font-bold ${summary.net_balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                 {primarySymbol}
-                                {formatCurrency(summary.net_balance, primaryCurrency)}
+                                {formatCurrency(summary.net_balance, primaryCurrency)} 
                             </div>
-                            <p className="text-xs text-muted-foreground">(Income - Expenses) + (Receivables - Payables)</p>
+                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                  {(() => {
+                                    // Calculate secondary currency net balance using the EXACT same formula as primary
+                                    if (summary.secondary_currency_totals) {
+                                        // Use the same formula: totalIncome - totalExpenses - remainingReceivables + receivableSettlements
+                                        const secondaryNetBalance = 
+                                            summary.secondary_currency_totals.income - 
+                                            summary.secondary_currency_totals.expenses - 
+                                            summary.secondary_currency_totals.receivables + 
+                                            summary.secondary_currency_totals.payables-summary.secondary_currency_totals.settlements;
+                                        
+                                        if (secondaryNetBalance > 0) {
+                                            return (
+                                                <div>
+                                                    {secondarySymbol} {formatCurrency(secondaryNetBalance, secondaryCurrency)}
+                                                </div>
+                                            );
+                                        }
+                                    }
+                                    return null;
+                                })()}
+                            </div>
+                            <p className="text-xs text-muted-foreground">(Income+Sattle Receiveables+Payables) - (Expenses + Receivables+Sattle Payables) </p>
                         </CardContent>
                     </Card>
 
@@ -514,6 +656,13 @@ export default function Transaction() {
                             <div className="text-2xl font-bold text-green-600">
                                 {primarySymbol}
                                 {formatCurrency(summary.total_income, primaryCurrency)}
+                            </div>
+                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                {summary.secondary_currency_totals && summary.secondary_currency_totals.income > 0 && (
+                                    <div>
+                                        {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.income, secondaryCurrency)}
+                                    </div>
+                                )}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'income').length} transactions
@@ -529,11 +678,22 @@ export default function Transaction() {
                         <CardContent>
                             <div className="text-2xl font-bold text-red-600">
                                 {primarySymbol}
-                                {formatCurrency(summary.total_expenses, primaryCurrency)}
+                                {formatCurrency(summary.total_expenses_with_payable_settlements, primaryCurrency)}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                {filteredTransactions.filter((t) => t.type === 'expense').length} transactions
+                                {filteredTransactions.filter((t) => t.type === 'expense').length} expenses + {filteredTransactions.filter((t) => t.type === 'settlement').length} settlements
                             </p>
+                            <div className="text-xs text-muted-foreground mt-1">
+                                <div>Regular: {primarySymbol}{formatCurrency(summary.total_expenses, primaryCurrency)}</div>
+                                <div>Payable Settlements: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)}</div>
+                            </div>
+                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                {summary.secondary_currency_totals && (summary.secondary_currency_totals.expenses + summary.secondary_currency_totals.settlements) > 0 && (
+                                    <div>
+                                        {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.expenses + summary.secondary_currency_totals.settlements, secondaryCurrency)}
+                                    </div>
+                                )}
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -550,6 +710,17 @@ export default function Transaction() {
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'receivable').length} transactions
                             </p>
+                            <div className="text-xs text-muted-foreground mt-1">
+                                <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_receivables, primaryCurrency)}</div>
+                                <div>Settled: {primarySymbol}{formatCurrency(summary.receivable_settlements || 0, primaryCurrency)}</div>
+                            </div>
+                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                {summary.secondary_currency_totals && summary.secondary_currency_totals.receivables > 0 && (
+                                    <div>
+                                        {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.receivables, secondaryCurrency)}
+                                    </div>
+                                )}
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -566,6 +737,17 @@ export default function Transaction() {
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'payable').length} transactions
                             </p>
+                            <div className="text-xs text-muted-foreground mt-1">
+                                <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_payables, primaryCurrency)}</div>
+                                <div>Settled: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)}</div>
+                            </div>
+                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                {summary.secondary_currency_totals && summary.secondary_currency_totals.payables > 0 && (
+                                    <div>
+                                        {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.payables, secondaryCurrency)}
+                                    </div>
+                                )}
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
@@ -703,20 +885,19 @@ export default function Transaction() {
                                                 <span
                                                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
                                                 >
-                                                    {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                                                    {transaction.type === 'settlement' 
+                                                        ? transaction.category.name 
+                                                        : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)
+                                                    }
                                                 </span>
                                             </TableCell>
                                             <TableCell>{transaction.source}</TableCell>
                                             <TableCell>{transaction.category.name}</TableCell>
 
                                             <TableCell
-                                                className={`${
-                                                    transaction.type === 'income' || transaction.type === 'receivable'
-                                                        ? 'text-green-600'
-                                                        : 'text-red-600'
-                                                }`}
+                                                className={getAmountDisplay(transaction).color}
                                             >
-                                                {transaction.type === 'income' || transaction.type === 'receivable' ? '+' : '-'}{' '}
+                                                {getAmountDisplay(transaction).sign}{' '}
                                                 {transaction.user?.primary_symbol || primarySymbol}{' '}
                                                 {formatCurrency(transaction.amount, primaryCurrency)}
                                             </TableCell>
@@ -805,17 +986,17 @@ export default function Transaction() {
                                                     <span
                                                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
                                                     >
-                                                        {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                                                        {transaction.type === 'settlement' 
+                                                            ? transaction.category.name 
+                                                            : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)
+                                                        }
                                                     </span>
                                                     <span className="text-xs text-muted-foreground">{transaction.source}</span>
                                                 </div>
                                                 <div
-                                                    className={`font-medium text-sm ${
-                                                        transaction.type === 'income' || transaction.type === 'receivable'
-                                                            ? 'text-green-600'
-                                                            : 'text-red-600'
-                                                    }`}
+                                                    className={`font-medium text-sm ${getAmountDisplay(transaction).color}`}
                                                 >
+                                                    {getAmountDisplay(transaction).sign}{' '}
                                                     {transaction.user?.primary_symbol || primarySymbol}{' '}
                                                     {formatCurrency(transaction.amount, primaryCurrency)}
                                                 </div>

@@ -103,7 +103,7 @@ class TransactionSeeder extends Seeder
                 'currency' => 'USD',
                 'source' => 'Client ABC',
                 'status' => 'pending',
-                'due_date' => Carbon::now()->addDays(5),
+
             ],
             [
                 'user_id' => $user->id,
@@ -115,7 +115,7 @@ class TransactionSeeder extends Seeder
                 'currency' => 'USD',
                 'source' => 'John Doe',
                 'status' => 'pending',
-                'due_date' => Carbon::now()->addDays(3),
+
             ],
             [
                 'user_id' => $user->id,
@@ -127,7 +127,7 @@ class TransactionSeeder extends Seeder
                 'currency' => 'USD',
                 'source' => 'Bank Credit Card',
                 'status' => 'pending',
-                'due_date' => Carbon::now()->addDays(7),
+
             ],
             [
                 'user_id' => $user->id,
@@ -139,7 +139,7 @@ class TransactionSeeder extends Seeder
                 'currency' => 'USD',
                 'source' => 'Landlord',
                 'status' => 'pending',
-                'due_date' => Carbon::now()->addDays(1),
+
             ],
             [
                 'user_id' => $user->id,
@@ -162,7 +162,7 @@ class TransactionSeeder extends Seeder
                 'currency' => 'USD',
                 'source' => 'Tax Authority',
                 'status' => 'pending',
-                'due_date' => Carbon::now()->addDays(15),
+
             ],
         ];
 

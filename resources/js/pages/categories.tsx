@@ -14,7 +14,7 @@ interface Category {
     id: number;
     name: string;
     slug: string;
-    type: 'income' | 'expense' | 'receivable' | 'payable';
+    type: 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable';
     color: string;
     icon?: string;
     is_active: boolean;
@@ -30,14 +30,14 @@ interface CategoriesPageProps {
 export default function CategoriesPage({ categories, isAdmin }: CategoriesPageProps) {
     const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
-    const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense' | 'receivable' | 'payable'>('all');
+    const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable'>('all');
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
     const [formData, setFormData] = useState({
         name: '',
-        type: 'income' as const,
+        type: 'income' as 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable',
         color: '#6B7280',
         icon: '',
     });
@@ -59,6 +59,10 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                 return ArrowUpRight;
             case 'payable':
                 return ArrowDownLeft;
+            case 'settle_payable':
+                return ArrowDownLeft;
+            case 'settle_receivable':
+                return ArrowUpRight;
             default:
                 return Tag;
         }
@@ -74,6 +78,10 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                 return 'text-blue-600 bg-blue-100';
             case 'payable':
                 return 'text-orange-600 bg-orange-100';
+            case 'settle_payable':
+                return 'text-orange-600 bg-orange-50';
+            case 'settle_receivable':
+                return 'text-blue-600 bg-blue-50';
             default:
                 return 'text-gray-600 bg-gray-100';
         }
@@ -97,7 +105,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                     type: 'success',
                 });
                 setShowCreateForm(false);
-                setFormData({ name: '', type: 'income', color: '#6B7280', icon: '' });
+                setFormData({ name: '', type: 'income' as 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable', color: '#6B7280', icon: '' });
             },
             onError: (errors) => {
                 showToast({
@@ -127,7 +135,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                     type: 'success',
                 });
                 setEditingCategory(null);
-                setFormData({ name: '', type: 'income', color: '#6B7280', icon: '' });
+                setFormData({ name: '', type: 'income' as 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable', color: '#6B7280', icon: '' });
             },
             onError: (errors) => {
                 showToast({
@@ -182,7 +190,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
         setEditingCategory(category);
         setFormData({
             name: category.name,
-            type: category.type as 'income' | 'expense' | 'receivable' | 'payable',
+            type: category.type as 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable',
             color: category.color,
             icon: category.icon || '',
         });
@@ -190,7 +198,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
 
     const cancelEdit = () => {
         setEditingCategory(null);
-        setFormData({ name: '', type: 'income', color: '#6B7280', icon: '' });
+        setFormData({ name: '', type: 'income' as 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable', color: '#6B7280', icon: '' });
     };
 
     return (
@@ -203,7 +211,7 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                 </div>
 
                 {/* Stats */}
-                <div className="mb-6 grid gap-4 md:grid-cols-4">
+                <div className="mb-6 grid gap-4 md:grid-cols-6">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
@@ -229,6 +237,24 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-red-600">{categories.filter((c) => c.type === 'expense').length}</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Receivable Categories</CardTitle>
+                            <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-blue-600">{categories.filter((c) => c.type === 'receivable').length}</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Payable Categories</CardTitle>
+                            <ArrowDownLeft className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-orange-600">{categories.filter((c) => c.type === 'payable').length}</div>
                         </CardContent>
                     </Card>
                     <Card>
@@ -265,13 +291,15 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                                     <SelectTrigger className="mt-1 w-32">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Types</SelectItem>
-                                        <SelectItem value="income">Income</SelectItem>
-                                        <SelectItem value="expense">Expense</SelectItem>
-                                        <SelectItem value="receivable">Receivable</SelectItem>
-                                        <SelectItem value="payable">Payable</SelectItem>
-                                    </SelectContent>
+                                                                            <SelectContent>
+                                            <SelectItem value="all">All Types</SelectItem>
+                                            <SelectItem value="income">Income</SelectItem>
+                                            <SelectItem value="expense">Expense</SelectItem>
+                                            <SelectItem value="receivable">Receivable</SelectItem>
+                                            <SelectItem value="payable">Payable</SelectItem>
+                                            <SelectItem value="settle_payable">Settle Payable</SelectItem>
+                                            <SelectItem value="settle_receivable">Settle Receivable</SelectItem>
+                                        </SelectContent>
                                 </Select>
                             </div>
                             {isAdmin && (
@@ -313,6 +341,8 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                                             <SelectItem value="expense">Expense</SelectItem>
                                             <SelectItem value="receivable">Receivable</SelectItem>
                                             <SelectItem value="payable">Payable</SelectItem>
+                                            <SelectItem value="settle_payable">Settle Payable</SelectItem>
+                                            <SelectItem value="settle_receivable">Settle Receivable</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -376,7 +406,9 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                                                 <div className="flex items-center gap-2">
                                                     <TypeIcon className="h-4 w-4" />
                                                     <span className={`rounded-full px-2 py-1 text-xs font-medium ${getTypeColor(category.type)}`}>
-                                                        {category.type}
+                                                        {category.type === 'settle_payable' ? 'Settle Payable' : 
+                                                         category.type === 'settle_receivable' ? 'Settle Receivable' : 
+                                                         category.type}
                                                     </span>
                                                 </div>
                                             </TableCell>

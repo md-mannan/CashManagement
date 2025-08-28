@@ -17,6 +17,10 @@
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
+    /* Ensure sticky positioning works properly */
+    --sticky-z-index: 50;
+}
+
     --color-background: var(--background);
     --color-foreground: var(--foreground);
 
@@ -97,6 +101,8 @@
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.87 0 0);
 }
+
+
 
 /* Neutral Theme Dark */
 .dark {

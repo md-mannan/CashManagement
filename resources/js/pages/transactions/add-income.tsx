@@ -183,6 +183,8 @@ export default function AddIncome() {
                 : null,
         };
 
+
+
         // Submit to backend using Inertia
         router.post('/transactions', transactionData, {
             onSuccess: () => {
@@ -377,7 +379,7 @@ export default function AddIncome() {
                                                 type="button"
                                                 onClick={() => fetchRealTimeRate(formData.secondaryCurrency!)}
                                                 disabled={isLoadingRate}
-                                                className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:text-gray-300"
+                                                className="absolute right-3 top-1/5 image.png text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:text-gray-300 transition-colors"
                                                 title="Refresh exchange rate"
                                             >
                                                 {isLoadingRate ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}

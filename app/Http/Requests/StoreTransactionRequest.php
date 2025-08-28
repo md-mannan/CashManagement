@@ -3,9 +3,18 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Services\FinancialConstraintService;
+use Illuminate\Validation\Validator;
 
 class StoreTransactionRequest extends FormRequest
 {
+    protected FinancialConstraintService $financialConstraintService;
+
+    public function __construct(FinancialConstraintService $financialConstraintService)
+    {
+        $this->financialConstraintService = $financialConstraintService;
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -16,8 +25,6 @@ class StoreTransactionRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -31,7 +38,7 @@ class StoreTransactionRequest extends FormRequest
             'source' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:1000',
             'status' => 'nullable|in:pending,completed,cancelled',
-            'due_date' => 'nullable|date|after_or_equal:date',
+
             'metadata' => 'nullable|array',
             'metadata.exchange_rate' => 'nullable|numeric|min:0.01',
             'metadata.secondary_amount' => 'nullable|numeric|min:0',
@@ -39,9 +46,50 @@ class StoreTransactionRequest extends FormRequest
     }
 
     /**
+     * Configure the validator instance.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function ($validator) {
+            $this->validateFinancialConstraints($validator);
+        });
+    }
+
+    /**
+     * Validate financial constraints based on transaction type
+     */
+    protected function validateFinancialConstraints(Validator $validator): void
+    {
+        $type = $this->input('type');
+        $amount = (float) $this->input('amount');
+        $user = auth()->user();
+
+        if (!$user) {
+            return;
+        }
+
+        // Check financial constraints for receivable and payable transactions
+        if ($type === 'receivable') {
+            $constraint = $this->financialConstraintService->canCreateReceivable($user, $amount);
+            
+            if (!$constraint['can_create']) {
+                $validator->errors()->add('amount', $constraint['message']);
+                $validator->errors()->add('financial_constraint', 'Insufficient net balance to create receivable');
+            }
+        }
+
+        if ($type === 'payable') {
+            $constraint = $this->financialConstraintService->canCreatePayable($user, $amount);
+            
+            if (!$constraint['can_create']) {
+                $validator->errors()->add('amount', $constraint['message']);
+                $validator->errors()->add('financial_constraint', 'Insufficient net balance to create payable');
+            }
+        }
+    }
+
+    /**
      * Get custom messages for validator errors.
-     *
-     * @return array<string, string>
      */
     public function messages(): array
     {
@@ -55,7 +103,7 @@ class StoreTransactionRequest extends FormRequest
             'amount.numeric' => 'Transaction amount must be a valid number.',
             'amount.min' => 'Transaction amount must be greater than 0.',
             'currency.size' => 'Currency code must be 3 characters.',
-            'due_date.after_or_equal' => 'Due date must be on or after the transaction date.',
+
             'metadata.exchange_rate.numeric' => 'Exchange rate must be a valid number.',
             'metadata.exchange_rate.min' => 'Exchange rate must be greater than 0.',
             'metadata.secondary_amount.numeric' => 'Secondary amount must be a valid number.',

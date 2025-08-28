@@ -42,7 +42,6 @@ interface PayableFormData {
     secondaryCurrency?: string;
     exchangeRate?: number | string;
     secondaryAmount?: number | string;
-    dueDate?: string;
 }
 
 // Categories will come from backend props
@@ -76,7 +75,7 @@ export default function AddPayable() {
         secondaryCurrency: 'KWD',
         exchangeRate: '0.0090', // 1 BDT = 0.0090 KWD (default rate)
         secondaryAmount: '0.000',
-        dueDate: '',
+
     });
 
     const [isLoadingRate, setIsLoadingRate] = useState(false);
@@ -174,7 +173,7 @@ export default function AddPayable() {
             category: formData.category,
             notes: formData.notes || '',
             currency: primaryCurrency,
-            due_date: formData.dueDate || null,
+
             metadata: formData.secondaryCurrency
                 ? {
                       secondary_currency: formData.secondaryCurrency,
@@ -185,6 +184,8 @@ export default function AddPayable() {
                   }
                 : null,
         };
+
+
 
         // Submit to backend using Inertia
         router.post('/transactions', transactionData, {
@@ -338,20 +339,7 @@ export default function AddPayable() {
                                 </div>
                             </div>
 
-                            {/* Due Date */}
-                            <div className="space-y-1 sm:space-y-1.5">
-                                <Label htmlFor="dueDate" className="text-xs font-semibold text-gray-700 sm:text-sm">
-                                    Due Date (Optional)
-                                </Label>
-                                <CustomDateInput
-                                    id="dueDate"
-                                    value={formData.dueDate || ''}
-                                    onChange={(value) => handleInputChange('dueDate', value)}
-                                    className="h-8 sm:h-9"
-                                    placeholder="dd/mm/yyyy"
-                                />
-                                <p className="text-xs text-gray-500">When this payment is due</p>
-                            </div>
+
 
                             {/* Currency Selection Row */}
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

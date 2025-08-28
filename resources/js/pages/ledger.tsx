@@ -49,9 +49,28 @@ export default function Ledger() {
             summary: {
                 total_income: number;
                 total_expenses: number;
+                total_expenses_with_payable_settlements: number;
                 total_receivables: number;
                 total_payables: number;
+                remaining_receivables: number;
+                remaining_payables: number;
+                total_settlements: number;
+                receivable_settlements: number;
+                payable_settlements: number;
                 net_balance: number;
+                secondary_currency_totals?: {
+                    income: number;
+                    expenses: number;
+                    receivables: number;
+                    payables: number;
+                    settlements: number;
+                    net_balance?: number;
+                };
+                secondary_net_balance?: number;
+                secondary_remaining_receivables?: number;
+                secondary_remaining_payables?: number;
+                secondary_receivable_settlements?: number;
+                secondary_payable_settlements?: number;
             };
             filters: {
                 type?: string;
@@ -118,10 +137,11 @@ export default function Ledger() {
             let debit = null;
             let credit = null;
 
-            // Determine debit/credit based on transaction type
+            // Determine debit/credit based on transaction type and category
             // In accounting: Debit = money going out, Credit = money coming in
             // Convert amount to number to ensure proper arithmetic (not string concatenation)
             const amount = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) || 0 : transaction.amount || 0;
+            const categoryName = transaction.category.name.toLowerCase();
 
             if (transaction.type === 'expense') {
                 debit = amount;
@@ -130,13 +150,24 @@ export default function Ledger() {
                 credit = amount;
                 runningBalance += amount;
             } else if (transaction.type === 'payable') {
-                // Payable = money you owe (liability) - reduces your net position
-                debit = amount;
-                runningBalance -= amount;
-            } else if (transaction.type === 'receivable') {
-                // Receivable = money owed to you (asset) - increases your net position
+                // Payable = money you owe (liability) - increases your liability
                 credit = amount;
                 runningBalance += amount;
+            } else if (transaction.type === 'receivable') {
+                // Receivable = money you're lending (money going out)
+                debit = amount;
+                runningBalance -= amount;
+            } else {
+                // Handle settlement transactions based on category names
+                if (categoryName.includes('return')) {
+                    // Receivable settlement (getting money back) - increases balance
+                    credit = amount;
+                    runningBalance += amount;
+                } else if (categoryName.includes('pay')) {
+                    // Payable settlement (paying back borrowed money) - decreases balance
+                    debit = amount;
+                    runningBalance -= amount;
+                }
             }
 
             ledgerEntries.push({
@@ -159,53 +190,33 @@ export default function Ledger() {
 
     const ledgerEntries = prepareLedgerEntries();
 
-    // Calculate summary from original entered amounts for accurate secondary currency display
-    const calculateOriginalSummary = () => {
-        let originalIncome = 0;
-        let originalExpenses = 0;
-        let originalReceivables = 0;
-        let originalPayables = 0;
-
-        transactions.forEach((transaction) => {
-            // Use original entered amount if available, otherwise use converted amount
-            const originalAmount =
-                transaction.metadata?.secondary_currency && transaction.metadata?.secondary_amount
-                    ? transaction.metadata.secondary_amount
-                    : typeof transaction.amount === 'string'
-                      ? parseFloat(transaction.amount)
-                      : transaction.amount;
-
-            switch (transaction.type) {
-                case 'income':
-                    originalIncome += originalAmount;
-                    break;
-                case 'expense':
-                    originalExpenses += originalAmount;
-                    break;
-                case 'receivable':
-                    originalReceivables += originalAmount;
-                    break;
-                case 'payable':
-                    originalPayables += originalAmount;
-                    break;
-            }
-        });
-
-        return {
-            total_income: originalIncome,
-            total_expenses: originalExpenses,
-            total_receivables: originalReceivables,
-            total_payables: originalPayables,
-            net_balance: (originalIncome - originalExpenses) + (originalReceivables - originalPayables),
-        };
+    // Use backend summary data for consistency with transaction page
+    const getSecondaryCurrencyDisplay = (type: 'income' | 'expenses' | 'receivables' | 'payables' | 'settlements') => {
+        if (summary.secondary_currency_totals && summary.secondary_currency_totals[type] !== undefined) {
+            return summary.secondary_currency_totals[type];
+        }
+        return null;
     };
-
-    const originalSummary = calculateOriginalSummary();
 
     // Format currency amounts with proper decimal places
     const formatCurrency = (amount: number, currency: string = primaryCurrency) => {
-        // Round the amount first to avoid floating point precision issues
-        const roundedAmount = Math.round(amount * 1000) / 1000;
+        // Handle null/undefined amounts
+        if (amount === null || amount === undefined || isNaN(amount)) {
+            return '0.00';
+        }
+
+        // Convert to number and handle floating point precision issues
+        const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+        
+        // Use proper rounding to avoid floating point precision issues
+        let roundedAmount;
+        if (currency === 'KWD') {
+            // For KWD, round to 3 decimal places
+            roundedAmount = Math.round(numAmount * 1000) / 1000;
+        } else {
+            // For other currencies (including BDT), round to 2 decimal places
+            roundedAmount = Math.round(numAmount * 100) / 100;
+        }
 
         const formatNumber = (num: number, decimals: number) => {
             return num.toLocaleString('en-US', {
@@ -452,8 +463,8 @@ export default function Ledger() {
                             </DropdownMenu>
                         </div>
 
-                        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                            {/* Cash Balance Card */}
+                                                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                            {/* Net Balance Card */}
                             <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                     <CardTitle className="text-sm font-medium text-purple-800">Net Balance</CardTitle>
@@ -466,9 +477,11 @@ export default function Ledger() {
                                         {primarySymbol} {formatCurrency(summary.net_balance, primaryCurrency)}
                                     </div>
                                     <div className="space-y-1 text-sm text-purple-600">
-                                        <div>
-                                            {secondarySymbol} {formatCurrency(originalSummary.net_balance, secondaryCurrency)}
-                                        </div>
+                                        {summary.secondary_currency_totals && summary.secondary_currency_totals.net_balance !== undefined && (
+                                            <div>
+                                                {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.net_balance, secondaryCurrency)}
+                                            </div>
+                                        )}
                                     </div>
                                     <p className="mt-1 text-xs text-purple-600">Current balance</p>
                                 </CardContent>
@@ -477,7 +490,7 @@ export default function Ledger() {
                             {/* Income Card */}
                             <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-green-800">Income</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-green-800">Total Income</CardTitle>
                                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-200">
                                         <TrendingUp className="h-4 w-4 text-green-700" />
                                     </div>
@@ -487,39 +500,51 @@ export default function Ledger() {
                                         {primarySymbol} {formatCurrency(summary.total_income, primaryCurrency)}
                                     </div>
                                     <div className="space-y-1 text-sm text-green-600">
-                                        <div>
-                                            {secondarySymbol} {formatCurrency(originalSummary.total_income, secondaryCurrency)}
-                                        </div>
+                                        {getSecondaryCurrencyDisplay('income') !== null && (
+                                            <div>
+                                                {secondarySymbol} {formatCurrency(getSecondaryCurrencyDisplay('income') || 0, secondaryCurrency)}
+                                            </div>
+                                        )}
                                     </div>
-                                    <p className="mt-1 text-xs text-green-600">Total income</p>
+                                    <p className="mt-1 text-xs text-green-600">
+                                        {transactions.filter((t) => t.type === 'income').length} transactions
+                                    </p>
                                 </CardContent>
                             </Card>
 
                             {/* Expenses Card */}
                             <Card className="border-red-200 bg-gradient-to-br from-red-50 to-red-100">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-red-800">Expenses</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-red-800">Total Expenses</CardTitle>
                                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-200">
                                         <TrendingDown className="h-4 w-4 text-red-700" />
                                     </div>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-red-800">
-                                        {primarySymbol} {formatCurrency(summary.total_expenses, primaryCurrency)}
+                                        {primarySymbol} {formatCurrency(summary.total_expenses_with_payable_settlements, primaryCurrency)}
                                     </div>
-                                    <div className="space-y-1 text-sm text-red-600">
-                                        <div>
-                                            {secondarySymbol} {formatCurrency(originalSummary.total_expenses, secondaryCurrency)}
-                                        </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        <div>Regular: {primarySymbol}{formatCurrency(summary.total_expenses, primaryCurrency)}</div>
+                                        <div>Payable Settlements: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)}</div>
+                                    </p>
+                                    <div className="space-y-1 text-sm text-red-600 mt-1">
+                                        {(getSecondaryCurrencyDisplay('expenses') !== null || getSecondaryCurrencyDisplay('settlements') !== null) && (
+                                            <div>
+                                                {secondarySymbol} {formatCurrency((getSecondaryCurrencyDisplay('expenses') || 0) + (getSecondaryCurrencyDisplay('settlements') || 0), secondaryCurrency)}
+                                            </div>
+                                        )}
                                     </div>
-                                    <p className="mt-1 text-xs text-red-600">Total expenses</p>
+                                    <p className="mt-1 text-xs text-red-600">
+                                        {transactions.filter((t) => t.type === 'expense').length} expenses + {transactions.filter((t) => t.category.name.toLowerCase().includes('return') || t.category.name.toLowerCase().includes('pay') || t.category.name.toLowerCase().includes('settle')).length} settlements
+                                    </p>
                                 </CardContent>
                             </Card>
 
                             {/* Payable Card */}
                             <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-orange-800">Payable</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-orange-800">Payables</CardTitle>
                                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-200">
                                         <CreditCard className="h-4 w-4 text-orange-700" />
                                     </div>
@@ -528,19 +553,27 @@ export default function Ledger() {
                                     <div className="text-2xl font-bold text-orange-800">
                                         {primarySymbol} {formatCurrency(summary.total_payables, primaryCurrency)}
                                     </div>
-                                    <div className="space-y-1 text-sm text-orange-600">
-                                        <div>
-                                            {secondarySymbol} {formatCurrency(originalSummary.total_payables, secondaryCurrency)}
-                                        </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_payables, primaryCurrency)}</div>
+                                        <div>Settled: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)}</div>
+                                    </p>
+                                    <div className="space-y-1 text-sm text-orange-600 mt-1">
+                                        {getSecondaryCurrencyDisplay('payables') !== null && (
+                                            <div>
+                                                {secondarySymbol} {formatCurrency(getSecondaryCurrencyDisplay('payables') || 0, secondaryCurrency)}
+                                            </div>
+                                        )}
                                     </div>
-                                    <p className="mt-1 text-xs text-orange-600">Total payables</p>
+                                    <p className="mt-1 text-xs text-orange-600">
+                                        {transactions.filter((t) => t.type === 'payable').length} transactions
+                                    </p>
                                 </CardContent>
                             </Card>
 
                             {/* Receivable Card */}
                             <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-blue-800">Receivable</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-blue-800">Receivables</CardTitle>
                                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200">
                                         <Banknote className="h-4 w-4 text-blue-700" />
                                     </div>
@@ -549,12 +582,20 @@ export default function Ledger() {
                                     <div className="text-2xl font-bold text-blue-800">
                                         {primarySymbol} {formatCurrency(summary.total_receivables, primaryCurrency)}
                                     </div>
-                                    <div className="space-y-1 text-sm text-blue-600">
-                                        <div>
-                                            {secondarySymbol} {formatCurrency(originalSummary.total_receivables, secondaryCurrency)}
-                                        </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_receivables, primaryCurrency)}</div>
+                                        <div>Settled: {primarySymbol}{formatCurrency(summary.receivable_settlements || 0, primaryCurrency)}</div>
+                                    </p>
+                                    <div className="space-y-1 text-sm text-blue-600 mt-1">
+                                        {getSecondaryCurrencyDisplay('receivables') !== null && (
+                                            <div>
+                                                {secondarySymbol} {formatCurrency(getSecondaryCurrencyDisplay('receivables') || 0, secondaryCurrency)}
+                                            </div>
+                                        )}
                                     </div>
-                                    <p className="mt-1 text-xs text-blue-600">Total receivables</p>
+                                    <p className="mt-1 text-xs text-blue-600">
+                                        {transactions.filter((t) => t.type === 'receivable').length} transactions
+                                    </p>
                                 </CardContent>
                             </Card>
                         </div>

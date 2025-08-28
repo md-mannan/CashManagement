@@ -3,11 +3,7 @@
         'name' => 'user-name-accounting/app',
         'pretty_version' => 'dev-client',
         'version' => 'dev-client',
-<<<<<<< HEAD
-        'reference' => 'c3e7a147a48de4fbf743d478f76063284c900933',
-=======
-        'reference' => '549a7ab661d37721e78613cc28deb66bba383f21',
->>>>>>> 9462b16a5225b8c84b10c88675c12244598d7660
+        'reference' => '9f9e95a7e469f7161f6e97d17e26d927a93e5e9d',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -1605,11 +1601,7 @@
         'user-name-accounting/app' => array(
             'pretty_version' => 'dev-client',
             'version' => 'dev-client',
-<<<<<<< HEAD
-            'reference' => 'c3e7a147a48de4fbf743d478f76063284c900933',
-=======
-            'reference' => '549a7ab661d37721e78613cc28deb66bba383f21',
->>>>>>> 9462b16a5225b8c84b10c88675c12244598d7660
+            'reference' => '9f9e95a7e469f7161f6e97d17e26d927a93e5e9d',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -81,32 +81,81 @@ class DashboardController extends Controller
             'balance_change' => $this->calculatePercentageChange($previousSummary['net_balance'], $currentSummary['net_balance']),
         ];
 
+        // Add the correct net balance formula for display
+        $netBalanceFormula = 'Income - Expenses - Total Receivables + Receivable Settlements';
+
         // Monthly chart data
         if ($user->isAdmin()) {
             $monthlyData = $this->transactionService->getSystemMonthlyChartData();
             $yearlyData = $this->transactionService->getSystemYearlyChartData();
             $categoryData = $this->transactionService->getSystemCategoryBreakdown($currentMonth);
             $yearlyCategoryData = $this->transactionService->getSystemYearlyCategoryBreakdown();
-            $upcomingTransactions = $this->transactionService->getSystemUpcomingTransactions();
+
         } else {
             $monthlyData = $this->transactionService->getMonthlyChartData($user);
             $yearlyData = $this->transactionService->getYearlyChartData($user);
             $categoryData = $this->transactionService->getCategoryBreakdown($user, $currentMonth);
             $yearlyCategoryData = $this->transactionService->getYearlyCategoryBreakdown($user);
-            $upcomingTransactions = $this->transactionService->getUpcomingTransactions($user);
+
+        }
+
+        // Add payable/receivable settlement summaries (excluding settlement transactions)
+        if ($user->isAdmin()) {
+            // Admin sees all transactions
+            $payableSummary = Transaction::where('type', 'payable')
+                ->whereNull('related_transaction_id') // Exclude settlement transactions
+                ->selectRaw('
+                    COUNT(*) as total_count,
+                    SUM(amount) as total_amount,
+                    SUM(COALESCE(settled_amount, 0)) as total_settled,
+                    SUM(amount - COALESCE(settled_amount, 0)) as total_outstanding'
+                )->first();
+
+            $receivableSummary = Transaction::where('type', 'receivable')
+                ->whereNull('related_transaction_id') // Exclude settlement transactions
+                ->selectRaw('
+                    COUNT(*) as total_count,
+                    SUM(amount) as total_amount,
+                    SUM(COALESCE(settled_amount, 0)) as total_settled,
+                    SUM(amount - COALESCE(settled_amount, 0)) as total_outstanding'
+                )->first();
+        } else {
+            // Regular users see only their own transactions
+            $payableSummary = Transaction::where('type', 'payable')
+                ->where('user_id', $user->id)
+                ->whereNull('related_transaction_id') // Exclude settlement transactions
+                ->selectRaw('
+                    COUNT(*) as total_count,
+                    SUM(amount) as total_amount,
+                    SUM(COALESCE(settled_amount, 0)) as total_settled,
+                    SUM(amount - COALESCE(settled_amount, 0)) as total_outstanding'
+                )->first();
+
+            $receivableSummary = Transaction::where('type', 'receivable')
+                ->where('user_id', $user->id)
+                ->whereNull('related_transaction_id') // Exclude settlement transactions
+                ->selectRaw('
+                    COUNT(*) as total_count,
+                    SUM(amount) as total_amount,
+                    SUM(COALESCE(settled_amount, 0)) as total_settled,
+                    SUM(amount - COALESCE(settled_amount, 0)) as total_outstanding'
+                )->first();
         }
 
         return Inertia::render('dashboard', [
             'recentTransactions' => $recentTransactions,
             'currentSummary' => $currentSummary,
             'changes' => $changes,
+            'netBalanceFormula' => $netBalanceFormula,
             'monthlyData' => $monthlyData,
             'yearlyData' => $yearlyData,
             'categoryData' => $categoryData,
             'yearlyCategoryData' => $yearlyCategoryData,
-            'upcomingTransactions' => $upcomingTransactions,
+
             'isAdmin' => $user->isAdmin(),
             'allUsers' => $allUsers,
+            'payableSummary' => $payableSummary,
+            'receivableSummary' => $receivableSummary,
             'debug' => [
                 'totalTransactions' => $totalTransactions,
                 'currentMonth' => $currentMonth->format('Y-m-d'),

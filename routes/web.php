@@ -134,6 +134,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{transaction}/edit', [TransactionController::class, 'edit'])->name('edit')->where('transaction', '[0-9]+');
         Route::put('/{transaction}', [TransactionController::class, 'update'])->name('update')->where('transaction', '[0-9]+');
         Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy')->where('transaction', '[0-9]+');
+        
+        // Settlement route
+        Route::post('/{transaction}/settle', [TransactionController::class, 'settle'])->name('settle')->where('transaction', '[0-9]+');
     });
 
     // Categories

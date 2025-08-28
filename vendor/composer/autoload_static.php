@@ -699,6 +699,7 @@ class ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871
     );
 
     public static $classMap = array (
+        'App\\Console\\Commands\\CleanupNotifications' => __DIR__ . '/../..' . '/app/Console/Commands/CleanupNotifications.php',
         'App\\Console\\Commands\\EnvironmentConfigCommand' => __DIR__ . '/../..' . '/app/Console/Commands/EnvironmentConfigCommand.php',
         'App\\Console\\Commands\\EnvironmentDetectCommand' => __DIR__ . '/../..' . '/app/Console/Commands/EnvironmentDetectCommand.php',
         'App\\Events\\NotificationDeleted' => __DIR__ . '/../..' . '/app/Events/NotificationDeleted.php',
@@ -904,7 +905,6 @@ class ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871
         'Database\\Factories\\TransactionFactory' => __DIR__ . '/../..' . '/database/factories/TransactionFactory.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
         'Database\\Seeders\\AdminSeeder' => __DIR__ . '/../..' . '/database/seeders/AdminSeeder.php',
-        'Database\\Seeders\\CategorySeeder' => __DIR__ . '/../..' . '/database/seeders/CategorySeeder.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
         'Database\\Seeders\\SuperAdminSeeder' => __DIR__ . '/../..' . '/database/seeders/SuperAdminSeeder.php',
         'Database\\Seeders\\TransactionSeeder' => __DIR__ . '/../..' . '/database/seeders/TransactionSeeder.php',

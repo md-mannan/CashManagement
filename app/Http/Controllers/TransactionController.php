@@ -7,11 +7,13 @@ use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Category;
 use App\Models\Notification;
 use App\Models\Transaction;
+use App\Models\TransactionType;
 use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use App\Services\SettlementService;
 
 class TransactionController extends Controller
 {
@@ -60,16 +62,119 @@ class TransactionController extends Controller
         }
 
         // Get all transactions for summary calculation (without pagination)
-        $allTransactions = $query->get();
+        $allTransactions = $query->with('relatedTransaction')->get();
         
-        // Calculate summary data from all transactions
-        $summary = [
-            'total_income' => $allTransactions->where('type', 'income')->sum('amount'),
-            'total_expenses' => $allTransactions->where('type', 'expense')->sum('amount'),
-            'total_receivables' => $allTransactions->where('type', 'receivable')->sum('amount'),
-            'total_payables' => $allTransactions->where('type', 'payable')->sum('amount'),
-            'net_balance' => ($allTransactions->where('type', 'income')->sum('amount') - $allTransactions->where('type', 'expense')->sum('amount')) + ($allTransactions->where('type', 'receivable')->sum('amount') - $allTransactions->where('type', 'payable')->sum('amount')),
+        // Calculate summary data from all transactions with correct settlement handling
+        $totalIncome = $allTransactions->where('type', 'income')->sum('amount');
+        $totalExpenses = $allTransactions->where('type', 'expense')->sum('amount');
+        
+        // Separate receivable and payable settlements
+        $receivableSettlements = 0;
+        $payableSettlements = 0;
+        
+        // Get settlement transactions based on category names (not just type)
+        $settlementTransactions = $allTransactions->filter(function ($transaction) {
+            $categoryName = strtolower($transaction->category->name);
+            return str_contains($categoryName, 'return') || str_contains($categoryName, 'pay') || str_contains($categoryName, 'settle');
+        });
+        
+        foreach ($settlementTransactions as $settlement) {
+            $categoryName = strtolower($settlement->category->name);
+            
+            if (str_contains($categoryName, 'return')) {
+                // Receivable settlement (getting money back)
+                $receivableSettlements += $settlement->amount;
+            } elseif (str_contains($categoryName, 'pay')) {
+                // Payable settlement (paying back borrowed money)
+                $payableSettlements += $settlement->amount;
+            }
+        }
+            
+        $totalSettlements = $receivableSettlements + $payableSettlements;
+        
+        $totalReceivables = $allTransactions->where('type', 'receivable')->sum('amount');
+        $totalPayables = $allTransactions->where('type', 'payable')->sum('amount');
+        
+        // Calculate REMAINING payable/receivable amounts (after settlements)
+        $remainingPayables = $totalPayables - $payableSettlements;
+        $remainingReceivables = $totalReceivables - $receivableSettlements;
+        
+        // Only payable settlements are expenses - receivable settlements increase net balance directly
+        $totalExpensesWithPayableSettlements = $totalExpenses + $payableSettlements;
+        
+        // Calculate net balance before using it in summary
+        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
+        // This properly accounts for all transaction types and settlements
+        $calculatedNetBalance = $totalIncome - $totalExpenses - $totalReceivables + $totalPayables + $receivableSettlements - $payableSettlements;
+        
+        // Calculate secondary currency totals from metadata
+        $secondaryCurrencyTotals = [
+            'income' => 0,
+            'expenses' => 0,
+            'receivables' => 0,
+            'payables' => 0,
+            'settlements' => 0,
         ];
+        
+        // Sum secondary currency amounts for each transaction type
+        foreach ($allTransactions as $transaction) {
+            if (isset($transaction->metadata['secondary_amount']) && $transaction->metadata['secondary_amount'] > 0) {
+                $amount = (float) $transaction->metadata['secondary_amount'];
+                switch ($transaction->type) {
+                    case 'income':
+                        $secondaryCurrencyTotals['income'] += $amount;
+                        break;
+                    case 'expense':
+                        $secondaryCurrencyTotals['expenses'] += $amount;
+                        break;
+                    case 'receivable':
+                        $secondaryCurrencyTotals['receivables'] += $amount;
+                        break;
+                    case 'payable':
+                        $secondaryCurrencyTotals['payables'] += $amount;
+                        break;
+                    case 'settlement':
+                        $secondaryCurrencyTotals['settlements'] += $amount;
+                        break;
+                }
+            }
+        }
+        
+        // Calculate secondary currency net balance using the SAME formula as primary
+        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
+        $secondaryNetBalance = $secondaryCurrencyTotals['income'] - $secondaryCurrencyTotals['expenses'] - $secondaryCurrencyTotals['receivables'] + $secondaryCurrencyTotals['payables'] + $secondaryCurrencyTotals['settlements'];
+        
+        // Add the calculated net balance to secondary currency totals
+        $secondaryCurrencyTotals['net_balance'] = $secondaryNetBalance;
+        
+        $summary = [
+            'total_income' => $totalIncome,
+            'total_expenses' => $totalExpenses,
+            'total_expenses_with_payable_settlements' => $totalExpensesWithPayableSettlements,
+            'total_receivables' => $totalReceivables,
+            'total_payables' => $totalPayables,
+            'remaining_receivables' => $remainingReceivables,
+            'remaining_payables' => $remainingPayables,
+            'total_settlements' => $totalSettlements,
+            'receivable_settlements' => $receivableSettlements,
+            'payable_settlements' => $payableSettlements,
+            'net_balance' => $calculatedNetBalance,
+            'secondary_currency_totals' => $secondaryCurrencyTotals,
+            'secondary_net_balance' => $secondaryNetBalance,
+        ];
+
+        // Temporary debug logging
+        \Log::info('TransactionController Index Net Balance Debug', [
+            'totalIncome' => $totalIncome,
+            'totalExpenses' => $totalExpenses,
+            'totalReceivables' => $totalReceivables,
+            'receivableSettlements' => $receivableSettlements,
+            'calculatedNetBalance' => $calculatedNetBalance,
+            'formula' => "{$totalIncome} - {$totalExpenses} - {$totalReceivables} + {$totalPayables} + {$receivableSettlements} - {$payableSettlements} = {$calculatedNetBalance}",
+            'secondaryCurrencyTotals' => $secondaryCurrencyTotals,
+            'secondaryNetBalance' => $secondaryNetBalance,
+            'secondaryFormula' => "{$secondaryCurrencyTotals['income']} - {$secondaryCurrencyTotals['expenses']} - {$secondaryCurrencyTotals['receivables']} + {$secondaryCurrencyTotals['payables']} + {$secondaryCurrencyTotals['settlements']} = {$secondaryNetBalance}"
+        ]);
 
         // Get paginated transactions for the table
         $transactions = $query->paginate(10);
@@ -120,16 +225,143 @@ class TransactionController extends Controller
             $query->where('user_id', $request->user_id);
         }
 
-        $transactions = $query->get();
+        $transactions = $query->with('relatedTransaction')->get();
 
-        // Calculate summary data
-        $summary = [
-            'total_income' => $transactions->where('type', 'income')->sum('amount'),
-            'total_expenses' => $transactions->where('type', 'expense')->sum('amount'),
-            'total_receivables' => $transactions->where('type', 'receivable')->sum('amount'),
-            'total_payables' => $transactions->where('type', 'payable')->sum('amount'),
-            'net_balance' => ($transactions->where('type', 'income')->sum('amount') - $transactions->where('type', 'expense')->sum('amount')) + ($transactions->where('type', 'receivable')->sum('amount') - $transactions->where('type', 'payable')->sum('amount')),
+        // Calculate summary data with correct settlement handling
+        $totalIncome = $transactions->where('type', 'income')->sum('amount');
+        $totalExpenses = $transactions->where('type', 'expense')->sum('amount');
+        
+        // Separate receivable and payable settlements
+        $receivableSettlements = 0;
+        $payableSettlements = 0;
+        
+        // Get settlement transactions based on category names (not just type)
+        $settlementTransactions = $transactions->filter(function ($transaction) {
+            $categoryName = strtolower($transaction->category->name);
+            return str_contains($categoryName, 'return') || str_contains($categoryName, 'pay') || str_contains($categoryName, 'settle');
+        });
+        
+        foreach ($settlementTransactions as $settlement) {
+            $categoryName = strtolower($settlement->category->name);
+            
+            if (str_contains($categoryName, 'return')) {
+                // Receivable settlement (getting money back)
+                $receivableSettlements += $settlement->amount;
+            } elseif (str_contains($categoryName, 'pay')) {
+                // Payable settlement (paying back borrowed money)
+                $payableSettlements += $settlement->amount;
+            }
+        }
+            
+        $totalSettlements = $receivableSettlements + $payableSettlements;
+        
+        $totalReceivables = $transactions->where('type', 'receivable')->sum('amount');
+        $totalPayables = $transactions->where('type', 'payable')->sum('amount');
+        
+        // Calculate REMAINING payable/receivable amounts (after settlements)
+        $remainingPayables = $totalPayables - $payableSettlements;
+        $remainingReceivables = $totalReceivables - $receivableSettlements;
+        
+        // Only payable settlements are expenses - receivable settlements increase net balance directly
+        $totalExpensesWithPayableSettlements = $totalExpenses + $payableSettlements;
+        
+        // Calculate net balance before using it in summary
+        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements (same as index method)
+        $calculatedNetBalance = $totalIncome - $totalExpenses - $totalReceivables + $totalPayables + $receivableSettlements - $payableSettlements;
+        
+        // Calculate secondary currency totals from metadata
+        $secondaryCurrencyTotals = [
+            'income' => 0,
+            'expenses' => 0,
+            'receivables' => 0,
+            'payables' => 0,
+            'settlements' => 0,
         ];
+        
+        // Sum secondary currency amounts for each transaction type
+        foreach ($transactions as $transaction) {
+            if (isset($transaction->metadata['secondary_amount']) && $transaction->metadata['secondary_amount'] > 0) {
+                $amount = (float) $transaction->metadata['secondary_amount'];
+                switch ($transaction->type) {
+                    case 'income':
+                        $secondaryCurrencyTotals['income'] += $amount;
+                        break;
+                    case 'expense':
+                        $secondaryCurrencyTotals['expenses'] += $amount;
+                        break;
+                    case 'receivable':
+                        $secondaryCurrencyTotals['receivables'] += $amount;
+                        break;
+                    case 'payable':
+                        $secondaryCurrencyTotals['payables'] += $amount;
+                        break;
+                    case 'settlement':
+                        $secondaryCurrencyTotals['settlements'] += $amount;
+                        break;
+                }
+            }
+        }
+        
+        // Calculate secondary currency settlements
+        $secondaryReceivableSettlements = 0;
+        $secondaryPayableSettlements = 0;
+        
+        foreach ($settlementTransactions as $settlement) {
+            if (isset($settlement->metadata['secondary_amount']) && $settlement->metadata['secondary_amount'] > 0) {
+                $amount = (float) $settlement->metadata['secondary_amount'];
+                $categoryName = strtolower($settlement->category->name);
+                
+                if (str_contains($categoryName, 'return')) {
+                    $secondaryReceivableSettlements += $amount;
+                } elseif (str_contains($categoryName, 'pay')) {
+                    $secondaryPayableSettlements += $amount;
+                }
+            }
+        }
+        
+        // Calculate remaining secondary currency amounts
+        $secondaryRemainingReceivables = $secondaryCurrencyTotals['receivables'] - $secondaryReceivableSettlements;
+        $secondaryRemainingPayables = $secondaryCurrencyTotals['payables'] - $secondaryPayableSettlements;
+        
+        // Calculate secondary currency net balance using the SAME formula as primary
+        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
+        $secondaryNetBalance = $secondaryCurrencyTotals['income'] - $secondaryCurrencyTotals['expenses'] - $secondaryCurrencyTotals['receivables'] + $secondaryCurrencyTotals['payables'] + $secondaryReceivableSettlements - $secondaryPayableSettlements;
+        
+        // Add the calculated net balance to secondary currency totals
+        $secondaryCurrencyTotals['net_balance'] = $secondaryNetBalance;
+        
+        $summary = [
+            'total_income' => $totalIncome,
+            'total_expenses' => $totalExpenses,
+            'total_expenses_with_payable_settlements' => $totalExpensesWithPayableSettlements,
+            'total_receivables' => $totalReceivables,
+            'total_payables' => $totalPayables,
+            'remaining_receivables' => $remainingReceivables,
+            'remaining_payables' => $remainingPayables,
+            'total_settlements' => $totalSettlements,
+            'receivable_settlements' => $receivableSettlements,
+            'payable_settlements' => $payableSettlements,
+            'net_balance' => $calculatedNetBalance,
+            'secondary_currency_totals' => $secondaryCurrencyTotals,
+            'secondary_net_balance' => $secondaryNetBalance,
+            'secondary_remaining_receivables' => $secondaryRemainingReceivables,
+            'secondary_remaining_payables' => $secondaryRemainingPayables,
+            'secondary_receivable_settlements' => $secondaryReceivableSettlements,
+            'secondary_payable_settlements' => $secondaryPayableSettlements,
+        ];
+
+        // Temporary debug logging
+        \Log::info('TransactionController Ledger Net Balance Debug', [
+            'totalIncome' => $totalIncome,
+            'totalExpenses' => $totalExpenses,
+            'remainingReceivables' => $remainingReceivables,
+            'remainingPayables' => $remainingPayables,
+            'calculatedNetBalance' => $calculatedNetBalance,
+            'formula' => "{$totalIncome} - {$totalExpenses} - {$totalReceivables} + {$totalPayables} + {$receivableSettlements} - {$payableSettlements} = {$calculatedNetBalance}",
+            'secondaryCurrencyTotals' => $secondaryCurrencyTotals,
+            'secondaryNetBalance' => $secondaryNetBalance,
+            'secondaryFormula' => "{$secondaryCurrencyTotals['income']} - {$secondaryCurrencyTotals['expenses']} - {$secondaryCurrencyTotals['receivables']} + {$secondaryCurrencyTotals['payables']} + {$secondaryReceivableSettlements} - {$secondaryPayableSettlements} = {$secondaryNetBalance}"
+        ]);
 
         return Inertia::render('ledger', [
             'transactions' => $transactions,
@@ -166,9 +398,16 @@ class TransactionController extends Controller
             'is_active' => true,
         ]);
 
+        // Get the transaction type ID based on the type
+        $transactionType = TransactionType::where('name', $request->type)->first();
+        if (!$transactionType) {
+            return back()->withErrors(['type' => 'Invalid transaction type']);
+        }
+
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
             'category_id' => $category->id,
+            'transaction_type_id' => $transactionType->id,
             'date' => $request->date,
             'description' => $request->description,
             'type' => $request->type,
@@ -177,7 +416,6 @@ class TransactionController extends Controller
             'source' => $request->source,
             'notes' => $request->notes,
             'status' => $request->status ?? 'completed',
-            'due_date' => $request->due_date,
             'metadata' => $request->metadata,
         ]);
 
@@ -309,10 +547,70 @@ class TransactionController extends Controller
                 ->with('error', 'You do not have permission to view this transaction.');
         }
 
-        $transaction->load('category');
+        $transaction->load(['category', 'settlements.category']);
+
+        // Get settlement summary for payable/receivable transactions
+        $settlementSummary = null;
+        if (in_array($transaction->type, ['payable', 'receivable'])) {
+            // Calculate settled amount from actual settlement records for accuracy
+            $actualSettledAmount = $transaction->settlements->sum('amount');
+            
+            // Get secondary currency information
+            $secondaryCurrency = $transaction->metadata['secondary_currency'] ?? null;
+            $exchangeRate = $transaction->metadata['exchange_rate'] ?? null;
+            $secondaryTotalAmount = $transaction->metadata['secondary_amount'] ?? null;
+            
+            // Calculate secondary amounts for settlement summary
+            $secondarySettledAmount = null;
+            $secondaryRemainingAmount = null;
+            
+            if ($secondaryCurrency && $exchangeRate && $secondaryTotalAmount) {
+                // Calculate secondary settled amount from actual settlement records
+                $secondarySettledAmount = 0;
+                foreach ($transaction->settlements as $settlement) {
+                    if (isset($settlement->metadata['secondary_amount'])) {
+                        $secondarySettledAmount += $settlement->metadata['secondary_amount'];
+                    }
+                }
+                $secondaryRemainingAmount = $secondaryTotalAmount - $secondarySettledAmount;
+            }
+            
+            $settlementSummary = [
+                'total_amount' => $transaction->amount,
+                'settled_amount' => $actualSettledAmount,
+                'remaining_amount' => $transaction->amount - $actualSettledAmount,
+                'status' => $this->calculateSettlementStatus($transaction->amount, $actualSettledAmount),
+                'secondary_currency' => $secondaryCurrency,
+                'secondary_total_amount' => $secondaryTotalAmount,
+                'secondary_settled_amount' => $secondarySettledAmount,
+                'secondary_remaining_amount' => $secondaryRemainingAmount,
+                'exchange_rate' => $exchangeRate,
+                'settlements' => $transaction->settlements->map(function ($settlement) {
+                    return [
+                        'id' => $settlement->id,
+                        'date' => $settlement->date->format('Y-m-d'),
+                        'amount' => $settlement->amount,
+                        'description' => $settlement->description,
+                        'category' => $settlement->category->name,
+                        'category_color' => $settlement->category->color,
+                        'secondary_amount' => $settlement->metadata['secondary_amount'] ?? null,
+                    ];
+                }),
+            ];
+        }
+
+        // Get settlement categories based on transaction type
+        $settlementCategories = [];
+        if ($transaction->type === 'payable') {
+            $settlementCategories = Category::where('type', 'settle_payable')->active()->get();
+        } elseif ($transaction->type === 'receivable') {
+            $settlementCategories = Category::where('type', 'settle_receivable')->active()->get();
+        }
 
         return Inertia::render('transaction-view', [
             'transaction' => $transaction,
+            'settlementSummary' => $settlementSummary,
+            'settlementCategories' => $settlementCategories,
             'id' => $transaction->id,
         ]);
     }
@@ -395,7 +693,6 @@ class TransactionController extends Controller
             'source' => $request->source,
             'notes' => $request->notes,
             'status' => $request->status ?? $transaction->status,
-            'due_date' => $request->due_date,
             'metadata' => $request->metadata,
         ]);
 
@@ -453,6 +750,19 @@ class TransactionController extends Controller
             'amount' => $transaction->amount,
             'currency' => $transaction->currency,
         ];
+
+        // If this is a settlement transaction, update the related transaction's settled_amount
+        if ($transaction->type === 'settlement' && $transaction->related_transaction_id) {
+            $relatedTransaction = Transaction::find($transaction->related_transaction_id);
+            if ($relatedTransaction) {
+                $newSettledAmount = max(0, $relatedTransaction->settled_amount - $transaction->amount);
+                $relatedTransaction->update([
+                    'settled_amount' => $newSettledAmount,
+                    'status' => $this->calculateSettlementStatus($relatedTransaction->amount, $newSettledAmount),
+                    'settled_at' => $newSettledAmount >= $relatedTransaction->amount ? now() : null,
+                ]);
+            }
+        }
 
         $transaction->delete();
 
@@ -517,5 +827,32 @@ class TransactionController extends Controller
         return Inertia::render('transactions/add-payable', [
             'categories' => $categories,
         ]);
+    }
+
+    public function settle(Request $request, Transaction $transaction)
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0.01|max:' . ($transaction->amount - $transaction->settled_amount),
+            'description' => 'required|string|max:255',
+            'category' => 'required|string|in:settle_payable,settle_receivable',
+            'date' => 'required|date|before_or_equal:today',
+            'secondary_amount' => 'nullable|numeric|min:0',
+            'exchange_rate' => 'nullable|numeric|min:0.0001',
+        ]);
+
+        $settlement = app(SettlementService::class)->createSettlement($transaction, $validated);
+
+        return redirect()->back()->with('success', 'Settlement created successfully');
+    }
+
+    /**
+     * Calculate settlement status based on total amount and settled amount
+     */
+    private function calculateSettlementStatus($totalAmount, $settledAmount)
+    {
+        if ($settledAmount == 0) return 'pending';
+        if ($settledAmount < $totalAmount) return 'partial';
+        if ($settledAmount >= $totalAmount) return 'completed';
+        return 'pending';
     }
 }

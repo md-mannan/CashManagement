@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
         // Seed essential data only
         $this->call([
             SuperAdminSeeder::class,
+            SettlementCategorySeeder::class,
+            TransactionTypeSeeder::class,
             // TransactionSeeder::class, // Commented out - no sample transactions
         ]);
 

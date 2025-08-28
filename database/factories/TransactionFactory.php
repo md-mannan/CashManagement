@@ -33,7 +33,7 @@ class TransactionFactory extends Factory
             'source' => $this->faker->optional()->company(),
             'notes' => $this->faker->optional()->sentence(),
             'status' => $status,
-            'due_date' => $status === 'pending' ? $this->faker->dateTimeBetween('now', '+30 days') : null,
+
             'metadata' => null,
         ];
     }
@@ -46,7 +46,6 @@ class TransactionFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'income',
             'status' => 'completed',
-            'due_date' => null,
         ]);
     }
 
@@ -58,7 +57,6 @@ class TransactionFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'expense',
             'status' => 'completed',
-            'due_date' => null,
         ]);
     }
 
@@ -70,7 +68,6 @@ class TransactionFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'receivable',
             'status' => $this->faker->randomElement(['pending', 'completed']),
-            'due_date' => $this->faker->dateTimeBetween('now', '+30 days'),
         ]);
     }
 
@@ -82,7 +79,6 @@ class TransactionFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'payable',
             'status' => $this->faker->randomElement(['pending', 'completed']),
-            'due_date' => $this->faker->dateTimeBetween('now', '+30 days'),
         ]);
     }
 
@@ -93,7 +89,6 @@ class TransactionFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'pending',
-            'due_date' => $this->faker->dateTimeBetween('now', '+30 days'),
         ]);
     }
 
@@ -104,7 +99,6 @@ class TransactionFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'completed',
-            'due_date' => null,
         ]);
     }
 }

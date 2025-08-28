@@ -52,7 +52,7 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:income,expense,receivable,payable',
+            'type' => 'required|in:income,expense,receivable,payable,settle_payable,settle_receivable',
             'color' => 'nullable|string|max:7',
             'icon' => 'nullable|string|max:255',
         ]);
@@ -106,7 +106,7 @@ class CategoryController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:income,expense,receivable,payable',
+            'type' => 'required|in:income,expense,receivable,payable,settle_payable,settle_receivable',
             'color' => 'nullable|string|max:7',
             'icon' => 'nullable|string|max:255',
             'is_active' => 'boolean',
@@ -173,6 +173,8 @@ class CategoryController extends Controller
             'expense' => '#EF4444', // Red
             'receivable' => '#3B82F6', // Blue
             'payable' => '#F59E0B', // Orange
+            'settle_payable' => '#F59E0B', // Orange (lighter shade)
+            'settle_receivable' => '#3B82F6', // Blue (lighter shade)
             default => '#6B7280', // Gray
         };
     }
@@ -193,6 +195,8 @@ class CategoryController extends Controller
             'expense' => 'TrendingDown',
             'receivable' => 'ArrowUpRight',
             'payable' => 'ArrowDownLeft',
+            'settle_payable' => 'ArrowDownLeft',
+            'settle_receivable' => 'ArrowUpRight',
             default => 'Tag',
         };
 
@@ -201,6 +205,8 @@ class CategoryController extends Controller
             'expense' => 'red',
             'receivable' => 'blue',
             'payable' => 'orange',
+            'settle_payable' => 'orange',
+            'settle_receivable' => 'blue',
             default => 'blue',
         };
 

@@ -6,6 +6,7 @@ import { Head, usePage } from '@inertiajs/react';
 import { Banknote, BarChart3, CreditCard, PieChart, Shield, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
+import FinancialConstraintWarning from '@/components/FinancialConstraintWarning';
 // Import chart configuration to ensure all controllers are registered
 import '@/lib/chart-config';
 
@@ -105,16 +106,7 @@ export default function Dashboard() {
                     hoverOffset: number;
                 }>;
             } | null;
-            upcomingTransactions: Array<{
-                id: number;
-                date: string;
-                description: string;
-                type: 'receivable' | 'payable';
-                amount: number;
-                source: string;
-                due_date?: string;
-                status: string;
-            }> | null;
+
         }
     >().props;
     const [isLoaded, setIsLoaded] = useState(false);
@@ -658,6 +650,24 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </div>
+                </div>
+
+                {/* Financial Constraint Warnings */}
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-xl font-semibold tracking-tight">Financial Health Check</h2>
+                            <p className="text-sm text-muted-foreground">Monitor your financial constraints and get recommendations</p>
+                        </div>
+                    </div>
+                    
+                    <FinancialConstraintWarning
+                        netBalance={financialSummary.balance}
+                        totalReceivables={financialSummary.totalReceivable}
+                        totalPayables={financialSummary.totalPayable}
+                        primaryCurrency={primaryCurrency}
+                        primarySymbol={primarySymbol}
+                    />
                 </div>
 
                 {/* Charts Section */}

@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Console\\Commands\\CleanupNotifications' => $baseDir . '/app/Console/Commands/CleanupNotifications.php',
     'App\\Console\\Commands\\EnvironmentConfigCommand' => $baseDir . '/app/Console/Commands/EnvironmentConfigCommand.php',
     'App\\Console\\Commands\\EnvironmentDetectCommand' => $baseDir . '/app/Console/Commands/EnvironmentDetectCommand.php',
     'App\\Events\\NotificationDeleted' => $baseDir . '/app/Events/NotificationDeleted.php',
@@ -211,7 +212,6 @@ return array(
     'Database\\Factories\\TransactionFactory' => $baseDir . '/database/factories/TransactionFactory.php',
     'Database\\Factories\\UserFactory' => $baseDir . '/database/factories/UserFactory.php',
     'Database\\Seeders\\AdminSeeder' => $baseDir . '/database/seeders/AdminSeeder.php',
-    'Database\\Seeders\\CategorySeeder' => $baseDir . '/database/seeders/CategorySeeder.php',
     'Database\\Seeders\\DatabaseSeeder' => $baseDir . '/database/seeders/DatabaseSeeder.php',
     'Database\\Seeders\\SuperAdminSeeder' => $baseDir . '/database/seeders/SuperAdminSeeder.php',
     'Database\\Seeders\\TransactionSeeder' => $baseDir . '/database/seeders/TransactionSeeder.php',

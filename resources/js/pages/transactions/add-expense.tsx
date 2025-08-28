@@ -183,6 +183,8 @@ export default function AddExpense() {
                 : null,
         };
 
+
+
         // Submit to backend using Inertia
         router.post('/transactions', transactionData, {
             onSuccess: () => {
