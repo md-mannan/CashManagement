@@ -23,6 +23,14 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        
+        // SECURITY: Log access for audit purposes
+        \Log::info('User accessed transactions index', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
 
         // Admins and super admins can view all transactions
         if ($user->isAdmin()) {
@@ -56,10 +64,9 @@ class TransactionController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        // Filter by user if admin is viewing specific user's transactions
-        if ($user->isAdmin() && $request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
+        // SECURITY: Only allow users to view their own transactions
+        // Admins cannot access other users' data without explicit authorization
+        $query->where('user_id', $user->id);
 
         // Get all transactions for summary calculation (without pagination)
         $allTransactions = $query->with('relatedTransaction')->get();
@@ -182,7 +189,7 @@ class TransactionController extends Controller
         return Inertia::render('transaction', [
             'transactions' => $transactions,
             'summary' => $summary,
-            'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id', 'user_id']),
+            'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id']),
             'isAdmin' => $user->isAdmin(),
         ]);
     }
@@ -193,6 +200,14 @@ class TransactionController extends Controller
     public function ledger(Request $request)
     {
         $user = Auth::user();
+        
+        // SECURITY: Log access for audit purposes
+        \Log::info('User accessed ledger', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
 
         // Admins and super admins can view all transactions
         if ($user->isAdmin()) {
@@ -220,10 +235,9 @@ class TransactionController extends Controller
             });
         }
 
-        // Filter by user if admin is viewing specific user's transactions
-        if ($user->isAdmin() && $request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
+        // SECURITY: Only allow users to view their own transactions
+        // Admins cannot access other users' data without explicit authorization
+        $query->where('user_id', $user->id);
 
         $transactions = $query->with('relatedTransaction')->get();
 
@@ -366,7 +380,7 @@ class TransactionController extends Controller
         return Inertia::render('ledger', [
             'transactions' => $transactions,
             'summary' => $summary,
-            'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id', 'user_id']),
+            'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id']),
             'isAdmin' => $user->isAdmin(),
         ]);
     }

@@ -1,1 +1,0 @@
-System.register(["./app-legacy.js"],function(e,r){"use strict";var u,t;return{setters:[e=>{u=e.c,t=e.r}],execute:function(){e("u",function(e){const r=t.useRef({value:e,previous:e});return t.useMemo(()=>(r.current.value!==e&&(r.current.previous=r.current.value,r.current.value=e),r.current.previous),[e])}),e("C",u("Check",[["path",{d:"M20 6 9 17l-5-5",key:"1gmf2c"}]]))}}});

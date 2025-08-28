@@ -1,1 +1,0 @@
-System.register(["./app-legacy.js"],function(r,e){"use strict";var t,a,n,s,u;return{setters:[r=>{t=r.Z,a=r._,n=r.$,s=r.a0,u=r.E}],execute:function(){var e,c;r("r",function(){if(c)return e;c=1,t(),a(),n(),s();var r=u();return e=r.URLSearchParams})}}});

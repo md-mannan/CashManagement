@@ -1,1 +1,0 @@
-System.register(["./app-legacy.js"],function(r,t){"use strict";var e,n;return{setters:[r=>{e=r.K,n=r.M}],execute:function(){var t,u;r("r",function(){if(u)return t;u=1;var r=e(),c=n();return t=function(t,e){return c(r[t].prototype[e])}})}}});
