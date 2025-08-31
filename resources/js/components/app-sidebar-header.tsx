@@ -12,17 +12,16 @@ import { Bell, CheckCircle, LogOut, Settings, User, X } from 'lucide-react';
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
-    const { showToast } = useToast();
+    const { addToast } = useToast();
     const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
 
     // Debug logging
 
     const handleLogout = () => {
-        showToast({
+        addToast({
             type: 'success',
             title: 'Logged out',
             message: 'You have been logged out successfully.',
-            sound: true,
         });
         router.post('/logout');
     };

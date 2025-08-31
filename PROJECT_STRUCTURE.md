@@ -79,7 +79,7 @@ app/Http/
 │   │   ├── NewPasswordController.php
 │   │   ├── PasswordResetLinkController.php
 │   │   ├── RegisteredUserController.php
-│   │   ├── SocialiteController.php
+
 │   │   └── VerifyEmailController.php
 │   ├── Settings/                  # User settings controllers
 │   │   ├── AppearanceController.php
@@ -118,7 +118,7 @@ app/Models/
 ├── Category.php                    # Transaction categories
 ├── ExchangeRate.php               # Currency exchange rates
 ├── Notification.php               # User notifications
-├── SocialAccount.php              # Social authentication accounts
+
 ├── Transaction.php                # Financial transactions
 └── User.php                       # User accounts
 ```
@@ -512,6 +512,6 @@ tests/
 ### **Authentication System**
 - Controllers: `app/Http/Controllers/Auth/`
 - Pages: `resources/js/pages/auth/`
-- Social auth: `app/Http/Controllers/Auth/SocialiteController.php`
+
 
 This structure provides a clear separation of concerns and follows Laravel and React best practices for maintainable, scalable applications.

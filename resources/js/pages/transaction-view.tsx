@@ -777,22 +777,28 @@ export default function TransactionView() {
                                         </Label>
                                         <Select 
                                             value={settlementFormData.category} 
-                                            onValueChange={(value) => setSettlementFormData(prev => ({ ...prev, category: value }))}
+                                            onValueChange={(value) => {
+                                                // Ensure only single selection by clearing any previous selection
+                                                setSettlementFormData(prev => ({ ...prev, category: value }));
+                                            }}
+                                            defaultValue={settlementFormData.category}
                                         >
                                             <SelectTrigger className="h-10">
                                                 <SelectValue placeholder="Select a category" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {settlementCategories?.map((category) => (
-                                                    <SelectItem key={category.id} value={category.type}>
-                                                        {category.name}
-                                                    </SelectItem>
-                                                )) || (
-                                                    <>
-                                                        <SelectItem value="settle_payable">Settle Payable</SelectItem>
-                                                        <SelectItem value="settle_receivable">Settle Receivable</SelectItem>
-                                                    </>
-                                                )}
+                                                {(() => {
+                                                    return settlementCategories?.map((category) => (
+                                                        <SelectItem key={category.id} value={category.type}>
+                                                            {category.name}
+                                                        </SelectItem>
+                                                    )) || (
+                                                        <>
+                                                            <SelectItem value="settle_payable">Settle Payable</SelectItem>
+                                                            <SelectItem value="settle_receivable">Settle Receivable</SelectItem>
+                                                        </>
+                                                    );
+                                                })()}
                                             </SelectContent>
                                         </Select>
                                         <input type="hidden" name="category" value={settlementFormData.category} />

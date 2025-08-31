@@ -77,14 +77,14 @@ export default function Transaction() {
                 receivable_settlements: number;
                 payable_settlements: number;
                 net_balance: number;
-                secondary_currency_totals?: {
-                    income: number;
-                    expenses: number;
-                    receivables: number;
-                    payables: number;
-                    settlements: number;
-                    net_balance?: number; // Backend should calculate this using same formula as primary
-                };
+                            secondary_amounts?: {
+                total_income: number;
+                total_expenses: number;
+                total_receivables: number;
+                total_payables: number;
+                receivable_settlements: number;
+                payable_settlements: number;
+            };
             };
         }
     >().props;
@@ -131,67 +131,10 @@ export default function Transaction() {
         return amount;
     };
 
-    const { showToast } = useToast();
+    const { addToast } = useToast();
 
     // Client-side filtering logic
     const filteredTransactions = useMemo(() => {
-        // Comprehensive debug logging for net balance calculation
-        console.log('=== NET BALANCE CALCULATION DEBUG ===');
-        console.log('Primary Currency Values (BDT):');
-        console.log('- totalIncome:', summary.total_income);
-        console.log('- totalExpenses:', summary.total_expenses);
-        console.log('- remainingReceivables:', summary.remaining_receivables);
-        console.log('- receivableSettlements:', summary.receivable_settlements);
-        console.log('- payableSettlements:', summary.payable_settlements);
-        console.log('- totalPayables:', summary.total_payables);
-        console.log('- totalReceivables:', summary.total_receivables);
-        
-        console.log('\nSecondary Currency Values (KWD):');
-        if (summary.secondary_currency_totals) {
-            console.log('- income:', summary.secondary_currency_totals.income);
-            console.log('- expenses:', summary.secondary_currency_totals.expenses);
-            console.log('- receivables:', summary.secondary_currency_totals.receivables);
-            console.log('- payables:', summary.secondary_currency_totals.payables);
-            console.log('- settlements:', summary.secondary_currency_totals.settlements);
-        }
-        
-        console.log('\nCalculated Net Balance:');
-        console.log('Primary Formula: totalIncome - totalExpenses - remainingReceivables + receivableSettlements');
-        console.log('Primary Result:', summary.total_income - summary.total_expenses - summary.remaining_receivables + summary.receivable_settlements);
-        
-        if (summary.secondary_currency_totals) {
-            console.log('Secondary Formula: income - expenses - receivables + payables');
-            console.log('Secondary Result:', summary.secondary_currency_totals.income - summary.secondary_currency_totals.expenses - summary.secondary_currency_totals.receivables + summary.secondary_currency_totals.payables);
-        }
-        
-        console.log('\nTransaction Breakdown by Type:');
-        const typeCounts = allTransactions.reduce((acc, t) => {
-            acc[t.type] = (acc[t.type] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
-        console.log('Type Counts:', typeCounts);
-        
-        console.log('\nTransaction Breakdown by Category:');
-        const categoryAmounts = allTransactions.reduce((acc, t) => {
-            const category = t.category.name;
-            if (!acc[category]) acc[category] = { count: 0, total: 0 };
-            acc[category].count += 1;
-            acc[category].total += typeof t.amount === 'string' ? parseFloat(t.amount) : t.amount;
-            return acc;
-        }, {} as Record<string, { count: number; total: number }>);
-        console.log('Category Breakdown:', categoryAmounts);
-        
-        console.log('=== END DEBUG ===\n');
-        
-        // Temporary debug logging
-        console.log('Frontend Net Balance Debug:', {
-            netBalance: summary.net_balance,
-            totalIncome: summary.total_income,
-            totalExpenses: summary.total_expenses,
-            remainingReceivables: summary.remaining_receivables,
-            receivableSettlements: summary.receivable_settlements,
-            formula: `${summary.total_income} - ${summary.total_expenses} - ${summary.remaining_receivables} + ${summary.receivable_settlements} = ${summary.net_balance}`
-        });
         
         let filtered = [...allTransactions];
 
@@ -324,24 +267,20 @@ export default function Transaction() {
 
     const handleDeleteConfirm = () => {
         if (deleteConfirmation.transactionId) {
-            console.log('Delete transaction clicked:', deleteConfirmation.transactionId);
-            console.log('Generated route:', route('transactions.destroy', deleteConfirmation.transactionId));
             router.delete(route('transactions.destroy', deleteConfirmation.transactionId), {
                 onSuccess: () => {
-                    showToast({
+                    addToast({
                         type: 'success',
                         title: 'Transaction Deleted!',
                         message: 'The transaction has been successfully deleted.',
-                        sound: true,
                     });
                 },
                 onError: (errors) => {
                     console.error('Delete error:', errors);
-                    showToast({
+                    addToast({
                         type: 'error',
                         title: 'Delete Failed!',
                         message: 'There was an error deleting the transaction. Please try again.',
-                        sound: true,
                     });
                 },
             });
@@ -351,8 +290,6 @@ export default function Transaction() {
 
     const handleEditConfirm = () => {
         if (editConfirmation.transactionId) {
-            console.log('Edit transaction clicked:', editConfirmation.transactionId);
-            console.log('Generated route:', route('transactions.edit', editConfirmation.transactionId));
             router.visit(route('transactions.edit', editConfirmation.transactionId));
         }
         setEditConfirmation({ isOpen: false, transactionId: null });
@@ -365,21 +302,14 @@ export default function Transaction() {
 
     // Handle view transaction
     const handleViewTransaction = (transactionId: number) => {
-        console.log('View transaction clicked:', transactionId);
         try {
             const generatedRoute = route('transactions.show', transactionId);
-            console.log('Generated route:', generatedRoute);
-            console.log('Auth user:', auth.user);
-            console.log('About to navigate to:', generatedRoute);
-            
             router.visit(generatedRoute, {
                 preserveState: false,
                 preserveScroll: false,
             });
         } catch (error) {
             console.error('Route generation error:', error);
-            console.error('Transaction ID:', transactionId);
-            console.error('Available routes:', Object.keys(window.Ziggy?.routes || {}));
         }
     };
 
@@ -611,30 +541,33 @@ export default function Transaction() {
                 {/* Transaction Summary */}
                 <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 w-full max-w-full">
                     {/* Net Balance - First Card */}
-                    <Card>
+                    <Card className="bg-violet-50 border-violet-200">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
-                            <FileText className="h-4 w-4 text-gray-600" />
+                            <CardTitle className="text-sm font-medium text-violet-800">Net Balance</CardTitle>
+                            <FileText className="h-4 w-4 text-violet-600" />
                         </CardHeader>
                         <CardContent>
                             <div className={`text-2xl font-bold ${summary.net_balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                 {primarySymbol}
                                 {formatCurrency(summary.net_balance, primaryCurrency)} 
                             </div>
+                           
                             <div className="space-y-1 text-sm text-gray-600 mt-1">
                                   {(() => {
-                                    // Calculate secondary currency net balance using the EXACT same formula as primary
-                                    if (summary.secondary_currency_totals) {
-                                        // Use the same formula: totalIncome - totalExpenses - remainingReceivables + receivableSettlements
+                                    // Calculate secondary currency net balance using the EXACT same formula as Ledger page
+                                    if (summary.secondary_amounts) {
+                                        // Use the same formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
                                         const secondaryNetBalance = 
-                                            summary.secondary_currency_totals.income - 
-                                            summary.secondary_currency_totals.expenses - 
-                                            summary.secondary_currency_totals.receivables + 
-                                            summary.secondary_currency_totals.payables-summary.secondary_currency_totals.settlements;
+                                            summary.secondary_amounts.total_income - 
+                                            summary.secondary_amounts.total_expenses - 
+                                            summary.secondary_amounts.total_receivables + 
+                                            summary.secondary_amounts.total_payables + 
+                                            summary.secondary_amounts.receivable_settlements - 
+                                            summary.secondary_amounts.payable_settlements;
                                         
-                                        if (secondaryNetBalance > 0) {
+                                        if (secondaryNetBalance !== undefined) {
                                             return (
-                                                <div>
+                                                <div className={`${secondaryNetBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                                     {secondarySymbol} {formatCurrency(secondaryNetBalance, secondaryCurrency)}
                                                 </div>
                                             );
@@ -643,7 +576,7 @@ export default function Transaction() {
                                     return null;
                                 })()}
                             </div>
-                            <p className="text-xs text-muted-foreground">(Income+Sattle Receiveables+Payables) - (Expenses + Receivables+Sattle Payables) </p>
+                            <p className="text-xs text-muted-foreground">Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements</p>
                         </CardContent>
                     </Card>
 
@@ -658,15 +591,15 @@ export default function Transaction() {
                                 {formatCurrency(summary.total_income, primaryCurrency)}
                             </div>
                             <div className="space-y-1 text-sm text-gray-600 mt-1">
-                                {summary.secondary_currency_totals && summary.secondary_currency_totals.income > 0 && (
+                                {summary.secondary_amounts && summary.secondary_amounts.total_income > 0 && (
                                     <div>
-                                        {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.income, secondaryCurrency)}
+                                        {secondarySymbol} {formatCurrency(summary.secondary_amounts.total_income, secondaryCurrency)}
                                     </div>
                                 )}
                             </div>
-                            <p className="text-xs text-muted-foreground">
+                            <div className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'income').length} transactions
-                            </p>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -678,46 +611,18 @@ export default function Transaction() {
                         <CardContent>
                             <div className="text-2xl font-bold text-red-600">
                                 {primarySymbol}
-                                {formatCurrency(summary.total_expenses_with_payable_settlements, primaryCurrency)}
+                                {formatCurrency(summary.total_expenses, primaryCurrency)}
                             </div>
-                            <p className="text-xs text-muted-foreground">
-                                {filteredTransactions.filter((t) => t.type === 'expense').length} expenses + {filteredTransactions.filter((t) => t.type === 'settlement').length} settlements
-                            </p>
+                            <div className="text-xs text-muted-foreground">
+                                {filteredTransactions.filter((t) => t.type === 'expense').length} expenses
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                                <div>Regular: {primarySymbol}{formatCurrency(summary.total_expenses, primaryCurrency)}</div>
-                                <div>Payable Settlements: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)}</div>
+                                <div>Regular: {primarySymbol}{formatCurrency(summary.total_expenses, primaryCurrency)} {summary.secondary_amounts && summary.secondary_amounts.total_expenses > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.total_expenses, secondaryCurrency)}`}</div>
                             </div>
                             <div className="space-y-1 text-sm text-gray-600 mt-1">
-                                {summary.secondary_currency_totals && (summary.secondary_currency_totals.expenses + summary.secondary_currency_totals.settlements) > 0 && (
+                                {summary.secondary_amounts && summary.secondary_amounts.total_expenses > 0 && (
                                     <div>
-                                        {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.expenses + summary.secondary_currency_totals.settlements, secondaryCurrency)}
-                                    </div>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Receivables</CardTitle>
-                            <Banknote className="h-4 w-4 text-blue-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-blue-600">
-                                {primarySymbol}
-                                {formatCurrency(summary.total_receivables, primaryCurrency)}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                {filteredTransactions.filter((t) => t.type === 'receivable').length} transactions
-                            </p>
-                            <div className="text-xs text-muted-foreground mt-1">
-                                <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_receivables, primaryCurrency)}</div>
-                                <div>Settled: {primarySymbol}{formatCurrency(summary.receivable_settlements || 0, primaryCurrency)}</div>
-                            </div>
-                            <div className="space-y-1 text-sm text-gray-600 mt-1">
-                                {summary.secondary_currency_totals && summary.secondary_currency_totals.receivables > 0 && (
-                                    <div>
-                                        {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.receivables, secondaryCurrency)}
+                                        {secondarySymbol} {formatCurrency(summary.secondary_amounts.total_expenses, secondaryCurrency)}
                                     </div>
                                 )}
                             </div>
@@ -738,13 +643,40 @@ export default function Transaction() {
                                 {filteredTransactions.filter((t) => t.type === 'payable').length} transactions
                             </p>
                             <div className="text-xs text-muted-foreground mt-1">
-                                <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_payables, primaryCurrency)}</div>
-                                <div>Settled: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)}</div>
+                                <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_payables, primaryCurrency)} {summary.secondary_amounts && (summary.secondary_amounts.total_payables - summary.secondary_amounts.payable_settlements) > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.total_payables - summary.secondary_amounts.payable_settlements, secondaryCurrency)}`}</div>
+                                <div>Settled: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)} {summary.secondary_amounts && summary.secondary_amounts.payable_settlements > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.payable_settlements, secondaryCurrency)}`}</div>
                             </div>
                             <div className="space-y-1 text-sm text-gray-600 mt-1">
-                                {summary.secondary_currency_totals && summary.secondary_currency_totals.payables > 0 && (
+                                {summary.secondary_amounts && summary.secondary_amounts.total_payables > 0 && (
                                     <div>
-                                        {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.payables, secondaryCurrency)}
+                                        {secondarySymbol} {formatCurrency(summary.secondary_amounts.total_payables, secondaryCurrency)}
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Receivables</CardTitle>
+                            <Banknote className="h-4 w-4 text-blue-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-blue-600">
+                                {primarySymbol}
+                                {formatCurrency(summary.total_receivables, primaryCurrency)}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                {filteredTransactions.filter((t) => t.type === 'receivable').length} transactions
+                            </p>
+                            <div className="text-xs text-muted-foreground mt-1">
+                                <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_receivables, primaryCurrency)} {summary.secondary_amounts && (summary.secondary_amounts.total_receivables - summary.secondary_amounts.receivable_settlements) > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.total_receivables - summary.secondary_amounts.receivable_settlements, secondaryCurrency)}`}</div>
+                                <div>Settled: {primarySymbol}{formatCurrency(summary.receivable_settlements || 0, primaryCurrency)} {summary.secondary_amounts && summary.secondary_amounts.receivable_settlements > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.receivable_settlements, secondaryCurrency)}`}</div>
+                            </div>
+                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                {summary.secondary_amounts && summary.secondary_amounts.total_receivables > 0 && (
+                                    <div>
+                                        {secondarySymbol} {formatCurrency(summary.secondary_amounts.total_receivables, secondaryCurrency)}
                                     </div>
                                 )}
                             </div>

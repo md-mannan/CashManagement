@@ -7,11 +7,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Support\Facades\Storage;
+use App\Notifications\ResetPasswordNotification;
+use App\Models\ProfilePhoto;
 
-class User extends Authenticatable
+class User extends Authenticatable implements CanResetPasswordContract
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, CanResetPassword;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +26,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'profile_photo',
         'password',
         'primary_currency',
         'secondary_currency',
@@ -45,7 +51,16 @@ class User extends Authenticatable
         'enable_notifications',
         'enable_activity_logging',
         'enable_backup',
-        'enable_social_login',
+
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'avatar',
     ];
 
     /**
@@ -101,13 +116,7 @@ class User extends Authenticatable
         return $this->notifications()->unread()->count();
     }
 
-    /**
-     * Get the social accounts for the user.
-     */
-    public function socialAccounts(): HasMany
-    {
-        return $this->hasMany(SocialAccount::class);
-    }
+
 
     /**
      * Check if user has a specific role.
@@ -131,6 +140,61 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool
     {
         return $this->role === 'super_admin';
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
+    /**
+     * Get the user's profile photo URL.
+     */
+    public function getAvatarAttribute()
+    {
+        // Get the current profile photo from ProfilePhoto model
+        $currentPhoto = $this->profilePhotos()->where('is_current', true)->first();
+        
+        if ($currentPhoto) {
+            return $currentPhoto->url;
+        }
+        
+        // Fallback to the old profile_photo field if no current photo exists
+        if ($this->profile_photo) {
+            return Storage::disk('public')->url($this->profile_photo);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get the user's profile photos.
+     */
+    public function profilePhotos(): HasMany
+    {
+        return $this->hasMany(ProfilePhoto::class);
+    }
+
+    /**
+     * Get the user's current profile photo.
+     */
+    public function currentProfilePhoto(): HasMany
+    {
+        return $this->hasMany(ProfilePhoto::class)->current();
+    }
+
+    /**
+     * Get the user's profile photo history.
+     */
+    public function profilePhotoHistory(): HasMany
+    {
+        return $this->hasMany(ProfilePhoto::class)->history();
     }
 
     /**

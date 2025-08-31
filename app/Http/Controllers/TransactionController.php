@@ -14,9 +14,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use App\Services\SettlementService;
+use App\Services\TransactionService;
 
 class TransactionController extends Controller
 {
+    protected $transactionService;
+
+    public function __construct(TransactionService $transactionService)
+    {
+        $this->transactionService = $transactionService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -24,13 +31,7 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
         
-        // SECURITY: Log access for audit purposes
-        \Log::info('User accessed transactions index', [
-            'user_id' => $user->id,
-            'user_email' => $user->email,
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent()
-        ]);
+        
 
         // Admins and super admins can view all transactions
         if ($user->isAdmin()) {
@@ -71,117 +72,9 @@ class TransactionController extends Controller
         // Get all transactions for summary calculation (without pagination)
         $allTransactions = $query->with('relatedTransaction')->get();
         
-        // Calculate summary data from all transactions with correct settlement handling
-        $totalIncome = $allTransactions->where('type', 'income')->sum('amount');
-        $totalExpenses = $allTransactions->where('type', 'expense')->sum('amount');
-        
-        // Separate receivable and payable settlements
-        $receivableSettlements = 0;
-        $payableSettlements = 0;
-        
-        // Get settlement transactions based on category names (not just type)
-        $settlementTransactions = $allTransactions->filter(function ($transaction) {
-            $categoryName = strtolower($transaction->category->name);
-            return str_contains($categoryName, 'return') || str_contains($categoryName, 'pay') || str_contains($categoryName, 'settle');
-        });
-        
-        foreach ($settlementTransactions as $settlement) {
-            $categoryName = strtolower($settlement->category->name);
-            
-            if (str_contains($categoryName, 'return')) {
-                // Receivable settlement (getting money back)
-                $receivableSettlements += $settlement->amount;
-            } elseif (str_contains($categoryName, 'pay')) {
-                // Payable settlement (paying back borrowed money)
-                $payableSettlements += $settlement->amount;
-            }
-        }
-            
-        $totalSettlements = $receivableSettlements + $payableSettlements;
-        
-        $totalReceivables = $allTransactions->where('type', 'receivable')->sum('amount');
-        $totalPayables = $allTransactions->where('type', 'payable')->sum('amount');
-        
-        // Calculate REMAINING payable/receivable amounts (after settlements)
-        $remainingPayables = $totalPayables - $payableSettlements;
-        $remainingReceivables = $totalReceivables - $receivableSettlements;
-        
-        // Only payable settlements are expenses - receivable settlements increase net balance directly
-        $totalExpensesWithPayableSettlements = $totalExpenses + $payableSettlements;
-        
-        // Calculate net balance before using it in summary
-        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
-        // This properly accounts for all transaction types and settlements
-        $calculatedNetBalance = $totalIncome - $totalExpenses - $totalReceivables + $totalPayables + $receivableSettlements - $payableSettlements;
-        
-        // Calculate secondary currency totals from metadata
-        $secondaryCurrencyTotals = [
-            'income' => 0,
-            'expenses' => 0,
-            'receivables' => 0,
-            'payables' => 0,
-            'settlements' => 0,
-        ];
-        
-        // Sum secondary currency amounts for each transaction type
-        foreach ($allTransactions as $transaction) {
-            if (isset($transaction->metadata['secondary_amount']) && $transaction->metadata['secondary_amount'] > 0) {
-                $amount = (float) $transaction->metadata['secondary_amount'];
-                switch ($transaction->type) {
-                    case 'income':
-                        $secondaryCurrencyTotals['income'] += $amount;
-                        break;
-                    case 'expense':
-                        $secondaryCurrencyTotals['expenses'] += $amount;
-                        break;
-                    case 'receivable':
-                        $secondaryCurrencyTotals['receivables'] += $amount;
-                        break;
-                    case 'payable':
-                        $secondaryCurrencyTotals['payables'] += $amount;
-                        break;
-                    case 'settlement':
-                        $secondaryCurrencyTotals['settlements'] += $amount;
-                        break;
-                }
-            }
-        }
-        
-        // Calculate secondary currency net balance using the SAME formula as primary
-        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
-        $secondaryNetBalance = $secondaryCurrencyTotals['income'] - $secondaryCurrencyTotals['expenses'] - $secondaryCurrencyTotals['receivables'] + $secondaryCurrencyTotals['payables'] + $secondaryCurrencyTotals['settlements'];
-        
-        // Add the calculated net balance to secondary currency totals
-        $secondaryCurrencyTotals['net_balance'] = $secondaryNetBalance;
-        
-        $summary = [
-            'total_income' => $totalIncome,
-            'total_expenses' => $totalExpenses,
-            'total_expenses_with_payable_settlements' => $totalExpensesWithPayableSettlements,
-            'total_receivables' => $totalReceivables,
-            'total_payables' => $totalPayables,
-            'remaining_receivables' => $remainingReceivables,
-            'remaining_payables' => $remainingPayables,
-            'total_settlements' => $totalSettlements,
-            'receivable_settlements' => $receivableSettlements,
-            'payable_settlements' => $payableSettlements,
-            'net_balance' => $calculatedNetBalance,
-            'secondary_currency_totals' => $secondaryCurrencyTotals,
-            'secondary_net_balance' => $secondaryNetBalance,
-        ];
-
-        // Temporary debug logging
-        \Log::info('TransactionController Index Net Balance Debug', [
-            'totalIncome' => $totalIncome,
-            'totalExpenses' => $totalExpenses,
-            'totalReceivables' => $totalReceivables,
-            'receivableSettlements' => $receivableSettlements,
-            'calculatedNetBalance' => $calculatedNetBalance,
-            'formula' => "{$totalIncome} - {$totalExpenses} - {$totalReceivables} + {$totalPayables} + {$receivableSettlements} - {$payableSettlements} = {$calculatedNetBalance}",
-            'secondaryCurrencyTotals' => $secondaryCurrencyTotals,
-            'secondaryNetBalance' => $secondaryNetBalance,
-            'secondaryFormula' => "{$secondaryCurrencyTotals['income']} - {$secondaryCurrencyTotals['expenses']} - {$secondaryCurrencyTotals['receivables']} + {$secondaryCurrencyTotals['payables']} + {$secondaryCurrencyTotals['settlements']} = {$secondaryNetBalance}"
-        ]);
+        // Use TransactionService for consistent summary calculation
+        $summary = $this->transactionService->getFinancialSummary($user);
+      
 
         // Get paginated transactions for the table
         $transactions = $query->paginate(10);
@@ -201,13 +94,7 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
         
-        // SECURITY: Log access for audit purposes
-        \Log::info('User accessed ledger', [
-            'user_id' => $user->id,
-            'user_email' => $user->email,
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent()
-        ]);
+
 
         // Admins and super admins can view all transactions
         if ($user->isAdmin()) {
@@ -364,18 +251,7 @@ class TransactionController extends Controller
             'secondary_payable_settlements' => $secondaryPayableSettlements,
         ];
 
-        // Temporary debug logging
-        \Log::info('TransactionController Ledger Net Balance Debug', [
-            'totalIncome' => $totalIncome,
-            'totalExpenses' => $totalExpenses,
-            'remainingReceivables' => $remainingReceivables,
-            'remainingPayables' => $remainingPayables,
-            'calculatedNetBalance' => $calculatedNetBalance,
-            'formula' => "{$totalIncome} - {$totalExpenses} - {$totalReceivables} + {$totalPayables} + {$receivableSettlements} - {$payableSettlements} = {$calculatedNetBalance}",
-            'secondaryCurrencyTotals' => $secondaryCurrencyTotals,
-            'secondaryNetBalance' => $secondaryNetBalance,
-            'secondaryFormula' => "{$secondaryCurrencyTotals['income']} - {$secondaryCurrencyTotals['expenses']} - {$secondaryCurrencyTotals['receivables']} + {$secondaryCurrencyTotals['payables']} + {$secondaryReceivableSettlements} - {$secondaryPayableSettlements} = {$secondaryNetBalance}"
-        ]);
+    
 
         return Inertia::render('ledger', [
             'transactions' => $transactions,
@@ -527,35 +403,15 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
 
-        // Debug logging
-        \Log::info('=== TRANSACTION SHOW ACCESSED ===', [
-            'transaction_id' => $transaction->id,
-            'transaction_user_id' => $transaction->user_id,
-            'current_user_id' => $user ? $user->id : 'NOT_AUTHENTICATED',
-            'user_is_admin' => $user ? $user->isAdmin() : false,
-            'request_url' => request()->fullUrl(),
-            'request_method' => request()->method(),
-            'user_name' => $user ? $user->name : 'NOT_AUTHENTICATED',
-            'headers' => request()->headers->all(),
-        ]);
+
 
         // Check if user is authenticated
         if (!$user) {
-            \Log::warning('Unauthenticated user trying to access transaction', [
-                'transaction_id' => $transaction->id,
-                'request_url' => request()->fullUrl(),
-                'session_id' => session()->getId(),
-                'has_session' => session()->has('_token'),
-            ]);
             return redirect()->route('dashboard')->with('error', 'Please log in to access transactions.');
         }
 
         // Admins and super admins can view any transaction
         if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
-            \Log::warning('Transaction access denied', [
-                'transaction_id' => $transaction->id,
-                'user_id' => $user->id,
-            ]);
             // Instead of abort(403), redirect to transactions index with error message
             return redirect()->route('transactions.index')
                 ->with('error', 'You do not have permission to view this transaction.');
@@ -636,20 +492,10 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
 
-        // Debug logging
-        \Log::info('Transaction edit accessed', [
-            'transaction_id' => $transaction->id,
-            'transaction_user_id' => $transaction->user_id,
-            'current_user_id' => $user->id,
-            'user_is_admin' => $user->isAdmin(),
-        ]);
+
 
         // Admins and super admins can edit any transaction
         if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
-            \Log::warning('Transaction edit access denied', [
-                'transaction_id' => $transaction->id,
-                'user_id' => $user->id,
-            ]);
             // Instead of abort(403), redirect to transactions index with error message
             return redirect()->route('transactions.index')
                 ->with('error', 'You do not have permission to edit this transaction.');
@@ -735,20 +581,10 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
 
-        // Debug logging
-        \Log::info('Transaction destroy accessed', [
-            'transaction_id' => $transaction->id,
-            'transaction_user_id' => $transaction->user_id,
-            'current_user_id' => $user->id,
-            'user_is_admin' => $user->isAdmin(),
-        ]);
+
 
         // Admins and super admins can delete any transaction
         if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
-            \Log::warning('Transaction delete access denied', [
-                'transaction_id' => $transaction->id,
-                'user_id' => $user->id,
-            ]);
             // Return JSON error for AJAX requests
             if (request()->expectsJson()) {
                 return response()->json(['error' => 'You do not have permission to delete this transaction.'], 403);

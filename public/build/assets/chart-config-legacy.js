@@ -1,0 +1,1 @@
+System.register(["./charts-vendor-legacy.js"],function(e,t){"use strict";var r,s,c,i,n,u,a,g,f,o,d,h,j,v,y,S,b,k,l;return{setters:[e=>{r=e.a,s=e.B,c=e.L,i=e.P,n=e.D,u=e.b,a=e.R,g=e.S,f=e.A,o=e.c,d=e.d,h=e.e,j=e.f,v=e.g,y=e.h,S=e.p,b=e.i,k=e.j,l=e.k}],execute:function(){r.register(s,c,i,n,u,a,g,f,o,d,h,j,v,y,S,b,k,l)}}});

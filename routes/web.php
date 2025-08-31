@@ -48,12 +48,29 @@ use Illuminate\Support\Facades\Route;
 // PUBLIC ROUTES
 // ============================================================================
 
-// Home route
+// Public landing page - accessible to all users
+Route::get('/welcome', function () {
+    return Inertia::render('Welcome');
+})->name('welcome');
+
+// Public features page
+Route::get('/features', function () {
+    return Inertia::render('Features');
+})->name('features');
+
+// Public about page
+Route::get('/about', function () {
+    return Inertia::render('About');
+})->name('about');
+
+// Public health check
+Route::get('/health', function () {
+    return response()->json(['status' => 'healthy', 'timestamp' => now()]);
+})->name('health');
+
+// Home route - Simplified to prevent redirect loops
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-    return redirect()->route('login');
+    return redirect()->route('welcome');
 })->name('home');
 
 // ============================================================================
@@ -81,9 +98,7 @@ Route::middleware('guest')->group(function () {
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
     Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
-    // Social Authentication
-    Route::get('auth/{provider}', [App\Http\Controllers\Auth\SocialiteController::class, 'redirect'])->name('socialite.redirect');
-    Route::get('auth/{provider}/callback', [App\Http\Controllers\Auth\SocialiteController::class, 'callback'])->name('socialite.callback');
+
 });
 
 Route::middleware('auth')->group(function () {
@@ -110,7 +125,7 @@ Route::middleware('auth')->group(function () {
 // AUTHENTICATED USER ROUTES
 // ============================================================================
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'user.data.access'])->group(function () {
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -157,6 +172,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('settings.profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('settings.profile.update');
     Route::delete('settings/profile', [ProfileController::class, 'destroy'])->name('settings.profile.destroy');
+    Route::delete('settings/profile/photo', [ProfileController::class, 'removePhoto'])->name('settings.profile.remove-photo');
+    
+    // Profile Photo Management
+    Route::post('settings/profile/photo', [ProfileController::class, 'uploadPhoto'])->name('settings.profile.upload-photo');
+    Route::post('settings/profile/test-upload', [ProfileController::class, 'testUpload'])->name('settings.profile.test-upload');
+    Route::patch('settings/profile/photo/{profilePhoto}/current', [ProfileController::class, 'setCurrentPhoto'])->name('settings.profile.set-current-photo');
+    Route::delete('settings/profile/photo/{profilePhoto}', [ProfileController::class, 'deletePhoto'])->name('settings.profile.delete-photo');
 
     // Password Settings
     Route::get('settings/password', [PasswordController::class, 'edit'])->name('settings.password.edit');

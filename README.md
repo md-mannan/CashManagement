@@ -27,7 +27,7 @@ A modern, full-featured financial management application built with Laravel 12 a
 - **Role-based Access Control** - Admin, Super Admin, and User roles
 - **User Management** - Complete user administration panel
 - **Activity Logging** - Comprehensive audit trail
-- **Social Authentication** - Login with Google, GitHub, etc.
+
 - **Secure Authentication** - Laravel Sanctum with session management
 
 ### 🚀 **Technical Excellence**
@@ -211,11 +211,7 @@ REVERB_PORT=8080
 # Mail Configuration
 MAIL_MAILER=log  # or smtp for production
 
-# Social Authentication (Optional)
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-GITHUB_CLIENT_ID=your-github-client-id
-GITHUB_CLIENT_SECRET=your-github-client-secret
+
 ```
 
 ### **Customization Options**
@@ -283,7 +279,7 @@ npm run format
 
 ### **Authentication**
 - **Multi-factor Ready** - Prepared for 2FA implementation
-- **Social Login** - OAuth integration with major providers
+
 - **Password Security** - Bcrypt hashing with salt
 - **Session Security** - Secure session management
 

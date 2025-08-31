@@ -24,10 +24,7 @@ class WebSocketService {
     public initialize(user?: any) {
         // Only initialize if user is provided or can be determined
         if (user || this.isUserAuthenticated()) {
-            console.log('Initializing WebSocket with user:', user);
             this.initializeEcho();
-        } else {
-            console.log('WebSocket initialization skipped - user not authenticated');
         }
     }
 
@@ -46,7 +43,6 @@ class WebSocketService {
         try {
             // Check if WebSocket is enabled
             if (!isWebSocketEnabled()) {
-                console.log('WebSocket is disabled');
                 this.isConnected = false;
                 return;
             }
@@ -75,7 +71,6 @@ class WebSocketService {
 
             this.setupEventListeners();
             this.isConnected = true;
-            console.log('WebSocket connection established');
         } catch (error) {
             console.error('Failed to initialize WebSocket:', error);
             this.isConnected = false;
@@ -88,13 +83,11 @@ class WebSocketService {
 
         // Handle connection events
         this.echo.connector.pusher.connection.bind('connected', () => {
-            console.log('WebSocket connected');
             this.isConnected = true;
             this.reconnectAttempts = 0;
         });
 
         this.echo.connector.pusher.connection.bind('disconnected', () => {
-            console.log('WebSocket disconnected');
             this.isConnected = false;
             this.scheduleReconnect();
         });
@@ -116,7 +109,6 @@ class WebSocketService {
         const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
         setTimeout(() => {
-            console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
             this.initializeEcho();
         }, delay);
     }
@@ -126,7 +118,6 @@ class WebSocketService {
      */
     public listenToUserNotifications(userId: number, callback: (notification: any) => void) {
         if (!this.echo || !this.isConnected) {
-            console.log('WebSocket not initialized or disabled');
             return null;
         }
 
@@ -143,7 +134,6 @@ class WebSocketService {
      */
     public listenToAdminNotifications(callback: (notification: any) => void) {
         if (!this.echo || !this.isConnected) {
-            console.log('WebSocket not initialized or disabled');
             return null;
         }
 
@@ -160,7 +150,6 @@ class WebSocketService {
      */
     public listenToSuperAdminNotifications(callback: (notification: any) => void) {
         if (!this.echo || !this.isConnected) {
-            console.log('WebSocket not initialized or disabled');
             return null;
         }
 
@@ -177,7 +166,6 @@ class WebSocketService {
      */
     public listenToNotificationRead(callback: (data: any) => void) {
         if (!this.echo || !this.isConnected) {
-            console.log('WebSocket not initialized or disabled');
             return null;
         }
 
@@ -201,7 +189,6 @@ class WebSocketService {
      */
     public listenToNotificationDeleted(callback: (data: any) => void) {
         if (!this.echo || !this.isConnected) {
-            console.log('WebSocket not initialized or disabled');
             return null;
         }
 

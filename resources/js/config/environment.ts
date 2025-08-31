@@ -75,9 +75,7 @@ function getEnvironmentConfig(): EnvironmentConfig {
  * Log debug messages only in development
  */
 function debugLog(message: string, ...args: any[]): void {
-    if (config.enableDebugLogs) {
-        console.log(`[NotificationService Debug] ${message}`, ...args);
-    }
+    // Debug logging disabled for security
 }
 
 /**

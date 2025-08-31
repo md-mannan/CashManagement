@@ -143,7 +143,7 @@ class EnvironmentConfigCommand extends Command
         $this->line("  • Mail configuration (MAIL_*)");
         
         if ($environmentType !== 'local') {
-            $this->line("  • Social authentication credentials");
+    
             $this->line("  • API keys and secrets");
         }
 
@@ -230,27 +230,26 @@ class EnvironmentConfigCommand extends Command
             $content[] = "";
         }
 
-        // Mail
+        // Mail Configuration
         $content[] = "# Mail Configuration";
-        $mailDefault = $config['mail']['default'] ?? 'log';
-        $content[] = "MAIL_MAILER={$mailDefault}";
-        
-        if ($mailDefault === 'smtp') {
-            $content[] = "MAIL_HOST=your-smtp-host";
+        if ($environmentType === 'local') {
+            $content[] = "MAIL_MAILER=log  # Use 'smtp' for production";
+            $content[] = "MAIL_HOST=smtp.gmail.com";
             $content[] = "MAIL_PORT=587";
-            $content[] = "MAIL_USERNAME=your-email@domain.com";
-            $content[] = "MAIL_PASSWORD=your-email-password";
+            $content[] = "MAIL_USERNAME=your-email@gmail.com";
+            $content[] = "MAIL_PASSWORD=your-app-password";
             $content[] = "MAIL_ENCRYPTION=tls";
         } else {
-            $content[] = "MAIL_HOST=127.0.0.1";
-            $content[] = "MAIL_PORT=2525";
-            $content[] = "MAIL_USERNAME=null";
-            $content[] = "MAIL_PASSWORD=null";
-            $content[] = "MAIL_ENCRYPTION=null";
+            $content[] = "MAIL_MAILER=smtp";
+            $content[] = "MAIL_HOST=smtp.gmail.com";
+            $content[] = "MAIL_PORT=587";
+            $content[] = "MAIL_USERNAME=your-email@gmail.com";
+            $content[] = "MAIL_PASSWORD=your-app-password";
+            $content[] = "MAIL_ENCRYPTION=tls";
         }
         
-        $content[] = "MAIL_FROM_ADDRESS=\"noreply@yourdomain.com\"";
-        $content[] = "MAIL_FROM_NAME=\"\${APP_NAME}\"";
+        $content[] = "MAIL_FROM_ADDRESS=\"noreply@cashmanagement.com\"";
+        $content[] = "MAIL_FROM_NAME=\"Cash Management System\"";
         $content[] = "";
 
         // WebSocket Configuration - Always configure Reverb as primary
@@ -284,16 +283,7 @@ class EnvironmentConfigCommand extends Command
         $content[] = "# PUSHER_APP_CLUSTER=mt1";
         $content[] = "";
 
-        // Social Authentication
-        $content[] = "# Social Authentication";
-        $content[] = "GOOGLE_CLIENT_ID=your_google_client_id";
-        $content[] = "GOOGLE_CLIENT_SECRET=your_google_client_secret";
-        $content[] = "GOOGLE_REDIRECT_URI=\"\${APP_URL}/auth/google/callback\"";
-        $content[] = "";
-        $content[] = "GITHUB_CLIENT_ID=your_github_client_id";
-        $content[] = "GITHUB_CLIENT_SECRET=your_github_client_secret";
-        $content[] = "GITHUB_REDIRECT_URI=\"\${APP_URL}/auth/github/callback\"";
-        $content[] = "";
+
 
         // API Keys
         $content[] = "# External APIs";

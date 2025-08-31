@@ -1,9 +1,11 @@
 import { AdminNotification } from '@/components/admin-notification';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
-import { Banknote, BarChart3, CreditCard, PieChart, Shield, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { Banknote, BarChart3, CreditCard, FileText, PieChart, Plus, Shield, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import FinancialConstraintWarning from '@/components/FinancialConstraintWarning';
@@ -23,14 +25,22 @@ export default function Dashboard() {
             currentSummary: {
                 total_income: number;
                 total_expenses: number;
+                total_expenses_with_payable_settlements: number;
                 total_receivables: number;
                 total_payables: number;
+                remaining_receivables: number;
+                remaining_payables: number;
+                total_settlements: number;
+                receivable_settlements: number;
+                payable_settlements: number;
                 net_balance: number;
                 secondary_amounts?: {
                     total_income: number;
                     total_expenses: number;
                     total_receivables: number;
                     total_payables: number;
+                    receivable_settlements: number;
+                    payable_settlements: number;
                 };
             };
             recentTransactions: Array<{
@@ -411,30 +421,59 @@ export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-2 sm:p-4 w-full max-w-full">
+            <div className="flex h-full flex-1 flex-col gap-3 overflow-x-auto rounded-xl p-2 sm:p-3 w-full max-w-full">
                 {/* Welcome Section */}
                 <div
-                    className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
+                    className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
                 >
                     <div>
-                        <h1 className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-2xl sm:text-3xl font-bold tracking-tight text-transparent">
+                        <h1 className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-xl sm:text-2xl font-bold tracking-tight text-transparent">
                             Financial Dashboard
                         </h1>
-                        <p className="text-sm text-muted-foreground">Your financial overview at a glance</p>
+                        <p className="text-xs text-muted-foreground">Your financial overview at a glance</p>
                     </div>
-                    {auth.user.role && ['admin', 'super_admin'].includes(auth.user.role) && (
                         <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <div className="rounded-lg border border-red-200 bg-gradient-to-r from-red-50 to-red-100 p-2 sm:p-3 w-full sm:w-auto">
+                        {/* Add Transaction Dropdown */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button className="bg-primary hover:bg-primary/90 text-white px-3 py-1.5 rounded-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 text-sm">
+                                    <Plus className="h-3.5 w-3.5" />
+                                    Add Transaction
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem onClick={() => router.visit('/transactions/add-income')}>
+                                    <TrendingUp className="h-4 w-4 mr-2 text-green-600" />
+                                    Add Income
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => router.visit('/transactions/add-expense')}>
+                                    <TrendingDown className="h-4 w-4 mr-2 text-red-600" />
+                                    Add Expense
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => router.visit('/transactions/add-receivable')}>
+                                    <Banknote className="h-4 w-4 mr-2 text-blue-600" />
+                                    Add Receivable
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => router.visit('/transactions/add-payable')}>
+                                    <CreditCard className="h-4 w-4 mr-2 text-orange-600" />
+                                    Add Payable
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        
+                        {/* Admin Access Badge */}
+                        {auth.user.role && ['admin', 'super_admin'].includes(auth.user.role) && (
+                            <div className="rounded-lg border border-red-200 bg-gradient-to-r from-red-50 to-red-100 p-1.5 sm:p-2 w-full sm:w-auto">
                                 <div className="flex items-center gap-2">
-                                    <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
+                                    <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-600" />
                                     <div>
-                                        <p className="text-xs sm:text-sm font-medium text-red-800">Admin Access</p>
+                                        <p className="text-xs font-medium text-red-800">Admin Access</p>
                                         <p className="text-xs text-red-600 hidden sm:block">You have administrative privileges</p>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     )}
+                    </div>
                 </div>
 
                 {/* Admin Notification */}
@@ -442,243 +481,343 @@ export default function Dashboard() {
                     <AdminNotification userRole={auth.user.role} userPermissions={auth.user.permissions || []} />
                 )}
 
-                {/* Financial Summary Section - Ledger Style */}
-                <div className="financial-summary space-y-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-xl font-semibold tracking-tight">Financial Summary</h2>
-                            <p className="text-sm text-muted-foreground">Overview of your overall financial position (all transactions)</p>
-                        </div>
-                    </div>
-
-                    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 w-full max-w-full">
-                        {/* Net Balance Card */}
-                        <Card
-                            className={`border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                            style={{ animationDelay: '100ms' }}
-                        >
+                {/* Transaction Summary */}
+                <div className="space-y-3">
+                    <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 w-full max-w-full">
+                        {/* Net Balance - First Card */}
+                                                <Card className="bg-violet-50 border-violet-200">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-purple-800">Net Balance</CardTitle>
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-200">
-                                    <Wallet className="h-4 w-4 text-purple-700" />
-                                </div>
+                                <CardTitle className="text-sm font-medium text-violet-800">Net Balance</CardTitle>
+                                <FileText className="h-4 w-4 text-violet-600" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-purple-800">
-                                    {primarySymbol} {formatCurrency(financialSummary.balance, primaryCurrency)}
+                                <div className={`text-2xl font-bold ${currentSummary?.net_balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {primarySymbol}
+                                    {formatCurrency(currentSummary?.net_balance || 0, primaryCurrency)} 
                                 </div>
-                                <div className="space-y-1 text-sm text-purple-600">
+                                <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                      {(() => {
+                                        // Calculate secondary currency net balance using the EXACT same formula as Ledger page
+                                        if (currentSummary?.secondary_amounts) {
+                                            // Use the same formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
+                                            const secondaryNetBalance = 
+                                                (currentSummary.secondary_amounts.total_income || 0) - 
+                                                (currentSummary.secondary_amounts.total_expenses || 0) - 
+                                                (currentSummary.secondary_amounts.total_receivables || 0) + 
+                                                (currentSummary.secondary_amounts.total_payables || 0) + 
+                                                (currentSummary.secondary_amounts.receivable_settlements || 0) - 
+                                                (currentSummary.secondary_amounts.payable_settlements || 0);
+                                            
+                                            // Check if the result is valid (not NaN or undefined)
+                                            if (secondaryNetBalance !== undefined && !isNaN(secondaryNetBalance)) {
+                                                return (
+                                                    <div className={`${secondaryNetBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {secondarySymbol} {formatCurrency(secondaryNetBalance, secondaryCurrency)}
+                                                    </div>
+                                                );
+                                            }
+                                        }
+                                        return null;
+                                    })()}
+                                </div>
+                                <p className="text-xs text-muted-foreground">Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements</p>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Total Income</CardTitle>
+                                <TrendingUp className="h-4 w-4 text-green-600" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-green-600">
+                                    {primarySymbol}
+                                    {formatCurrency(currentSummary?.total_income || 0, primaryCurrency)}
+                                </div>
+                                <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                                                         {currentSummary?.secondary_amounts && currentSummary.secondary_amounts.total_income > 0 && (
                                     <div>
-                                        {secondarySymbol}{' '}
-                                        {formatCurrency(
-                                            currentSummary?.secondary_amounts &&
-                                                typeof currentSummary.secondary_amounts.total_income === 'number' &&
-                                                typeof currentSummary.secondary_amounts.total_receivables === 'number' &&
-                                                typeof currentSummary.secondary_amounts.total_expenses === 'number' &&
-                                                typeof currentSummary.secondary_amounts.total_payables === 'number'
-                                                ? (currentSummary.secondary_amounts.total_income - currentSummary.secondary_amounts.total_expenses) +
-                                                  (currentSummary.secondary_amounts.total_receivables - currentSummary.secondary_amounts.total_payables)
-                                                : convertAmount(financialSummary.balance, secondaryCurrency),
-                                            secondaryCurrency,
+                                             {secondarySymbol} {formatCurrency(currentSummary.secondary_amounts.total_income, secondaryCurrency)}
+                                         </div>
                                         )}
                                     </div>
-                                </div>
-                                <p className="mt-1 text-xs text-purple-600">
-                                    {changes?.balance_change
-                                        ? changes.balance_change >= 0
-                                            ? `+${changes.balance_change.toFixed(1)}%`
-                                            : `${changes.balance_change.toFixed(1)}%`
-                                        : 'Current balance'}{' '}
-                                    from last month
+                                <p className="text-xs text-muted-foreground">
+                                    {recentTransactions?.filter((t) => t.type === 'income').length || 0} transactions
                                 </p>
                             </CardContent>
                         </Card>
 
-                        {/* Income Card */}
-                        <Card
-                            className={`border-green-200 bg-gradient-to-br from-green-50 to-green-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                            style={{ animationDelay: '200ms' }}
-                        >
+                        <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-green-800">Income</CardTitle>
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-200">
-                                    <TrendingUp className="h-4 w-4 text-green-700" />
-                                </div>
+                                <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+                                <TrendingDown className="h-4 w-4 text-red-600" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-green-800">
-                                    {primarySymbol} {formatCurrency(financialSummary.totalIncome, primaryCurrency)}
+                                <div className="text-2xl font-bold text-red-600">
+                                    {primarySymbol}
+                                    {formatCurrency(currentSummary?.total_expenses || 0, primaryCurrency)}
                                 </div>
-                                <div className="space-y-1 text-sm text-green-600">
+                                <p className="text-xs text-muted-foreground">
+                                    {recentTransactions?.filter((t) => t.type === 'expense').length || 0} expenses
+                                </p>
+
+                                <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                    {currentSummary?.secondary_amounts && currentSummary.secondary_amounts.total_expenses > 0 && (
                                     <div>
-                                        {secondarySymbol}{' '}
-                                        {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_income &&
-                                                typeof currentSummary.secondary_amounts.total_income === 'number' &&
-                                                !isNaN(currentSummary.secondary_amounts.total_income)
-                                                ? currentSummary.secondary_amounts.total_income
-                                                : convertAmount(financialSummary.totalIncome, secondaryCurrency),
-                                            secondaryCurrency,
+                                            {secondarySymbol} {formatCurrency(
+                                                currentSummary.secondary_amounts.total_expenses, 
+                                                secondaryCurrency
                                         )}
                                     </div>
+                                    )}
+
                                 </div>
-                                <p className="mt-1 text-xs text-green-600">
-                                    {changes?.income_change
-                                        ? changes.income_change >= 0
-                                            ? `+${changes.income_change.toFixed(1)}%`
-                                            : `${changes.income_change.toFixed(1)}%`
-                                        : 'Total income'}{' '}
-                                    from last month
-                                </p>
                             </CardContent>
                         </Card>
 
-                        {/* Expenses Card */}
-                        <Card
-                            className={`border-red-200 bg-gradient-to-br from-red-50 to-red-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                            style={{ animationDelay: '300ms' }}
-                        >
+                        <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-red-800">Expenses</CardTitle>
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-200">
-                                    <TrendingDown className="h-4 w-4 text-red-700" />
-                                </div>
+                                <CardTitle className="text-sm font-medium">Payables</CardTitle>
+                                <CreditCard className="h-4 w-4 text-orange-600" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-red-800">
-                                    {primarySymbol} {formatCurrency(financialSummary.totalExpense, primaryCurrency)}
+                                <div className="text-2xl font-bold text-orange-600">
+                                    {primarySymbol}
+                                    {formatCurrency(currentSummary?.total_payables || 0, primaryCurrency)}
                                 </div>
-                                <div className="space-y-1 text-sm text-red-600">
-                                    <div>
-                                        {secondarySymbol}{' '}
-                                        {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_expenses &&
-                                                typeof currentSummary.secondary_amounts.total_expenses === 'number' &&
-                                                !isNaN(currentSummary.secondary_amounts.total_expenses)
-                                                ? currentSummary.secondary_amounts.total_expenses
-                                                : convertAmount(financialSummary.totalExpense, secondaryCurrency),
-                                            secondaryCurrency,
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="mt-1 text-xs text-red-600">
-                                    {changes?.expense_change
-                                        ? changes.expense_change >= 0
-                                            ? `+${changes.expense_change.toFixed(1)}%`
-                                            : `${changes.expense_change.toFixed(1)}%`
-                                        : 'Total expenses'}{' '}
-                                    from last month
+                                <p className="text-xs text-muted-foreground">
+                                    {recentTransactions?.filter((t) => t.type === 'payable').length || 0} transactions
                                 </p>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                    <div>Remaining: {primarySymbol}{formatCurrency((currentSummary?.total_payables || 0) - (currentSummary?.payable_settlements || 0), primaryCurrency)} {currentSummary?.secondary_amounts && (currentSummary.secondary_amounts.total_payables - currentSummary.secondary_amounts.payable_settlements) > 0 && `/ ${secondarySymbol} ${formatCurrency(currentSummary.secondary_amounts.total_payables - currentSummary.secondary_amounts.payable_settlements, secondaryCurrency)}`}</div>
+                                    <div>Settled: {primarySymbol}{formatCurrency(currentSummary?.payable_settlements || 0, primaryCurrency)} {currentSummary?.secondary_amounts && currentSummary.secondary_amounts.payable_settlements > 0 && `/ ${secondarySymbol} ${formatCurrency(currentSummary.secondary_amounts.payable_settlements, secondaryCurrency)}`}</div>
+                                    </div>
+                                <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                    {currentSummary?.secondary_amounts && currentSummary.secondary_amounts.total_payables > 0 && (
+                                        <div>
+                                            {secondarySymbol} {formatCurrency(currentSummary.secondary_amounts.total_payables, secondaryCurrency)}
+                                </div>
+                                    )}
+                                </div>
                             </CardContent>
                         </Card>
 
-                        {/* Receivable Card */}
-                        <Card
-                            className={`border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                            style={{ animationDelay: '400ms' }}
-                        >
+                        <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-blue-800">Receivable</CardTitle>
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200">
-                                    <Banknote className="h-4 w-4 text-blue-700" />
-                                </div>
+                                <CardTitle className="text-sm font-medium">Receivables</CardTitle>
+                                <Banknote className="h-4 w-4 text-blue-600" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-blue-800">
-                                    {primarySymbol} {formatCurrency(financialSummary.totalReceivable, primaryCurrency)}
+                                <div className="text-2xl font-bold text-blue-600">
+                                    {primarySymbol}
+                                    {formatCurrency(currentSummary?.total_receivables || 0, primaryCurrency)}
                                 </div>
-                                <div className="space-y-1 text-sm text-blue-600">
-                                    <div>
-                                        {secondarySymbol}{' '}
-                                        {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_receivables &&
-                                                typeof currentSummary.secondary_amounts.total_receivables === 'number' &&
-                                                !isNaN(currentSummary.secondary_amounts.total_receivables)
-                                                ? currentSummary.secondary_amounts.total_receivables
-                                                : convertAmount(financialSummary.totalReceivable, secondaryCurrency),
-                                            secondaryCurrency,
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="mt-1 text-xs text-blue-600">
-                                    {changes?.receivables_change
-                                        ? changes.receivables_change >= 0
-                                            ? `+${changes.receivables_change.toFixed(1)}%`
-                                            : `${changes.receivables_change.toFixed(1)}%`
-                                        : 'Total receivables'}{' '}
-                                    from last month
+                                <p className="text-xs text-muted-foreground">
+                                    {recentTransactions?.filter((t) => t.type === 'receivable').length || 0} transactions
                                 </p>
-                            </CardContent>
-                        </Card>
-
-                        {/* Payable Card */}
-                        <Card
-                            className={`border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 transition-all duration-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                            style={{ animationDelay: '500ms' }}
-                        >
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-orange-800">Payable</CardTitle>
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-200">
-                                    <CreditCard className="h-4 w-4 text-orange-700" />
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-orange-800">
-                                    {primarySymbol} {formatCurrency(financialSummary.totalPayable, primaryCurrency)}
-                                </div>
-                                <div className="space-y-1 text-sm text-orange-600">
-                                    <div>
-                                        {secondarySymbol}{' '}
-                                        {formatCurrency(
-                                            currentSummary?.secondary_amounts?.total_payables &&
-                                                typeof currentSummary.secondary_amounts.total_payables === 'number' &&
-                                                !isNaN(currentSummary.secondary_amounts.total_payables)
-                                                ? currentSummary.secondary_amounts.total_payables
-                                                : convertAmount(financialSummary.totalPayable, secondaryCurrency),
-                                            secondaryCurrency,
-                                        )}
+                                <div className="text-xs text-muted-foreground mt-1">
+                                    <div>Remaining: {primarySymbol}{formatCurrency((currentSummary?.total_receivables || 0) - (currentSummary?.receivable_settlements || 0), primaryCurrency)} {currentSummary?.secondary_amounts && (currentSummary.secondary_amounts.total_receivables - currentSummary.secondary_amounts.receivable_settlements) > 0 && `/ ${secondarySymbol} ${formatCurrency(currentSummary.secondary_amounts.total_receivables - currentSummary.secondary_amounts.receivable_settlements, secondaryCurrency)}`}</div>
+                                    <div>Settled: {primarySymbol}{formatCurrency(currentSummary?.receivable_settlements || 0, primaryCurrency)} {currentSummary?.secondary_amounts && currentSummary.secondary_amounts.receivable_settlements > 0 && `/ ${secondarySymbol} ${formatCurrency(currentSummary.secondary_amounts.receivable_settlements, secondaryCurrency)}`}</div>
                                     </div>
+                                <div className="space-y-1 text-sm text-gray-600 mt-1">
+                                    {currentSummary?.secondary_amounts && currentSummary.secondary_amounts.total_receivables > 0 && (
+                                        <div>
+                                            {secondarySymbol} {formatCurrency(currentSummary.secondary_amounts.total_receivables, secondaryCurrency)}
                                 </div>
-                                <p className="mt-1 text-xs text-orange-600">
-                                    {changes?.payables_change
-                                        ? changes.payables_change >= 0
-                                            ? `+${changes.payables_change.toFixed(1)}%`
-                                            : `${changes.payables_change.toFixed(1)}%`
-                                        : 'Total payables'}{' '}
-                                    from last month
-                                </p>
+                                    )}
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
 
-                {/* Financial Constraint Warnings */}
+
+
+                {/* Charts Section */}
                 <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    {/* Financial Overview Chart */}
                         <div>
-                            <h2 className="text-xl font-semibold tracking-tight">Financial Health Check</h2>
-                            <p className="text-sm text-muted-foreground">Monitor your financial constraints and get recommendations</p>
+                        <div className="mb-3">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="p-1.5 bg-blue-600 rounded-lg shadow-lg">
+                                    <BarChart3 className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900">
+                                        Financial Overview
+                                    </h2>
+                                    <p className="text-xs text-muted-foreground">Visualize your payables and receivables status</p>
+                                </div>
                         </div>
                     </div>
                     
-                    <FinancialConstraintWarning
-                        netBalance={financialSummary.balance}
-                        totalReceivables={financialSummary.totalReceivable}
-                        totalPayables={financialSummary.totalPayable}
-                        primaryCurrency={primaryCurrency}
-                        primarySymbol={primarySymbol}
-                    />
+                        <Card className="shadow-xl border-0 bg-white">
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg font-semibold text-gray-800">
+                                        Financial Status: Settled vs Remaining
+                                    </CardTitle>
+
+                                </div>
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                                <div className="h-40 w-full">
+                                    {currentSummary ? (
+                                        <>
+                                            
+                                            
+                                            <Chart 
+                                            type="bar" 
+                                            data={{
+                                                labels: ['Total Payable', 'Total Receivable'],
+                                                datasets: [
+                                                    {
+                                                        label: 'Settled',
+                                                        data: [
+                                                            currentSummary.payable_settlements || 0,
+                                                            currentSummary.receivable_settlements || 0
+                                                        ],
+                                                        backgroundColor: [
+                                                            'rgba(34, 197, 94, 0.9)', // success color for settled
+                                                            'rgba(34, 197, 94, 0.9)', // success color for settled
+                                                        ],
+                                                        borderColor: ['#22c55e', '#22c55e'],
+                                                        borderWidth: 0,
+                                                        borderRadius: 0,
+                                                        borderSkipped: false,
+                                                        stack: 'stack1',
+                                                    },
+                                                    {
+                                                        label: 'Remaining',
+                                                        data: [
+                                                            (currentSummary.total_payables || 0) - (currentSummary.payable_settlements || 0),
+                                                            (currentSummary.total_receivables || 0) - (currentSummary.receivable_settlements || 0)
+                                                        ],
+                                                        backgroundColor: [
+                                                            'rgba(134, 239, 172, 0.9)', // light success color for remaining
+                                                            'rgba(134, 239, 172, 0.9)', // light success color for remaining
+                                                        ],
+                                                        borderColor: ['#86efac', '#86efac'],
+                                                        borderWidth: 0,
+                                                        borderRadius: 0,
+                                                        borderSkipped: false,
+                                                        stack: 'stack1',
+                                                    }
+                                                ]
+                                            }} 
+                                            options={{
+                                                indexAxis: 'y' as const,
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        display: false,
+                                                    },
+
+                                                    tooltip: {
+                                                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                                                        titleColor: 'white',
+                                                        bodyColor: 'white',
+                                                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                                                        borderWidth: 1,
+                                                        cornerRadius: 8,
+                                                        displayColors: false,
+                                                        callbacks: {
+                                                            label: function(context) {
+                                                                const label = context.dataset.label || '';
+                                                                const value = context.parsed.x;
+                                                                const dataIndex = context.dataIndex;
+                                                                
+                                                                // Get secondary amount based on the category (Payable or Receivable)
+                                                                let secondaryAmount = 0;
+                                                                if (dataIndex === 0) { // Total Payable
+                                                                    if (context.dataset.label === 'Settled') {
+                                                                        secondaryAmount = currentSummary.secondary_amounts?.payable_settlements || 0;
+                                                                    } else { // Remaining
+                                                                        secondaryAmount = (currentSummary.secondary_amounts?.total_payables || 0) - (currentSummary.secondary_amounts?.payable_settlements || 0);
+                                                                    }
+                                                                } else { // Total Receivable
+                                                                    if (context.dataset.label === 'Settled') {
+                                                                        secondaryAmount = currentSummary.secondary_amounts?.receivable_settlements || 0;
+                                                                    } else { // Remaining
+                                                                        secondaryAmount = (currentSummary.secondary_amounts?.total_receivables || 0) - (currentSummary.secondary_amounts?.receivable_settlements || 0);
+                                                                    }
+                                                                }
+                                                                
+                                                                const primaryText = `${label}: ${primarySymbol}${formatCurrency(value, primaryCurrency)}`;
+                                                                const secondaryText = secondaryAmount > 0 ? ` / ${secondarySymbol}${formatCurrency(secondaryAmount, secondaryCurrency)}` : '';
+                                                                
+                                                                return primaryText + secondaryText;
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                datasets: {
+                                                    bar: {
+                                                        stack: 'stack1',
+                                                    }
+                                                },
+                                                scales: {
+                                                    x: {
+                                                        beginAtZero: true,
+                                                        grid: {
+                                                            color: 'rgba(0, 0, 0, 0.1)',
+                                                            lineWidth: 1,
+                                                        },
+                                                        ticks: {
+                                                            callback: function(value) {
+                                                                return `${primarySymbol}${formatCurrency(value as number, primaryCurrency)}`;
+                                                            },
+                                                            font: { size: 11 },
+                                                            color: '#9CA3AF'
+                                                        }
+                                                    },
+                                                    y: {
+                                                        grid: { display: false },
+                                                        ticks: {
+                                                            font: { size: 13, weight: 600 },
+                                                            color: '#4B5563'
+                                                        }
+                                                    }
+                                                },
+                                                elements: {
+                                                    bar: {
+                                                        borderSkipped: false,
+                                                        borderWidth: 2,
+                                                        borderColor: 'rgba(0, 0, 0, 0.1)',
+                                                    }
+                                                },
+                                                interaction: {
+                                                    intersect: false,
+                                                    mode: 'index' as const,
+                                                },
+
+                                            }} 
+                                        />
+                                        </>
+                                    ) : (
+                                        <div className="flex h-full items-center justify-center">
+                                            <div className="text-center">
+                                                <div className="mx-auto w-16 h-16 bg-gradient-to-r from-emerald-100 to-blue-100 rounded-full flex items-center justify-center mb-4 shadow-lg">
+                                                    <BarChart3 className="h-8 w-8 text-emerald-500" />
+                                                </div>
+                                                <p className="text-lg font-medium text-gray-700 mb-2">No financial data available</p>
+                                                <p className="text-sm text-gray-500">Add transactions to see your payables and receivables status</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
                 </div>
 
-                {/* Charts Section */}
-                <div className="space-y-6">
                     {/* Bar Charts Row */}
                     <div>
-                        <div className="mb-4">
-                            <h2 className="text-xl font-semibold tracking-tight">Analytics Overview</h2>
-                            <p className="text-sm text-muted-foreground">Transaction trends over time</p>
+                        <div className="mb-3">
+                            <h2 className="text-lg font-semibold tracking-tight">Analytics Overview</h2>
+                            <p className="text-xs text-muted-foreground">Transaction trends over time</p>
                         </div>
-                        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+                        <div className="grid gap-3 grid-cols-1 lg:grid-cols-2">
                             {/* Monthly Bar Chart */}
                             <Card
                                 className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
@@ -739,11 +878,11 @@ export default function Dashboard() {
 
                     {/* Pie Charts Row */}
                     <div>
-                        <div className="mb-4">
-                            <h2 className="text-xl font-semibold tracking-tight">Transaction Distribution</h2>
-                            <p className="text-sm text-muted-foreground">Breakdown by transaction types</p>
+                        <div className="mb-3">
+                            <h2 className="text-lg font-semibold tracking-tight">Transaction Distribution</h2>
+                            <p className="text-xs text-muted-foreground">Breakdown by transaction types</p>
                         </div>
-                        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+                        <div className="grid gap-3 grid-cols-1 lg:grid-cols-2">
                             {/* Monthly Transaction Distribution */}
                             <Card
                                 className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}

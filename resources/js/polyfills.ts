@@ -114,5 +114,5 @@ import 'regenerator-runtime/runtime';
         };
     }
 
-    console.log('🔧 Browser polyfills loaded');
+    // Browser polyfills loaded
 })();

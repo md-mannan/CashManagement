@@ -12,14 +12,14 @@ interface UserMenuContentProps {
 
 export function UserMenuContent({ user }: UserMenuContentProps) {
     const cleanup = useMobileNavigation();
-    const { showToast } = useToast();
+    const { addToast } = useToast();
 
     const handleLogout = () => {
         cleanup();
         router.flushAll();
 
         // Show logout toast
-        showToast({
+        addToast({
             type: 'success',
             title: 'Logged out',
             message: 'You have been logged out successfully.',

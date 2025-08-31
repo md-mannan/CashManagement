@@ -9,29 +9,33 @@ export function NavMain({ items = [], label = 'Platform' }: { items: NavItem[]; 
         const currentPath = page.url;
         const hrefPath = href;
 
-        // Exact match for any path
-        if (currentPath === hrefPath) {
+        // Clean paths by removing query parameters and trailing slashes
+        const cleanCurrentPath = currentPath.split('?')[0].replace(/\/$/, '');
+        const cleanHrefPath = hrefPath.split('?')[0].replace(/\/$/, '');
+
+        // Exact match for cleaned paths
+        if (cleanCurrentPath === cleanHrefPath) {
             return true;
         }
 
         // For admin paths, use more restrictive matching
         if (href.startsWith('/admin/')) {
-            const hrefParts = hrefPath.split('/').filter(Boolean);
-            const currentParts = currentPath.split('/').filter(Boolean);
+            const hrefParts = cleanHrefPath.split('/').filter(Boolean);
+            const currentParts = cleanCurrentPath.split('/').filter(Boolean);
 
             // Only mark as active if this is the exact parent route
             // For example: /admin/super-admin should only be active when on /admin/super-admin
             // Not when on /admin/super-admin/audit
             if (currentParts.length === hrefParts.length) {
-                return currentPath === hrefPath;
+                return cleanCurrentPath === cleanHrefPath;
             }
 
             // Don't mark parent routes as active for child routes
             return false;
         }
 
-        // For non-admin paths, use exact matching
-        return currentPath === href;
+        // For non-admin paths, use exact matching with cleaned paths
+        return cleanCurrentPath === cleanHrefPath;
     };
 
     return (

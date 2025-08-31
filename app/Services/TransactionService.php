@@ -77,23 +77,22 @@ class TransactionService
         // - Receivable Settlements INCREASE net balance directly (money returned to you)
         // Note: Payables are money you owe to others, not money you have available
         // Net Balance = Income - Expenses - Total Receivables + Receivable Settlements
-        // (Total Receivables = money you've lent out, Receivable Settlements = money returned)
-        $netBalance = $totalIncome - $totalExpenses - $totalReceivables + $receivableSettlements;
+        // Net Balance Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
+        // This matches the formula used in Ledger page for consistency
+        $netBalance = $totalIncome - $totalExpenses - $totalReceivables + $totalPayables + $receivableSettlements - $payableSettlements;
         
-        // Temporary debug logging to check values
-        \Log::info('Net Balance Calculation Debug', [
-            'totalIncome' => $totalIncome,
-            'totalExpenses' => $totalExpenses,
-            'totalReceivables' => $totalReceivables,
-            'receivableSettlements' => $receivableSettlements,
-            'calculatedNetBalance' => $netBalance,
-            'formula' => "{$totalIncome} - {$totalExpenses} - {$totalReceivables} + {$receivableSettlements} = {$netBalance}"
-        ]);
 
 
 
-        // Calculate original entered amounts in secondary currency (only for single user view)
-        $secondaryAmounts = $user ? $this->calculateSecondaryAmountSums($transactions, $user) : [];
+
+        // Calculate original entered amounts in secondary currency
+        if ($user) {
+            // Single user view - use their secondary currency settings
+            $secondaryAmounts = $this->calculateSecondaryAmountSums($transactions, $user);
+        } else {
+            // System-wide view (super admin) - calculate secondary amounts for all users
+            $secondaryAmounts = $this->calculateSystemSecondaryAmountSums($transactions);
+        }
 
         return [
             'total_income' => $totalIncome,
@@ -119,9 +118,9 @@ class TransactionService
     }
 
     /**
-     * Calculate sums of original entered amounts in secondary currency
+     * Calculate sums of original entered amounts in secondary currency for a specific user
      */
-    private function calculateSecondaryAmountSums($transactions, User $user): array
+    public function calculateSecondaryAmountSums($transactions, User $user): array
     {
         $totals = [
             'total_income' => 0,
@@ -173,6 +172,69 @@ class TransactionService
             }
         }
 
+        // Calculate secondary currency net balance using the SAME formula as primary
+        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
+        $totals['net_balance'] = $totals['total_income'] - $totals['total_expenses'] - $totals['total_receivables'] + $totals['total_payables'] + $totals['receivable_settlements'] - $totals['payable_settlements'];
+        
+        return $totals;
+    }
+
+    /**
+     * Calculate sums of original entered amounts in secondary currency for system-wide view (super admin)
+     */
+    public function calculateSystemSecondaryAmountSums($transactions): array
+    {
+        $totals = [
+            'total_income' => 0,
+            'total_expenses' => 0,
+            'total_receivables' => 0,
+            'total_payables' => 0,
+            'receivable_settlements' => 0,
+            'payable_settlements' => 0,
+        ];
+
+        foreach ($transactions as $transaction) {
+            $originalSecondaryAmount = 0;
+
+            // For system-wide view, include all secondary amounts regardless of which user's currency
+            if ($transaction->metadata &&
+                isset($transaction->metadata['secondary_amount']) &&
+                $transaction->metadata['secondary_amount'] > 0) {
+
+                $originalSecondaryAmount = $transaction->metadata['secondary_amount'];
+            }
+
+            // Add to appropriate total
+            switch ($transaction->type) {
+                case 'income':
+                    $totals['total_income'] += $originalSecondaryAmount;
+                    break;
+                case 'expense':
+                    $totals['total_expenses'] += $originalSecondaryAmount;
+                    break;
+                case 'settlement':
+                    // Check if this is a receivable or payable settlement
+                    if ($transaction->relatedTransaction && $transaction->relatedTransaction->type === 'receivable') {
+                        // Receivable settlement - money returned to you (NOT an expense)
+                        $totals['receivable_settlements'] += $originalSecondaryAmount;
+                    } else {
+                        // Payable settlement - money you paid (IS an expense)
+                        $totals['payable_settlements'] += $originalSecondaryAmount;
+                    }
+                    break;
+                case 'receivable':
+                    $totals['total_receivables'] += $originalSecondaryAmount;
+                    break;
+                case 'payable':
+                    $totals['total_payables'] += $originalSecondaryAmount;
+                    break;
+            }
+        }
+
+        // Calculate secondary currency net balance using the SAME formula as primary
+        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
+        $totals['net_balance'] = $totals['total_income'] - $totals['total_expenses'] - $totals['total_receivables'] + $totals['total_payables'] + $totals['receivable_settlements'] - $totals['payable_settlements'];
+        
         return $totals;
     }
 
@@ -252,19 +314,22 @@ class TransactionService
             // Get all transactions for this month
             if ($user) {
                 $transactions = $user->transactions()
+                    ->with('relatedTransaction') // Eager load the relationship
                     ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
                     ->get();
             } else {
-                $transactions = Transaction::whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                $transactions = Transaction::with('relatedTransaction') // Eager load the relationship
+                    ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
                     ->get();
             }
 
             $data['labels'][] = $startOfMonth->format('M Y');
             $data['datasets'][0]['data'][] = (float) $transactions->where('type', 'income')->sum('amount');
-            // Include settlements in expenses since they are expense transactions (money spent to pay off debt)
+            
+            // Chart should show ONLY actual expenses, NOT settlements (same as summary cards)
             $monthlyExpenses = $transactions->where('type', 'expense')->sum('amount');
-            $monthlySettlements = $transactions->where('type', 'settlement')->sum('amount');
-            $data['datasets'][1]['data'][] = (float) ($monthlyExpenses + $monthlySettlements);
+            
+            $data['datasets'][1]['data'][] = (float) $monthlyExpenses;
             $data['datasets'][2]['data'][] = (float) $transactions->where('type', 'receivable')
                 ->whereNull('related_transaction_id')->sum('amount');
             $data['datasets'][3]['data'][] = (float) $transactions->where('type', 'payable')
@@ -342,19 +407,22 @@ class TransactionService
             // Get all transactions for this year
             if ($user) {
                 $transactions = $user->transactions()
+                    ->with('relatedTransaction') // Eager load the relationship
                     ->whereBetween('date', [$startOfYear->format('Y-m-d'), $endOfYear->format('Y-m-d')])
                     ->get();
             } else {
-                $transactions = Transaction::whereBetween('date', [$startOfYear->format('Y-m-d'), $endOfYear->format('Y-m-d')])
+                $transactions = Transaction::with('relatedTransaction') // Eager load the relationship
+                    ->whereBetween('date', [$startOfYear->format('Y-m-d'), $endOfYear->format('Y-m-d')])
                     ->get();
             }
 
             $data['labels'][] = $period->year;
             $data['datasets'][0]['data'][] = (float) $transactions->where('type', 'income')->sum('amount');
-            // Include settlements in expenses since they are expense transactions (money spent to pay off debt)
+            
+            // Chart should show ONLY actual expenses, NOT settlements (same as summary cards)
             $yearlyExpenses = $transactions->where('type', 'expense')->sum('amount');
-            $yearlySettlements = $transactions->where('type', 'settlement')->sum('amount');
-            $data['datasets'][1]['data'][] = (float) ($yearlyExpenses + $yearlySettlements);
+            
+            $data['datasets'][1]['data'][] = (float) $yearlyExpenses;
             $data['datasets'][2]['data'][] = (float) $transactions->where('type', 'receivable')->sum('amount');
             $data['datasets'][3]['data'][] = (float) $transactions->where('type', 'payable')->sum('amount');
         }

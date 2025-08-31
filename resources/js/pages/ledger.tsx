@@ -522,21 +522,20 @@ export default function Ledger() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-red-800">
-                                        {primarySymbol} {formatCurrency(summary.total_expenses_with_payable_settlements, primaryCurrency)}
+                                        {primarySymbol} {formatCurrency(summary.total_expenses, primaryCurrency)}
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-1">
+                                    <div className="text-xs text-muted-foreground mt-1">
                                         <div>Regular: {primarySymbol}{formatCurrency(summary.total_expenses, primaryCurrency)}</div>
-                                        <div>Payable Settlements: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)}</div>
-                                    </p>
+                                    </div>
                                     <div className="space-y-1 text-sm text-red-600 mt-1">
-                                        {(getSecondaryCurrencyDisplay('expenses') !== null || getSecondaryCurrencyDisplay('settlements') !== null) && (
+                                        {getSecondaryCurrencyDisplay('expenses') !== null && (
                                             <div>
-                                                {secondarySymbol} {formatCurrency((getSecondaryCurrencyDisplay('expenses') || 0) + (getSecondaryCurrencyDisplay('settlements') || 0), secondaryCurrency)}
+                                                {secondarySymbol} {formatCurrency(getSecondaryCurrencyDisplay('expenses') || 0, secondaryCurrency)}
                                             </div>
                                         )}
                                     </div>
                                     <p className="mt-1 text-xs text-red-600">
-                                        {transactions.filter((t) => t.type === 'expense').length} expenses + {transactions.filter((t) => t.category.name.toLowerCase().includes('return') || t.category.name.toLowerCase().includes('pay') || t.category.name.toLowerCase().includes('settle')).length} settlements
+                                        {transactions.filter((t) => t.type === 'expense').length} expenses
                                     </p>
                                 </CardContent>
                             </Card>
@@ -553,10 +552,10 @@ export default function Ledger() {
                                     <div className="text-2xl font-bold text-orange-800">
                                         {primarySymbol} {formatCurrency(summary.total_payables, primaryCurrency)}
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-1">
+                                    <div className="text-xs text-muted-foreground mt-1">
                                         <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_payables, primaryCurrency)}</div>
                                         <div>Settled: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)}</div>
-                                    </p>
+                                    </div>
                                     <div className="space-y-1 text-sm text-orange-600 mt-1">
                                         {getSecondaryCurrencyDisplay('payables') !== null && (
                                             <div>
@@ -582,10 +581,10 @@ export default function Ledger() {
                                     <div className="text-2xl font-bold text-blue-800">
                                         {primarySymbol} {formatCurrency(summary.total_receivables, primaryCurrency)}
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-1">
+                                    <div className="text-xs text-muted-foreground mt-1">
                                         <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_receivables, primaryCurrency)}</div>
                                         <div>Settled: {primarySymbol}{formatCurrency(summary.receivable_settlements || 0, primaryCurrency)}</div>
-                                    </p>
+                                    </div>
                                     <div className="space-y-1 text-sm text-blue-600 mt-1">
                                         {getSecondaryCurrencyDisplay('receivables') !== null && (
                                             <div>

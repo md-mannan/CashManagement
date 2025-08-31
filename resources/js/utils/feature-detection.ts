@@ -162,7 +162,7 @@ export const FeatureDetection = {
         html.classList.add(support.apis.webSocket ? 'supports-websocket' : 'no-websocket');
         html.classList.add(support.device.touch ? 'touch-device' : 'no-touch');
 
-        console.log('🔍 Feature detection classes added:', support);
+
     }
 };
 

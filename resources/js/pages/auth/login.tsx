@@ -1,6 +1,6 @@
 import { Head, useForm, router } from '@inertiajs/react';
-import { Chrome, Facebook, Github, LoaderCircle } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { LoaderCircle } from 'lucide-react';
+import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toast';
 import AuthLayout from '@/layouts/auth-layout';
-import { Separator } from '@radix-ui/react-separator';
+
 
 type LoginForm = {
     email: string;
@@ -30,39 +30,31 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         remember: false,
     });
 
-    const [socialLoading, setSocialLoading] = useState<string | null>(null);
-    const { showToast } = useToast();
+    const { addToast } = useToast();
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
         post(route('login'), {
             onSuccess: () => {
-                showToast({
+                addToast({
                     type: 'success',
                     title: 'Welcome back!',
                     message: 'You have been logged in successfully.',
-                    sound: true,
                 });
             },
             onError: (errors) => {
-                showToast({
+                addToast({
                     type: 'error',
                     title: 'Login Failed',
                     message: errors.email || 'Invalid credentials. Please try again.',
-                    sound: true,
                 });
             },
             onFinish: () => reset('password'),
         });
     };
 
-    const handleSocialLogin = (provider: string) => {
-        setSocialLoading(provider);
-        router.visit(route('socialite.redirect', provider), {
-            onFinish: () => setSocialLoading(null),
-        });
-    };
+
 
     return (
         <AuthLayout title="Log in to your account" description="Enter your email and password below to log in">
@@ -132,63 +124,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     </TextLink>
                 </div>
             </form>
-
-            {/* Social Authentication */}
-            <div className="space-y-4">
-                <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                        <Separator className="w-full" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                    <Button
-                        variant="outline"
-                        type="button"
-                        onClick={() => handleSocialLogin('facebook')}
-                        disabled={socialLoading !== null}
-                        className="flex items-center gap-2"
-                    >
-                        {socialLoading === 'facebook' ? (
-                            <LoaderCircle className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <Facebook className="h-4 w-4 text-blue-600" />
-                        )}
-                        Facebook
-                    </Button>
-                    <Button
-                        variant="outline"
-                        type="button"
-                        onClick={() => handleSocialLogin('google')}
-                        disabled={socialLoading !== null}
-                        className="flex items-center gap-2"
-                    >
-                        {socialLoading === 'google' ? (
-                            <LoaderCircle className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <Chrome className="h-4 w-4 text-red-600" />
-                        )}
-                        Google
-                    </Button>
-                    <Button
-                        variant="outline"
-                        type="button"
-                        onClick={() => handleSocialLogin('github')}
-                        disabled={socialLoading !== null}
-                        className="flex items-center gap-2"
-                    >
-                        {socialLoading === 'github' ? (
-                            <LoaderCircle className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <Github className="h-4 w-4 text-gray-800" />
-                        )}
-                        GitHub
-                    </Button>
-                </div>
-            </div>
 
             {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
         </AuthLayout>

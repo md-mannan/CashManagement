@@ -41,7 +41,7 @@ export function AppSidebar() {
         },
         {
             title: 'Transaction',
-            href: '/transaction',
+            href: '/transactions',
             icon: DollarSign,
         },
         {
@@ -79,7 +79,7 @@ export function AppSidebar() {
         },
         {
             title: 'All Transactions',
-            href: '/transaction',
+            href: '/transactions',
             icon: DollarSign,
         },
         {
