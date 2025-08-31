@@ -63,31 +63,25 @@
 
         @routes
         
-        @if (app()->environment('local', 'development'))
-            {{-- Development: Use Vite dev server with hot reload --}}
-            @viteReactRefresh
-            @vite(['resources/js/app.tsx'])
+        {{-- Force production build for cPanel deployment --}}
+        @php
+            $manifest = public_path('build/.vite/manifest.json');
+            if (file_exists($manifest)) {
+                $manifestData = json_decode(file_get_contents($manifest), true);
+                $appJs = $manifestData['resources/js/app.tsx']['file'] ?? null;
+                $appCss = $manifestData['resources/js/app.tsx']['css'][0] ?? null;
+            }
+        @endphp
+        
+        @if(isset($appCss))
+            <link rel="stylesheet" href="{{ asset('build/' . $appCss) }}">
+        @endif
+        
+        @if(isset($appJs))
+            <script type="module" src="{{ asset('build/' . $appJs) }}"></script>
         @else
-            {{-- Production: Use built assets from manifest --}}
-            @php
-                $manifest = public_path('build/.vite/manifest.json');
-                if (file_exists($manifest)) {
-                    $manifestData = json_decode(file_get_contents($manifest), true);
-                    $appJs = $manifestData['resources/js/app.tsx']['file'] ?? null;
-                    $appCss = $manifestData['resources/js/app.tsx']['css'][0] ?? null;
-                }
-            @endphp
-            
-            @if(isset($appCss))
-                <link rel="stylesheet" href="{{ asset('build/' . $appCss) }}">
-            @endif
-            
-            @if(isset($appJs))
-                <script type="module" src="{{ asset('build/' . $appJs) }}"></script>
-            @else
-                {{-- Fallback to @vite directive --}}
-                @vite(['resources/js/app.tsx'])
-            @endif
+            {{-- Fallback to @vite directive if manifest not found --}}
+            @vite(['resources/js/app.tsx'])
         @endif
         
         @inertiaHead
