@@ -27,10 +27,10 @@ SESSION_DRIVER=database
 SESSION_LIFETIME=1440
 SESSION_ENCRYPT=true
 SESSION_PATH=/
-SESSION_DOMAIN=yourdomain.com
+SESSION_DOMAIN=accounts.mannnan.space
 SESSION_SECURE_COOKIE=false
 SESSION_HTTP_ONLY=true
-SESSION_SAME_SITE=lax
+SESSION_SAME_SITE=none
 
 # Cache Configuration (File-based for shared hosting)
 CACHE_STORE=file

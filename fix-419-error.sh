@@ -29,11 +29,22 @@ chmod -R 755 bootstrap/cache/
 chmod -R 755 public/build/
 chmod 644 .env
 
-# Step 5: Rebuild caches
+# Step 5: Try alternative session configurations
+echo "🔄 Trying alternative session configurations..."
+echo "Testing file-based sessions..."
+sed -i 's/SESSION_DRIVER=database/SESSION_DRIVER=file/' .env
+php artisan config:clear
+php artisan cache:clear
+
+# Step 6: Rebuild caches
 echo "🏗️ Rebuilding caches..."
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
+# Step 7: Final verification
+echo "🔍 Verifying configuration..."
+php artisan config:show session
 
 echo "✅ 419 Error fix completed!"
 echo "📝 Next steps:"

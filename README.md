@@ -297,7 +297,7 @@ php artisan view:cache
    ```
 3. Check session configuration in `.env`:
    ```env
-   SESSION_DOMAIN=yourdomain.com
+   SESSION_DOMAIN=accounts.mannnan.space
    SESSION_SECURE_COOKIE=false
    ```
 4. Ensure HTTPS is properly configured
