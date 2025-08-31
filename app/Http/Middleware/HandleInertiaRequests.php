@@ -25,6 +25,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function version(Request $request): ?string
     {
+        // Force production build version for cPanel deployment
+        $manifest = public_path('build/.vite/manifest.json');
+        if (file_exists($manifest)) {
+            $manifestData = json_decode(file_get_contents($manifest), true);
+            if (isset($manifestData['resources/js/app.tsx'])) {
+                return md5($manifestData['resources/js/app.tsx']['file'] ?? '');
+            }
+        }
+        
         return parent::version($request);
     }
 

@@ -66,10 +66,25 @@
         {{-- Force production build for cPanel deployment --}}
         @php
             $manifest = public_path('build/.vite/manifest.json');
+            $appJs = null;
+            $appCss = null;
+            
             if (file_exists($manifest)) {
                 $manifestData = json_decode(file_get_contents($manifest), true);
-                $appJs = $manifestData['resources/js/app.tsx']['file'] ?? null;
-                $appCss = $manifestData['resources/js/app.tsx']['css'][0] ?? null;
+                if (isset($manifestData['resources/js/app.tsx'])) {
+                    $appJs = $manifestData['resources/js/app.tsx']['file'] ?? null;
+                    $appCss = $manifestData['resources/js/app.tsx']['css'][0] ?? null;
+                }
+            }
+            
+            // Debug: Log the detected files
+            if (config('app.debug')) {
+                \Log::info('Asset loading debug', [
+                    'manifest_exists' => file_exists($manifest),
+                    'appJs' => $appJs,
+                    'appCss' => $appCss,
+                    'manifest_path' => $manifest
+                ]);
             }
         @endphp
         
@@ -80,8 +95,25 @@
         @if(isset($appJs))
             <script type="module" src="{{ asset('build/' . $appJs) }}"></script>
         @else
-            {{-- Fallback to @vite directive if manifest not found --}}
-            @vite(['resources/js/app.tsx'])
+            {{-- Error if production build not found --}}
+            <script>
+                console.error('Production build not found. Please run: npm run build');
+                document.body.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;"><h1>Build Error</h1><p>Production build not found. Please run: <code>npm run build</code></p></div>';
+            </script>
+        @endif
+        
+        {{-- Debug output --}}
+        @if(config('app.debug'))
+            <script>
+                console.log('Debug Info:', {
+                    appJs: '{{ $appJs ?? "null" }}',
+                    appCss: '{{ $appCss ?? "null" }}',
+                    manifestPath: '{{ public_path("build/.vite/manifest.json") }}',
+                    manifestExists: {{ file_exists(public_path('build/.vite/manifest.json')) ? 'true' : 'false' }},
+                    appEnv: '{{ config("app.env") }}',
+                    appDebug: {{ config('app.debug') ? 'true' : 'false' }}
+                });
+            </script>
         @endif
         
         @inertiaHead
