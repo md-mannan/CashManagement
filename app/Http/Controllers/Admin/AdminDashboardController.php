@@ -29,8 +29,7 @@ class AdminDashboardController extends Controller
         $systemHealth = $this->getSystemHealth();
 
         // Get recent users
-        $recentUsers = User::with('socialAccounts')
-            ->orderBy('created_at', 'desc')
+        $recentUsers = User::orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 

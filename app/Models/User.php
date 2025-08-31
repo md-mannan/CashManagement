@@ -197,6 +197,8 @@ class User extends Authenticatable implements CanResetPasswordContract
         return $this->hasMany(ProfilePhoto::class)->history();
     }
 
+
+
     /**
      * Check if user has a specific permission.
      */

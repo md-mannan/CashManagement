@@ -29,7 +29,6 @@ class SuperAdminController extends Controller
     public function index()
     {
         $superAdmins = User::where('role', 'super_admin')
-            ->with('socialAccounts')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($user) {
@@ -41,9 +40,7 @@ class SuperAdminController extends Controller
                     'is_active' => $user->is_active,
                     'created_at' => $user->created_at,
                     'last_login_at' => $user->last_login_at,
-                    'social_accounts' => $user->socialAccounts->map(function ($account) {
-                        return ['provider' => $account->provider];
-                    }),
+                    'social_accounts' => [],
                     'is_current_user' => $user->id === auth()->id(),
                 ];
             });

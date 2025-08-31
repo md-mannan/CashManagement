@@ -76,8 +76,7 @@ class RolePermissionController extends Controller
             'import_data' => 'Import Data',
         ];
 
-        $users = User::with('socialAccounts')
-            ->orderBy('created_at', 'desc')
+        $users = User::orderBy('created_at', 'desc')
             ->get()
             ->map(function ($user) {
                 return [
@@ -89,9 +88,7 @@ class RolePermissionController extends Controller
                     'is_active' => $user->is_active,
                     'created_at' => $user->created_at,
                     'last_login_at' => $user->last_login_at,
-                    'social_accounts' => $user->socialAccounts->map(function ($account) {
-                        return ['provider' => $account->provider];
-                    }),
+                    'social_accounts' => [],
                     'is_current_user' => $user->id === auth()->id(),
                 ];
             });
@@ -298,8 +295,7 @@ class RolePermissionController extends Controller
 
     public function exportUsers()
     {
-        $users = User::with('socialAccounts')
-            ->orderBy('created_at', 'desc')
+        $users = User::orderBy('created_at', 'desc')
             ->get()
             ->map(function ($user) {
                 return [
@@ -310,7 +306,7 @@ class RolePermissionController extends Controller
                     'Status' => $user->is_active ? 'Active' : 'Inactive',
                     'Created' => $user->created_at->format('Y-m-d H:i:s'),
                     'Last Login' => $user->last_login_at ? $user->last_login_at->format('Y-m-d H:i:s') : 'Never',
-                    'Social Accounts' => $user->socialAccounts->pluck('provider')->implode(', '),
+                    'Social Accounts' => '',
                     'Permissions' => implode(', ', $user->permissions ?? []),
                 ];
             });

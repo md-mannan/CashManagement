@@ -15,8 +15,7 @@ class UserManagementController extends Controller
 {
     public function index()
     {
-        $users = User::with('socialAccounts')
-            ->orderBy('created_at', 'desc')
+        $users = User::orderBy('created_at', 'desc')
             ->paginate(15);
 
         return Inertia::render('admin/user-management', [
@@ -35,7 +34,7 @@ class UserManagementController extends Controller
 
     public function show(User $user)
     {
-        $user->load(['socialAccounts', 'transactions' => function ($query) {
+        $user->load(['transactions' => function ($query) {
             $query->latest()->limit(10);
         }]);
 
