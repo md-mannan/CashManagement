@@ -252,8 +252,8 @@ php artisan view:cache
 2. Verify database credentials
 3. Check PHP version (must be 8.2+)
 4. Enable error reporting temporarily:
-   ```env
-   APP_DEBUG=true
+```env
+APP_DEBUG=true
    ```
 
 #### **Issue: Assets Not Loading**
@@ -292,7 +292,7 @@ php artisan view:cache
    php artisan view:clear
    ```
 2. Regenerate application key:
-   ```bash
+```bash
    php artisan key:generate
    ```
 3. Check session configuration in `.env`:

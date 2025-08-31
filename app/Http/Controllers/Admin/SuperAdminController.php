@@ -87,35 +87,52 @@ class SuperAdminController extends Controller
             'permissions' => ['*'], // Super admins get all permissions
         ]);
 
-        // Log the action using ActivityLogService
-        ActivityLogService::logRoleChanged($user, $oldRole, 'super_admin', $request);
+        // Log the action using ActivityLogService (with error handling)
+        try {
+            ActivityLogService::logRoleChanged($user, $oldRole, 'super_admin', $request);
+        } catch (\Exception $e) {
+            // Log error but don't fail the operation
+            \Log::error('Failed to log role change', ['error' => $e->getMessage()]);
+        }
 
-        // Also log as admin action
-        ActivityLogService::logAdminAction(
-            'promote_to_super_admin',
-            "User {$user->name} promoted to super admin",
-            $request,
-            [
-                'promoted_user_id' => $user->id,
-                'promoted_user_email' => $user->email,
-            ]
-        );
+        // Also log as admin action (with error handling)
+        try {
+            ActivityLogService::logAdminAction(
+                'promote_to_super_admin',
+                "User {$user->name} promoted to super admin",
+                $request,
+                [
+                    'promoted_user_id' => $user->id,
+                    'promoted_user_email' => $user->email,
+                ]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to log admin action', ['error' => $e->getMessage()]);
+        }
 
-        // Notify admins about the promotion (excluding current admin to avoid duplicates)
-        AdminNotificationService::notifyUserAccountAction(
-            'promoted to super admin',
-            $user->name,
-            "Email: {$user->email}, Promoted by: " . auth()->user()->name,
-            auth()->id()
-        );
+        // Notify admins about the promotion (with error handling)
+        try {
+            AdminNotificationService::notifyUserAccountAction(
+                'promoted to super admin',
+                $user->name,
+                "Email: {$user->email}, Promoted by: " . auth()->user()->name,
+                auth()->id()
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify admins', ['error' => $e->getMessage()]);
+        }
 
-        // Notify the promoted user
-        AdminNotificationService::notifyUserAboutAdminAction(
-            $user->id,
-            'promoted to super admin',
-            auth()->user()->name,
-            "You now have access to all system features and administrative functions"
-        );
+        // Notify the promoted user (with error handling)
+        try {
+            AdminNotificationService::notifyUserAboutAdminAction(
+                $user->id,
+                'promoted to super admin',
+                auth()->user()->name,
+                "You now have access to all system features and administrative functions"
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify user', ['error' => $e->getMessage()]);
+        }
 
         return redirect()->back()->with('success', 'User promoted to super admin successfully.');
     }
@@ -150,36 +167,52 @@ class SuperAdminController extends Controller
             'permissions' => $permissions,
         ]);
 
-        // Log the action using ActivityLogService
-        ActivityLogService::logRoleChanged($user, $oldRole, $request->new_role, $request);
+        // Log the action using ActivityLogService (with error handling)
+        try {
+            ActivityLogService::logRoleChanged($user, $oldRole, $request->new_role, $request);
+        } catch (\Exception $e) {
+            \Log::error('Failed to log role change', ['error' => $e->getMessage()]);
+        }
 
-        // Also log as admin action
-        ActivityLogService::logAdminAction(
-            'demote_from_super_admin',
-            "User {$user->name} demoted from super admin to {$request->new_role}",
-            $request,
-            [
-                'demoted_user_id' => $user->id,
-                'demoted_user_email' => $user->email,
-                'new_role' => $request->new_role,
-            ]
-        );
+        // Also log as admin action (with error handling)
+        try {
+            ActivityLogService::logAdminAction(
+                'demote_from_super_admin',
+                "User {$user->name} demoted from super admin to {$request->new_role}",
+                $request,
+                [
+                    'demoted_user_id' => $user->id,
+                    'demoted_user_email' => $user->email,
+                    'new_role' => $request->new_role,
+                ]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to log admin action', ['error' => $e->getMessage()]);
+        }
 
-        // Notify admins about the demotion (excluding current admin to avoid duplicates)
-        AdminNotificationService::notifyUserAccountAction(
-            'demoted from super admin',
-            $user->name,
-            "Email: {$user->email}, New role: {$request->new_role}, Demoted by: " . auth()->user()->name,
-            auth()->id()
-        );
+        // Notify admins about the demotion (with error handling)
+        try {
+            AdminNotificationService::notifyUserAccountAction(
+                'demoted from super admin',
+                $user->name,
+                "Email: {$user->email}, New role: {$request->new_role}, Demoted by: " . auth()->user()->name,
+                auth()->id()
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify admins', ['error' => $e->getMessage()]);
+        }
 
-        // Notify the demoted user
-        AdminNotificationService::notifyUserAboutAdminAction(
-            $user->id,
-            'demoted from super admin',
-            auth()->user()->name,
-            "Your role has been changed to {$request->new_role}. Some administrative features may no longer be available."
-        );
+        // Notify the demoted user (with error handling)
+        try {
+            AdminNotificationService::notifyUserAboutAdminAction(
+                $user->id,
+                'demoted from super admin',
+                auth()->user()->name,
+                "Your role has been changed to {$request->new_role}. Some administrative features may no longer be available."
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify user', ['error' => $e->getMessage()]);
+        }
 
         return redirect()->back()->with('success', 'Super admin demoted successfully.');
     }
@@ -206,37 +239,53 @@ class SuperAdminController extends Controller
             'permissions' => $request->permissions ?? ['*'],
         ]);
 
-        // Log the action using ActivityLogService
-        ActivityLogService::logPermissionsUpdated($user, $oldPermissions, $request->permissions ?? ['*'], $request);
+        // Log the action using ActivityLogService (with error handling)
+        try {
+            ActivityLogService::logPermissionsUpdated($user, $oldPermissions, $request->permissions ?? ['*'], $request);
+        } catch (\Exception $e) {
+            \Log::error('Failed to log permissions update', ['error' => $e->getMessage()]);
+        }
 
-        // Also log as admin action
-        ActivityLogService::logAdminAction(
-            'update_super_admin_permissions',
-            "Super admin permissions updated for {$user->name}",
-            $request,
-            [
-                'updated_user_id' => $user->id,
-                'updated_user_email' => $user->email,
-                'old_permissions' => $oldPermissions,
-                'new_permissions' => $request->permissions ?? ['*'],
-            ]
-        );
+        // Also log as admin action (with error handling)
+        try {
+            ActivityLogService::logAdminAction(
+                'update_super_admin_permissions',
+                "Super admin permissions updated for {$user->name}",
+                $request,
+                [
+                    'updated_user_id' => $user->id,
+                    'updated_user_email' => $user->email,
+                    'old_permissions' => $oldPermissions,
+                    'new_permissions' => $request->permissions ?? ['*'],
+                ]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to log admin action', ['error' => $e->getMessage()]);
+        }
 
-        // Notify admins about the permission update (excluding current admin to avoid duplicates)
-        AdminNotificationService::notifyUserAccountAction(
-            'updated permissions for',
-            $user->name,
-            "Email: {$user->email}, Updated by: " . auth()->user()->name,
-            auth()->id()
-        );
+        // Notify admins about the permission update (with error handling)
+        try {
+            AdminNotificationService::notifyUserAccountAction(
+                'updated permissions for',
+                $user->name,
+                "Email: {$user->email}, Updated by: " . auth()->user()->name,
+                auth()->id()
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify admins', ['error' => $e->getMessage()]);
+        }
 
-        // Notify the user about permission changes
-        AdminNotificationService::notifyUserAboutAdminAction(
-            $user->id,
-            'updated permissions',
-            auth()->user()->name,
-            "Your system permissions have been modified"
-        );
+        // Notify the user about permission changes (with error handling)
+        try {
+            AdminNotificationService::notifyUserAboutAdminAction(
+                $user->id,
+                'updated permissions',
+                auth()->user()->name,
+                "Your system permissions have been modified"
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify user', ['error' => $e->getMessage()]);
+        }
 
         return redirect()->back()->with('success', 'Super admin permissions updated successfully.');
     }
@@ -246,26 +295,38 @@ class SuperAdminController extends Controller
         try {
             Log::info('SuperAdminController: Starting systemAudit method');
 
-            // Get recent system activities using ActivityLogService
-            $recentActivities = ActivityLogService::getSystemActivities(100)
-                ->map(function ($activity) {
-                    return [
-                        'id' => $activity->id,
-                        'action' => $activity->action,
-                        'user' => $activity->user ? $activity->user->name : 'System',
-                        'target' => $activity->target_type ? class_basename($activity->target_type) : 'System',
-                        'created_at' => $activity->created_at,
-                        'ip_address' => $activity->ip_address,
-                        'description' => $activity->description,
-                        'severity' => $activity->severity,
-                        'requires_attention' => $activity->requires_attention,
-                    ];
-                });
+            // Get recent system activities using ActivityLogService (with error handling)
+            $recentActivities = collect();
+            try {
+                $recentActivities = ActivityLogService::getSystemActivities(100)
+                    ->map(function ($activity) {
+                        return [
+                            'id' => $activity->id,
+                            'action' => $activity->action,
+                            'user' => $activity->user ? $activity->user->name : 'System',
+                            'target' => $activity->target_type ? class_basename($activity->target_type) : 'System',
+                            'created_at' => $activity->created_at,
+                            'ip_address' => $activity->ip_address,
+                            'description' => $activity->description,
+                            'severity' => $activity->severity,
+                            'requires_attention' => $activity->requires_attention,
+                        ];
+                    });
+            } catch (\Exception $e) {
+                Log::error('Failed to get system activities', ['error' => $e->getMessage()]);
+                $recentActivities = collect();
+            }
 
             Log::info('SuperAdminController: Recent activities collected', ['count' => $recentActivities->count()]);
 
-            // Get activities requiring attention
-            $attentionActivities = ActivityLogService::getActivitiesRequiringAttention(20);
+            // Get activities requiring attention (with error handling)
+            $attentionActivities = collect();
+            try {
+                $attentionActivities = ActivityLogService::getActivitiesRequiringAttention(20);
+            } catch (\Exception $e) {
+                Log::error('Failed to get attention activities', ['error' => $e->getMessage()]);
+                $attentionActivities = collect();
+            }
 
             Log::info('SuperAdminController: Attention activities collected', ['count' => $attentionActivities->count()]);
 

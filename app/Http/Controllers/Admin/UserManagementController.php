@@ -82,41 +82,49 @@ class UserManagementController extends Controller
             'is_active' => $request->is_active ?? true,
         ]);
 
-        // Send welcome notification with role information
-        $roleNames = [
-            'user' => 'Regular User',
-            'admin' => 'Administrator',
-            'super_admin' => 'Super Administrator'
-        ];
+        // Send welcome notification with role information (with error handling)
+        try {
+            $roleNames = [
+                'user' => 'Regular User',
+                'admin' => 'Administrator',
+                'super_admin' => 'Super Administrator'
+            ];
 
-        $roleName = $roleNames[$request->role] ?? $request->role;
-        $welcomeMessage = "Welcome to the system! Your account has been created with {$roleName} privileges.";
+            $roleName = $roleNames[$request->role] ?? $request->role;
+            $welcomeMessage = "Welcome to the system! Your account has been created with {$roleName} privileges.";
 
-        if ($request->role === 'admin') {
-            $welcomeMessage .= " You have access to administrative functions and user management.";
-        } elseif ($request->role === 'super_admin') {
-            $welcomeMessage .= " You have access to all system features and administrative functions.";
+            if ($request->role === 'admin') {
+                $welcomeMessage .= " You have access to administrative functions and user management.";
+            } elseif ($request->role === 'super_admin') {
+                $welcomeMessage .= " You have access to all system features and administrative functions.";
+            }
+
+            Notification::createForUser(
+                $user->id,
+                'account_created',
+                'Account Created',
+                $welcomeMessage,
+                [
+                    'icon' => 'CheckCircle',
+                    'color' => 'green',
+                    'is_important' => true,
+                ]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to create welcome notification', ['error' => $e->getMessage()]);
         }
 
-        Notification::createForUser(
-            $user->id,
-            'account_created',
-            'Account Created',
-            $welcomeMessage,
-            [
-                'icon' => 'CheckCircle',
-                'color' => 'green',
-                'is_important' => true,
-            ]
-        );
-
-        // Notify admins about user creation (excluding current admin to avoid duplicates)
-        AdminNotificationService::notifyUserAccountAction(
-            'created',
-            $user->name,
-            "Role: {$request->role}, Email: {$user->email}",
-            auth()->id()
-        );
+        // Notify admins about user creation (with error handling)
+        try {
+            AdminNotificationService::notifyUserAccountAction(
+                'created',
+                $user->name,
+                "Role: {$request->role}, Email: {$user->email}",
+                auth()->id()
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify admins about user creation', ['error' => $e->getMessage()]);
+        }
 
         return redirect()->back()->with('success', 'User created successfully.');
     }
@@ -235,13 +243,17 @@ class UserManagementController extends Controller
 
         $user->delete();
 
-        // Notify admins about user deletion (excluding current admin to avoid duplicates)
-        AdminNotificationService::notifyUserAccountAction(
-            'deleted',
-            $user->name,
-            "Email: {$user->email}, Role: {$user->role}",
-            auth()->id()
-        );
+        // Notify admins about user deletion (with error handling)
+        try {
+            AdminNotificationService::notifyUserAccountAction(
+                'deleted',
+                $user->name,
+                "Email: {$user->email}, Role: {$user->role}",
+                auth()->id()
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify admins about user deletion', ['error' => $e->getMessage()]);
+        }
 
         return redirect()->back()->with('success', 'User deleted successfully.');
     }

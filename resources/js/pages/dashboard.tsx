@@ -496,7 +496,7 @@ export default function Dashboard() {
                                     {formatCurrency(currentSummary?.net_balance || 0, primaryCurrency)} 
                                 </div>
                                 <div className="space-y-1 text-sm text-gray-600 mt-1">
-                                      {(() => {
+                                    {(() => {
                                         // Calculate secondary currency net balance using the EXACT same formula as Ledger page
                                         if (currentSummary?.secondary_amounts) {
                                             // Use the same formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
@@ -594,11 +594,11 @@ export default function Dashboard() {
                                     </div>
                                 <div className="space-y-1 text-sm text-gray-600 mt-1">
                                     {currentSummary?.secondary_amounts && currentSummary.secondary_amounts.total_payables > 0 && (
-                                        <div>
+                                    <div>
                                             {secondarySymbol} {formatCurrency(currentSummary.secondary_amounts.total_payables, secondaryCurrency)}
                                 </div>
-                                    )}
-                                </div>
+                                        )}
+                                    </div>
                             </CardContent>
                         </Card>
 
@@ -621,11 +621,11 @@ export default function Dashboard() {
                                     </div>
                                 <div className="space-y-1 text-sm text-gray-600 mt-1">
                                     {currentSummary?.secondary_amounts && currentSummary.secondary_amounts.total_receivables > 0 && (
-                                        <div>
+                                    <div>
                                             {secondarySymbol} {formatCurrency(currentSummary.secondary_amounts.total_receivables, secondaryCurrency)}
                                 </div>
-                                    )}
-                                </div>
+                                        )}
+                                    </div>
                             </CardContent>
                         </Card>
                     </div>
