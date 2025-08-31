@@ -16,6 +16,11 @@ class GalleryController extends Controller
      */
     public function index(): Response
     {
+        // Ensure user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
         $mediaItems = Media::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get()

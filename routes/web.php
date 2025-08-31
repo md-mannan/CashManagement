@@ -198,10 +198,7 @@ Route::middleware(['auth', 'verified', 'user.data.access'])->group(function () {
     Route::patch('settings/currency', [CurrencyController::class, 'update'])->name('settings.currency.update');
     Route::get('settings/currency/live-rate', [CurrencyController::class, 'getLiveRate'])->name('settings.currency.live-rate');
 
-    // Gallery
-    Route::get('gallery', [GalleryController::class, 'index'])->name('gallery');
-    Route::post('gallery/upload', [GalleryController::class, 'upload'])->name('gallery.upload');
-    Route::delete('gallery/{media}', [GalleryController::class, 'destroy'])->name('gallery.delete');
+
 
     // Exchange Rate Settings
     Route::get('settings/exchange-rate', [SettingsExchangeRateController::class, 'edit'])->name('settings.exchange-rate.edit');
@@ -230,6 +227,13 @@ Route::middleware(['auth', 'verified', 'user.data.access'])->group(function () {
     Route::get('/home', function () {
         return redirect()->route('dashboard');
     })->name('home.authenticated');
+});
+
+// Gallery routes with basic auth middleware
+Route::middleware('auth')->group(function () {
+    Route::get('gallery', [GalleryController::class, 'index'])->name('gallery');
+    Route::post('gallery/upload', [GalleryController::class, 'upload'])->name('gallery.upload');
+    Route::delete('gallery/{media}', [GalleryController::class, 'destroy'])->name('gallery.delete');
 });
 
 // ============================================================================
