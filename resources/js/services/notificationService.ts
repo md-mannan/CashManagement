@@ -41,7 +41,6 @@ class NotificationService {
             });
             return response.data;
         } catch (error) {
-            console.error('Error in getNotifications:', error);
             throw new Error('Failed to fetch notifications');
         }
     }

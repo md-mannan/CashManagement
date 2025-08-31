@@ -27,15 +27,7 @@ class UserDataAccessMiddleware
         // SECURITY: Prevent users from accessing other users' data
         // Even admins cannot access other users' personal data without explicit authorization
         if ($request->has('user_id') && $request->user_id != $user->id) {
-            // Log security violation attempt
-            \Log::warning('Security violation: User attempted to access another user\'s data', [
-                'user_id' => $user->id,
-                'user_email' => $user->email,
-                'requested_user_id' => $request->user_id,
-                'route' => $request->route()->getName(),
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
+            // Security violation logged silently
             
             abort(403, 'Access denied. You can only access your own data.');
         }

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871
+class ComposerStaticInit79f2b617a95eb137f97a99af9efd6884
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
@@ -673,11 +673,14 @@ class ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871
     );
 
     public static $classMap = array (
+        'App\\Console\\Commands\\CheckDatabaseCommand' => __DIR__ . '/../..' . '/app/Console/Commands/CheckDatabaseCommand.php',
+        'App\\Console\\Commands\\CheckProfilePhotosCommand' => __DIR__ . '/../..' . '/app/Console/Commands/CheckProfilePhotosCommand.php',
         'App\\Console\\Commands\\CleanupNotifications' => __DIR__ . '/../..' . '/app/Console/Commands/CleanupNotifications.php',
         'App\\Console\\Commands\\EnvironmentConfigCommand' => __DIR__ . '/../..' . '/app/Console/Commands/EnvironmentConfigCommand.php',
         'App\\Console\\Commands\\EnvironmentDetectCommand' => __DIR__ . '/../..' . '/app/Console/Commands/EnvironmentDetectCommand.php',
         'App\\Console\\Commands\\FixSettlementAmounts' => __DIR__ . '/../..' . '/app/Console/Commands/FixSettlementAmounts.php',
         'App\\Console\\Commands\\FixTransactionTypes' => __DIR__ . '/../..' . '/app/Console/Commands/FixTransactionTypes.php',
+        'App\\Console\\Commands\\TestMailCommand' => __DIR__ . '/../..' . '/app/Console/Commands/TestMailCommand.php',
         'App\\Events\\NotificationDeleted' => __DIR__ . '/../..' . '/app/Events/NotificationDeleted.php',
         'App\\Events\\NotificationRead' => __DIR__ . '/../..' . '/app/Events/NotificationRead.php',
         'App\\Events\\NotificationSent' => __DIR__ . '/../..' . '/app/Events/NotificationSent.php',
@@ -732,10 +735,11 @@ class ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871
         'App\\Models\\Category' => __DIR__ . '/../..' . '/app/Models/Category.php',
         'App\\Models\\ExchangeRate' => __DIR__ . '/../..' . '/app/Models/ExchangeRate.php',
         'App\\Models\\Notification' => __DIR__ . '/../..' . '/app/Models/Notification.php',
-        'App\\Models\\SocialAccount' => __DIR__ . '/../..' . '/app/Models/SocialAccount.php',
+        'App\\Models\\ProfilePhoto' => __DIR__ . '/../..' . '/app/Models/ProfilePhoto.php',
         'App\\Models\\Transaction' => __DIR__ . '/../..' . '/app/Models/Transaction.php',
         'App\\Models\\TransactionType' => __DIR__ . '/../..' . '/app/Models/TransactionType.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
+        'App\\Notifications\\ResetPasswordNotification' => __DIR__ . '/../..' . '/app/Notifications/ResetPasswordNotification.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\DynamicEnvironmentServiceProvider' => __DIR__ . '/../..' . '/app/Providers/DynamicEnvironmentServiceProvider.php',
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
@@ -7959,9 +7963,9 @@ class ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit10b4903dbcaddfb6cf2407d12f4bd871::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit79f2b617a95eb137f97a99af9efd6884::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit79f2b617a95eb137f97a99af9efd6884::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit79f2b617a95eb137f97a99af9efd6884::$classMap;
 
         }, null, ClassLoader::class);
     }

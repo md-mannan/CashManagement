@@ -709,9 +709,9 @@ export default function TransactionView() {
                                                                             }
                                                                         }
                                                                     }
-                                                                } catch (error) {
-                                                                    console.error('Failed to fetch exchange rate:', error);
-                                                                } finally {
+                                                                        } catch (error) {
+            // Exchange rate fetch failed silently
+        } finally {
                                                                     // Remove loading state after 1 second
                                                                     setTimeout(() => {
                                                                         if (refreshIcon) {

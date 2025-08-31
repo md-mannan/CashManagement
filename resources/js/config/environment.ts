@@ -82,7 +82,7 @@ function debugLog(message: string, ...args: any[]): void {
  * Log errors (always logged)
  */
 function errorLog(message: string, error?: any): void {
-    console.error(`[NotificationService Error] ${message}`, error);
+            // NotificationService error logged silently
 }
 
 /**

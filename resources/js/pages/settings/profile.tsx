@@ -185,7 +185,6 @@ export default function Profile({ mustVerifyEmail, status, profilePhotos }: {
                     });
                 })
                 .catch(error => {
-                    console.error('Download failed:', error);
                     addToast({
                         type: 'error',
                         title: 'Download Failed',

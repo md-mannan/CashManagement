@@ -19,7 +19,6 @@ export function useNotifications() {
             setNotifications(response.notifications);
             setUnreadCount(response.unread_count);
         } catch (err) {
-            console.error('Error fetching notifications:', err);
             setError(err instanceof Error ? err.message : 'Failed to fetch notifications');
         } finally {
             setLoading(false);
@@ -35,7 +34,6 @@ export function useNotifications() {
             setUnreadCount(count);
         } catch (err) {
             // Silently fail for unread count updates
-            console.debug('Failed to fetch unread count:', err);
         }
     }, []);
 

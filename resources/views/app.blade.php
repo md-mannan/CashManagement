@@ -77,15 +77,7 @@
                 }
             }
             
-            // Debug: Log the detected files
-            if (config('app.debug')) {
-                \Log::info('Asset loading debug', [
-                    'manifest_exists' => file_exists($manifest),
-                    'appJs' => $appJs,
-                    'appCss' => $appCss,
-                    'manifest_path' => $manifest
-                ]);
-            }
+
         @endphp
         
         @if(isset($appCss))
@@ -97,22 +89,7 @@
         @else
             {{-- Error if production build not found --}}
             <script>
-                console.error('Production build not found. Please run: npm run build');
                 document.body.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;"><h1>Build Error</h1><p>Production build not found. Please run: <code>npm run build</code></p></div>';
-            </script>
-        @endif
-        
-        {{-- Debug output --}}
-        @if(config('app.debug'))
-            <script>
-                console.log('Debug Info:', {
-                    appJs: '{{ $appJs ?? "null" }}',
-                    appCss: '{{ $appCss ?? "null" }}',
-                    manifestPath: '{{ public_path("build/.vite/manifest.json") }}',
-                    manifestExists: {{ file_exists(public_path('build/.vite/manifest.json')) ? 'true' : 'false' }},
-                    appEnv: '{{ config("app.env") }}',
-                    appDebug: {{ config('app.debug') ? 'true' : 'false' }}
-                });
             </script>
         @endif
         

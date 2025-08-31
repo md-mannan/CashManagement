@@ -118,19 +118,12 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         if (!$user) {
-            \Log::warning('Unauthenticated attempt to clear all notifications', [
-                'ip' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-            ]);
+            // Unauthenticated attempt logged silently
             return response()->json(['error' => 'User not authenticated'], 401);
         }
 
         try {
-            // Log the operation start
-            \Log::info('Starting clear all notifications operation', [
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-            ]);
+            // Operation started silently
 
             $deletedCount = $user->notifications()->count();
             
@@ -145,12 +138,7 @@ class NotificationController extends Controller
             // Perform the deletion
             $deleted = $user->notifications()->delete();
             
-            // Log successful operation
-            \Log::info('Successfully cleared all notifications', [
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'deleted_count' => $deletedCount,
-            ]);
+            // Operation completed silently
 
             // Environment-specific response
             $response = [
@@ -171,13 +159,7 @@ class NotificationController extends Controller
             return response()->json($response);
             
         } catch (\Illuminate\Database\QueryException $e) {
-            // Database-specific error handling
-            \Log::error('Database error while clearing notifications', [
-                'user_id' => $user->id,
-                'error' => $e->getMessage(),
-                'sql' => $e->getSql(),
-                'bindings' => $e->getBindings(),
-            ]);
+            // Database error handled silently
 
             $message = app()->environment('production') 
                 ? 'Database error occurred while clearing notifications'
@@ -189,12 +171,7 @@ class NotificationController extends Controller
             ], 500);
             
         } catch (\Exception $e) {
-            // General error handling
-            \Log::error('Unexpected error while clearing notifications', [
-                'user_id' => $user->id,
-                'error' => $e->getMessage(),
-                'trace' => app()->environment('production') ? null : $e->getTraceAsString(),
-            ]);
+            // General error handled silently
 
             $message = app()->environment('production') 
                 ? 'An unexpected error occurred while clearing notifications'

@@ -72,7 +72,6 @@ class WebSocketService {
             this.setupEventListeners();
             this.isConnected = true;
         } catch (error) {
-            console.error('Failed to initialize WebSocket:', error);
             this.isConnected = false;
             this.scheduleReconnect();
         }
@@ -93,7 +92,6 @@ class WebSocketService {
         });
 
         this.echo.connector.pusher.connection.bind('error', (error: any) => {
-            console.error('WebSocket error:', error);
             this.isConnected = false;
             this.scheduleReconnect();
         });
@@ -101,7 +99,6 @@ class WebSocketService {
 
     private scheduleReconnect() {
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.error('Max reconnection attempts reached');
             return;
         }
 
@@ -124,7 +121,6 @@ class WebSocketService {
         try {
             return this.echo.private(`user.${userId}`).listen('.notification.sent', callback);
         } catch (error) {
-            console.error('Error setting up user notification listener:', error);
             return null;
         }
     }
@@ -140,7 +136,6 @@ class WebSocketService {
         try {
             return this.echo.private('admin.notifications').listen('.notification.sent', callback);
         } catch (error) {
-            console.error('Error setting up admin notification listener:', error);
             return null;
         }
     }
@@ -156,7 +151,6 @@ class WebSocketService {
         try {
             return this.echo.private('super-admin.notifications').listen('.notification.sent', callback);
         } catch (error) {
-            console.error('Error setting up super admin notification listener:', error);
             return null;
         }
     }
@@ -179,7 +173,6 @@ class WebSocketService {
 
             return { userChannel, adminChannel };
         } catch (error) {
-            console.error('Error setting up notification read listener:', error);
             return null;
         }
     }
@@ -202,7 +195,6 @@ class WebSocketService {
 
             return { userChannel, adminChannel };
         } catch (error) {
-            console.error('Error setting up notification deleted listener:', error);
             return null;
         }
     }

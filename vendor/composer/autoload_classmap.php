@@ -6,11 +6,14 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Console\\Commands\\CheckDatabaseCommand' => $baseDir . '/app/Console/Commands/CheckDatabaseCommand.php',
+    'App\\Console\\Commands\\CheckProfilePhotosCommand' => $baseDir . '/app/Console/Commands/CheckProfilePhotosCommand.php',
     'App\\Console\\Commands\\CleanupNotifications' => $baseDir . '/app/Console/Commands/CleanupNotifications.php',
     'App\\Console\\Commands\\EnvironmentConfigCommand' => $baseDir . '/app/Console/Commands/EnvironmentConfigCommand.php',
     'App\\Console\\Commands\\EnvironmentDetectCommand' => $baseDir . '/app/Console/Commands/EnvironmentDetectCommand.php',
     'App\\Console\\Commands\\FixSettlementAmounts' => $baseDir . '/app/Console/Commands/FixSettlementAmounts.php',
     'App\\Console\\Commands\\FixTransactionTypes' => $baseDir . '/app/Console/Commands/FixTransactionTypes.php',
+    'App\\Console\\Commands\\TestMailCommand' => $baseDir . '/app/Console/Commands/TestMailCommand.php',
     'App\\Events\\NotificationDeleted' => $baseDir . '/app/Events/NotificationDeleted.php',
     'App\\Events\\NotificationRead' => $baseDir . '/app/Events/NotificationRead.php',
     'App\\Events\\NotificationSent' => $baseDir . '/app/Events/NotificationSent.php',
@@ -65,10 +68,11 @@ return array(
     'App\\Models\\Category' => $baseDir . '/app/Models/Category.php',
     'App\\Models\\ExchangeRate' => $baseDir . '/app/Models/ExchangeRate.php',
     'App\\Models\\Notification' => $baseDir . '/app/Models/Notification.php',
-    'App\\Models\\SocialAccount' => $baseDir . '/app/Models/SocialAccount.php',
+    'App\\Models\\ProfilePhoto' => $baseDir . '/app/Models/ProfilePhoto.php',
     'App\\Models\\Transaction' => $baseDir . '/app/Models/Transaction.php',
     'App\\Models\\TransactionType' => $baseDir . '/app/Models/TransactionType.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
+    'App\\Notifications\\ResetPasswordNotification' => $baseDir . '/app/Notifications/ResetPasswordNotification.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
     'App\\Providers\\DynamicEnvironmentServiceProvider' => $baseDir . '/app/Providers/DynamicEnvironmentServiceProvider.php',
     'App\\Providers\\RouteServiceProvider' => $baseDir . '/app/Providers/RouteServiceProvider.php',

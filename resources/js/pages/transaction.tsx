@@ -276,7 +276,6 @@ export default function Transaction() {
                     });
                 },
                 onError: (errors) => {
-                    console.error('Delete error:', errors);
                     addToast({
                         type: 'error',
                         title: 'Delete Failed!',
@@ -309,7 +308,7 @@ export default function Transaction() {
                 preserveScroll: false,
             });
         } catch (error) {
-            console.error('Route generation error:', error);
+            // Route generation failed silently
         }
     };
 
