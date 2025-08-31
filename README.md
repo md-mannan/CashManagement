@@ -2,7 +2,7 @@
 
 A modern, full-featured financial management application built with Laravel 12 and React 19. Track income, expenses, manage categories, handle multiple currencies, and get real-time notifications with a beautiful, responsive interface.
 
-![Cash Management Dashboard](https://img.shields.io/badge/Laravel-12.x-red?style=flat-square&logo=laravel)
+![Laravel](https://img.shields.io/badge/Laravel-12.x-red?style=flat-square&logo=laravel)
 ![React](https://img.shields.io/badge/React-19.x-blue?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript)
 ![PHP](https://img.shields.io/badge/PHP-8.2+-purple?style=flat-square&logo=php)
@@ -27,355 +27,314 @@ A modern, full-featured financial management application built with Laravel 12 a
 - **Role-based Access Control** - Admin, Super Admin, and User roles
 - **User Management** - Complete user administration panel
 - **Activity Logging** - Comprehensive audit trail
-
 - **Secure Authentication** - Laravel Sanctum with session management
 
-### 🚀 **Technical Excellence**
-- **Dynamic Environment Detection** - Automatic configuration for different hosting types
-- **WebSocket Integration** - Laravel Reverb for real-time features
-- **Modern Frontend** - React 19 with TypeScript and Tailwind CSS
-- **API Ready** - RESTful API endpoints for mobile/external integrations
-- **Testing Suite** - Comprehensive test coverage with Pest PHP
+## 🚀 **cPanel Shared Hosting Deployment**
+
+This guide will walk you through deploying the Cash Management System to any cPanel shared hosting provider.
+
+### **📋 Prerequisites**
+
+Before starting, ensure your cPanel hosting has:
+- ✅ **PHP 8.2 or higher**
+- ✅ **MySQL 8.0 or higher**
+- ✅ **Composer support** (usually available via SSH or cPanel)
+- ✅ **Node.js support** (for building assets)
+- ✅ **Git access** (for cloning the repository)
+
+### **🔧 Step-by-Step Deployment**
+
+#### **Step 1: Prepare Your Local Environment**
+
+```bash
+# Clone the repository to your local machine
+git clone https://github.com/yourusername/cash-management.git
+cd cash-management
+
+# Install PHP dependencies
+composer install --no-dev --optimize-autoloader
+
+# Install Node.js dependencies
+npm install
+
+# Build production assets
+npm run build
+
+# Create production environment file
+cp env-production.example .env
+```
+
+#### **Step 2: Configure Environment Variables**
+
+Edit the `.env` file with your cPanel hosting details:
+
+```env
+# Application Configuration
+APP_NAME="Cash Management System"
+APP_ENV=production
+APP_KEY=base64:your-generated-key
+APP_DEBUG=false
+APP_URL=https://yourdomain.com
+
+# Database Configuration (from cPanel)
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=your_cpanel_database_name
+DB_USERNAME=your_cpanel_database_user
+DB_PASSWORD=your_cpanel_database_password
+
+# Session Configuration
+SESSION_DRIVER=database
+SESSION_LIFETIME=1440
+SESSION_ENCRYPT=true
+SESSION_PATH=/
+SESSION_DOMAIN=.yourdomain.com
+SESSION_SECURE_COOKIE=true
+SESSION_HTTP_ONLY=true
+SESSION_SAME_SITE=lax
+
+# Cache Configuration
+CACHE_STORE=database
+CACHE_PREFIX=cashmanagement_prod
+
+# Mail Configuration
+MAIL_MAILER=smtp
+MAIL_HOST=yourdomain.com
+MAIL_PORT=587
+MAIL_USERNAME=noreply@yourdomain.com
+MAIL_PASSWORD=your_mail_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@yourdomain.com
+MAIL_FROM_NAME="${APP_NAME}"
+
+# Broadcasting Configuration
+BROADCAST_CONNECTION=reverb
+REVERB_APP_ID=your_app_id
+REVERB_APP_KEY=your_app_key
+REVERB_APP_SECRET=your_app_secret
+REVERB_HOST=yourdomain.com
+REVERB_PORT=443
+REVERB_SCHEME=https
+
+# Security Configuration
+FORCE_HTTPS=true
+HSTS_MAX_AGE=31536000
+CONTENT_SECURITY_POLICY=true
+
+# Performance Configuration
+AUTO_DETECT_ENVIRONMENT=true
+AUTO_MIGRATE=false
+AUTO_SEED=false
+
+# Production Optimizations
+OPTIMIZE_AUTOLOADER=true
+VIEW_CACHE_ENABLED=true
+ROUTE_CACHE_ENABLED=true
+CONFIG_CACHE_ENABLED=true
+```
+
+#### **Step 3: Upload Files to cPanel**
+
+**Option A: Using cPanel File Manager**
+1. Log into your cPanel
+2. Open **File Manager**
+3. Navigate to `public_html` (or your domain directory)
+4. Upload all files from the project folder
+5. **Important:** Ensure the `public` folder contents are in the root of your domain
+
+**Option B: Using FTP/SFTP**
+1. Use an FTP client (FileZilla, WinSCP, etc.)
+2. Connect to your hosting server
+3. Upload all project files to your domain directory
+4. Ensure `public` folder contents are in the root
+
+**Option C: Using Git (if available)**
+```bash
+# SSH into your hosting (if SSH access is available)
+ssh username@yourdomain.com
+
+# Navigate to your domain directory
+cd public_html
+
+# Clone the repository
+git clone https://github.com/yourusername/cash-management.git .
+
+# Install dependencies and build
+composer install --no-dev --optimize-autoloader
+npm install
+npm run build
+```
+
+#### **Step 4: Set Up Database**
+
+1. **Create Database in cPanel:**
+   - Go to **MySQL Databases** in cPanel
+   - Create a new database
+   - Create a database user
+   - Assign the user to the database with **ALL PRIVILEGES**
+
+2. **Run Database Migrations:**
+   ```bash
+   # Via SSH (if available)
+   php artisan migrate --force
+   php artisan db:seed --force
+   
+   # OR via browser (if SSH not available)
+   # Visit: https://yourdomain.com/migrate
+   ```
+
+#### **Step 5: Configure File Permissions**
+
+Set the following permissions via cPanel File Manager:
+- `storage/` → **755** (or **775**)
+- `bootstrap/cache/` → **755** (or **775**)
+- `public/build/` → **755**
+- `.env` → **644**
+
+#### **Step 6: Generate Application Key**
+
+```bash
+# Via SSH
+php artisan key:generate
+
+# OR manually add to .env file
+APP_KEY=base64:your-32-character-key-here
+```
+
+#### **Step 7: Create Storage Link**
+
+```bash
+# Via SSH
+php artisan storage:link
+
+# OR manually create symlink in public_html
+# Link: storage/app/public → public/storage
+```
+
+#### **Step 8: Clear and Cache Configuration**
+
+```bash
+# Via SSH
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+#### **Step 9: Test Your Installation**
+
+1. Visit your domain: `https://yourdomain.com`
+2. You should see the welcome page
+3. Try registering a new account
+4. Test the login functionality
+
+### **🔧 Troubleshooting Common Issues**
+
+#### **Issue: White Screen or 500 Error**
+**Solution:**
+1. Check `.env` file exists and is readable
+2. Verify database credentials
+3. Check PHP version (must be 8.2+)
+4. Enable error reporting temporarily:
+   ```env
+   APP_DEBUG=true
+   ```
+
+#### **Issue: Assets Not Loading**
+**Solution:**
+1. Ensure `public/build/` folder exists
+2. Check file permissions on `public/build/`
+3. Verify `.htaccess` file is present in root
+4. Clear browser cache
+
+#### **Issue: Database Connection Error**
+**Solution:**
+1. Verify database credentials in `.env`
+2. Check if database exists in cPanel
+3. Ensure database user has proper privileges
+4. Try connecting via phpMyAdmin
+
+#### **Issue: Permission Denied Errors**
+**Solution:**
+1. Set proper permissions on `storage/` and `bootstrap/cache/`
+2. Check if your hosting supports the required PHP functions
+3. Contact hosting support if needed
+
+#### **Issue: Mail Not Working**
+**Solution:**
+1. Configure SMTP settings in `.env`
+2. Use your hosting provider's SMTP settings
+3. Test with a simple mail function first
+
+### **🔒 Security Checklist**
+
+After deployment, ensure:
+- ✅ `APP_DEBUG=false` in production
+- ✅ `APP_ENV=production`
+- ✅ Database credentials are secure
+- ✅ File permissions are properly set
+- ✅ HTTPS is enabled
+- ✅ `.env` file is not publicly accessible
+
+### **📱 Post-Deployment**
+
+#### **Create Admin Account**
+1. Register a regular account
+2. Access your database via phpMyAdmin
+3. Find the `users` table
+4. Change the user's `role` to `admin` or `super_admin`
+
+#### **Configure Email**
+1. Set up SMTP in `.env`
+2. Test password reset functionality
+3. Configure email notifications
+
+#### **Backup Strategy**
+1. Set up regular database backups
+2. Backup your `.env` file
+3. Consider using cPanel's backup feature
+
+### **🚀 Performance Optimization**
+
+#### **Enable Caching**
+```bash
+# Via SSH
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+#### **Optimize Assets**
+- Assets are already optimized in the build
+- Consider using a CDN for static files
+- Enable Gzip compression in cPanel
+
+#### **Database Optimization**
+- Regular database maintenance
+- Monitor slow queries
+- Use proper indexing
 
 ## 🛠️ **Technology Stack**
 
-### **Backend**
-- **Laravel 12** - Modern PHP framework
-- **PHP 8.2+** - Latest PHP features
-- **MySQL 8.0** - Reliable database
-- **Laravel Reverb** - Real-time WebSocket server
-- **Inertia.js** - SPA-like experience without API complexity
-
-### **Frontend**
-- **React 19** - Latest React with concurrent features
-- **TypeScript 5.7** - Type-safe JavaScript
-- **Tailwind CSS 4.0** - Utility-first CSS framework
-- **Vite 7** - Fast build tool and dev server
-- **Shadcn/ui** - Beautiful, accessible UI components
-
-### **Development Tools**
-- **Pest PHP** - Modern PHP testing framework
-- **ESLint** - JavaScript/TypeScript linting
-- **Prettier** - Code formatting
-- **Laravel Pint** - PHP code style fixer
-- **Concurrently** - Run multiple dev servers
-
-## 🚀 **Quick Start**
-
-### **Prerequisites**
-- PHP 8.2 or higher
-- MySQL 8.0 or higher  
-- Composer 2.0+
-- Node.js 18+ and npm
-- Git
-
-### **Installation**
-
-#### 🖥️ **Local Development**
-```bash
-# Clone the repository
-git clone <repository-url>
-cd CashManagement
-
-# Quick setup with local template
-cp env-local.example .env
-composer install && npm install
-php artisan key:generate && php artisan migrate --seed
-
-# Start development servers
-composer run dev
-# OR manually:
-php artisan serve & npm run dev & php artisan reverb:start
-```
-
-#### 🌐 **Production Deployment**
-```bash
-# Clone the repository
-git clone <repository-url>
-cd CashManagement
-
-# Production setup
-cp env-production.example .env
-# Edit .env with your production values
-composer install --no-dev --optimize-autoloader
-npm ci && npm run build
-php artisan key:generate && php artisan migrate --force
-cp public/.htaccess.production public/.htaccess
-```
-
-#### 🏠 **cPanel/Shared Hosting**
-```bash
-# Prepare files locally
-composer install --no-dev --optimize-autoloader
-npm ci && npm run build
-
-# Upload to cPanel and configure
-cp env-cpanel.example .env
-# Edit .env with your cPanel database details
-cp public/.htaccess.cpanel public/.htaccess
-# Run setup via browser or SSH
-```
-
-**Development servers include:**
-- Laravel development server (http://localhost:8000)
-- Vite development server (hot reloading)
-- WebSocket server for real-time features
-- Queue worker for background jobs
-
-## 📖 **Documentation**
-
-### **Setup Guides**
-- 📚 [**Local Development Guide**](LOCAL_DEVELOPMENT.md) - Complete local development setup
-- 🚀 [**Production Deployment Guide**](PRODUCTION_DEPLOYMENT.md) - Step-by-step production deployment
-- 🏠 [**cPanel/Shared Hosting Guide**](CPANEL_DEPLOYMENT.md) - Deploy to cPanel shared hosting
-- 🔧 [**Environment Configuration Guide**](NOTIFICATION_PRODUCTION_GUIDE.md) - Environment-aware features
-
-### **Key Features Documentation**
-
-#### **Dynamic Environment System**
-Automatically detects and configures your environment:
-
-```bash
-# Detect current environment
-php artisan env:detect
-
-# Generate optimized .env file
-php artisan env:config --generate --force
-```
-
-**Supported Environments:**
-- **Local Development** - Optimized for development with debug tools
-- **Shared Hosting** - cPanel/Plesk compatible with database sessions
-- **VPS/Dedicated** - Full server control with Redis caching
-- **Cloud Platforms** - AWS/GCP/Azure with managed services
-
-#### **WebSocket Real-time Features**
-Laravel Reverb provides real-time functionality:
-
-```bash
-# Start WebSocket server
-php artisan reverb:start
-```
-
-**Real-time Features:**
-- Live notifications
-- Transaction updates
-- User activity tracking
-- Admin dashboard updates
-
-## 🎨 **User Interface**
-
-### **Dashboard Features**
-- **Financial Overview** - Income, expenses, balance at a glance
-- **Transaction History** - Searchable and filterable transaction list
-- **Category Analytics** - Visual breakdown by categories
-- **Currency Exchange** - Real-time exchange rate display
-- **Quick Actions** - Fast transaction entry
-
-### **Admin Panel**
-- **User Management** - Create, edit, delete users and roles
-- **System Settings** - Application configuration
-- **Activity Logs** - Comprehensive audit trail
-- **Database Management** - Backup and restore functionality
-- **Analytics Dashboard** - System-wide financial analytics
-
-### **Responsive Design**
-- **Mobile First** - Optimized for mobile devices
-- **Tablet Support** - Perfect tablet experience
-- **Desktop Enhanced** - Full desktop functionality
-- **Touch Friendly** - Gesture support for mobile interactions
-
-## 🔧 **Configuration**
-
-### **Environment Variables**
-
-```env
-# Application
-APP_NAME="Cash Management"
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-# Database
-DB_CONNECTION=mysql
-DB_DATABASE=cashmanagement_local
-DB_USERNAME=root
-DB_PASSWORD=
-
-# WebSockets (Laravel Reverb)
-BROADCAST_CONNECTION=reverb
-REVERB_APP_KEY=your-reverb-key
-REVERB_HOST="localhost"
-REVERB_PORT=8080
-
-# Mail Configuration
-MAIL_MAILER=log  # or smtp for production
-
-
-```
-
-### **Customization Options**
-
-**Themes:** Neutral (default), Violet
-**Appearance:** Light, Dark, System
-**Currency:** Multiple currency support with real-time rates
-**Localization:** Ready for multi-language support
-
-## 🧪 **Testing**
-
-### **Backend Testing**
-```bash
-# Run all tests
-php artisan test
-
-# Run with coverage
-php artisan test --coverage
-
-# Run specific test suite
-php artisan test --testsuite=Feature
-```
-
-### **Frontend Testing**
-```bash
-# Type checking
-npm run types
-
-# Linting
-npm run lint
-
-# Format code
-npm run format
-```
-
-### **Test Coverage**
-- **Feature Tests** - Complete user workflows
-- **Unit Tests** - Individual component testing
-- **API Tests** - Endpoint validation
-- **Authentication Tests** - Security verification
-
-## 📊 **Performance**
-
-### **Optimization Features**
-- **Laravel Caching** - Config, route, and view caching
-- **Database Optimization** - Efficient queries and indexing
-- **Asset Optimization** - Vite build optimization
-- **Lazy Loading** - Frontend component lazy loading
-- **Image Optimization** - Responsive image handling
-
-### **Production Performance**
-- **OPcache** - PHP bytecode caching
-- **Redis** - Session and cache storage (VPS/Cloud)
-- **CDN Ready** - Static asset distribution
-- **Database Indexing** - Optimized database queries
-
-## 🔐 **Security**
-
-### **Security Features**
-- **CSRF Protection** - Cross-site request forgery prevention
-- **XSS Protection** - Cross-site scripting prevention
-- **SQL Injection Prevention** - Parameterized queries
-- **Rate Limiting** - API and login attempt limiting
-- **Secure Headers** - Security headers implementation
-
-### **Authentication**
-- **Multi-factor Ready** - Prepared for 2FA implementation
-
-- **Password Security** - Bcrypt hashing with salt
-- **Session Security** - Secure session management
-
-## 🌍 **Deployment**
-
-### **Supported Hosting Types**
-
-**Shared Hosting (cPanel)**
-- Automatic detection and configuration
-- Database session storage for reliability
-- Optimized for shared hosting limitations
-
-**VPS/Dedicated Servers**
-- Full server control features
-- Redis caching support
-- Background job processing
-
-**Cloud Platforms**
-- AWS, Google Cloud, Azure support
-- Managed service integration
-- Auto-scaling ready
-
-## 📈 **Roadmap**
-
-### **Upcoming Features**
-- [ ] **Mobile App** - React Native companion app
-- [ ] **Multi-language Support** - Internationalization
-- [ ] **Advanced Reporting** - Custom report builder
-- [ ] **Budget Planning** - Budget creation and tracking
-- [ ] **Receipt Scanning** - OCR receipt processing
-- [ ] **Bank Integration** - Direct bank account connectivity
-- [ ] **Investment Tracking** - Portfolio management
-- [ ] **Team Collaboration** - Multi-user workspace
-
-### **Technical Improvements**
-- [ ] **GraphQL API** - Alternative to REST API
-- [ ] **PWA Support** - Progressive Web App features
-- [ ] **Offline Mode** - Local data synchronization
-- [ ] **Advanced Analytics** - Machine learning insights
-- [ ] **Microservices** - Service-oriented architecture
-
-## 🤝 **Contributing**
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
-3. **Make your changes**
-4. **Add tests** for new functionality
-5. **Run the test suite** (`php artisan test && npm run lint`)
-6. **Commit your changes** (`git commit -m 'Add amazing feature'`)
-7. **Push to the branch** (`git push origin feature/amazing-feature`)
-8. **Open a Pull Request**
-
-### **Development Guidelines**
-- Follow PSR-12 PHP coding standards
-- Use TypeScript for all frontend code
-- Write tests for new features
-- Update documentation as needed
-- Follow conventional commit messages
+- **Backend:** Laravel 12, PHP 8.2+, MySQL 8.0
+- **Frontend:** React 19, TypeScript 5.7, Tailwind CSS 4.0
+- **Build Tool:** Vite 7
+- **Real-time:** Laravel Reverb WebSockets
+- **UI Components:** Shadcn/ui
 
 ## 📄 **License**
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## 🆘 **Support**
 
-### **Getting Help**
-- **Documentation** - Check the guides in this repository
-- **Issues** - Report bugs or request features via GitHub Issues
-- **Discussions** - Community discussions and Q&A
-
-### **Common Issues**
-- **CORS Errors** - Check production setup guide
-- **Database Connection** - Verify MySQL credentials
-- **Asset Loading** - Ensure build files are present
-- **WebSocket Issues** - Check Reverb server status
-
-## 🏆 **Acknowledgments**
-
-### **Built With**
-- [Laravel](https://laravel.com) - The PHP framework for web artisans
-- [React](https://react.dev) - A JavaScript library for building user interfaces
-- [Inertia.js](https://inertiajs.com) - The modern monolith
-- [Tailwind CSS](https://tailwindcss.com) - A utility-first CSS framework
-- [Shadcn/ui](https://ui.shadcn.com) - Beautifully designed components
-
-### **Special Thanks**
-- Laravel community for the excellent framework
-- React team for the powerful UI library
-- All contributors and testers
+If you encounter issues:
+1. Check the troubleshooting section above
+2. Verify your hosting meets the requirements
+3. Contact your hosting provider for server-specific issues
+4. Check the Laravel and React documentation
 
 ---
-
-## 🚀 **Get Started Today**
-
-Ready to take control of your finances? Follow our [Local Development Guide](LOCAL_DEVELOPMENT.md) to get started, or check out the [Production Setup Guide](PRODUCTION_SETUP.md) to deploy your own instance.
 
 **Happy financial management! 💰**
