@@ -32,6 +32,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\ExchangeRateController as ApiExchangeRateController;
 use App\Http\Controllers\NotificationController;
+use Illuminate\Http\Middleware\ValidatePostSize;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -232,7 +233,10 @@ Route::middleware(['auth', 'verified', 'user.data.access'])->group(function () {
 // Gallery routes with basic auth middleware
 Route::middleware('auth')->group(function () {
     Route::get('gallery', [GalleryController::class, 'index'])->name('gallery');
-    Route::post('gallery/upload', [GalleryController::class, 'upload'])->name('gallery.upload');
+    Route::post('gallery/upload', [GalleryController::class, 'upload'])
+        ->name('gallery.upload')
+        ->withoutMiddleware(\Illuminate\Http\Middleware\ValidatePostSize::class)
+        ->middleware('large.file.upload');
     Route::delete('gallery/{media}', [GalleryController::class, 'destroy'])->name('gallery.delete');
 });
 

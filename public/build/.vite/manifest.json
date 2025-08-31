@@ -1,0 +1,2827 @@
+{
+  "_admin-route-guard-legacy.js": {
+    "file": "assets/admin-route-guard-legacy.js",
+    "name": "admin-route-guard",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js"
+    ]
+  },
+  "_admin-route-guard.js": {
+    "file": "assets/admin-route-guard.js",
+    "name": "admin-route-guard",
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js"
+    ]
+  },
+  "_alert-legacy.js": {
+    "file": "assets/alert-legacy.js",
+    "name": "alert",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_alert.js": {
+    "file": "assets/alert.js",
+    "name": "alert",
+    "imports": [
+      "_ui-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_app-layout-legacy.js": {
+    "file": "assets/app-layout-legacy.js",
+    "name": "app-layout",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_button-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_icons-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "_app-layout.js": {
+    "file": "assets/app-layout.js",
+    "name": "app-layout",
+    "imports": [
+      "_ui-vendor.js",
+      "_utils-vendor.js",
+      "_button.js",
+      "resources/js/app.tsx",
+      "_icons-vendor.js",
+      "_inertia-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "_app-logo-icon-legacy.js": {
+    "file": "assets/app-logo-icon-legacy.js",
+    "name": "app-logo-icon",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_icons-vendor-legacy.js"
+    ]
+  },
+  "_app-logo-icon.js": {
+    "file": "assets/app-logo-icon.js",
+    "name": "app-logo-icon",
+    "imports": [
+      "_ui-vendor.js",
+      "_icons-vendor.js"
+    ]
+  },
+  "_assign-legacy.js": {
+    "file": "assets/assign-legacy.js",
+    "name": "assign",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_assign.js": {
+    "file": "assets/assign.js",
+    "name": "assign",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_auth-layout-legacy.js": {
+    "file": "assets/auth-layout-legacy.js",
+    "name": "auth-layout",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_inertia-vendor-legacy.js"
+    ]
+  },
+  "_auth-layout.js": {
+    "file": "assets/auth-layout.js",
+    "name": "auth-layout",
+    "imports": [
+      "_ui-vendor.js",
+      "_app-logo-icon.js",
+      "_inertia-vendor.js"
+    ]
+  },
+  "_badge-legacy.js": {
+    "file": "assets/badge-legacy.js",
+    "name": "badge",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_badge.js": {
+    "file": "assets/badge.js",
+    "name": "badge",
+    "imports": [
+      "_ui-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_button-legacy.js": {
+    "file": "assets/button-legacy.js",
+    "name": "button",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_button.js": {
+    "file": "assets/button.js",
+    "name": "button",
+    "imports": [
+      "_ui-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_card-legacy.js": {
+    "file": "assets/card-legacy.js",
+    "name": "card",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_card.js": {
+    "file": "assets/card.js",
+    "name": "card",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_chart-config-legacy.js": {
+    "file": "assets/chart-config-legacy.js",
+    "name": "chart-config",
+    "imports": [
+      "_charts-vendor-legacy.js"
+    ]
+  },
+  "_chart-config.js": {
+    "file": "assets/chart-config.js",
+    "name": "chart-config",
+    "imports": [
+      "_charts-vendor.js"
+    ]
+  },
+  "_charts-vendor-legacy.js": {
+    "file": "assets/charts-vendor-legacy.js",
+    "name": "charts-vendor",
+    "imports": [
+      "_ui-vendor-legacy.js"
+    ]
+  },
+  "_charts-vendor.js": {
+    "file": "assets/charts-vendor.js",
+    "name": "charts-vendor",
+    "imports": [
+      "_ui-vendor.js"
+    ]
+  },
+  "_checkbox-legacy.js": {
+    "file": "assets/checkbox-legacy.js",
+    "name": "checkbox",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_icons-vendor-legacy.js"
+    ]
+  },
+  "_checkbox.js": {
+    "file": "assets/checkbox.js",
+    "name": "checkbox",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx",
+      "_icons-vendor.js"
+    ]
+  },
+  "_custom-date-input-legacy.js": {
+    "file": "assets/custom-date-input-legacy.js",
+    "name": "custom-date-input",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_input-legacy.js",
+      "_icons-vendor-legacy.js"
+    ]
+  },
+  "_custom-date-input.js": {
+    "file": "assets/custom-date-input.js",
+    "name": "custom-date-input",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx",
+      "_input.js",
+      "_icons-vendor.js"
+    ]
+  },
+  "_dialog-legacy.js": {
+    "file": "assets/dialog-legacy.js",
+    "name": "dialog",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_icons-vendor-legacy.js"
+    ]
+  },
+  "_dialog.js": {
+    "file": "assets/dialog.js",
+    "name": "dialog",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx",
+      "_icons-vendor.js"
+    ]
+  },
+  "_ends-with-legacy.js": {
+    "file": "assets/ends-with-legacy.js",
+    "name": "ends-with",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_ends-with.js": {
+    "file": "assets/ends-with.js",
+    "name": "ends-with",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_entry-unbind-legacy.js": {
+    "file": "assets/entry-unbind-legacy.js",
+    "name": "entry-unbind",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_entry-unbind.js": {
+    "file": "assets/entry-unbind.js",
+    "name": "entry-unbind",
+    "imports": [
+      "resources/js/app.tsx"
+    ]
+  },
+  "_exchangeRateService-legacy.js": {
+    "file": "assets/exchangeRateService-legacy.js",
+    "name": "exchangeRateService"
+  },
+  "_exchangeRateService.js": {
+    "file": "assets/exchangeRateService.js",
+    "name": "exchangeRateService"
+  },
+  "_export-vendor-legacy.js": {
+    "file": "assets/export-vendor-legacy.js",
+    "name": "export-vendor"
+  },
+  "_export-vendor.js": {
+    "file": "assets/export-vendor.js",
+    "name": "export-vendor"
+  },
+  "_find-index-legacy.js": {
+    "file": "assets/find-index-legacy.js",
+    "name": "find-index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_find-index.js": {
+    "file": "assets/find-index.js",
+    "name": "find-index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_find-legacy.js": {
+    "file": "assets/find-legacy.js",
+    "name": "find",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_find.js": {
+    "file": "assets/find.js",
+    "name": "find",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_heading-small-legacy.js": {
+    "file": "assets/heading-small-legacy.js",
+    "name": "heading-small",
+    "imports": [
+      "_ui-vendor-legacy.js"
+    ]
+  },
+  "_heading-small.js": {
+    "file": "assets/heading-small.js",
+    "name": "heading-small",
+    "imports": [
+      "_ui-vendor.js"
+    ]
+  },
+  "_headless-vendor-legacy.js": {
+    "file": "assets/headless-vendor-legacy.js",
+    "name": "headless-vendor",
+    "imports": [
+      "_ui-vendor-legacy.js"
+    ]
+  },
+  "_headless-vendor.js": {
+    "file": "assets/headless-vendor.js",
+    "name": "headless-vendor",
+    "imports": [
+      "_ui-vendor.js"
+    ]
+  },
+  "_icons-vendor-legacy.js": {
+    "file": "assets/icons-vendor-legacy.js",
+    "name": "icons-vendor",
+    "imports": [
+      "_ui-vendor-legacy.js"
+    ]
+  },
+  "_icons-vendor.js": {
+    "file": "assets/icons-vendor.js",
+    "name": "icons-vendor",
+    "imports": [
+      "_ui-vendor.js"
+    ]
+  },
+  "_includes-legacy.js": {
+    "file": "assets/includes-legacy.js",
+    "name": "includes",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_includes-legacy2.js": {
+    "file": "assets/includes-legacy2.js",
+    "name": "includes",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_includes.js": {
+    "file": "assets/includes.js",
+    "name": "includes",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_includes2.js": {
+    "file": "assets/includes2.js",
+    "name": "includes",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_index-legacy.js": {
+    "file": "assets/index-legacy.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_index-legacy2.js": {
+    "file": "assets/index-legacy2.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "_url-search-params-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_index-legacy3.js": {
+    "file": "assets/index-legacy3.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "_url-search-params-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_index.js": {
+    "file": "assets/index.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_index2.js": {
+    "file": "assets/index2.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "_url-search-params.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_index3.js": {
+    "file": "assets/index3.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "_url-search-params.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_inertia-vendor-legacy.js": {
+    "file": "assets/inertia-vendor-legacy.js",
+    "name": "inertia-vendor",
+    "imports": [
+      "_react-vendor-legacy.js",
+      "_ui-vendor-legacy.js"
+    ]
+  },
+  "_inertia-vendor.js": {
+    "file": "assets/inertia-vendor.js",
+    "name": "inertia-vendor",
+    "imports": [
+      "_react-vendor.js",
+      "_ui-vendor.js"
+    ]
+  },
+  "_input-error-legacy.js": {
+    "file": "assets/input-error-legacy.js",
+    "name": "input-error",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_input-error.js": {
+    "file": "assets/input-error.js",
+    "name": "input-error",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_input-legacy.js": {
+    "file": "assets/input-legacy.js",
+    "name": "input",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_input.js": {
+    "file": "assets/input.js",
+    "name": "input",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_intersection-observer-legacy.js": {
+    "file": "assets/intersection-observer-legacy.js",
+    "name": "intersection-observer",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js"
+    ]
+  },
+  "_intersection-observer.js": {
+    "file": "assets/intersection-observer.js",
+    "name": "intersection-observer",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js"
+    ]
+  },
+  "_label-legacy.js": {
+    "file": "assets/label-legacy.js",
+    "name": "label",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_label.js": {
+    "file": "assets/label.js",
+    "name": "label",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_layout-legacy.js": {
+    "file": "assets/layout-legacy.js",
+    "name": "layout",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_inertia-vendor-legacy.js"
+    ]
+  },
+  "_layout.js": {
+    "file": "assets/layout.js",
+    "name": "layout",
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_separator.js",
+      "resources/js/app.tsx",
+      "_inertia-vendor.js"
+    ]
+  },
+  "_react-vendor-legacy.js": {
+    "file": "assets/react-vendor-legacy.js",
+    "name": "react-vendor"
+  },
+  "_react-vendor.js": {
+    "file": "assets/react-vendor.js",
+    "name": "react-vendor"
+  },
+  "_select-legacy.js": {
+    "file": "assets/select-legacy.js",
+    "name": "select",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_icons-vendor-legacy.js"
+    ]
+  },
+  "_select.js": {
+    "file": "assets/select.js",
+    "name": "select",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx",
+      "_icons-vendor.js"
+    ]
+  },
+  "_separator-legacy.js": {
+    "file": "assets/separator-legacy.js",
+    "name": "separator",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_separator.js": {
+    "file": "assets/separator.js",
+    "name": "separator",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_starts-with-legacy.js": {
+    "file": "assets/starts-with-legacy.js",
+    "name": "starts-with",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_entry-unbind-legacy.js"
+    ]
+  },
+  "_starts-with.js": {
+    "file": "assets/starts-with.js",
+    "name": "starts-with",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_entry-unbind.js"
+    ]
+  },
+  "_table-legacy.js": {
+    "file": "assets/table-legacy.js",
+    "name": "table",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_table.js": {
+    "file": "assets/table.js",
+    "name": "table",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_tabs-legacy.js": {
+    "file": "assets/tabs-legacy.js",
+    "name": "tabs",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_tabs.js": {
+    "file": "assets/tabs.js",
+    "name": "tabs",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_text-link-legacy.js": {
+    "file": "assets/text-link-legacy.js",
+    "name": "text-link",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_inertia-vendor-legacy.js"
+    ]
+  },
+  "_text-link.js": {
+    "file": "assets/text-link.js",
+    "name": "text-link",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx",
+      "_inertia-vendor.js"
+    ]
+  },
+  "_textarea-legacy.js": {
+    "file": "assets/textarea-legacy.js",
+    "name": "textarea",
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_textarea.js": {
+    "file": "assets/textarea.js",
+    "name": "textarea",
+    "imports": [
+      "_ui-vendor.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_ui-vendor-legacy.js": {
+    "file": "assets/ui-vendor-legacy.js",
+    "name": "ui-vendor",
+    "imports": [
+      "_react-vendor-legacy.js"
+    ]
+  },
+  "_ui-vendor.js": {
+    "file": "assets/ui-vendor.js",
+    "name": "ui-vendor",
+    "imports": [
+      "_react-vendor.js"
+    ]
+  },
+  "_url-search-params-legacy.js": {
+    "file": "assets/url-search-params-legacy.js",
+    "name": "url-search-params",
+    "imports": [
+      "resources/js/app-legacy.tsx"
+    ]
+  },
+  "_url-search-params.js": {
+    "file": "assets/url-search-params.js",
+    "name": "url-search-params",
+    "imports": [
+      "resources/js/app.tsx"
+    ]
+  },
+  "_utils-vendor-legacy.js": {
+    "file": "assets/utils-vendor-legacy.js",
+    "name": "utils-vendor"
+  },
+  "_utils-vendor.js": {
+    "file": "assets/utils-vendor.js",
+    "name": "utils-vendor"
+  },
+  "node_modules/@juggle/resize-observer/lib/exports/resize-observer-legacy.js": {
+    "file": "assets/resize-observer-legacy.js",
+    "name": "resize-observer",
+    "src": "node_modules/@juggle/resize-observer/lib/exports/resize-observer-legacy.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/@juggle/resize-observer/lib/exports/resize-observer.js": {
+    "file": "assets/resize-observer.js",
+    "name": "resize-observer",
+    "src": "node_modules/@juggle/resize-observer/lib/exports/resize-observer.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/whatwg-fetch/fetch-legacy.js": {
+    "file": "assets/fetch-legacy.js",
+    "name": "fetch",
+    "src": "node_modules/whatwg-fetch/fetch-legacy.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/whatwg-fetch/fetch.js": {
+    "file": "assets/fetch.js",
+    "name": "fetch",
+    "src": "node_modules/whatwg-fetch/fetch.js",
+    "isDynamicEntry": true
+  },
+  "resources/js/app-legacy.tsx": {
+    "file": "assets/app-legacy.js",
+    "name": "app",
+    "src": "resources/js/app-legacy.tsx",
+    "isEntry": true,
+    "imports": [
+      "_export-vendor-legacy.js",
+      "_ui-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_utils-vendor-legacy.js"
+    ],
+    "dynamicImports": [
+      "node_modules/whatwg-fetch/fetch-legacy.js",
+      "_index-legacy.js",
+      "_assign-legacy.js",
+      "_includes-legacy.js",
+      "_find-legacy.js",
+      "_find-index-legacy.js",
+      "_includes-legacy2.js",
+      "_starts-with-legacy.js",
+      "_ends-with-legacy.js",
+      "_index-legacy2.js",
+      "_index-legacy3.js",
+      "_intersection-observer-legacy.js",
+      "node_modules/@juggle/resize-observer/lib/exports/resize-observer-legacy.js",
+      "resources/js/pages/About-legacy.tsx",
+      "resources/js/pages/Features-legacy.tsx",
+      "resources/js/pages/Gallery-legacy.tsx",
+      "resources/js/pages/Welcome-legacy.tsx",
+      "resources/js/pages/add-transaction-legacy.tsx",
+      "resources/js/pages/admin/activity-log-view-legacy.tsx",
+      "resources/js/pages/admin/activity-logs-legacy.tsx",
+      "resources/js/pages/admin/analytics-legacy.tsx",
+      "resources/js/pages/admin/backup-legacy.tsx",
+      "resources/js/pages/admin/dashboard-legacy.tsx",
+      "resources/js/pages/admin/database-legacy.tsx",
+      "resources/js/pages/admin/notification-detail-legacy.tsx",
+      "resources/js/pages/admin/notifications-legacy.tsx",
+      "resources/js/pages/admin/role-permission-legacy.tsx",
+      "resources/js/pages/admin/super-admin-legacy.tsx",
+      "resources/js/pages/admin/system-audit-legacy.tsx",
+      "resources/js/pages/admin/system-health-legacy.tsx",
+      "resources/js/pages/admin/system-settings-legacy.tsx",
+      "resources/js/pages/admin/user-management-legacy.tsx",
+      "resources/js/pages/admin/user-profile-legacy.tsx",
+      "resources/js/pages/auth/confirm-password-legacy.tsx",
+      "resources/js/pages/auth/forgot-password-legacy.tsx",
+      "resources/js/pages/auth/login-legacy.tsx",
+      "resources/js/pages/auth/register-legacy.tsx",
+      "resources/js/pages/auth/reset-password-legacy.tsx",
+      "resources/js/pages/auth/verify-email-legacy.tsx",
+      "resources/js/pages/categories-legacy.tsx",
+      "resources/js/pages/dashboard-legacy.tsx",
+      "resources/js/pages/ledger-legacy.tsx",
+      "resources/js/pages/notifications-legacy.tsx",
+      "resources/js/pages/settings/appearance-legacy.tsx",
+      "resources/js/pages/settings/currency-legacy.tsx",
+      "resources/js/pages/settings/exchange-rate-legacy.tsx",
+      "resources/js/pages/settings/password-legacy.tsx",
+      "resources/js/pages/settings/profile-legacy.tsx",
+      "resources/js/pages/transaction-edit-legacy.tsx",
+      "resources/js/pages/transaction-view-legacy.tsx",
+      "resources/js/pages/transaction-legacy.tsx",
+      "resources/js/pages/transactions/add-expense-legacy.tsx",
+      "resources/js/pages/transactions/add-income-legacy.tsx",
+      "resources/js/pages/transactions/add-payable-legacy.tsx",
+      "resources/js/pages/transactions/add-receivable-legacy.tsx"
+    ]
+  },
+  "resources/js/app.tsx": {
+    "file": "assets/app.js",
+    "name": "app",
+    "src": "resources/js/app.tsx",
+    "isEntry": true,
+    "imports": [
+      "_export-vendor.js",
+      "_ui-vendor.js",
+      "_react-vendor.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_utils-vendor.js"
+    ],
+    "dynamicImports": [
+      "node_modules/whatwg-fetch/fetch.js",
+      "_index.js",
+      "_assign.js",
+      "_includes.js",
+      "_find.js",
+      "_find-index.js",
+      "_includes2.js",
+      "_starts-with.js",
+      "_ends-with.js",
+      "_index2.js",
+      "_index3.js",
+      "_intersection-observer.js",
+      "node_modules/@juggle/resize-observer/lib/exports/resize-observer.js",
+      "resources/js/pages/About.tsx",
+      "resources/js/pages/Features.tsx",
+      "resources/js/pages/Gallery.tsx",
+      "resources/js/pages/Welcome.tsx",
+      "resources/js/pages/add-transaction.tsx",
+      "resources/js/pages/admin/activity-log-view.tsx",
+      "resources/js/pages/admin/activity-logs.tsx",
+      "resources/js/pages/admin/analytics.tsx",
+      "resources/js/pages/admin/backup.tsx",
+      "resources/js/pages/admin/dashboard.tsx",
+      "resources/js/pages/admin/database.tsx",
+      "resources/js/pages/admin/notification-detail.tsx",
+      "resources/js/pages/admin/notifications.tsx",
+      "resources/js/pages/admin/role-permission.tsx",
+      "resources/js/pages/admin/super-admin.tsx",
+      "resources/js/pages/admin/system-audit.tsx",
+      "resources/js/pages/admin/system-health.tsx",
+      "resources/js/pages/admin/system-settings.tsx",
+      "resources/js/pages/admin/user-management.tsx",
+      "resources/js/pages/admin/user-profile.tsx",
+      "resources/js/pages/auth/confirm-password.tsx",
+      "resources/js/pages/auth/forgot-password.tsx",
+      "resources/js/pages/auth/login.tsx",
+      "resources/js/pages/auth/register.tsx",
+      "resources/js/pages/auth/reset-password.tsx",
+      "resources/js/pages/auth/verify-email.tsx",
+      "resources/js/pages/categories.tsx",
+      "resources/js/pages/dashboard.tsx",
+      "resources/js/pages/ledger.tsx",
+      "resources/js/pages/notifications.tsx",
+      "resources/js/pages/settings/appearance.tsx",
+      "resources/js/pages/settings/currency.tsx",
+      "resources/js/pages/settings/exchange-rate.tsx",
+      "resources/js/pages/settings/password.tsx",
+      "resources/js/pages/settings/profile.tsx",
+      "resources/js/pages/transaction-edit.tsx",
+      "resources/js/pages/transaction-view.tsx",
+      "resources/js/pages/transaction.tsx",
+      "resources/js/pages/transactions/add-expense.tsx",
+      "resources/js/pages/transactions/add-income.tsx",
+      "resources/js/pages/transactions/add-payable.tsx",
+      "resources/js/pages/transactions/add-receivable.tsx"
+    ],
+    "css": [
+      "assets/app.css"
+    ]
+  },
+  "resources/js/pages/About-legacy.tsx": {
+    "file": "assets/About-legacy.js",
+    "name": "About",
+    "src": "resources/js/pages/About-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_react-vendor-legacy.js"
+    ]
+  },
+  "resources/js/pages/About.tsx": {
+    "file": "assets/About.js",
+    "name": "About",
+    "src": "resources/js/pages/About.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_react-vendor.js"
+    ]
+  },
+  "resources/js/pages/Features-legacy.tsx": {
+    "file": "assets/Features-legacy.js",
+    "name": "Features",
+    "src": "resources/js/pages/Features-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_react-vendor-legacy.js"
+    ]
+  },
+  "resources/js/pages/Features.tsx": {
+    "file": "assets/Features.js",
+    "name": "Features",
+    "src": "resources/js/pages/Features.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_react-vendor.js"
+    ]
+  },
+  "resources/js/pages/Gallery-legacy.tsx": {
+    "file": "assets/Gallery-legacy.js",
+    "name": "Gallery",
+    "src": "resources/js/pages/Gallery-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_heading-small-legacy.js",
+      "_input-error-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_card-legacy.js",
+      "_badge-legacy.js",
+      "_app-layout-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/Gallery.tsx": {
+    "file": "assets/Gallery.js",
+    "name": "Gallery",
+    "src": "resources/js/pages/Gallery.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "resources/js/app.tsx",
+      "_heading-small.js",
+      "_input-error.js",
+      "_button.js",
+      "_input.js",
+      "_label.js",
+      "_card.js",
+      "_badge.js",
+      "_app-layout.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_export-vendor.js",
+      "_utils-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/Welcome-legacy.tsx": {
+    "file": "assets/Welcome-legacy.js",
+    "name": "Welcome",
+    "src": "resources/js/pages/Welcome-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js"
+    ]
+  },
+  "resources/js/pages/Welcome.tsx": {
+    "file": "assets/Welcome.js",
+    "name": "Welcome",
+    "src": "resources/js/pages/Welcome.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js"
+    ]
+  },
+  "resources/js/pages/add-transaction-legacy.tsx": {
+    "file": "assets/add-transaction-legacy.js",
+    "name": "add-transaction",
+    "src": "resources/js/pages/add-transaction-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/add-transaction.tsx": {
+    "file": "assets/add-transaction.js",
+    "name": "add-transaction",
+    "src": "resources/js/pages/add-transaction.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_custom-date-input.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_textarea.js",
+      "resources/js/app.tsx",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_exchangeRateService.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/activity-log-view-legacy.tsx": {
+    "file": "assets/activity-log-view-legacy.js",
+    "name": "activity-log-view",
+    "src": "resources/js/pages/admin/activity-log-view-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_label-legacy.js",
+      "_separator-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/activity-log-view.tsx": {
+    "file": "assets/activity-log-view.js",
+    "name": "activity-log-view",
+    "src": "resources/js/pages/admin/activity-log-view.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_button.js",
+      "_card.js",
+      "_label.js",
+      "_separator.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/activity-logs-legacy.tsx": {
+    "file": "assets/activity-logs-legacy.js",
+    "name": "activity-logs",
+    "src": "resources/js/pages/admin/activity-logs-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/activity-logs.tsx": {
+    "file": "assets/activity-logs.js",
+    "name": "activity-logs",
+    "src": "resources/js/pages/admin/activity-logs.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_custom-date-input.js",
+      "_input.js",
+      "_label.js",
+      "_icons-vendor.js",
+      "_select.js",
+      "_table.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/analytics-legacy.tsx": {
+    "file": "assets/analytics-legacy.js",
+    "name": "analytics",
+    "src": "resources/js/pages/admin/analytics-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_card-legacy.js",
+      "_tabs-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_charts-vendor-legacy.js",
+      "_chart-config-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_button-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/analytics.tsx": {
+    "file": "assets/analytics.js",
+    "name": "analytics",
+    "src": "resources/js/pages/admin/analytics.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_card.js",
+      "_tabs.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_charts-vendor.js",
+      "_chart-config.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_utils-vendor.js",
+      "_button.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/backup-legacy.tsx": {
+    "file": "assets/backup-legacy.js",
+    "name": "backup",
+    "src": "resources/js/pages/admin/backup-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/backup.tsx": {
+    "file": "assets/backup.js",
+    "name": "backup",
+    "src": "resources/js/pages/admin/backup.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_table.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/dashboard-legacy.tsx": {
+    "file": "assets/dashboard-legacy.js",
+    "name": "dashboard",
+    "src": "resources/js/pages/admin/dashboard-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_tabs-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/dashboard.tsx": {
+    "file": "assets/dashboard.js",
+    "name": "dashboard",
+    "src": "resources/js/pages/admin/dashboard.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_tabs.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/database-legacy.tsx": {
+    "file": "assets/database-legacy.js",
+    "name": "database",
+    "src": "resources/js/pages/admin/database-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/database.tsx": {
+    "file": "assets/database.js",
+    "name": "database",
+    "src": "resources/js/pages/admin/database.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "resources/js/app.tsx",
+      "_table.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/notification-detail-legacy.tsx": {
+    "file": "assets/notification-detail-legacy.js",
+    "name": "notification-detail",
+    "src": "resources/js/pages/admin/notification-detail-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_separator-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/notification-detail.tsx": {
+    "file": "assets/notification-detail.js",
+    "name": "notification-detail",
+    "src": "resources/js/pages/admin/notification-detail.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_separator.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js"
+    ]
+  },
+  "resources/js/pages/admin/notifications-legacy.tsx": {
+    "file": "assets/notifications-legacy.js",
+    "name": "notifications",
+    "src": "resources/js/pages/admin/notifications-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_dialog-legacy.js",
+      "_input-legacy.js",
+      "_select-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/notifications.tsx": {
+    "file": "assets/notifications.js",
+    "name": "notifications",
+    "src": "resources/js/pages/admin/notifications.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_dialog.js",
+      "_input.js",
+      "_select.js",
+      "resources/js/app.tsx",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/role-permission-legacy.tsx": {
+    "file": "assets/role-permission-legacy.js",
+    "name": "role-permission",
+    "src": "resources/js/pages/admin/role-permission-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_checkbox-legacy.js",
+      "_dialog-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_tabs-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/role-permission.tsx": {
+    "file": "assets/role-permission.js",
+    "name": "role-permission",
+    "src": "resources/js/pages/admin/role-permission.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_checkbox.js",
+      "_dialog.js",
+      "_label.js",
+      "_select.js",
+      "_table.js",
+      "_tabs.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/super-admin-legacy.tsx": {
+    "file": "assets/super-admin-legacy.js",
+    "name": "super-admin",
+    "src": "resources/js/pages/admin/super-admin-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_dialog-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/super-admin.tsx": {
+    "file": "assets/super-admin.js",
+    "name": "super-admin",
+    "src": "resources/js/pages/admin/super-admin.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_dialog.js",
+      "_label.js",
+      "_select.js",
+      "_table.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/system-audit-legacy.tsx": {
+    "file": "assets/system-audit-legacy.js",
+    "name": "system-audit",
+    "src": "resources/js/pages/admin/system-audit-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/system-audit.tsx": {
+    "file": "assets/system-audit.js",
+    "name": "system-audit",
+    "src": "resources/js/pages/admin/system-audit.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_table.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/system-health-legacy.tsx": {
+    "file": "assets/system-health-legacy.js",
+    "name": "system-health",
+    "src": "resources/js/pages/admin/system-health-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_alert-legacy.js",
+      "_badge-legacy.js",
+      "_card-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_button-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/system-health.tsx": {
+    "file": "assets/system-health.js",
+    "name": "system-health",
+    "src": "resources/js/pages/admin/system-health.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_alert.js",
+      "_badge.js",
+      "_card.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_button.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/system-settings-legacy.tsx": {
+    "file": "assets/system-settings-legacy.js",
+    "name": "system-settings",
+    "src": "resources/js/pages/admin/system-settings-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_tabs-legacy.js",
+      "_textarea-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/system-settings.tsx": {
+    "file": "assets/system-settings.js",
+    "name": "system-settings",
+    "src": "resources/js/pages/admin/system-settings.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_button.js",
+      "_card.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "resources/js/app.tsx",
+      "_tabs.js",
+      "_textarea.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/user-management-legacy.tsx": {
+    "file": "assets/user-management-legacy.js",
+    "name": "user-management",
+    "src": "resources/js/pages/admin/user-management-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_dialog-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "_tabs-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/user-management.tsx": {
+    "file": "assets/user-management.js",
+    "name": "user-management",
+    "src": "resources/js/pages/admin/user-management.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_button.js",
+      "_card.js",
+      "_dialog.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_table.js",
+      "_tabs.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/admin/user-profile-legacy.tsx": {
+    "file": "assets/user-profile-legacy.js",
+    "name": "user-profile",
+    "src": "resources/js/pages/admin/user-profile-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_admin-route-guard-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_label-legacy.js",
+      "_separator-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/admin/user-profile.tsx": {
+    "file": "assets/user-profile.js",
+    "name": "user-profile",
+    "src": "resources/js/pages/admin/user-profile.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_admin-route-guard.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_label.js",
+      "_separator.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/confirm-password-legacy.tsx": {
+    "file": "assets/confirm-password-legacy.js",
+    "name": "confirm-password",
+    "src": "resources/js/pages/auth/confirm-password-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_input-error-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_auth-layout-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/auth/confirm-password.tsx": {
+    "file": "assets/confirm-password.js",
+    "name": "confirm-password",
+    "src": "resources/js/pages/auth/confirm-password.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_input-error.js",
+      "_button.js",
+      "_input.js",
+      "_label.js",
+      "_auth-layout.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_utils-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/forgot-password-legacy.tsx": {
+    "file": "assets/forgot-password-legacy.js",
+    "name": "forgot-password",
+    "src": "resources/js/pages/auth/forgot-password-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_text-link-legacy.js",
+      "_alert-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_auth-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/auth/forgot-password.tsx": {
+    "file": "assets/forgot-password.js",
+    "name": "forgot-password",
+    "src": "resources/js/pages/auth/forgot-password.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_text-link.js",
+      "_alert.js",
+      "_button.js",
+      "_card.js",
+      "_input.js",
+      "_label.js",
+      "_auth-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_utils-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/login-legacy.tsx": {
+    "file": "assets/login-legacy.js",
+    "name": "login",
+    "src": "resources/js/pages/auth/login-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_input-error-legacy.js",
+      "_text-link-legacy.js",
+      "_button-legacy.js",
+      "_checkbox-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_auth-layout-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/auth/login.tsx": {
+    "file": "assets/login.js",
+    "name": "login",
+    "src": "resources/js/pages/auth/login.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_input-error.js",
+      "_text-link.js",
+      "_button.js",
+      "_checkbox.js",
+      "_input.js",
+      "_label.js",
+      "resources/js/app.tsx",
+      "_auth-layout.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/register-legacy.tsx": {
+    "file": "assets/register-legacy.js",
+    "name": "register",
+    "src": "resources/js/pages/auth/register-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_input-error-legacy.js",
+      "_text-link-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_auth-layout-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/auth/register.tsx": {
+    "file": "assets/register.js",
+    "name": "register",
+    "src": "resources/js/pages/auth/register.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_input-error.js",
+      "_text-link.js",
+      "_button.js",
+      "_input.js",
+      "_label.js",
+      "resources/js/app.tsx",
+      "_auth-layout.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/reset-password-legacy.tsx": {
+    "file": "assets/reset-password-legacy.js",
+    "name": "reset-password",
+    "src": "resources/js/pages/auth/reset-password-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_text-link-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_auth-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/auth/reset-password.tsx": {
+    "file": "assets/reset-password.js",
+    "name": "reset-password",
+    "src": "resources/js/pages/auth/reset-password.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_text-link.js",
+      "_button.js",
+      "_card.js",
+      "_input.js",
+      "_label.js",
+      "_auth-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_utils-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/auth/verify-email-legacy.tsx": {
+    "file": "assets/verify-email-legacy.js",
+    "name": "verify-email",
+    "src": "resources/js/pages/auth/verify-email-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_text-link-legacy.js",
+      "_button-legacy.js",
+      "_auth-layout-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/auth/verify-email.tsx": {
+    "file": "assets/verify-email.js",
+    "name": "verify-email",
+    "src": "resources/js/pages/auth/verify-email.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_text-link.js",
+      "_button.js",
+      "_auth-layout.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_utils-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/categories-legacy.tsx": {
+    "file": "assets/categories-legacy.js",
+    "name": "categories",
+    "src": "resources/js/pages/categories-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_dialog-legacy.js",
+      "_input-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/categories.tsx": {
+    "file": "assets/categories.js",
+    "name": "categories",
+    "src": "resources/js/pages/categories.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_dialog.js",
+      "_input.js",
+      "_select.js",
+      "_table.js",
+      "resources/js/app.tsx",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/dashboard-legacy.tsx": {
+    "file": "assets/dashboard-legacy2.js",
+    "name": "dashboard",
+    "src": "resources/js/pages/dashboard-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_app-layout-legacy.js",
+      "_charts-vendor-legacy.js",
+      "_chart-config-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/dashboard.tsx": {
+    "file": "assets/dashboard2.js",
+    "name": "dashboard",
+    "src": "resources/js/pages/dashboard.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_app-layout.js",
+      "_charts-vendor.js",
+      "_chart-config.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/ledger-legacy.tsx": {
+    "file": "assets/ledger-legacy.js",
+    "name": "ledger",
+    "src": "resources/js/pages/ledger-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_input-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/ledger.tsx": {
+    "file": "assets/ledger.js",
+    "name": "ledger",
+    "src": "resources/js/pages/ledger.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_custom-date-input.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_export-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_input.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/notifications-legacy.tsx": {
+    "file": "assets/notifications-legacy2.js",
+    "name": "notifications",
+    "src": "resources/js/pages/notifications-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_badge-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_select-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/notifications.tsx": {
+    "file": "assets/notifications2.js",
+    "name": "notifications",
+    "src": "resources/js/pages/notifications.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_badge.js",
+      "_button.js",
+      "_card.js",
+      "_input.js",
+      "_select.js",
+      "resources/js/app.tsx",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/settings/appearance-legacy.tsx": {
+    "file": "assets/appearance-legacy.js",
+    "name": "appearance",
+    "src": "resources/js/pages/settings/appearance-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_icons-vendor-legacy.js",
+      "_heading-small-legacy.js",
+      "_app-layout-legacy.js",
+      "_layout-legacy.js",
+      "_react-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_button-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
+    ]
+  },
+  "resources/js/pages/settings/appearance.tsx": {
+    "file": "assets/appearance.js",
+    "name": "appearance",
+    "src": "resources/js/pages/settings/appearance.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "resources/js/app.tsx",
+      "_icons-vendor.js",
+      "_heading-small.js",
+      "_app-layout.js",
+      "_layout.js",
+      "_react-vendor.js",
+      "_export-vendor.js",
+      "_utils-vendor.js",
+      "_button.js",
+      "_app-logo-icon.js",
+      "_separator.js"
+    ]
+  },
+  "resources/js/pages/settings/currency-legacy.tsx": {
+    "file": "assets/currency-legacy.js",
+    "name": "currency",
+    "src": "resources/js/pages/settings/currency-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_heading-small-legacy.js",
+      "_input-error-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_app-layout-legacy.js",
+      "_layout-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_headless-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
+    ]
+  },
+  "resources/js/pages/settings/currency.tsx": {
+    "file": "assets/currency.js",
+    "name": "currency",
+    "src": "resources/js/pages/settings/currency.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_exchangeRateService.js",
+      "_inertia-vendor.js",
+      "_heading-small.js",
+      "_input-error.js",
+      "_button.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_app-layout.js",
+      "_layout.js",
+      "_icons-vendor.js",
+      "_headless-vendor.js",
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js"
+    ]
+  },
+  "resources/js/pages/settings/exchange-rate-legacy.tsx": {
+    "file": "assets/exchange-rate-legacy.js",
+    "name": "exchange-rate",
+    "src": "resources/js/pages/settings/exchange-rate-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_input-error-legacy.js",
+      "_alert-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_separator-legacy.js",
+      "_layout-legacy.js",
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_utils-vendor-legacy.js"
+    ]
+  },
+  "resources/js/pages/settings/exchange-rate.tsx": {
+    "file": "assets/exchange-rate.js",
+    "name": "exchange-rate",
+    "src": "resources/js/pages/settings/exchange-rate.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_input-error.js",
+      "_alert.js",
+      "_button.js",
+      "_card.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_separator.js",
+      "_layout.js",
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_icons-vendor.js",
+      "_utils-vendor.js"
+    ]
+  },
+  "resources/js/pages/settings/password-legacy.tsx": {
+    "file": "assets/password-legacy.js",
+    "name": "password",
+    "src": "resources/js/pages/settings/password-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_input-error-legacy.js",
+      "_app-layout-legacy.js",
+      "_layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_heading-small-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_headless-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
+    ]
+  },
+  "resources/js/pages/settings/password.tsx": {
+    "file": "assets/password.js",
+    "name": "password",
+    "src": "resources/js/pages/settings/password.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_input-error.js",
+      "_app-layout.js",
+      "_layout.js",
+      "_inertia-vendor.js",
+      "_heading-small.js",
+      "_button.js",
+      "_input.js",
+      "_label.js",
+      "_headless-vendor.js",
+      "_react-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_icons-vendor.js",
+      "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js"
+    ]
+  },
+  "resources/js/pages/settings/profile-legacy.tsx": {
+    "file": "assets/profile-legacy.js",
+    "name": "profile",
+    "src": "resources/js/pages/settings/profile-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_input-error-legacy.js",
+      "_button-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_heading-small-legacy.js",
+      "_dialog-legacy.js",
+      "_app-layout-legacy.js",
+      "_layout-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_headless-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
+    ]
+  },
+  "resources/js/pages/settings/profile.tsx": {
+    "file": "assets/profile.js",
+    "name": "profile",
+    "src": "resources/js/pages/settings/profile.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "resources/js/app.tsx",
+      "_input-error.js",
+      "_button.js",
+      "_input.js",
+      "_label.js",
+      "_heading-small.js",
+      "_dialog.js",
+      "_app-layout.js",
+      "_layout.js",
+      "_icons-vendor.js",
+      "_headless-vendor.js",
+      "_react-vendor.js",
+      "_export-vendor.js",
+      "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js"
+    ]
+  },
+  "resources/js/pages/transaction-edit-legacy.tsx": {
+    "file": "assets/transaction-edit-legacy.js",
+    "name": "transaction-edit",
+    "src": "resources/js/pages/transaction-edit-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/transaction-edit.tsx": {
+    "file": "assets/transaction-edit.js",
+    "name": "transaction-edit",
+    "src": "resources/js/pages/transaction-edit.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_custom-date-input.js",
+      "resources/js/app.tsx",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_textarea.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_exchangeRateService.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/transaction-legacy.tsx": {
+    "file": "assets/transaction-legacy.js",
+    "name": "transaction",
+    "src": "resources/js/pages/transaction-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_app-layout-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_table-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_inertia-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/transaction-view-legacy.tsx": {
+    "file": "assets/transaction-view-legacy.js",
+    "name": "transaction-view",
+    "src": "resources/js/pages/transaction-view-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_dialog-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/transaction-view.tsx": {
+    "file": "assets/transaction-view.js",
+    "name": "transaction-view",
+    "src": "resources/js/pages/transaction-view.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_dialog.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_exchangeRateService.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/transaction.tsx": {
+    "file": "assets/transaction.js",
+    "name": "transaction",
+    "src": "resources/js/pages/transaction.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_custom-date-input.js",
+      "_app-layout.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_table.js",
+      "resources/js/app.tsx",
+      "_inertia-vendor.js",
+      "_export-vendor.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-expense-legacy.tsx": {
+    "file": "assets/add-expense-legacy.js",
+    "name": "add-expense",
+    "src": "resources/js/pages/transactions/add-expense-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-expense.tsx": {
+    "file": "assets/add-expense.js",
+    "name": "add-expense",
+    "src": "resources/js/pages/transactions/add-expense.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_custom-date-input.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_textarea.js",
+      "resources/js/app.tsx",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_exchangeRateService.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-income-legacy.tsx": {
+    "file": "assets/add-income-legacy.js",
+    "name": "add-income",
+    "src": "resources/js/pages/transactions/add-income-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-income.tsx": {
+    "file": "assets/add-income.js",
+    "name": "add-income",
+    "src": "resources/js/pages/transactions/add-income.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_custom-date-input.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_textarea.js",
+      "resources/js/app.tsx",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_exchangeRateService.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-payable-legacy.tsx": {
+    "file": "assets/add-payable-legacy.js",
+    "name": "add-payable",
+    "src": "resources/js/pages/transactions/add-payable-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-payable.tsx": {
+    "file": "assets/add-payable.js",
+    "name": "add-payable",
+    "src": "resources/js/pages/transactions/add-payable.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_custom-date-input.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_textarea.js",
+      "resources/js/app.tsx",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_exchangeRateService.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-receivable-legacy.tsx": {
+    "file": "assets/add-receivable-legacy.js",
+    "name": "add-receivable",
+    "src": "resources/js/pages/transactions/add-receivable-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_custom-date-input-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_textarea-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_exchangeRateService-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_export-vendor-legacy.js",
+      "_app-logo-icon-legacy.js"
+    ]
+  },
+  "resources/js/pages/transactions/add-receivable.tsx": {
+    "file": "assets/add-receivable.js",
+    "name": "add-receivable",
+    "src": "resources/js/pages/transactions/add-receivable.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_button.js",
+      "_card.js",
+      "_custom-date-input.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_textarea.js",
+      "resources/js/app.tsx",
+      "_app-layout.js",
+      "_inertia-vendor.js",
+      "_exchangeRateService.js",
+      "_icons-vendor.js",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_export-vendor.js",
+      "_app-logo-icon.js"
+    ]
+  },
+  "vite/legacy-polyfills-legacy": {
+    "file": "assets/polyfills-legacy.js",
+    "name": "polyfills",
+    "src": "vite/legacy-polyfills-legacy",
+    "isEntry": true
+  }
+}
