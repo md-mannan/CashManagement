@@ -187,6 +187,21 @@ npm run build
 #### **Step 5: Configure File Permissions**
 
 Set the following permissions via cPanel File Manager:
+
+**Via cPanel File Manager:**
+1. Right-click on each folder/file
+2. Select "Change Permissions"
+3. Set the permissions as shown below
+
+**Via SSH (if available):**
+```bash
+chmod -R 755 storage/
+chmod -R 755 bootstrap/cache/
+chmod -R 755 public/build/
+chmod 644 .env
+```
+
+**Required Permissions:**
 - `storage/` → **755** (or **775**)
 - `bootstrap/cache/` → **755** (or **775**)
 - `public/build/` → **755**
