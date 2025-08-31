@@ -48,17 +48,23 @@ class GalleryController extends Controller
      */
     public function upload(Request $request)
     {
-        $request->validate([
-            'media_files.*' => 'required|file|mimes:jpeg,jpg,png,gif,mp4,mov,avi|max:51200', // 50MB max
-        ]);
+        try {
+            $request->validate([
+                'media_files.*' => 'required|file|mimes:jpeg,jpg,png,gif,mp4,mov,avi', // No file size limit
+            ]);
 
-        $uploadedFiles = [];
-        $files = $request->file('media_files');
+            $uploadedFiles = [];
+            $files = $request->file('media_files');
 
         foreach ($files as $file) {
             $mediaType = $this->getMediaType($file->getMimeType());
             $fileName = time() . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('media/' . Auth::id(), $fileName, 'public');
+            
+            // Ensure the file was stored successfully
+            if (!$filePath) {
+                throw new \Exception('Failed to store file: ' . $file->getClientOriginalName());
+            }
 
             $media = Media::create([
                 'user_id' => Auth::id(),
@@ -72,7 +78,12 @@ class GalleryController extends Controller
             $uploadedFiles[] = $media;
         }
 
-        return redirect()->back()->with('success', count($uploadedFiles) . ' file(s) uploaded successfully!');
+        // Return Inertia response
+        return back()->with('success', count($uploadedFiles) . ' file(s) uploaded successfully!');
+        
+        } catch (\Exception $e) {
+            return back()->withErrors(['media_files' => 'Upload failed: ' . $e->getMessage()]);
+        }
     }
 
     /**
