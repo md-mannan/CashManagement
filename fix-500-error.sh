@@ -40,7 +40,7 @@ fi
 echo "📁 Setting file permissions..."
 chmod -R 755 storage/
 chmod -R 755 bootstrap/cache/
-chmod -R 755 public/build/
+chmod -R 755 build/
 chmod 644 .env
 
 # Step 7: Rebuild caches
