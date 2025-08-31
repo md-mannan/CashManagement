@@ -47,7 +47,7 @@ function getEnvironmentConfig(): EnvironmentConfig {
         return {
             isDevelopment: true,
             isProduction: false,
-            apiTimeout: 15000, // 15 seconds for development (slower for debugging)
+            apiTimeout: 300000, // 5 minutes for development (for large file uploads)
             retryAttempts: 2, // Fewer retries in development
             retryDelay: 1000, // 1 second delay
             enableDebugLogs: true,
@@ -61,7 +61,7 @@ function getEnvironmentConfig(): EnvironmentConfig {
     return {
         isDevelopment: false,
         isProduction: true,
-        apiTimeout: 10000, // 10 seconds for production
+        apiTimeout: 300000, // 5 minutes for production (for large file uploads)
         retryAttempts: 3, // More retries in production
         retryDelay: 2000, // 2 seconds delay
         enableDebugLogs: false,
