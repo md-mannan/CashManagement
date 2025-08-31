@@ -5,13 +5,13 @@ import Pusher from 'pusher-js';
 // Initialize Laravel Echo
 declare global {
     interface Window {
-        Echo: Echo;
+        Echo: any;
         Pusher: typeof Pusher;
     }
 }
 
 class WebSocketService {
-    private echo: Echo | null = null;
+    private echo: any = null;
     private isConnected = false;
     private reconnectAttempts = 0;
     private maxReconnectAttempts = 5;
@@ -57,7 +57,7 @@ class WebSocketService {
                 wsHost: websocketConfig.reverb.host,
                 wsPort: websocketConfig.reverb.port,
                 forceTLS: websocketConfig.reverb.forceTLS,
-                enabledTransports: websocketConfig.reverb.enabledTransports,
+                enabledTransports: websocketConfig.reverb.enabledTransports as any,
                 disableStats: websocketConfig.reverb.disableStats,
                 authEndpoint: '/broadcasting/auth',
                 auth: {
@@ -67,7 +67,7 @@ class WebSocketService {
                         'X-Requested-With': 'XMLHttpRequest',
                     },
                 },
-            });
+            } as any);
 
             this.setupEventListeners();
             this.isConnected = true;
