@@ -48,6 +48,13 @@ class GalleryController extends Controller
      */
     public function upload(Request $request)
     {
+        // Override PHP upload limits for this request
+        ini_set('upload_max_filesize', '0');
+        ini_set('post_max_size', '0');
+        ini_set('max_execution_time', '300');
+        ini_set('max_input_time', '300');
+        ini_set('memory_limit', '512M');
+
         try {
             $request->validate([
                 'media_files.*' => 'required|file|mimes:jpeg,jpg,png,gif,mp4,mov,avi', // No file size limit
