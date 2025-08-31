@@ -19,7 +19,8 @@ import {
     Tag, 
     Users,
     Archive,
-    Monitor
+    Monitor,
+    Image
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -48,6 +49,11 @@ export function AppSidebar() {
             title: 'Categories',
             href: '/categories',
             icon: Tag,
+        },
+        {
+            title: 'Gallery',
+            href: '/gallery',
+            icon: Image,
         },
     ];
 
