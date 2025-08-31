@@ -157,6 +157,61 @@ export default function Profile({ mustVerifyEmail, status, profilePhotos }: {
         });
     };
 
+    const handleDownloadPhoto = (url: string, filename: string) => {
+        // For external URLs or blob URLs, we need to fetch the image first
+        if (url.startsWith('http') || url.startsWith('blob:')) {
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    // Create blob URL for download
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = filename;
+                    
+                    // Append to body, click, and remove
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Clean up blob URL
+                    window.URL.revokeObjectURL(blobUrl);
+                    
+                    // Show success toast
+                    addToast({
+                        type: 'success',
+                        title: 'Download Started!',
+                        message: 'Your photo is being downloaded.',
+                    });
+                })
+                .catch(error => {
+                    console.error('Download failed:', error);
+                    addToast({
+                        type: 'error',
+                        title: 'Download Failed',
+                        message: 'Failed to download the photo. Please try again.',
+                    });
+                });
+        } else {
+            // For local URLs, use direct download
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            
+            // Append to body, click, and remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Show success toast
+            addToast({
+                type: 'success',
+                title: 'Download Started!',
+                message: 'Your photo is being downloaded.',
+            });
+        }
+    };
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
@@ -309,7 +364,7 @@ export default function Profile({ mustVerifyEmail, status, profilePhotos }: {
                                                     Make profile picture
                                                 </DropdownMenuItem>
                                             )}
-                                            <DropdownMenuItem onClick={() => window.open(photo.url, '_blank')}>
+                                            <DropdownMenuItem onClick={() => handleDownloadPhoto(photo.url, photo.file_name || 'profile-photo.jpg')}>
                                                 <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
