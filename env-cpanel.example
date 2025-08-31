@@ -7,7 +7,7 @@ APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
 APP_TIMEZONE=UTC
-APP_URL=https://yourdomain.com
+APP_URL=https://accounts.mannnan.space
 
 # Logging Configuration (File-based for shared hosting)
 LOG_CHANNEL=single
@@ -65,10 +65,10 @@ MAIL_FROM_NAME="${APP_NAME}"
 
 # Broadcasting Configuration (Laravel Reverb for WebSockets)
 BROADCAST_CONNECTION=reverb
-REVERB_APP_ID=cpanel_app_id
-REVERB_APP_KEY=cpanel_app_key
-REVERB_APP_SECRET=cpanel_app_secret
-REVERB_HOST=yourdomain.com
+REVERB_APP_ID=174347
+REVERB_APP_KEY=3ef8d1e1006fd70cef47513e64ccbb77
+REVERB_APP_SECRET=f2e4f2c0c5aa6006cd439811e68b7a3fa3bdaba38e25e4395c9d434d350aa01d
+REVERB_HOST=accounts.mannnan.space
 REVERB_PORT=8080
 REVERB_SCHEME=https
 
