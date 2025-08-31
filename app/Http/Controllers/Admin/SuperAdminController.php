@@ -40,7 +40,6 @@ class SuperAdminController extends Controller
                     'is_active' => $user->is_active,
                     'created_at' => $user->created_at,
                     'last_login_at' => $user->last_login_at,
-                    'social_accounts' => [],
                     'is_current_user' => $user->id === auth()->id(),
                 ];
             });

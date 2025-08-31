@@ -11,7 +11,7 @@ import { Toggle } from '@/components/ui/toggle';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Chrome, Edit, Facebook, Github, Key, Plus, Trash2, UserCheck, Users, UserX } from 'lucide-react';
+import { Edit, Key, Plus, Trash2, UserCheck, Users, UserX } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -37,9 +37,6 @@ export default function UserManagement() {
                     is_active: boolean;
                     created_at: string;
                     last_login_at: string | null;
-                    social_accounts: Array<{
-                        provider: string;
-                    }>;
                     permissions?: string[];
                 }>;
                 current_page: number;
@@ -79,7 +76,7 @@ export default function UserManagement() {
         email: '',
         role: '',
         permissions: [] as string[],
-        is_active: true,
+        is_active: true as boolean,
     });
 
     const passwordForm = useForm({
@@ -142,7 +139,7 @@ export default function UserManagement() {
             email: user.email,
             role: user.role,
             permissions: user.permissions || [],
-            is_active: user.is_active,
+            is_active: user.is_active as boolean,
         });
         setIsEditDialogOpen(true);
     };
@@ -170,19 +167,6 @@ export default function UserManagement() {
 
     const getStatusColor = (isActive: boolean) => {
         return isActive ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200';
-    };
-
-    const getProviderIcon = (provider: string) => {
-        switch (provider) {
-            case 'facebook':
-                return <Facebook className="h-4 w-4 text-blue-600" />;
-            case 'google':
-                return <Chrome className="h-4 w-4 text-red-600" />;
-            case 'github':
-                return <Github className="h-4 w-4 text-gray-800" />;
-            default:
-                return null;
-        }
     };
 
     return (
@@ -326,13 +310,12 @@ export default function UserManagement() {
 
                     {/* User Management Tabs */}
                     <Tabs defaultValue="all" className="w-full">
-                        <TabsList className="grid w-full grid-cols-4">
+                        <TabsList className="grid w-full grid-cols-3">
                             <TabsTrigger value="all">All Users ({users.total})</TabsTrigger>
                             <TabsTrigger value="active">Active ({users.data.filter((u) => u.is_active).length})</TabsTrigger>
                             <TabsTrigger value="admins">
                                 Admins ({users.data.filter((u) => ['admin', 'super_admin'].includes(u.role)).length})
                             </TabsTrigger>
-                            <TabsTrigger value="social">Social ({users.data.filter((u) => u.social_accounts.length > 0).length})</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="all" className="space-y-4">
@@ -350,7 +333,6 @@ export default function UserManagement() {
                                                 <TableHead>User</TableHead>
                                                 <TableHead>Role</TableHead>
                                                 <TableHead>Status</TableHead>
-                                                <TableHead>Social</TableHead>
                                                 <TableHead>Last Login</TableHead>
                                                 <TableHead>Actions</TableHead>
                                             </TableRow>
@@ -377,15 +359,6 @@ export default function UserManagement() {
                                                         >
                                                             {user.is_active ? 'ACTIVE' : 'INACTIVE'}
                                                         </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex gap-1">
-                                                            {user.social_accounts.map((account, index) => (
-                                                                <div key={index} className="flex items-center gap-1">
-                                                                    {getProviderIcon(account.provider)}
-                                                                </div>
-                                                            ))}
-                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
@@ -435,7 +408,6 @@ export default function UserManagement() {
                                                 <TableHead>User</TableHead>
                                                 <TableHead>Role</TableHead>
                                                 <TableHead>Status</TableHead>
-                                                <TableHead>Social</TableHead>
                                                 <TableHead>Last Login</TableHead>
                                                 <TableHead>Actions</TableHead>
                                             </TableRow>
@@ -443,7 +415,7 @@ export default function UserManagement() {
                                         <TableBody>
                                             {users.data.filter((u) => u.is_active).length === 0 ? (
                                                 <TableRow>
-                                                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                                                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                                                         No active users found
                                                     </TableCell>
                                                 </TableRow>
@@ -469,15 +441,6 @@ export default function UserManagement() {
                                                         >
                                                             {user.is_active ? 'ACTIVE' : 'INACTIVE'}
                                                         </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex gap-1">
-                                                            {user.social_accounts.map((account, index) => (
-                                                                <div key={index} className="flex items-center gap-1">
-                                                                    {getProviderIcon(account.provider)}
-                                                                </div>
-                                                            ))}
-                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
@@ -527,7 +490,6 @@ export default function UserManagement() {
                                                 <TableHead>User</TableHead>
                                                 <TableHead>Role</TableHead>
                                                 <TableHead>Status</TableHead>
-                                                <TableHead>Social</TableHead>
                                                 <TableHead>Last Login</TableHead>
                                                 <TableHead>Actions</TableHead>
                                             </TableRow>
@@ -535,7 +497,7 @@ export default function UserManagement() {
                                         <TableBody>
                                             {users.data.filter((u) => ['admin', 'super_admin'].includes(u.role)).length === 0 ? (
                                                 <TableRow>
-                                                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                                                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                                                         No administrators found
                                                     </TableCell>
                                                 </TableRow>
@@ -561,107 +523,6 @@ export default function UserManagement() {
                                                         >
                                                             {user.is_active ? 'ACTIVE' : 'INACTIVE'}
                                                         </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex gap-1">
-                                                            {user.social_accounts.map((account, index) => (
-                                                                <div key={index} className="flex items-center gap-1">
-                                                                    {getProviderIcon(account.provider)}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
-                                                                <Edit className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="outline" size="sm" onClick={() => openPasswordDialog(user)}>
-                                                                <Key className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(user)}>
-                                                                {user.is_active ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                                                            </Button>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => openDeleteDialog(user)}
-                                                                className="text-red-600 hover:text-red-700"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            )))}
-                                        </TableBody>
-                                    </Table>
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-
-                        {/* Social Users Tab */}
-                        <TabsContent value="social" className="space-y-4">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Users className="h-5 w-5" />
-                                        Social Users
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>User</TableHead>
-                                                <TableHead>Role</TableHead>
-                                                <TableHead>Status</TableHead>
-                                                <TableHead>Social</TableHead>
-                                                <TableHead>Last Login</TableHead>
-                                                <TableHead>Actions</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {users.data.filter((u) => u.social_accounts.length > 0).length === 0 ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                                                        No social users found
-                                                    </TableCell>
-                                                </TableRow>
-                                            ) : (
-                                                users.data.filter((u) => u.social_accounts.length > 0).map((user) => (
-                                                <TableRow key={user.id}>
-                                                    <TableCell>
-                                                        <div>
-                                                            <div className="font-medium">{user.name}</div>
-                                                            <div className="text-sm text-muted-foreground">{user.email}</div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span
-                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}
-                                                        >
-                                                            {user.role.replace('_', ' ').toUpperCase()}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span
-                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getStatusColor(user.is_active)}`}
-                                                        >
-                                                            {user.is_active ? 'ACTIVE' : 'INACTIVE'}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex gap-1">
-                                                            {user.social_accounts.map((account, index) => (
-                                                                <div key={index} className="flex items-center gap-1">
-                                                                    {getProviderIcon(account.provider)}
-                                                                </div>
-                                                            ))}
-                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}

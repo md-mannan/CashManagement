@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { Activity, ArrowLeft, Database, Mail, Shield, User, Users } from 'lucide-react';
+import { Activity, ArrowLeft, Database, Shield, User } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -15,13 +15,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'User Management', href: '/admin/users' },
     { title: 'User Profile', href: '#' },
 ];
-
-interface SocialAccount {
-    id: number;
-    provider: string;
-    provider_id: string;
-    created_at: string;
-}
 
 interface Transaction {
     id: number;
@@ -43,7 +36,6 @@ interface User {
     permissions: string[];
     created_at: string;
     updated_at: string;
-    social_accounts: SocialAccount[];
     transactions: Transaction[];
 }
 
@@ -149,8 +141,8 @@ export default function UserProfile({ user, roles, permissions }: Props) {
                                     {user.permissions && user.permissions.length > 0 ? (
                                         <div className="flex flex-wrap gap-2">
                                             {user.permissions.map((permission) => (
-                                                <Badge key={permission} variant="secondary">
-                                                    {permissions[permission] || permission}
+                                                <Badge key={permission} variant="outline" className="text-xs">
+                                                    {permission.replace('_', ' ')}
                                                 </Badge>
                                             ))}
                                         </div>
@@ -163,32 +155,25 @@ export default function UserProfile({ user, roles, permissions }: Props) {
                             {/* Recent Transactions */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center">
-                                        <Activity className="mr-2 h-4 w-4" />
-                                        Recent Transactions
-                                    </CardTitle>
+                                    <CardTitle>Recent Transactions</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     {user.transactions && user.transactions.length > 0 ? (
                                         <div className="space-y-3">
                                             {user.transactions.map((transaction) => (
-                                                <div key={transaction.id} className="flex items-center justify-between rounded-lg border p-3">
+                                                <div key={transaction.id} className="flex items-center justify-between rounded border p-3">
                                                     <div className="flex items-center space-x-3">
-                                                        <div
-                                                            className={`h-3 w-3 rounded-full ${transaction.type === 'income' ? 'bg-green-500' : 'bg-red-500'}`}
-                                                        />
+                                                        <div className={`h-2 w-2 rounded-full ${transaction.type === 'income' ? 'bg-green-500' : 'bg-red-500'}`} />
                                                         <div>
-                                                            <p className="text-sm font-medium">{transaction.description}</p>
-                                                            <p className="text-xs text-gray-500">{transaction.category.name}</p>
+                                                            <p className="font-medium">{transaction.description}</p>
+                                                            <p className="text-sm text-gray-500">{transaction.category.name}</p>
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p
-                                                            className={`text-sm font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
-                                                        >
-                                                            {transaction.type === 'income' ? '+' : '-'}${Math.abs(transaction.amount)}
+                                                        <p className={`font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                                                            {transaction.type === 'income' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
                                                         </p>
-                                                        <p className="text-xs text-gray-500">{formatDate(transaction.created_at).date}</p>
+                                                        <p className="text-sm text-gray-500">{formatDate(transaction.created_at).date}</p>
                                                     </div>
                                                 </div>
                                             ))}
@@ -235,35 +220,6 @@ export default function UserProfile({ user, roles, permissions }: Props) {
                                             </div>
                                         )}
                                     </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Social Accounts */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center">
-                                        <Users className="mr-2 h-4 w-4" />
-                                        Social Accounts
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    {user.social_accounts && user.social_accounts.length > 0 ? (
-                                        <div className="space-y-2">
-                                            {user.social_accounts.map((account) => (
-                                                <div key={account.id} className="flex items-center justify-between rounded border p-2">
-                                                    <div className="flex items-center space-x-2">
-                                                        <Mail className="h-4 w-4 text-gray-400" />
-                                                        <span className="text-sm capitalize">{account.provider}</span>
-                                                    </div>
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {formatDate(account.created_at).date}
-                                                    </Badge>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-sm text-gray-500">No social accounts linked</p>
-                                    )}
                                 </CardContent>
                             </Card>
 

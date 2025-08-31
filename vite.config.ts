@@ -89,7 +89,7 @@ export default defineConfig({
             },
         },
         cssCodeSplit: true,
-        outDir: 'public/build',
+        outDir: 'build',
         assetsDir: 'assets',
         manifest: true,
         // Increase chunk size warning limit

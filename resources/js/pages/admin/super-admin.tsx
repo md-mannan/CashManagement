@@ -3,24 +3,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { AlertTriangle, Crown, Eye, Facebook, Github, Key, Lock, Shield, Users } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { AlertTriangle, Key, Lock, Shield, Users } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Admin',
-        href: '/admin/dashboard',
-    },
-    {
-        title: 'Super Admin Management',
-        href: '/admin/super-admin',
-    },
+    { title: 'Admin', href: '/admin/dashboard' },
+    { title: 'Super Admin', href: '/admin/super-admin' },
 ];
 
 interface SuperAdminProps {
@@ -32,7 +24,6 @@ interface SuperAdminProps {
         is_active: boolean;
         created_at: string;
         last_login_at: string | null;
-        social_accounts: Array<{ provider: string }>;
         is_current_user: boolean;
     }>;
     systemStats: {
@@ -122,26 +113,11 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
         return isActive ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200';
     };
 
-    const getProviderIcon = (provider: string) => {
-        switch (provider) {
-            case 'facebook':
-                return <Facebook className="h-4 w-4 text-blue-600" />;
-            case 'google':
-                return <div className="h-4 w-4 rounded-full bg-gradient-to-r from-red-400 to-blue-500" />;
-            case 'github':
-                return <Github className="h-4 w-4 text-gray-800" />;
-            default:
-                return <Key className="h-4 w-4 text-gray-600" />;
-        }
-    };
-
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
         });
     };
 
@@ -154,158 +130,127 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
         <AdminRouteGuard>
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Super Admin Management" />
-
-                <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-2 sm:p-4 w-full max-w-full">
-                    <div className="space-y-6">
+                <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
                     {/* Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">Super Admin Management</h1>
-                            <p className="text-sm text-muted-foreground">Manage super admin accounts and system-wide permissions</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Button asChild variant="outline">
-                                <Link href="/admin/super-admin/audit">
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    System Audit
-                                </Link>
-                            </Button>
+                            <h1 className="text-3xl font-bold tracking-tight">Super Admin Management</h1>
+                            <p className="text-muted-foreground">Manage super administrators and system access</p>
                         </div>
                     </div>
 
-                    {/* System Statistics */}
-                    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* System Stats */}
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
                                 <Users className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{systemStats.total_users.toLocaleString()}</div>
-                                <p className="text-xs text-muted-foreground">{systemStats.users_this_month} new this month</p>
+                                <div className="text-2xl font-bold">{systemStats.total_users}</div>
+                                <p className="text-xs text-muted-foreground">All registered users</p>
                             </CardContent>
                         </Card>
-
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-                                <div className="h-4 w-4 rounded-full bg-green-500" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{systemStats.active_users.toLocaleString()}</div>
-                                <p className="text-xs text-muted-foreground">
-                                    {((systemStats.active_users / systemStats.total_users) * 100).toFixed(1)}% of total
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Administrators</CardTitle>
                                 <Shield className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{systemStats.total_admins.toLocaleString()}</div>
-                                <p className="text-xs text-muted-foreground">{systemStats.total_super_admins} super admins</p>
+                                <div className="text-2xl font-bold">{systemStats.active_users}</div>
+                                <p className="text-xs text-muted-foreground">Currently active</p>
                             </CardContent>
                         </Card>
-
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">User Growth</CardTitle>
-                                <div className="h-4 w-4 rounded-full bg-blue-500" />
+                                <CardTitle className="text-sm font-medium">Admins</CardTitle>
+                                <Shield className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">
-                                    {calculateGrowth(systemStats.users_this_month, systemStats.users_last_month).toFixed(1)}%
-                                </div>
-                                <p className="text-xs text-muted-foreground">vs last month</p>
+                                <div className="text-2xl font-bold">{systemStats.total_admins}</div>
+                                <p className="text-xs text-muted-foreground">Administrative users</p>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Super Admins</CardTitle>
+                                <Shield className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{systemStats.total_super_admins}</div>
+                                <p className="text-xs text-muted-foreground">Full system access</p>
                             </CardContent>
                         </Card>
                     </div>
 
                     {/* Super Admins Table */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Crown className="h-5 w-5 text-yellow-600" />
-                                Super Admin Accounts
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>User</TableHead>
-                                        <TableHead>Role & Status</TableHead>
-                                        <TableHead>Social Accounts</TableHead>
-                                        <TableHead>Created</TableHead>
-                                        <TableHead>Last Login</TableHead>
-                                        <TableHead>Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {superAdmins.map((admin) => (
-                                        <TableRow key={admin.id}>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="font-medium">{admin.name}</div>
-                                                    <div className="text-sm text-muted-foreground">{admin.email}</div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col gap-2">
-                                                    <Badge variant="secondary" className="w-fit">
-                                                        <Crown className="mr-1 h-3 w-3 text-yellow-600" />
-                                                        Super Admin
-                                                    </Badge>
-                                                    <Badge className={getStatusColor(admin.is_active)}>
-                                                        {admin.is_active ? 'Active' : 'Inactive'}
-                                                    </Badge>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex gap-1">
-                                                    {admin.social_accounts.length > 0 ? (
-                                                        admin.social_accounts.map((account, index) => (
-                                                            <div key={index} title={account.provider}>
-                                                                {getProviderIcon(account.provider)}
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <span className="text-sm text-muted-foreground">None</span>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">{formatDate(admin.created_at)}</TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">
-                                                {admin.last_login_at ? formatDate(admin.last_login_at) : 'Never'}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex gap-2">
-                                                    {!admin.is_current_user && (
-                                                        <>
-                                                            <Button size="sm" variant="outline" onClick={() => openPermissionDialog(admin)}>
-                                                                <Key className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button size="sm" variant="destructive" onClick={() => openDemoteDialog(admin)}>
-                                                                <Lock className="h-4 w-4" />
-                                                            </Button>
-                                                        </>
-                                                    )}
-                                                    {admin.is_current_user && (
-                                                        <Badge variant="outline" className="text-xs">
-                                                            Current User
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            </TableCell>
+                    <div className="space-y-4">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Shield className="h-5 w-5" />
+                                    Super Administrators
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>User</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Created</TableHead>
+                                            <TableHead>Last Login</TableHead>
+                                            <TableHead>Actions</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {superAdmins.map((admin) => (
+                                            <TableRow key={admin.id}>
+                                                <TableCell>
+                                                    <div>
+                                                        <div className="font-medium">{admin.name}</div>
+                                                        <div className="text-sm text-muted-foreground">{admin.email}</div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex gap-2">
+                                                        <Badge className="bg-red-100 text-red-800 border-red-200">
+                                                            Super Admin
+                                                        </Badge>
+                                                        <Badge className={getStatusColor(admin.is_active)}>
+                                                            {admin.is_active ? 'Active' : 'Inactive'}
+                                                        </Badge>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-sm text-muted-foreground">{formatDate(admin.created_at)}</TableCell>
+                                                <TableCell className="text-sm text-muted-foreground">
+                                                    {admin.last_login_at ? formatDate(admin.last_login_at) : 'Never'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex gap-2">
+                                                        {!admin.is_current_user && (
+                                                            <>
+                                                                <Button size="sm" variant="outline" onClick={() => openPermissionDialog(admin)}>
+                                                                    <Key className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button size="sm" variant="destructive" onClick={() => openDemoteDialog(admin)}>
+                                                                    <Lock className="h-4 w-4" />
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                        {admin.is_current_user && (
+                                                            <Badge variant="outline" className="text-xs">
+                                                                Current User
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
                     </div>
 
                 {/* Promote User Dialog */}
@@ -357,25 +302,29 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
                             </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="new_role">New Role</Label>
-                                <Select value={demoteForm.data.new_role} onValueChange={(value) => demoteForm.setData('new_role', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select new role" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="admin">Admin</SelectItem>
-                                        <SelectItem value="user">User</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <div className="rounded-lg bg-yellow-50 p-4">
+                                <div className="flex">
+                                    <AlertTriangle className="h-5 w-5 text-yellow-400" />
+                                    <div className="ml-3">
+                                        <h3 className="text-sm font-medium text-yellow-800">Warning</h3>
+                                        <div className="mt-2 text-sm text-yellow-700">
+                                            <p>This action will:</p>
+                                            <ul className="mt-1 list-inside list-disc">
+                                                <li>Remove super admin privileges</li>
+                                                <li>Restrict system access</li>
+                                                <li>Require re-authorization for sensitive operations</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setIsDemoteDialogOpen(false)}>
                                 Cancel
                             </Button>
-                            <Button onClick={handleDemote} disabled={demoteForm.processing}>
-                                {demoteForm.processing ? 'Demoting...' : 'Demote User'}
+                            <Button variant="destructive" onClick={handleDemote} disabled={demoteForm.processing}>
+                                {demoteForm.processing ? 'Demoting...' : 'Demote Super Admin'}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
@@ -385,7 +334,7 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
                 <Dialog open={isPermissionDialogOpen} onOpenChange={setIsPermissionDialogOpen}>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Update Super Admin Permissions</DialogTitle>
+                            <DialogTitle>Update Permissions</DialogTitle>
                             <DialogDescription>
                                 Update permissions for {selectedUser?.name}. Super admins typically have all permissions.
                             </DialogDescription>
@@ -397,10 +346,7 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
                                     <div className="ml-3">
                                         <h3 className="text-sm font-medium text-blue-800">Note</h3>
                                         <div className="mt-2 text-sm text-blue-700">
-                                            <p>
-                                                Super admins have access to all system features by default. You can customize specific permissions if
-                                                needed.
-                                            </p>
+                                            <p>Super admins have access to all system features by default. Custom permissions are typically not needed.</p>
                                         </div>
                                     </div>
                                 </div>

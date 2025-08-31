@@ -10,31 +10,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { Chrome, Download, Edit, Facebook, Github, Key, Settings, Shield, Users } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { Edit, Key, Users } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Admin',
-        href: '/admin/dashboard',
-    },
-    {
-        title: 'Role & Permission Management',
-        href: '/admin/role-permission',
-    },
+    { title: 'Admin', href: '/admin/dashboard' },
+    { title: 'Role & Permission', href: '/admin/role-permission' },
 ];
 
 interface RolePermissionProps {
-    roles: Record<
-        string,
-        {
-            name: string;
-            description: string;
-            permissions: string[];
-            user_count: number;
-        }
-    >;
+    roles: Record<string, { name: string; permissions: string[] }>;
     availablePermissions: Record<string, string>;
     users: Array<{
         id: number;
@@ -45,7 +31,6 @@ interface RolePermissionProps {
         is_active: boolean;
         created_at: string;
         last_login_at: string | null;
-        social_accounts: Array<{ provider: string }>;
     }>;
 }
 
@@ -136,41 +121,12 @@ export default function RolePermission({ roles, availablePermissions, users }: R
         return isActive ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200';
     };
 
-    const getProviderIcon = (provider: string) => {
-        switch (provider) {
-            case 'facebook':
-                return <Facebook className="h-4 w-4 text-blue-600" />;
-            case 'google':
-                return <Chrome className="h-4 w-4 text-red-600" />;
-            case 'github':
-                return <Github className="h-4 w-4 text-gray-800" />;
-            default:
-                return null;
-        }
-    };
-
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
         });
-    };
-
-    const handleUserSelection = (userId: number, checked: boolean) => {
-        if (checked) {
-            setSelectedUsers([...selectedUsers, userId]);
-        } else {
-            setSelectedUsers(selectedUsers.filter((id) => id !== userId));
-        }
-    };
-
-    const handleSelectAll = (checked: boolean) => {
-        if (checked) {
-            setSelectedUsers(users.map((user) => user.id));
-        } else {
-            setSelectedUsers([]);
-        }
     };
 
     return (
@@ -182,113 +138,18 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight">Role & Permission Management</h1>
-                            <p className="text-muted-foreground">Manage user roles, permissions, and access levels</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button asChild variant="outline">
-                                <Link href="/admin/users">
-                                    <Users className="mr-2 h-4 w-4" />
-                                    User Management
-                                </Link>
-                            </Button>
-                            <Button asChild variant="outline">
-                                <a href="/admin/role-permission/export" download>
-                                    <Download className="mr-2 h-4 w-4" />
-                                    Export Users
-                                </a>
-                            </Button>
+                            <p className="text-muted-foreground">Manage user roles and permissions across the system</p>
                         </div>
                     </div>
 
-                    {/* Main Content Tabs */}
-                    <Tabs defaultValue="roles" className="w-full">
-                        <TabsList className="grid w-full grid-cols-3">
-                            <TabsTrigger value="roles">Roles Overview</TabsTrigger>
-                            <TabsTrigger value="users">User Management</TabsTrigger>
+                    {/* Main Content */}
+                    <Tabs defaultValue="users" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="users">Users ({users.length})</TabsTrigger>
                             <TabsTrigger value="permissions">Permissions</TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="roles" className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-3">
-                                {Object.entries(roles).map(([roleKey, role]) => (
-                                    <Card key={roleKey}>
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <Shield className="h-5 w-5" />
-                                                {role.name}
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <p className="mb-4 text-sm text-muted-foreground">{role.description}</p>
-                                            <div className="space-y-2">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-sm font-medium">Users</span>
-                                                    <Badge variant="secondary">{role.user_count}</Badge>
-                                                </div>
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-sm font-medium">Permissions</span>
-                                                    <Badge variant="outline">
-                                                        {role.permissions.includes('*') ? 'All' : role.permissions.length}
-                                                    </Badge>
-                                                </div>
-                                            </div>
-                                            <div className="mt-4">
-                                                <h4 className="mb-2 text-sm font-medium">Default Permissions:</h4>
-                                                <div className="space-y-1">
-                                                    {role.permissions.includes('*') ? (
-                                                        <Badge variant="default" className="text-xs">
-                                                            All Permissions
-                                                        </Badge>
-                                                    ) : (
-                                                        role.permissions.map((permission) => (
-                                                            <Badge key={permission} variant="outline" className="mr-1 mb-1 text-xs">
-                                                                {availablePermissions[permission] || permission}
-                                                            </Badge>
-                                                        ))
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        </TabsContent>
-
                         <TabsContent value="users" className="space-y-4">
-                            {/* Bulk Actions */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center justify-between">
-                                        <span>Bulk Actions</span>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setIsBulkDialogOpen(true)}
-                                            disabled={selectedUsers.length === 0}
-                                        >
-                                            <Settings className="mr-2 h-4 w-4" />
-                                            Bulk Update ({selectedUsers.length} selected)
-                                        </Button>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id="select-all"
-                                                checked={selectedUsers.length === users.length && users.length > 0}
-                                                onCheckedChange={handleSelectAll}
-                                            />
-                                            <Label htmlFor="select-all">Select All</Label>
-                                        </div>
-                                        <span className="text-sm text-muted-foreground">
-                                            {selectedUsers.length} of {users.length} users selected
-                                        </span>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Users Table */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
@@ -300,16 +161,9 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead className="w-12">
-                                                    <Checkbox
-                                                        checked={selectedUsers.length === users.length && users.length > 0}
-                                                        onCheckedChange={handleSelectAll}
-                                                    />
-                                                </TableHead>
                                                 <TableHead>User</TableHead>
                                                 <TableHead>Role</TableHead>
                                                 <TableHead>Status</TableHead>
-                                                <TableHead>Social</TableHead>
                                                 <TableHead>Created</TableHead>
                                                 <TableHead>Actions</TableHead>
                                             </TableRow>
@@ -317,12 +171,6 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                                         <TableBody>
                                             {users.map((user) => (
                                                 <TableRow key={user.id}>
-                                                    <TableCell>
-                                                        <Checkbox
-                                                            checked={selectedUsers.includes(user.id)}
-                                                            onCheckedChange={(checked) => handleUserSelection(user.id, !!checked)}
-                                                        />
-                                                    </TableCell>
                                                     <TableCell>
                                                         <div>
                                                             <div className="font-medium">{user.name}</div>
@@ -336,13 +184,6 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                                                         <Badge className={getStatusColor(user.is_active)}>
                                                             {user.is_active ? 'ACTIVE' : 'INACTIVE'}
                                                         </Badge>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex gap-1">
-                                                            {user.social_accounts.map((account, index) => (
-                                                                <div key={index}>{getProviderIcon(account.provider)}</div>
-                                                            ))}
-                                                        </div>
                                                     </TableCell>
                                                     <TableCell>{formatDate(user.created_at)}</TableCell>
                                                     <TableCell>
@@ -432,9 +273,9 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                                                         }
                                                     }}
                                                 />
-                                                <Label htmlFor={`edit-perm-${key}`} className="text-sm">
+                                                <label htmlFor={`edit-perm-${key}`} className="text-sm text-gray-700">
                                                     {label}
-                                                </Label>
+                                                </label>
                                             </div>
                                         ))}
                                     </div>
@@ -445,45 +286,42 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                                     Cancel
                                 </Button>
                                 <Button onClick={handleEditUser} disabled={editForm.processing}>
-                                    Update Role
+                                    Update User
                                 </Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
 
-                    {/* Edit Permissions Dialog */}
+                    {/* Update Permissions Dialog */}
                     <Dialog open={isPermissionDialogOpen} onOpenChange={setIsPermissionDialogOpen}>
                         <DialogContent className="sm:max-w-[500px]">
                             <DialogHeader>
-                                <DialogTitle>Edit User Permissions</DialogTitle>
-                                <DialogDescription>Update specific user permissions.</DialogDescription>
+                                <DialogTitle>Update User Permissions</DialogTitle>
+                                <DialogDescription>Update permissions for {selectedUser?.name}.</DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label className="text-right">Permissions</Label>
-                                    <div className="col-span-3 space-y-2">
-                                        {Object.entries(availablePermissions).map(([key, label]) => (
-                                            <div key={key} className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={`perm-${key}`}
-                                                    checked={permissionForm.data.permissions.includes(key)}
-                                                    onCheckedChange={(checked) => {
-                                                        if (checked) {
-                                                            permissionForm.setData('permissions', [...permissionForm.data.permissions, key]);
-                                                        } else {
-                                                            permissionForm.setData(
-                                                                'permissions',
-                                                                permissionForm.data.permissions.filter((p) => p !== key),
-                                                            );
-                                                        }
-                                                    }}
-                                                />
-                                                <Label htmlFor={`perm-${key}`} className="text-sm">
-                                                    {label}
-                                                </Label>
-                                            </div>
-                                        ))}
-                                    </div>
+                                <div className="space-y-2">
+                                    {Object.entries(availablePermissions).map(([key, label]) => (
+                                        <div key={key} className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id={`perm-${key}`}
+                                                checked={permissionForm.data.permissions.includes(key)}
+                                                onCheckedChange={(checked) => {
+                                                    if (checked) {
+                                                        permissionForm.setData('permissions', [...permissionForm.data.permissions, key]);
+                                                    } else {
+                                                        permissionForm.setData(
+                                                            'permissions',
+                                                            permissionForm.data.permissions.filter((p) => p !== key),
+                                                        );
+                                                    }
+                                                }}
+                                            />
+                                            <label htmlFor={`perm-${key}`} className="text-sm text-gray-700">
+                                                {label}
+                                            </label>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                             <DialogFooter>
@@ -501,17 +339,17 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                     <Dialog open={isBulkDialogOpen} onOpenChange={setIsBulkDialogOpen}>
                         <DialogContent className="sm:max-w-[500px]">
                             <DialogHeader>
-                                <DialogTitle>Bulk Update Roles</DialogTitle>
-                                <DialogDescription>Update roles for {selectedUsers.length} selected users.</DialogDescription>
+                                <DialogTitle>Bulk Update Users</DialogTitle>
+                                <DialogDescription>Update role for multiple users at once.</DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="bulk-role" className="text-right">
-                                        New Role
+                                        Role
                                     </Label>
                                     <Select value={bulkForm.data.role} onValueChange={(value) => bulkForm.setData('role', value)}>
                                         <SelectTrigger className="col-span-3">
-                                            <SelectValue placeholder="Select role" />
+                                            <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {Object.keys(roles).map((role) => (
@@ -527,8 +365,8 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                                 <Button type="button" variant="outline" onClick={() => setIsBulkDialogOpen(false)}>
                                     Cancel
                                 </Button>
-                                <Button onClick={handleBulkUpdate} disabled={bulkForm.processing || !bulkForm.data.role}>
-                                    Update {selectedUsers.length} Users
+                                <Button onClick={handleBulkUpdate} disabled={bulkForm.processing}>
+                                    Update Users
                                 </Button>
                             </DialogFooter>
                         </DialogContent>
