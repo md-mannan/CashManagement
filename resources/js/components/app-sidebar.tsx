@@ -20,7 +20,6 @@ import {
     Users,
     Archive,
     Monitor,
-    Image
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -50,11 +49,7 @@ export function AppSidebar() {
             href: '/categories',
             icon: Tag,
         },
-        {
-            title: 'Gallery',
-            href: '/gallery',
-            icon: Image,
-        },
+
     ];
 
     const adminNavItems: NavItem[] = [
