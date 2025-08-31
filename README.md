@@ -282,6 +282,27 @@ php artisan view:cache
 2. Use your hosting provider's SMTP settings
 3. Test with a simple mail function first
 
+#### **Issue: 419 CSRF Token Mismatch Error**
+**Solution:**
+1. Clear all caches:
+   ```bash
+   php artisan cache:clear
+   php artisan config:clear
+   php artisan route:clear
+   php artisan view:clear
+   ```
+2. Regenerate application key:
+   ```bash
+   php artisan key:generate
+   ```
+3. Check session configuration in `.env`:
+   ```env
+   SESSION_DOMAIN=yourdomain.com
+   SESSION_SECURE_COOKIE=false
+   ```
+4. Ensure HTTPS is properly configured
+5. Clear browser cache and cookies
+
 ### **🔒 Security Checklist**
 
 After deployment, ensure:
