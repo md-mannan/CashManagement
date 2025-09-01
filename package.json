@@ -4,6 +4,7 @@
     "scripts": {
         "build": "vite build",
         "build:production": "vite build --mode production",
+        "build:deploy": "vite build && if exist build (if exist public\\build rmdir /s /q public\\build && move build public\\build)",
         "build:ssr": "vite build && vite build --ssr",
         "dev": "vite",
         "format": "prettier --write resources/",

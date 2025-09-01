@@ -58,7 +58,7 @@ composer install --no-dev --optimize-autoloader
 npm install
 
 # Build production assets
-npm run build
+npm run build:deploy
 
 # Create production environment file
 cp env-production.example .env
@@ -302,6 +302,23 @@ APP_DEBUG=true
    ```
 4. Ensure HTTPS is properly configured
 5. Clear browser cache and cookies
+
+#### **Issue: JavaScript Error - "can't access property 'innerHTML', document.body is null"**
+**Solution:**
+1. Ensure production build exists:
+   ```bash
+   npm run build:deploy
+   ```
+2. Check that `public/build` directory exists and contains:
+   - `.vite/manifest.json`
+   - `assets/` directory with JS/CSS files
+3. If build files are missing, rebuild:
+   ```bash
+   npm install
+   npm run build:deploy
+   ```
+4. Clear browser cache and reload the page
+5. Check browser console for other JavaScript errors
 
 ### **🔒 Security Checklist**
 

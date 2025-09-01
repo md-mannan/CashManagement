@@ -76,8 +76,6 @@
                     $appCss = $manifestData['resources/js/app.tsx']['css'][0] ?? null;
                 }
             }
-            
-
         @endphp
         
         @if(isset($appCss))
@@ -89,7 +87,19 @@
         @else
             {{-- Error if production build not found --}}
             <script>
-                document.body.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;"><h1>Build Error</h1><p>Production build not found. Please run: <code>npm run build</code></p></div>';
+                // Wait for DOM to be ready before accessing document.body
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (document.body) {
+                            document.body.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;"><h1>Build Error</h1><p>Production build not found. Please run: <code>npm run build</code></p></div>';
+                        }
+                    });
+                } else {
+                    // DOM is already loaded
+                    if (document.body) {
+                        document.body.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;"><h1>Build Error</h1><p>Production build not found. Please run: <code>npm run build</code></p></div>';
+                    }
+                }
             </script>
         @endif
         

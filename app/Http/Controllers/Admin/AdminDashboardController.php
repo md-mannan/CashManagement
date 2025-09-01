@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Transaction;
-use App\Models\SocialAccount;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -61,8 +61,8 @@ class AdminDashboardController extends Controller
         $totalAdmins = User::where('role', 'admin')->count();
         $totalSuperAdmins = User::where('role', 'super_admin')->count();
 
-        // Social users
-        $socialUsers = SocialAccount::distinct('user_id')->count();
+        // Social users (not implemented in this version - placeholder for future social login features)
+        $socialUsers = 0;
 
         // New users this month vs last month
         $newUsersThisMonth = User::whereBetween('created_at', [$thisMonth, $thisMonthEnd])->count();

@@ -11,6 +11,7 @@ export default defineConfig({
             input: ['resources/js/app.tsx'],
             ssr: 'resources/js/ssr.tsx',
             refresh: true,
+            buildDirectory: 'build',
         }),
         react(),
         tailwindcss(),
@@ -89,7 +90,7 @@ export default defineConfig({
             },
         },
         cssCodeSplit: true,
-        outDir: 'build',
+        outDir: 'public/build',
         assetsDir: 'assets',
         manifest: true,
         // Increase chunk size warning limit
