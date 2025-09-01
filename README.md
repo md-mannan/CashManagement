@@ -65,7 +65,7 @@ npm run build:deploy
 # Or on Windows: fix-build-location.bat
 
 # Create production environment file
-cp env-production.example .env
+cp env-cpanel.example .env
 ```
 
 #### **Step 2: Configure Environment Variables**
@@ -121,6 +121,9 @@ REVERB_HOST=yourdomain.com
 REVERB_PORT=443
 REVERB_SCHEME=https
 
+# Filesystem Configuration
+FILESYSTEM_DISK=public
+
 # Security Configuration
 FORCE_HTTPS=true
 HSTS_MAX_AGE=31536000
@@ -136,6 +139,18 @@ OPTIMIZE_AUTOLOADER=true
 VIEW_CACHE_ENABLED=true
 ROUTE_CACHE_ENABLED=true
 CONFIG_CACHE_ENABLED=true
+
+# cPanel Specific Settings
+CPANEL_USERNAME=your_cpanel_username
+CPANEL_DOMAIN=yourdomain.com
+CPANEL_SUBDOMAIN=
+
+# PHP Configuration (if supported by hosting provider)
+PHP_MEMORY_LIMIT=256M
+PHP_MAX_EXECUTION_TIME=300
+PHP_MAX_INPUT_TIME=300
+PHP_UPLOAD_MAX_FILESIZE=10M
+PHP_POST_MAX_SIZE=10M
 ```
 
 #### **Step 3: Upload Files to cPanel**
@@ -231,7 +246,15 @@ php artisan storage:link
 # Link: storage/app/public → public/storage
 ```
 
-#### **Step 8: Clear and Cache Configuration**
+#### **Step 8: Configure .htaccess for cPanel**
+
+Copy the cPanel-specific `.htaccess` file:
+```bash
+# Copy the cPanel .htaccess to the root
+cp public/.htaccess.cpanel public/.htaccess
+```
+
+#### **Step 9: Clear and Cache Configuration**
 
 ```bash
 # Via SSH
@@ -241,7 +264,7 @@ php artisan route:cache
 php artisan view:cache
 ```
 
-#### **Step 9: Test Your Installation**
+#### **Step 10: Test Your Installation**
 
 1. Visit your domain: `https://yourdomain.com`
 2. You should see the welcome page
@@ -258,7 +281,7 @@ php artisan view:cache
 4. Enable error reporting temporarily:
 ```env
 APP_DEBUG=true
-   ```
+```
 
 #### **Issue: Assets Not Loading**
 **Solution:**
@@ -296,13 +319,13 @@ APP_DEBUG=true
    php artisan view:clear
    ```
 2. Regenerate application key:
-```bash
+   ```bash
    php artisan key:generate
    ```
 3. Check session configuration in `.env`:
    ```env
-   SESSION_DOMAIN=accounts.mannnan.space
-   SESSION_SECURE_COOKIE=false
+   SESSION_DOMAIN=yourdomain.com
+   SESSION_SECURE_COOKIE=true
    ```
 4. Ensure HTTPS is properly configured
 5. Clear browser cache and cookies
@@ -346,6 +369,30 @@ APP_DEBUG=true
    ```
 4. Clear browser cache and reload the page
 5. Check browser console for other JavaScript errors
+
+#### **Issue: Content Security Policy (CSP) Errors**
+**Solution:**
+1. The CSP policy has been updated to allow blob URLs for profile photos
+2. If you still see CSP errors, check that the correct `.htaccess` file is being used
+3. Ensure the cPanel `.htaccess` file is copied to the root:
+   ```bash
+   cp public/.htaccess.cpanel public/.htaccess
+   ```
+
+#### **Issue: Profile Photos Not Loading (404 Errors)**
+**Solution:**
+1. Check if storage link exists:
+   ```bash
+   php artisan storage:link
+   ```
+2. Verify file permissions on storage directory
+3. Check if files exist in `storage/app/public/profile-photos/`
+4. Clear browser cache to remove old cached URLs
+5. Run the diagnostic commands:
+   ```bash
+   php artisan profile-photos:check
+   php artisan users:check-profile-photos
+   ```
 
 ### **🔒 Security Checklist**
 
@@ -394,6 +441,22 @@ php artisan view:cache
 - Regular database maintenance
 - Monitor slow queries
 - Use proper indexing
+
+### **📋 Quick Deployment Checklist**
+
+- [ ] Local build completed (`npm run build:deploy`)
+- [ ] Environment file configured (`.env`)
+- [ ] Files uploaded to cPanel
+- [ ] Database created and configured
+- [ ] File permissions set correctly
+- [ ] Application key generated
+- [ ] Storage link created
+- [ ] `.htaccess` file configured for cPanel
+- [ ] Caches cleared and optimized
+- [ ] Application tested and working
+- [ ] Admin account created
+- [ ] Email configured
+- [ ] Security settings verified
 
 ## 🛠️ **Technology Stack**
 
