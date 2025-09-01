@@ -75,6 +75,38 @@ $socialUsers = SocialAccount::distinct('user_id')->count();
 $socialUsers = 0;
 ```
 
+### 4. Inertia.js Response Error - Profile Photo Upload
+
+**Date Fixed:** September 1, 2025  
+**Files Modified:** `app/Http/Controllers/Settings/ProfileController.php`
+
+**Problem:** The profile photo upload functionality was returning plain JSON responses instead of proper Inertia.js responses, causing the error "All Inertia requests must receive a valid Inertia response, however a plain JSON response was received."
+
+**Solution:** 
+1. Modified all profile photo methods to return proper Inertia redirect responses
+2. Replaced JSON responses with `back()->with('status', 'message')` for success cases
+3. Replaced JSON error responses with `back()->withErrors()` for error cases
+4. Removed conditional JSON response handling
+
+**Code Changes:**
+```php
+// Before (causing Inertia error):
+return response()->json([
+    'success' => true,
+    'message' => 'Profile photo updated successfully.',
+    'photo_path' => $path,
+]);
+
+// After (proper Inertia response):
+return back()->with('status', 'Profile photo updated successfully.');
+```
+
+**Methods Fixed:**
+- `uploadPhoto()` - Profile photo upload
+- `setCurrentPhoto()` - Set photo as current
+- `deletePhoto()` - Delete profile photo
+- `removePhoto()` - Remove current photo
+
 ## Prevention Measures
 
 ### 1. Build Process Improvements

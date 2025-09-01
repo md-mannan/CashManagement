@@ -86,11 +86,7 @@ class ProfileController extends Controller
                 'profile_photo' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
+            return back()->withErrors($e->errors())->withInput();
         }
 
         $user = $request->user();
@@ -118,16 +114,9 @@ class ProfileController extends Controller
             // Refresh the user data to ensure avatar is updated
             $user->refresh();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile photo updated successfully.',
-                'photo_path' => $path,
-            ]);
+            return back()->with('status', 'Profile photo updated successfully.');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Upload failed: ' . $e->getMessage(),
-            ], 500);
+            return back()->withErrors(['message' => 'Upload failed: ' . $e->getMessage()]);
         }
     }
 
@@ -153,19 +142,6 @@ class ProfileController extends Controller
         $user->update(['profile_photo' => $profilePhoto->file_path]);
 
 
-
-        // Return JSON response for SPA behavior
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile photo updated successfully.',
-                'photo' => [
-                    'id' => $profilePhoto->id,
-                    'url' => $profilePhoto->url,
-                    'is_current' => true,
-                ],
-            ]);
-        }
 
         return back()->with('status', 'Profile photo updated successfully.');
     }
@@ -205,14 +181,6 @@ class ProfileController extends Controller
         // Delete record
         $profilePhoto->delete();
 
-        // Return JSON response for SPA behavior
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile photo deleted successfully.',
-            ]);
-        }
-
         return back()->with('status', 'Profile photo deleted successfully.');
     }
 
@@ -229,15 +197,7 @@ class ProfileController extends Controller
         // Update user's profile photo to null
         $user->update(['profile_photo' => null]);
 
-        // Return JSON response for SPA behavior
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile photo removed successfully.',
-            ]);
-        }
-
-        return to_route('settings.profile.edit');
+        return back()->with('status', 'Profile photo removed successfully.');
     }
 
     /**
