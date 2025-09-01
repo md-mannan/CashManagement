@@ -29,6 +29,127 @@ A modern, full-featured financial management application built with Laravel 12 a
 - **Activity Logging** - Comprehensive audit trail
 - **Secure Authentication** - Laravel Sanctum with session management
 
+## 🧑‍💻 Local Development Setup
+
+### Prerequisites
+- PHP 8.2+
+- MySQL 8.0+ (running locally)
+- Composer 2
+- Node.js 20+ and npm
+- Git
+
+### Steps
+```bash
+# 1) Clone and enter project
+git clone <your-repo-url>
+cd CashManagement
+
+# 2) Copy env and configure
+cp env-local.example .env
+
+# 3) Generate app key
+php artisan key:generate
+
+# 4) Configure MySQL in .env (example)
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=cash_management
+# DB_USERNAME=root
+# DB_PASSWORD=secret
+
+# 5) Install backend deps
+composer install
+
+# 6) Install frontend deps
+npm install
+
+# 7) Run migrations & seeders
+php artisan migrate --seed
+
+# 8) Create storage symlink
+php artisan storage:link
+
+# 9) Start servers (in two terminals)
+php artisan serve
+npm run dev
+
+# 10) (Optional) Run tests
+php artisan test
+```
+
+Visit: http://127.0.0.1:8000
+
+If profile photos don't show locally, ensure the storage link exists and `APP_URL=http://127.0.0.1:8000` in `.env`.
+
+## 🏭 Production Deployment (Generic Linux Server)
+
+### Prerequisites
+- Linux server (Ubuntu/Debian/CentOS), Nginx/Apache, PHP-FPM 8.2+
+- MySQL 8.0+
+- Git, Composer 2, Node.js 20+
+
+### Steps
+```bash
+# 1) Clone and enter project (to /var/www/cash-management for example)
+git clone <your-repo-url> /var/www/cash-management
+cd /var/www/cash-management
+
+# 2) Copy env and configure
+cp env-production.example .env
+# Edit .env with production DB, APP_URL=https://yourdomain.com, MAIL, etc.
+
+# 3) Generate app key
+php artisan key:generate
+
+# 4) Install PHP deps without dev & optimize
+composer install --no-dev --optimize-autoloader
+
+# 5) Install and build frontend
+npm ci || npm install
+npm run build:deploy
+
+# 6) Set correct permissions
+chown -R www-data:www-data storage bootstrap/cache public/build
+find storage -type d -exec chmod 755 {} \;
+find storage -type f -exec chmod 644 {} \;
+find bootstrap/cache -type d -exec chmod 755 {} \;
+find bootstrap/cache -type f -exec chmod 644 {} \;
+
+# 7) Migrate and (optionally) seed
+php artisan migrate --force
+# php artisan db:seed --force
+
+# 8) Create storage link
+php artisan storage:link
+
+# 9) Cache config/routes/views
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+Configure your web server to point the document root to the `public/` directory. Example Nginx server block (snippet):
+
+```
+server {
+    server_name yourdomain.com;
+    root /var/www/cash-management/public;
+
+    index index.php index.html;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+    }
+}
+```
+
 ## 🚀 **cPanel Shared Hosting Deployment**
 
 This guide will walk you through deploying the Cash Management System to any cPanel shared hosting provider.
@@ -42,7 +163,7 @@ Before starting, ensure your cPanel hosting has:
 - ✅ **Node.js support** (for building assets)
 - ✅ **Git access** (for cloning the repository)
 
-### **🔧 Step-by-Step Deployment**
+### **🔧 Step-by-Step Deployment (cPanel)**
 
 #### **Step 1: Prepare Your Local Environment**
 
@@ -242,8 +363,8 @@ APP_KEY=base64:your-32-character-key-here
 # Via SSH
 php artisan storage:link
 
-# OR manually create symlink in public_html
-# Link: storage/app/public → public/storage
+# OR manually create symlink in public_html (if artisan fails)
+ln -s ../storage/app/public public/storage
 ```
 
 #### **Step 8: Configure .htaccess for cPanel**
@@ -262,6 +383,9 @@ php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
+# Also ensure APP_URL is correct
+sed -n 's/^APP_URL=.*/APP_URL=https:\/\/yourdomain.com/p' .env >/dev/null || true
 ```
 
 #### **Step 10: Test Your Installation**
@@ -388,9 +512,8 @@ APP_DEBUG=true
 2. Verify file permissions on storage directory
 3. Check if files exist in `storage/app/public/profile-photos/`
 4. Clear browser cache to remove old cached URLs
-5. Run the diagnostic commands:
+5. Run the diagnostic command:
    ```bash
-   php artisan profile-photos:check
    php artisan users:check-profile-photos
    ```
 
