@@ -60,6 +60,10 @@ npm install
 # Build production assets
 npm run build:deploy
 
+# Fix build location (if build files are in root instead of public/build)
+./fix-build-location.sh
+# Or on Windows: fix-build-location.bat
+
 # Create production environment file
 cp env-production.example .env
 ```
@@ -302,6 +306,29 @@ APP_DEBUG=true
    ```
 4. Ensure HTTPS is properly configured
 5. Clear browser cache and cookies
+
+#### **Issue: Build Error - "Production build not found. Please run: npm run build"**
+**Solution:**
+1. Check if build files are in the correct location:
+   ```bash
+   ls -la public/build/
+   ```
+2. If build files are in root directory instead of `public/build`:
+   ```bash
+   ./fix-build-location.sh
+   # Or on Windows: fix-build-location.bat
+   ```
+3. If no build files exist, rebuild:
+   ```bash
+   npm install
+   npm run build:deploy
+   ```
+4. Ensure `public/build/.vite/manifest.json` exists
+5. Clear Laravel caches:
+   ```bash
+   php artisan cache:clear
+   php artisan config:clear
+   ```
 
 #### **Issue: JavaScript Error - "can't access property 'innerHTML', document.body is null"**
 **Solution:**

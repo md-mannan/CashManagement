@@ -158,6 +158,17 @@ class ProfileController extends Controller
             abort(403);
         }
 
+        // Log the deletion attempt for debugging
+        \Log::info('Attempting to delete profile photo', [
+            'user_id' => $user->id,
+            'photo_id' => $profilePhoto->id,
+            'file_path' => $profilePhoto->file_path,
+            'full_path' => storage_path('app/public/' . $profilePhoto->file_path),
+            'file_exists' => file_exists(storage_path('app/public/' . $profilePhoto->file_path)),
+            'is_readable' => is_readable(storage_path('app/public/' . $profilePhoto->file_path)),
+            'is_writable' => is_writable(storage_path('app/public/' . $profilePhoto->file_path)),
+        ]);
+
         // If this is the current photo, we need to handle it specially
         if ($profilePhoto->is_current) {
             // Mark all other photos as not current first
@@ -175,8 +186,19 @@ class ProfileController extends Controller
             }
         }
 
-        // Delete file from storage
-        Storage::disk('public')->delete($profilePhoto->file_path);
+        // Delete file from storage with error handling
+        try {
+            Storage::disk('public')->delete($profilePhoto->file_path);
+        } catch (\Exception $e) {
+            // Log the error but continue with database deletion
+            \Log::error('Failed to delete profile photo file: ' . $e->getMessage());
+            
+            // Try alternative deletion method
+            $fullPath = storage_path('app/public/' . $profilePhoto->file_path);
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+        }
 
         // Delete record
         $profilePhoto->delete();

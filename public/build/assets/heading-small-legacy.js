@@ -1,1 +1,0 @@
-System.register(["./ui-vendor-legacy.js"],function(e,t){"use strict";var s;return{setters:[e=>{s=e.j}],execute:function(){e("H",function({title:e,description:t}){return s.jsxs("header",{children:[s.jsx("h3",{className:"mb-0.5 text-base font-medium",children:e}),t&&s.jsx("p",{className:"text-sm text-muted-foreground",children:t})]})})}}});
