@@ -154,6 +154,8 @@ server {
 
 This guide will walk you through deploying the Cash Management System to any cPanel shared hosting provider.
 
+> **📋 For a comprehensive step-by-step guide with detailed troubleshooting, see [CPANEL_DEPLOYMENT_CHECKLIST.md](./CPANEL_DEPLOYMENT_CHECKLIST.md)**
+
 ### **📋 Prerequisites**
 
 Before starting, ensure your cPanel hosting has:
@@ -528,6 +530,8 @@ After deployment, ensure:
 - ✅ `.env` file is not publicly accessible
 
 ### **📱 Post-Deployment**
+
+> **📱 For comprehensive mobile optimization details, see [MOBILE_OPTIMIZATION_GUIDE.md](./MOBILE_OPTIMIZATION_GUIDE.md)**
 
 #### **Create Admin Account**
 1. Register a regular account

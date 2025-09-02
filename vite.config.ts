@@ -55,7 +55,12 @@ export default defineConfig({
         treeShaking: true,
         // Remove console logs in production
         drop: ['console', 'debugger'],
+        // Performance optimizations
+        minify: true,
+        keepNames: false,
+        legalComments: 'none',
     },
+
     resolve: {
         alias: {
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
