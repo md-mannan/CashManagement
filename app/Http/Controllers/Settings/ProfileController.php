@@ -186,24 +186,76 @@ class ProfileController extends Controller
             }
         }
 
-        // Delete file from storage with error handling
+        // Delete file from storage with enhanced error handling for cPanel
+        $fileDeleted = false;
+        $errorMessage = '';
+        
         try {
-            Storage::disk('public')->delete($profilePhoto->file_path);
+            // Method 1: Try Laravel Storage facade
+            if (Storage::disk('public')->exists($profilePhoto->file_path)) {
+                Storage::disk('public')->delete($profilePhoto->file_path);
+                $fileDeleted = true;
+            }
         } catch (\Exception $e) {
-            // Log the error but continue with database deletion
-            \Log::error('Failed to delete profile photo file: ' . $e->getMessage());
-            
-            // Try alternative deletion method
-            $fullPath = storage_path('app/public/' . $profilePhoto->file_path);
-            if (file_exists($fullPath)) {
-                unlink($fullPath);
+            $errorMessage .= 'Storage facade failed: ' . $e->getMessage() . '; ';
+        }
+
+        // Method 2: Try direct file deletion
+        if (!$fileDeleted) {
+            try {
+                $fullPath = storage_path('app/public/' . $profilePhoto->file_path);
+                if (file_exists($fullPath)) {
+                    if (unlink($fullPath)) {
+                        $fileDeleted = true;
+                    } else {
+                        $errorMessage .= 'Direct unlink failed; ';
+                    }
+                } else {
+                    $errorMessage .= 'File does not exist at path: ' . $fullPath . '; ';
+                }
+            } catch (\Exception $e) {
+                $errorMessage .= 'Direct deletion failed: ' . $e->getMessage() . '; ';
             }
         }
 
-        // Delete record
+        // Method 3: Try public storage path
+        if (!$fileDeleted) {
+            try {
+                $publicPath = public_path('storage/' . $profilePhoto->file_path);
+                if (file_exists($publicPath)) {
+                    if (unlink($publicPath)) {
+                        $fileDeleted = true;
+                    } else {
+                        $errorMessage .= 'Public path unlink failed; ';
+                    }
+                }
+            } catch (\Exception $e) {
+                $errorMessage .= 'Public path deletion failed: ' . $e->getMessage() . '; ';
+            }
+        }
+
+        // Log the result
+        if ($fileDeleted) {
+            \Log::info('Profile photo file deleted successfully', [
+                'photo_id' => $profilePhoto->id,
+                'file_path' => $profilePhoto->file_path
+            ]);
+        } else {
+            \Log::error('Failed to delete profile photo file', [
+                'photo_id' => $profilePhoto->id,
+                'file_path' => $profilePhoto->file_path,
+                'errors' => $errorMessage
+            ]);
+        }
+
+        // Delete record regardless of file deletion success
         $profilePhoto->delete();
 
-        return back()->with('status', 'Profile photo deleted successfully.');
+        if ($fileDeleted) {
+            return back()->with('status', 'Profile photo deleted successfully.');
+        } else {
+            return back()->with('status', 'Profile photo record deleted, but file cleanup failed. Please contact support.');
+        }
     }
 
     /**

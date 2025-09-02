@@ -49,6 +49,7 @@ use Illuminate\Support\Facades\Route;
 // ============================================================================
 
 // Public landing page - accessible to all users
+
 Route::get('/welcome', function () {
     return Inertia::render('Welcome');
 })->name('welcome');
