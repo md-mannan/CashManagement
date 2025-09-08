@@ -1,26 +1,32 @@
-# Local Development .htaccess Configuration for Cash Management System
-# Based on cPanel configuration but adapted for local development
+# Laravel Cash Management System - cPanel Shared Hosting Optimized .htaccess
+# Compatible with most shared hosting providers and cPanel environments
 
-# PHP Upload Limits - Remove file size restrictions
-php_value upload_max_filesize 0
-php_value post_max_size 0
+# =============================================================================
+# PHP CONFIGURATION (cPanel Compatible)
+# =============================================================================
+
+# Increase PHP limits for file uploads and processing
+# Note: Some shared hosts may override these values
+php_value upload_max_filesize 50M
+php_value post_max_size 50M
 php_value max_execution_time 300
 php_value max_input_time 300
-php_value memory_limit 512M
+php_value memory_limit 256M
+php_value max_input_vars 3000
+
+# =============================================================================
+# URL REWRITING & ROUTING (cPanel Compatible)
+# =============================================================================
 
 <IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
-
     RewriteEngine On
-
-    # Handle Authorization Header
+    
+    # Handle Authorization Header (for API authentication)
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Handle X-XSRF-Token Header
-    RewriteCond %{HTTP:x-xsrf-token} .
+    # Handle X-XSRF-Token Header (for CSRF protection)
+    RewriteCond %{HTTP:X-XSRF-Token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
     # Redirect Trailing Slashes If Not A Folder
@@ -28,8 +34,8 @@ php_value memory_limit 512M
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Skip Laravel routing for build assets
-    RewriteCond %{REQUEST_URI} ^/build/
+    # Skip Laravel routing for static assets and common files
+    RewriteCond %{REQUEST_URI} ^/(build|storage|favicon\.ico|robots\.txt|apple-touch-icon\.png|logo\.svg|sitemap\.xml)
     RewriteRule ^ - [L]
     
     # Send Requests To Front Controller
@@ -38,40 +44,32 @@ php_value memory_limit 512M
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# Security Headers (if mod_headers is available)
+# =============================================================================
+# SECURITY HEADERS (cPanel Compatible)
+# =============================================================================
+
 <IfModule mod_headers.c>
-    # Basic security headers
+    # Basic security headers (widely supported)
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-XSS-Protection "1; mode=block"
     Header always set X-Content-Type-Options "nosniff"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     
-    # Content Security Policy (Temporarily disabled for debugging)
-    # Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' wss: https:; worker-src 'self' blob:;"
+    # Remove server information (if supported)
+    Header unset Server
+    Header unset X-Powered-By
+    
+    # Content Security Policy (simplified for better compatibility)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https:;"
 </IfModule>
 
-# Performance Optimizations (if mod_expires is available)
-<IfModule mod_expires.c>
-    ExpiresActive On
-    
-    # CSS and JavaScript
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-    ExpiresByType text/javascript "access plus 1 month"
-    
-    # Images
-    ExpiresByType image/png "access plus 1 month"
-    ExpiresByType image/jpg "access plus 1 month"
-    ExpiresByType image/jpeg "access plus 1 month"
-    ExpiresByType image/gif "access plus 1 month"
-    ExpiresByType image/svg+xml "access plus 1 month"
-    ExpiresByType image/webp "access plus 1 month"
-    ExpiresByType image/ico "access plus 1 month"
-    ExpiresByType image/x-icon "access plus 1 month"
-</IfModule>
+# =============================================================================
+# PERFORMANCE OPTIMIZATIONS (cPanel Compatible)
+# =============================================================================
 
-# Compression (if mod_deflate is available)
+# Enable Gzip Compression (widely supported on cPanel)
 <IfModule mod_deflate.c>
+    # Compress HTML, CSS, JavaScript, Text, XML
     AddOutputFilterByType DEFLATE text/plain
     AddOutputFilterByType DEFLATE text/html
     AddOutputFilterByType DEFLATE text/xml
@@ -82,56 +80,175 @@ php_value memory_limit 512M
     AddOutputFilterByType DEFLATE application/rss+xml
     AddOutputFilterByType DEFLATE application/javascript
     AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
     AddOutputFilterByType DEFLATE image/svg+xml
+    
+    # Remove browser bugs (for older browsers)
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
 </IfModule>
 
-# File Protection
-<Files .env>
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Deny from all
-    </IfModule>
+# Browser Caching (cPanel compatible)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Images
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType image/ico "access plus 1 year"
+    
+    # CSS, JavaScript
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    
+    # Fonts
+    ExpiresByType font/woff "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 month"
+    ExpiresByType application/font-woff "access plus 1 month"
+    ExpiresByType application/font-woff2 "access plus 1 month"
+    
+    # Others
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType application/json "access plus 1 week"
+</IfModule>
+
+# =============================================================================
+# FILE PROTECTION & SECURITY (cPanel Compatible)
+# =============================================================================
+
+# Protect sensitive files
+<FilesMatch "\.(env|log|ini|conf|sql|bak|backup|old|tmp|md)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protect Laravel specific files
+<Files "artisan">
+    Order allow,deny
+    Deny from all
 </Files>
 
-<Files .env.*>
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Deny from all
-    </IfModule>
+<Files "composer.json">
+    Order allow,deny
+    Deny from all
 </Files>
 
-# Allow access to build assets (Vite built files)
-<Directory "build">
-    <IfModule mod_authz_core.c>
-        Require all granted
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Allow from all
-    </IfModule>
-</Directory>
+<Files "composer.lock">
+    Order allow,deny
+    Deny from all
+</Files>
 
-<DirectoryMatch "build/assets">
-    <IfModule mod_authz_core.c>
-        Require all granted
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Allow from all
-    </IfModule>
+<Files "package.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "package-lock.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Protect directories (using older syntax for better compatibility)
+<DirectoryMatch "(^|/)\.(git|svn|hg|env)">
+    Order allow,deny
+    Deny from all
 </DirectoryMatch>
 
-# MIME Type Configuration for JavaScript modules
+# =============================================================================
+# MIME TYPES & FILE HANDLING (cPanel Compatible)
+# =============================================================================
+
 <IfModule mod_mime.c>
+    # JavaScript
     AddType application/javascript .js
-    AddType application/javascript .mjs
+    AddType text/javascript .js
+    
+    # CSS
     AddType text/css .css
+    
+    # JSON
     AddType application/json .json
+    
+    # Images
     AddType image/svg+xml .svg
+    AddType image/webp .webp
+    
+    # Fonts
+    AddType font/woff .woff
+    AddType font/woff2 .woff2
+    AddType application/font-woff .woff
+    AddType application/font-woff2 .woff2
 </IfModule>
+
+# =============================================================================
+# CPANEL SPECIFIC OPTIMIZATIONS
+# =============================================================================
+
+# Disable server signature (if supported)
+ServerSignature Off
+
+# Prevent access to cPanel files
+<FilesMatch "\.(cpanel|whm|cpaddons)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# =============================================================================
+# ERROR PAGES (cPanel Compatible)
+# =============================================================================
+
+# Custom error pages (uncomment if you have custom error pages)
+# ErrorDocument 404 /index.php
+# ErrorDocument 500 /index.php
+
+# =============================================================================
+# FORCE HTTPS (Uncomment for production on cPanel)
+# =============================================================================
+
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# =============================================================================
+# WWW REDIRECT (Uncomment if needed)
+# =============================================================================
+
+# RewriteEngine On
+# RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+# RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+# =============================================================================
+# HOTLINK PROTECTION (Uncomment to prevent hotlinking)
+# =============================================================================
+
+# RewriteEngine On
+# RewriteCond %{HTTP_REFERER} !^$
+# RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?yourdomain\.com [NC]
+# RewriteRule \.(jpg|jpeg|png|gif|webp|svg)$ - [NC,F,L]
+
+# =============================================================================
+# CPANEL FILE MANAGER COMPATIBILITY
+# =============================================================================
+
+# Allow cPanel file manager to work properly
+<FilesMatch "\.(htaccess|htpasswd)">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# =============================================================================
+# ADDITIONAL CPANEL COMPATIBILITY NOTES
+# =============================================================================
+
+# 1. Some shared hosts may override PHP values in .htaccess
+# 2. If you encounter issues, try removing PHP directives and set them in cPanel
+# 3. For better performance, consider using cPanel's built-in caching features
+# 4. Some hosts may require specific directory permissions (755 for folders, 644 for files)
+# 5. If mod_rewrite is disabled, contact your hosting provider to enable it

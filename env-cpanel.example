@@ -1,5 +1,5 @@
-# cPanel/Shared Hosting Environment Configuration
-# Copy this file to .env for cPanel/shared hosting deployment
+# cPanel Production Environment Configuration
+# Copy this file to .env and update the values for your cPanel hosting
 
 # Application Configuration
 APP_NAME="Cash Management System"
@@ -7,10 +7,10 @@ APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
 APP_TIMEZONE=UTC
-APP_URL=https://accounts.mannnan.space
+APP_URL=https://yourdomain.com
 
-# Logging Configuration (File-based for shared hosting)
-LOG_CHANNEL=single
+# Logging Configuration
+LOG_CHANNEL=stack
 LOG_DEPRECATIONS_CHANNEL=null
 LOG_LEVEL=error
 
@@ -18,133 +18,78 @@ LOG_LEVEL=error
 DB_CONNECTION=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=cpanel_username_dbname
-DB_USERNAME=cpanel_username_dbuser
-DB_PASSWORD=your_database_password
+DB_DATABASE=your_cpanel_database_name
+DB_USERNAME=your_cpanel_database_user
+DB_PASSWORD=your_cpanel_database_password
 
-# Session Configuration (Database-based for shared hosting)
+# Session Configuration
 SESSION_DRIVER=database
 SESSION_LIFETIME=1440
 SESSION_ENCRYPT=true
 SESSION_PATH=/
-SESSION_DOMAIN=accounts.mannnan.space
-SESSION_SECURE_COOKIE=false
+SESSION_DOMAIN=yourdomain.com
+SESSION_SECURE_COOKIE=true
 SESSION_HTTP_ONLY=true
-SESSION_SAME_SITE=none
+SESSION_SAME_SITE=lax
 
-# Cache Configuration (File-based for shared hosting)
+# Cache Configuration (use file cache for shared hosting)
 CACHE_STORE=file
-CACHE_PREFIX=cashmanagement_cpanel
+CACHE_PREFIX=cashmanagement_prod
 
-# Redis Configuration (Usually not available on shared hosting)
-# Leave these as default values
-REDIS_CLIENT=phpredis
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-REDIS_DB=0
-
-# Queue Configuration (Database-based for shared hosting)
+# Queue Configuration (use database for shared hosting)
 QUEUE_CONNECTION=database
 QUEUE_FAILED_DRIVER=database-uuids
 
-# Mail Configuration (cPanel Email)
+# Mail Configuration (cPanel SMTP)
 MAIL_MAILER=smtp
-MAIL_HOST=mail.yourdomain.com
+MAIL_HOST=yourdomain.com
 MAIL_PORT=587
 MAIL_USERNAME=noreply@yourdomain.com
-MAIL_PASSWORD=your_email_password
+MAIL_PASSWORD=your_mail_password
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@yourdomain.com
 MAIL_FROM_NAME="${APP_NAME}"
 
-# Alternative Mail Configuration (if SMTP doesn't work)
-# MAIL_MAILER=sendmail
-# MAIL_HOST=localhost
-# MAIL_PORT=25
-
-# Broadcasting Configuration (Laravel Reverb for WebSockets)
-BROADCAST_CONNECTION=reverb
-REVERB_APP_ID=174347
-REVERB_APP_KEY=3ef8d1e1006fd70cef47513e64ccbb77
-REVERB_APP_SECRET=f2e4f2c0c5aa6006cd439811e68b7a3fa3bdaba38e25e4395c9d434d350aa01d
-REVERB_HOST=accounts.mannnan.space
-REVERB_PORT=8080
+# Broadcasting Configuration (optional - disable if not needed)
+BROADCAST_CONNECTION=log
+REVERB_APP_ID=
+REVERB_APP_KEY=
+REVERB_APP_SECRET=
+REVERB_HOST=
+REVERB_PORT=443
 REVERB_SCHEME=https
-
-# Alternative: Disable WebSockets if not needed
-# BROADCAST_CONNECTION=null
-
-# Pusher Configuration (if you prefer Pusher over Reverb)
-# BROADCAST_CONNECTION=pusher
-# PUSHER_APP_ID=your_pusher_app_id
-# PUSHER_APP_KEY=your_pusher_app_key
-# PUSHER_APP_SECRET=your_pusher_app_secret
-# PUSHER_HOST=
-# PUSHER_PORT=443
-# PUSHER_SCHEME=https
-# PUSHER_APP_CLUSTER=mt1
 
 # Filesystem Configuration
 FILESYSTEM_DISK=public
-
-# AWS S3 Configuration (Optional for file storage)
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_DEFAULT_REGION=us-east-1
-AWS_BUCKET=
-AWS_USE_PATH_STYLE_ENDPOINT=false
-
-
-
 
 # Security Configuration
 FORCE_HTTPS=true
 HSTS_MAX_AGE=31536000
 CONTENT_SECURITY_POLICY=true
 
-# Performance Configuration (Shared hosting optimizations)
+# Performance Configuration
 AUTO_DETECT_ENVIRONMENT=true
 AUTO_MIGRATE=false
 AUTO_SEED=false
 
-# Backup Configuration (Limited on shared hosting)
-BACKUP_ENABLED=false
-BACKUP_RETENTION_DAYS=7
+# Backup Configuration
+BACKUP_ENABLED=true
+BACKUP_RETENTION_DAYS=30
 
-# Monitoring and Analytics (Use external services)
+# Monitoring and Analytics
 ERROR_TRACKING_ENABLED=false
 PERFORMANCE_MONITORING=false
 
 # Exchange Rate API (Optional)
-EXCHANGE_RATE_API_KEY=your_exchange_rate_api_key
+EXCHANGE_RATE_API_KEY=
 EXCHANGE_RATE_UPDATE_INTERVAL=3600
 
-# Shared Hosting Optimizations
+# Production Optimizations
 OPTIMIZE_AUTOLOADER=true
 VIEW_CACHE_ENABLED=true
 ROUTE_CACHE_ENABLED=true
 CONFIG_CACHE_ENABLED=true
 
 # cPanel Specific Settings
-CPANEL_USERNAME=your_cpanel_username
-CPANEL_DOMAIN=yourdomain.com
-CPANEL_SUBDOMAIN=
-
-# PHP Configuration (if supported by hosting provider)
-PHP_MEMORY_LIMIT=256M
-PHP_MAX_EXECUTION_TIME=300
-PHP_MAX_INPUT_TIME=300
-PHP_UPLOAD_MAX_FILESIZE=10M
-PHP_POST_MAX_SIZE=10M
-
-# File Permissions (for reference)
-# Directories: 755
-# Files: 644
-# Storage and cache: 775
-
-# Common Shared Hosting Paths (for reference)
-# Document Root: public_html/
-# Laravel App: public_html/laravel/ (or similar)
-# Public Files: public_html/
-# Storage: outside public_html/storage/
+CPANEL_COMPATIBILITY=true
+SHARED_HOSTING_MODE=true
