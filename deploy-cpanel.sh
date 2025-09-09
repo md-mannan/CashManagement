@@ -1,3 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ZIP_NAME=${1:-cashmanagement-cpanel.zip}
+
+echo "[1/7] Cleaning previous build..."
+rm -rf public/build build || true
+
+echo "[2/7] Installing JS deps (if needed) and building assets..."
+if [ ! -d node_modules ]; then
+  npm ci
+fi
+npm run build
+
+echo "[3/7] Moving build to public/build..."
+if [ -d build ]; then
+  rm -rf public/build || true
+  mv build public/build
+fi
+
+if [ ! -f public/build/.vite/manifest.json ]; then
+  echo "ERROR: Production build not found at public/build/.vite/manifest.json" >&2
+  exit 1
+fi
+
+echo "[4/7] Preparing packaging staging directory..."
+STAGING=dist-cpanel
+rm -rf "$STAGING" || true
+mkdir -p "$STAGING"
+
+echo "[5/7] Copying application files..."
+INCLUDE=(
+  app bootstrap config database public resources/views routes storage vendor \
+  artisan composer.json composer.lock phpunit.xml .env README.md
+)
+
+for p in "${INCLUDE[@]}"; do
+  if [ -e "$p" ]; then
+    mkdir -p "$STAGING/$(dirname "$p")"
+    cp -a "$p" "$STAGING/$p"
+  fi
+done
+
+# Ensure cPanel htaccess is active
+if [ -f public/.htaccess.cpanel ]; then
+  cp -f public/.htaccess.cpanel "$STAGING/public/.htaccess"
+fi
+
+echo "[6/7] Removing development artifacts from package..."
+REMOVE=(node_modules resources/js resources/css .git .github tests)
+for r in "${REMOVE[@]}"; do
+  rm -rf "$STAGING/$r" || true
+done
+
+# Ensure writable dirs exist
+for w in storage bootstrap/cache public/build; do
+  mkdir -p "$STAGING/$w"
+done
+
+echo "[7/7] Creating ZIP archive $ZIP_NAME ..."
+rm -f "$ZIP_NAME" || true
+(cd "$STAGING" && zip -qr "../$ZIP_NAME" .)
+
+echo "Done. Upload $ZIP_NAME to cPanel and extract in your document root."
 #!/bin/bash
 
 echo "========================================"
