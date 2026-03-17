@@ -266,6 +266,15 @@ export default function Transaction() {
         }
     };
 
+    // Primary + secondary amount for table; when primary is 0, show secondary as 0 (avoid mismatch).
+    const getAmountWithSecondary = (transaction: TransactionItem) => {
+        const primary = Number(transaction.amount) || 0;
+        const epsilon = 1e-9;
+        const secondary =
+            Math.abs(primary) < epsilon ? 0 : Number(transaction.metadata?.secondary_amount) || 0;
+        return { primary, secondary };
+    };
+
     const getStatusDisplay = (transaction: TransactionItem) => {
         const { type, settled_amount, amount } = transaction;
 
@@ -936,8 +945,16 @@ export default function Transaction() {
                                                     <TableCell>{transaction.category.name}</TableCell>
 
                                                     <TableCell className={getAmountDisplay(transaction).color}>
-                                                        {getAmountDisplay(transaction).sign} {transaction.user?.primary_symbol || primarySymbol}{' '}
-                                                        {formatCurrency(transaction.amount, primaryCurrency)}
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <span>
+                                                                {getAmountDisplay(transaction).sign}{' '}
+                                                                {transaction.user?.primary_symbol || primarySymbol}{' '}
+                                                                {formatCurrency(transaction.amount, primaryCurrency)}
+                                                            </span>
+                                                            <span className="text-xs text-muted-foreground">
+                                                                {secondarySymbol} {formatCurrency(getAmountWithSecondary(transaction).secondary, secondaryCurrency)}
+                                                            </span>
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         {(() => {
@@ -1052,8 +1069,13 @@ export default function Transaction() {
                                                 </div>
                                                 <div className="flex flex-col items-end gap-1">
                                                     <div className={`text-sm font-medium ${getAmountDisplay(transaction).color}`}>
-                                                        {getAmountDisplay(transaction).sign} {transaction.user?.primary_symbol || primarySymbol}{' '}
+                                                        {getAmountDisplay(transaction).sign}{' '}
+                                                        {transaction.user?.primary_symbol || primarySymbol}{' '}
                                                         {formatCurrency(transaction.amount, primaryCurrency)}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {secondarySymbol}{' '}
+                                                        {formatCurrency(getAmountWithSecondary(transaction).secondary, secondaryCurrency)}
                                                     </div>
                                                     {(() => {
                                                         const statusDisplay = getStatusDisplay(transaction);

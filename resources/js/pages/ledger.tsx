@@ -6,8 +6,10 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Banknote, Coins, CreditCard, Download, FileSpreadsheet, FileText, Plus, Printer, TrendingDown, TrendingUp } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
+
+const toDateOnly = (d: string) => (d || '').toString().split('T')[0]?.slice(0, 10) || '';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -108,16 +110,41 @@ export default function Ledger() {
     const [startDate, setStartDate] = useState<string>(filters?.start_date || '');
     const [endDate, setEndDate] = useState<string>(filters?.end_date || '');
 
-    // Calculate running balance and prepare ledger entries
-    const prepareLedgerEntries = () => {
-        // Sort transactions by date (oldest first for running balance calculation)
-        const sortedTransactions = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // Client-side date filter (single date or range)
+    const filteredByDateTransactions = useMemo(() => {
+        let list = [...transactions];
+        if (startDate) {
+            const start = startDate.slice(0, 10);
+            list = list.filter((t) => toDateOnly(t.date) >= start);
+        }
+        if (endDate) {
+            const end = endDate.slice(0, 10);
+            list = list.filter((t) => toDateOnly(t.date) <= end);
+        }
+        return list;
+    }, [transactions, startDate, endDate]);
 
-        // Calculate opening balance (start with 0 for simplicity, but could be enhanced)
+    // Calculate running balance and prepare ledger entries (with secondary amounts; 0 rule applied)
+    const prepareLedgerEntries = (txList: typeof transactions) => {
+        const sortedTransactions = [...txList].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
         let runningBalance = 0;
-        const ledgerEntries = [];
+        let runningBalanceSecondary = 0;
+        const ledgerEntries: Array<{
+            id: number;
+            date: string;
+            description: string;
+            source: string;
+            debit: number | null;
+            credit: number | null;
+            balance: number;
+            secondaryDebit: number | null;
+            secondaryCredit: number | null;
+            secondaryBalance: number;
+            isOpeningBalance?: boolean;
+            metadata?: typeof transactions[0]['metadata'];
+        }> = [];
 
-        // Only add opening balance entry if there are transactions
         if (sortedTransactions.length > 0) {
             ledgerEntries.push({
                 id: 0,
@@ -127,20 +154,22 @@ export default function Ledger() {
                 debit: null,
                 credit: null,
                 balance: runningBalance,
+                secondaryDebit: null,
+                secondaryCredit: null,
+                secondaryBalance: 0,
                 isOpeningBalance: true,
-                metadata: null,
+                metadata: undefined,
             });
         }
 
-        // Process each transaction
         sortedTransactions.forEach((transaction) => {
             let debit = null;
             let credit = null;
 
             // Determine debit/credit based on transaction type and category
-            // In accounting: Debit = money going out, Credit = money coming in
-            // Convert amount to number to ensure proper arithmetic (not string concatenation)
             const amount = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) || 0 : transaction.amount || 0;
+            const epsilon = 1e-9;
+            const amountSecondary = Math.abs(amount) < epsilon ? 0 : Number(transaction.metadata?.secondary_amount) || 0;
             const categoryName = transaction.category.name.toLowerCase();
             
 
@@ -148,48 +177,49 @@ export default function Ledger() {
             if (transaction.type === 'expense') {
                 debit = amount;
                 runningBalance -= amount;
+                runningBalanceSecondary -= amountSecondary;
             } else if (transaction.type === 'income') {
                 credit = amount;
                 runningBalance += amount;
+                runningBalanceSecondary += amountSecondary;
             } else if (transaction.type === 'payable') {
-                // Payable = money you owe (liability) - increases your liability
                 credit = amount;
                 runningBalance += amount;
+                runningBalanceSecondary += amountSecondary;
             } else if (transaction.type === 'receivable') {
-                // Receivable = money you're lending (money going out)
                 debit = amount;
                 runningBalance -= amount;
+                runningBalanceSecondary -= amountSecondary;
             } else if (transaction.type === 'settle_receivable') {
-                // Settle receivable = getting money back from receivable - increases balance
                 credit = amount;
                 runningBalance += amount;
-
+                runningBalanceSecondary += amountSecondary;
             } else if (transaction.type === 'settle_payable') {
-                // Settle payable = paying back borrowed money - decreases balance
                 debit = amount;
                 runningBalance -= amount;
+                runningBalanceSecondary -= amountSecondary;
             } else {
-                // Handle any other settlement transactions based on category names (fallback)
                 if (categoryName.includes('return') || transaction.description.toLowerCase().includes('return')) {
-                    // Receivable settlement (getting money back) - increases balance
                     credit = amount;
                     runningBalance += amount;
-
+                    runningBalanceSecondary += amountSecondary;
                 } else if (categoryName.includes('pay')) {
-                    // Payable settlement (paying back borrowed money) - decreases balance
                     debit = amount;
                     runningBalance -= amount;
+                    runningBalanceSecondary -= amountSecondary;
                 }
             }
-            
-            // Final fallback: if no debit/credit assigned but amount exists, treat as income
+
             if (debit === null && credit === null && amount > 0) {
                 if (transaction.description.toLowerCase().includes('return')) {
                     credit = amount;
                     runningBalance += amount;
-
+                    runningBalanceSecondary += amountSecondary;
                 }
             }
+
+            const secondaryDebit = debit != null ? amountSecondary : null;
+            const secondaryCredit = credit != null ? amountSecondary : null;
 
             ledgerEntries.push({
                 id: transaction.id,
@@ -197,10 +227,13 @@ export default function Ledger() {
                 description: transaction.description,
                 source: transaction.source,
                 category: transaction.category.name,
-                user: transaction.user, // Add user info for admin view
+                user: transaction.user,
                 debit,
                 credit,
                 balance: runningBalance,
+                secondaryDebit,
+                secondaryCredit,
+                secondaryBalance: runningBalanceSecondary,
                 type: transaction.type,
                 metadata: transaction.metadata,
             });
@@ -209,7 +242,10 @@ export default function Ledger() {
         return ledgerEntries;
     };
 
-    const ledgerEntries = prepareLedgerEntries();
+    const ledgerEntries = useMemo(
+        () => prepareLedgerEntries(filteredByDateTransactions),
+        [filteredByDateTransactions],
+    );
 
     // Use backend summary data for consistency with transaction page
     const getSecondaryCurrencyDisplay = (type: 'income' | 'expenses' | 'receivables' | 'payables' | 'settlements') => {
@@ -513,7 +549,7 @@ export default function Ledger() {
                         </div>
 
                                                 <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                            {/* Net Balance Card */}
+                            {/* Net Balance Card - 0 rule: if either primary or secondary net is 0, show both 0 */}
                             <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                     <CardTitle className="text-sm font-medium text-purple-800">Net Balance</CardTitle>
@@ -522,16 +558,29 @@ export default function Ledger() {
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-purple-800">
-                                        {primarySymbol} {formatCurrency(summary.net_balance, primaryCurrency)}
-                                    </div>
-                                    <div className="space-y-1 text-sm text-purple-600">
-                                        {summary.secondary_currency_totals && summary.secondary_currency_totals.net_balance !== undefined && (
-                                            <div>
-                                                {secondarySymbol} {formatCurrency(summary.secondary_currency_totals.net_balance, secondaryCurrency)}
-                                            </div>
-                                        )}
-                                    </div>
+                                    {(() => {
+                                        const epsilon = 1e-9;
+                                        const primaryNetRaw = Number(summary.net_balance ?? 0);
+                                        const secondaryNetRaw =
+                                            summary.secondary_currency_totals?.net_balance ?? 0;
+                                        const shouldForceZero =
+                                            Math.abs(primaryNetRaw) < epsilon ||
+                                            Math.abs(secondaryNetRaw) < epsilon;
+                                        const primaryDisplay = shouldForceZero ? 0 : primaryNetRaw;
+                                        const secondaryDisplay = shouldForceZero ? 0 : secondaryNetRaw;
+                                        return (
+                                            <>
+                                                <div className="text-2xl font-bold text-purple-800">
+                                                    {primarySymbol} {formatCurrency(primaryDisplay, primaryCurrency)}
+                                                </div>
+                                                <div className="space-y-1 text-sm text-purple-600">
+                                                    <div>
+                                                        {secondarySymbol} {formatCurrency(secondaryDisplay, secondaryCurrency)}
+                                                    </div>
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
                                     <p className="mt-1 text-xs text-purple-600">Current balance</p>
                                 </CardContent>
                             </Card>
@@ -750,25 +799,46 @@ export default function Ledger() {
                                                     <td className="px-4 py-3 text-sm print:text-base">{entry.source}</td>
 
                                                     <td className="px-4 py-3 text-right text-sm print:text-base">
-                                                        {entry.debit ? (
-                                                            <span className="text-red-600">
-                                                                {primarySymbol} {formatCurrency(entry.debit, primaryCurrency)}
-                                                            </span>
+                                                        {entry.debit != null ? (
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <span className="text-red-600">
+                                                                    {primarySymbol} {formatCurrency(entry.debit, primaryCurrency)}
+                                                                </span>
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    {secondarySymbol} {formatCurrency(entry.secondaryDebit ?? 0, secondaryCurrency)}
+                                                                </span>
+                                                            </div>
                                                         ) : (
                                                             '-'
                                                         )}
                                                     </td>
                                                     <td className="px-4 py-3 text-right text-sm print:text-base">
-                                                        {entry.credit ? (
-                                                            <span className="text-green-600">
-                                                                {primarySymbol} {formatCurrency(entry.credit, primaryCurrency)}
-                                                            </span>
+                                                        {entry.credit != null ? (
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <span className="text-green-600">
+                                                                    {primarySymbol} {formatCurrency(entry.credit, primaryCurrency)}
+                                                                </span>
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    {secondarySymbol} {formatCurrency(entry.secondaryCredit ?? 0, secondaryCurrency)}
+                                                                </span>
+                                                            </div>
                                                         ) : (
                                                             '-'
                                                         )}
                                                     </td>
                                                     <td className="px-4 py-3 text-right text-sm font-semibold print:text-base print:font-bold">
-                                                        {primarySymbol} {formatCurrency(entry.balance, primaryCurrency)}
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <span>
+                                                                {primarySymbol} {formatCurrency(entry.balance, primaryCurrency)}
+                                                            </span>
+                                                            <span className="text-xs font-normal text-muted-foreground">
+                                                                {secondarySymbol}{' '}
+                                                                {formatCurrency(
+                                                                    Math.abs(entry.balance) < 1e-9 ? 0 : entry.secondaryBalance,
+                                                                    secondaryCurrency,
+                                                                )}
+                                                            </span>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))}
