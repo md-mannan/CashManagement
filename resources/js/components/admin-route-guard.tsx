@@ -24,14 +24,10 @@ export function AdminRouteGuard({ requiredRole = 'admin', children }: AdminRoute
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
 
-    // Debug logging
-
-    // Super admin has access to everything
     if (user.role === 'super_admin') {
         return <>{children}</>;
     }
 
-    // Check if user has the required role
     const hasAccess = ['admin', 'super_admin'].includes(user.role);
     const hasRequiredRole = user.role === requiredRole || user.role === 'super_admin';
 

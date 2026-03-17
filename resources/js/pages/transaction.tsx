@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomDateInput } from '@/components/ui/custom-date-input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,21 @@ import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Banknote, CreditCard, Download, Edit, Eye, FileText, Filter, Plus, Printer, Search, Trash2, TrendingDown, TrendingUp, ArrowDownLeft } from 'lucide-react';
+import {
+    ArrowDownLeft,
+    Banknote,
+    Download,
+    Edit,
+    Eye,
+    FileText,
+    Filter,
+    Plus,
+    Printer,
+    Search,
+    Trash2,
+    TrendingDown,
+    TrendingUp,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -34,39 +48,37 @@ const transactionTypes = [
     { value: 'settle_payable', label: 'Settle Payable', color: 'text-red-600' },
 ];
 
+type TransactionItem = {
+    id: number;
+    date: string;
+    description: string;
+    type: 'income' | 'expense' | 'receivable' | 'payable' | 'settlement' | 'settle_receivable' | 'settle_payable';
+    amount: number;
+    source: string;
+    category: {
+        name: string;
+    };
+    user?: {
+        name: string;
+        email: string;
+        primary_symbol: string;
+    };
+    notes?: string;
+    metadata?: {
+        secondary_currency?: string;
+        exchange_rate?: number;
+        secondary_amount?: number;
+        primary_currency?: string;
+        primary_symbol?: string;
+    };
+    settled_amount?: number;
+    settlements?: unknown[];
+};
+
 export default function Transaction() {
-    const { auth, transactions, summary } = usePage<
+    const { auth, transactions, summary, flash, errors } = usePage<
         SharedData & {
-            transactions: {
-                data: Array<{
-                    id: number;
-                    date: string;
-                    description: string;
-                    type: 'income' | 'expense' | 'receivable' | 'payable' | 'settlement' | 'settle_receivable' | 'settle_payable';
-                    amount: number;
-                    source: string;
-                    category: {
-                        name: string;
-                    };
-                    user?: {
-                        name: string;
-                        email: string;
-                        primary_symbol: string;
-                    };
-                    notes?: string;
-                    metadata?: {
-                        secondary_currency?: string;
-                        exchange_rate?: number;
-                        secondary_amount?: number;
-                        primary_currency?: string;
-                        primary_symbol?: string;
-                    };
-                }>;
-                current_page: number;
-                last_page: number;
-                per_page: number;
-                total: number;
-            };
+            transactions: TransactionItem[];
             summary: {
                 total_income: number;
                 total_expenses: number;
@@ -79,15 +91,17 @@ export default function Transaction() {
                 receivable_settlements: number;
                 payable_settlements: number;
                 net_balance: number;
-                            secondary_amounts?: {
-                total_income: number;
-                total_expenses: number;
-                total_receivables: number;
-                total_payables: number;
-                receivable_settlements: number;
-                payable_settlements: number;
+                secondary_amounts?: {
+                    total_income: number;
+                    total_expenses: number;
+                    total_receivables: number;
+                    total_payables: number;
+                    receivable_settlements: number;
+                    payable_settlements: number;
+                };
             };
-            };
+            flash?: { success?: string; error?: string };
+            errors?: Record<string, string[]>;
         }
     >().props;
 
@@ -96,10 +110,9 @@ export default function Transaction() {
     const [selectedType, setSelectedType] = useState('all');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
 
     // All transactions from backend (no server-side filtering)
-    const allTransactions = transactions.data;
+    const allTransactions = transactions;
 
     // Confirmation modal states
     const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; transactionId: number | null }>({
@@ -116,28 +129,23 @@ export default function Transaction() {
     const primarySymbol = auth.user.primary_symbol || '৳';
     const secondaryCurrency = auth.user.secondary_currency || 'KWD';
     const secondarySymbol = auth.user.secondary_symbol || 'د.ك';
-    const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
-
-    // Helper function to calculate converted amount (used for secondary currency conversion)
-    const convertAmount = (amount: number, targetCurrency: string) => {
-        if (targetCurrency === primaryCurrency) return amount;
-        if (targetCurrency === secondaryCurrency) {
-            // Convert from primary to secondary currency using user's exchange rate
-            const convertedAmount = amount / exchangeRate;
-            // Use appropriate decimal precision
-            if (secondaryCurrency === 'KWD') {
-                return Math.round(convertedAmount * 1000) / 1000; // 3 decimals for KWD
-            }
-            return Math.round(convertedAmount * 100) / 100; // 2 decimals for others
-        }
-        return amount;
-    };
 
     const { addToast } = useToast();
 
+    // Show toast when redirect returns with delete error (e.g. transaction has settlements)
+    useEffect(() => {
+        const msg = (errors as Record<string, string[] | undefined>)?.['delete']?.[0] ?? (flash as { error?: string })?.error;
+        if (msg) {
+            addToast({
+                type: 'error',
+                title: 'Cannot delete transaction',
+                message: msg,
+            });
+        }
+    }, [errors, flash, addToast]);
+
     // Client-side filtering logic
     const filteredTransactions = useMemo(() => {
-        
         let filtered = [...allTransactions];
 
         // Search filter (no reloading - instant)
@@ -159,27 +167,19 @@ export default function Transaction() {
             filtered = filtered.filter((transaction) => transaction.type === selectedType);
         }
 
-        // Date range filter
+        // Date range / single-date filter: compare only YYYY-MM-DD (backend may send datetime strings)
+        const toDateOnly = (d: string) => (d || '').toString().split('T')[0]?.slice(0, 10) || '';
         if (startDate) {
-            filtered = filtered.filter((transaction) => transaction.date >= startDate);
+            const start = startDate.slice(0, 10);
+            filtered = filtered.filter((t) => toDateOnly(t.date) >= start);
         }
         if (endDate) {
-            filtered = filtered.filter((transaction) => transaction.date <= endDate);
+            const end = endDate.slice(0, 10);
+            filtered = filtered.filter((t) => toDateOnly(t.date) <= end);
         }
 
         return filtered;
     }, [allTransactions, searchInput, selectedType, startDate, endDate]);
-
-    // Client-side pagination
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + itemsPerPage);
-
-    // Reset to first page when filters change
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchInput, selectedType, startDate, endDate]);
 
     // Format currency
     const formatCurrency = (amount: number, currency: string = primaryCurrency) => {
@@ -233,9 +233,9 @@ export default function Transaction() {
         }
     };
 
-    const getAmountDisplay = (transaction: any) => {
-        const { type, category, amount } = transaction;
-        
+    const getAmountDisplay = (transaction: TransactionItem) => {
+        const { type, category } = transaction;
+
         // Handle settlement transactions based on category
         if (type === 'settlement') {
             if (category.name.includes('Pay') || category.name.includes('pay')) {
@@ -246,7 +246,7 @@ export default function Transaction() {
                 return { sign: '+', color: 'text-green-600' };
             }
         }
-        
+
         // Handle regular transaction types
         switch (type) {
             case 'income':
@@ -266,23 +266,23 @@ export default function Transaction() {
         }
     };
 
-    const getStatusDisplay = (transaction: any) => {
-        const { type, status, settled_amount, amount, settlements } = transaction;
-        
+    const getStatusDisplay = (transaction: TransactionItem) => {
+        const { type, settled_amount, amount } = transaction;
+
         // Only show status for receivable and payable transactions
         if (type !== 'receivable' && type !== 'payable') {
             return null;
         }
-        
+
         // Calculate settlement status
-        const totalAmount = parseFloat(amount) || 0;
-        const settledAmount = parseFloat(settled_amount) || 0;
-        
+        const totalAmount = typeof amount === 'number' ? amount : Number(amount) || 0;
+        const settledAmount = typeof settled_amount === 'number' ? settled_amount : Number(settled_amount) || 0;
+
         let statusType = 'pending';
         let statusText = 'Pending';
         let statusColor = 'text-yellow-600 bg-yellow-50';
         let statusIcon = '⏳';
-        
+
         if (settledAmount > 0) {
             if (settledAmount >= totalAmount) {
                 statusType = 'completed';
@@ -296,7 +296,7 @@ export default function Transaction() {
                 statusIcon = '🔄';
             }
         }
-        
+
         return {
             type: statusType,
             text: statusText,
@@ -304,7 +304,7 @@ export default function Transaction() {
             icon: statusIcon,
             settledAmount,
             totalAmount,
-            remainingAmount: totalAmount - settledAmount
+            remainingAmount: totalAmount - settledAmount,
         };
     };
 
@@ -327,11 +327,17 @@ export default function Transaction() {
                         message: 'The transaction has been successfully deleted.',
                     });
                 },
-                onError: (errors) => {
+                onError: (errs) => {
+                    const record = errs as unknown as Record<string, unknown>;
+                    const deleteErrors = record.delete;
+                    const msg =
+                        (Array.isArray(deleteErrors) && typeof deleteErrors[0] === 'string' && deleteErrors[0]) ||
+                        (typeof record.message === 'string' && record.message) ||
+                        'This transaction could not be deleted. It may have settlement entries linked to it—open the transaction and delete those entries first.';
                     addToast({
                         type: 'error',
-                        title: 'Delete Failed!',
-                        message: 'There was an error deleting the transaction. Please try again.',
+                        title: 'Cannot delete transaction',
+                        message: typeof msg === 'string' ? msg : 'This transaction may have settlement entries linked to it. Delete those first.',
                     });
                 },
             });
@@ -359,7 +365,7 @@ export default function Transaction() {
                 preserveState: false,
                 preserveScroll: false,
             });
-        } catch (error) {
+        } catch {
             // Route generation failed silently
         }
     };
@@ -368,16 +374,17 @@ export default function Transaction() {
     const exportToExcel = () => {
         // Prepare data for export
         const exportData = filteredTransactions.map((transaction, index) => ({
-            SL: startIndex + index + 1,
+            SL: index + 1,
             Date: formatDate(transaction.date),
             Description: transaction.description,
-            Type: transaction.type === 'settlement' 
-                ? transaction.category.name 
-                : transaction.type === 'settle_receivable'
-                ? 'Settle Receivable'
-                : transaction.type === 'settle_payable'
-                ? 'Settle Payable'
-                : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
+            Type:
+                transaction.type === 'settlement'
+                    ? transaction.category.name
+                    : transaction.type === 'settle_receivable'
+                      ? 'Settle Receivable'
+                      : transaction.type === 'settle_payable'
+                        ? 'Settle Payable'
+                        : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
             Source: transaction.source,
             Category: transaction.category,
             Amount: `${getAmountDisplay(transaction).sign} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}`,
@@ -502,7 +509,7 @@ export default function Transaction() {
                             .map(
                                 (transaction, index) => `
                             <tr>
-                                <td style="text-align: center;">${startIndex + index + 1}</td>
+                                <td style="text-align: center;">${index + 1}</td>
                                 <td>${formatDate(transaction.date)}</td>
                                 <td>${transaction.description}</td>
                                                                         <td style="text-transform: capitalize;">${transaction.type === 'settle_receivable' || transaction.type === 'settle_payable' ? transaction.category.name : transaction.type}</td>
@@ -554,11 +561,11 @@ export default function Transaction() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Transaction" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-2 sm:p-4 w-full max-w-full">
+            <div className="flex h-full w-full max-w-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-2 sm:p-4">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Transactions</h1>
+                        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Transactions</h1>
                         <p className="text-sm text-muted-foreground">Manage and view all your transactions</p>
                     </div>
                     <DropdownMenu>
@@ -602,44 +609,54 @@ export default function Transaction() {
                 </div>
 
                 {/* Transaction Summary */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 w-full max-w-full">
+                <div className="grid w-full max-w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                     {/* Net Balance - First Card */}
-                    <Card className="bg-violet-50 border-violet-200">
+                    <Card className="border-violet-200 bg-violet-50">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-violet-800">Net Balance</CardTitle>
                             <FileText className="h-4 w-4 text-violet-600" />
                         </CardHeader>
                         <CardContent>
-                            <div className={`text-2xl font-bold ${summary.net_balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {primarySymbol}
-                                {formatCurrency(summary.net_balance, primaryCurrency)} 
-                            </div>
-                           
-                            <div className="space-y-1 text-sm text-gray-600 mt-1">
-                                  {(() => {
-                                    // Calculate secondary currency net balance using the EXACT same formula as Ledger page
-                                    if (summary.secondary_amounts) {
-                                        // Use the same formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
-                                        const secondaryNetBalance = 
-                                            summary.secondary_amounts.total_income - 
-                                            summary.secondary_amounts.total_expenses - 
-                                            summary.secondary_amounts.total_receivables + 
-                                            summary.secondary_amounts.total_payables + 
-                                            summary.secondary_amounts.receivable_settlements - 
-                                            summary.secondary_amounts.payable_settlements;
-                                        
-                                        if (secondaryNetBalance !== undefined) {
-                                            return (
-                                                <div className={`${secondaryNetBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                    {secondarySymbol} {formatCurrency(secondaryNetBalance, secondaryCurrency)}
+                            {(() => {
+                                const epsilon = 1e-9;
+                                const primaryNetRaw = Number(summary.net_balance ?? 0);
+                                const secondaryNetRaw = summary.secondary_amounts
+                                    ? summary.secondary_amounts.total_income -
+                                      summary.secondary_amounts.total_expenses -
+                                      summary.secondary_amounts.total_receivables +
+                                      summary.secondary_amounts.total_payables +
+                                      summary.secondary_amounts.receivable_settlements -
+                                      summary.secondary_amounts.payable_settlements
+                                    : null;
+
+                                // If either currency net is zero, force BOTH to show zero (sync display).
+                                const shouldForceZero =
+                                    Math.abs(primaryNetRaw) < epsilon ||
+                                    (secondaryNetRaw !== null && Math.abs(secondaryNetRaw) < epsilon);
+
+                                const primaryNetDisplay = shouldForceZero ? 0 : primaryNetRaw;
+                                const secondaryNetDisplay = shouldForceZero ? 0 : secondaryNetRaw;
+
+                                return (
+                                    <>
+                                        <div className={`text-2xl font-bold ${primaryNetDisplay >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            {primarySymbol}
+                                            {formatCurrency(primaryNetDisplay, primaryCurrency)}
+                                        </div>
+
+                                        <div className="mt-1 space-y-1 text-sm text-gray-600">
+                                            {secondaryNetDisplay === null ? null : (
+                                                <div className={`${secondaryNetDisplay >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {secondarySymbol} {formatCurrency(secondaryNetDisplay, secondaryCurrency)}
                                                 </div>
-                                            );
-                                        }
-                                    }
-                                    return null;
-                                })()}
-                            </div>
-                            <p className="text-xs text-muted-foreground">Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements</p>
+                                            )}
+                                        </div>
+                                    </>
+                                );
+                            })()}
+                            <p className="text-xs text-muted-foreground">
+                                Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
+                            </p>
                         </CardContent>
                     </Card>
 
@@ -653,7 +670,7 @@ export default function Transaction() {
                                 {primarySymbol}
                                 {formatCurrency(summary.total_income, primaryCurrency)}
                             </div>
-                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                            <div className="mt-1 space-y-1 text-sm text-gray-600">
                                 {summary.secondary_amounts && summary.secondary_amounts.total_income > 0 && (
                                     <div>
                                         {secondarySymbol} {formatCurrency(summary.secondary_amounts.total_income, secondaryCurrency)}
@@ -679,10 +696,16 @@ export default function Transaction() {
                             <div className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'expense').length} expenses
                             </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                                <div>Regular: {primarySymbol}{formatCurrency(summary.total_expenses, primaryCurrency)} {summary.secondary_amounts && summary.secondary_amounts.total_expenses > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.total_expenses, secondaryCurrency)}`}</div>
+                            <div className="mt-1 text-xs text-muted-foreground">
+                                <div>
+                                    Regular: {primarySymbol}
+                                    {formatCurrency(summary.total_expenses, primaryCurrency)}{' '}
+                                    {summary.secondary_amounts &&
+                                        summary.secondary_amounts.total_expenses > 0 &&
+                                        `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.total_expenses, secondaryCurrency)}`}
+                                </div>
                             </div>
-                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                            <div className="mt-1 space-y-1 text-sm text-gray-600">
                                 {summary.secondary_amounts && summary.secondary_amounts.total_expenses > 0 && (
                                     <div>
                                         {secondarySymbol} {formatCurrency(summary.secondary_amounts.total_expenses, secondaryCurrency)}
@@ -705,11 +728,23 @@ export default function Transaction() {
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'payable').length} transactions
                             </p>
-                            <div className="text-xs text-muted-foreground mt-1">
-                                <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_payables, primaryCurrency)} {summary.secondary_amounts && (summary.secondary_amounts.total_payables - summary.secondary_amounts.payable_settlements) > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.total_payables - summary.secondary_amounts.payable_settlements, secondaryCurrency)}`}</div>
-                                <div>Settled: {primarySymbol}{formatCurrency(summary.payable_settlements || 0, primaryCurrency)} {summary.secondary_amounts && summary.secondary_amounts.payable_settlements > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.payable_settlements, secondaryCurrency)}`}</div>
+                            <div className="mt-1 text-xs text-muted-foreground">
+                                <div>
+                                    Remaining: {primarySymbol}
+                                    {formatCurrency(summary.remaining_payables, primaryCurrency)}{' '}
+                                    {summary.secondary_amounts &&
+                                        summary.secondary_amounts.total_payables - summary.secondary_amounts.payable_settlements > 0 &&
+                                        `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.total_payables - summary.secondary_amounts.payable_settlements, secondaryCurrency)}`}
+                                </div>
+                                <div>
+                                    Settled: {primarySymbol}
+                                    {formatCurrency(summary.payable_settlements || 0, primaryCurrency)}{' '}
+                                    {summary.secondary_amounts &&
+                                        summary.secondary_amounts.payable_settlements > 0 &&
+                                        `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.payable_settlements, secondaryCurrency)}`}
+                                </div>
                             </div>
-                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                            <div className="mt-1 space-y-1 text-sm text-gray-600">
                                 {summary.secondary_amounts && summary.secondary_amounts.total_payables > 0 && (
                                     <div>
                                         {secondarySymbol} {formatCurrency(summary.secondary_amounts.total_payables, secondaryCurrency)}
@@ -732,11 +767,23 @@ export default function Transaction() {
                             <p className="text-xs text-muted-foreground">
                                 {filteredTransactions.filter((t) => t.type === 'receivable').length} transactions
                             </p>
-                            <div className="text-xs text-muted-foreground mt-1">
-                                <div>Remaining: {primarySymbol}{formatCurrency(summary.remaining_receivables, primaryCurrency)} {summary.secondary_amounts && (summary.secondary_amounts.total_receivables - summary.secondary_amounts.receivable_settlements) > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.total_receivables - summary.secondary_amounts.receivable_settlements, secondaryCurrency)}`}</div>
-                                <div>Settled: {primarySymbol}{formatCurrency(summary.receivable_settlements || 0, primaryCurrency)} {summary.secondary_amounts && summary.secondary_amounts.receivable_settlements > 0 && `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.receivable_settlements, secondaryCurrency)}`}</div>
+                            <div className="mt-1 text-xs text-muted-foreground">
+                                <div>
+                                    Remaining: {primarySymbol}
+                                    {formatCurrency(summary.remaining_receivables, primaryCurrency)}{' '}
+                                    {summary.secondary_amounts &&
+                                        summary.secondary_amounts.total_receivables - summary.secondary_amounts.receivable_settlements > 0 &&
+                                        `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.total_receivables - summary.secondary_amounts.receivable_settlements, secondaryCurrency)}`}
+                                </div>
+                                <div>
+                                    Settled: {primarySymbol}
+                                    {formatCurrency(summary.receivable_settlements || 0, primaryCurrency)}{' '}
+                                    {summary.secondary_amounts &&
+                                        summary.secondary_amounts.receivable_settlements > 0 &&
+                                        `/ ${secondarySymbol} ${formatCurrency(summary.secondary_amounts.receivable_settlements, secondaryCurrency)}`}
+                                </div>
                             </div>
-                            <div className="space-y-1 text-sm text-gray-600 mt-1">
+                            <div className="mt-1 space-y-1 text-sm text-gray-600">
                                 {summary.secondary_amounts && summary.secondary_amounts.total_receivables > 0 && (
                                     <div>
                                         {secondarySymbol} {formatCurrency(summary.secondary_amounts.total_receivables, secondaryCurrency)}
@@ -746,8 +793,6 @@ export default function Transaction() {
                         </CardContent>
                     </Card>
                 </div>
-
-
 
                 {/* Filters */}
                 <Card>
@@ -759,7 +804,7 @@ export default function Transaction() {
                         <p className="text-sm text-muted-foreground">Filters apply instantly as you type. Clear fields to reset.</p>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                             {/* Search */}
                             <div className="space-y-2">
                                 <Label htmlFor="search">Search</Label>
@@ -808,8 +853,6 @@ export default function Transaction() {
                                 <Label htmlFor="endDate">End Date</Label>
                                 <CustomDateInput id="endDate" value={endDate} onChange={(value) => setEndDate(value)} placeholder="dd/mm/yyyy" />
                             </div>
-
-
                         </div>
                     </CardContent>
                 </Card>
@@ -817,11 +860,7 @@ export default function Transaction() {
                 {/* Results Summary */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-6">
-                        <p className="text-sm text-muted-foreground">
-                            Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredTransactions.length)} of{' '}
-                            {filteredTransactions.length} transactions
-                        </p>
-
+                        <p className="text-sm text-muted-foreground">Showing {filteredTransactions.length} transactions</p>
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -854,128 +893,122 @@ export default function Transaction() {
                         <div className="hidden sm:block">
                             <div className="mobile-table-wrapper">
                                 <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-16">SL</TableHead>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead>Description</TableHead>
-                                        <TableHead>Type</TableHead>
-                                        <TableHead>Source</TableHead>
-                                        <TableHead>Category</TableHead>
-                                        <TableHead>Amount</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="w-32">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                            <TableBody>
-                                {paginatedTransactions.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
-                                            No transactions found matching your criteria.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    paginatedTransactions.map((transaction, index) => (
-                                        <TableRow key={transaction.id}>
-                                            <TableCell className="font-medium">{(currentPage - 1) * transactions.per_page + index + 1}</TableCell>
-                                            <TableCell>{formatDate(transaction.date)}</TableCell>
-                                            <TableCell className="font-medium">{transaction.description}</TableCell>
-                                            <TableCell>
-                                                <span
-                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
-                                                >
-                                                    {transaction.type === 'settlement' 
-                                                        ? transaction.category.name 
-                                                        : transaction.type === 'settle_receivable'
-                                                        ? 'Settle Receivable'
-                                                        : transaction.type === 'settle_payable'
-                                                        ? 'Settle Payable'
-                                                        : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)
-                                                    }
-                                                </span>
-                                            </TableCell>
-                                            <TableCell>{transaction.source}</TableCell>
-                                            <TableCell>{transaction.category.name}</TableCell>
-
-                                            <TableCell
-                                                className={getAmountDisplay(transaction).color}
-                                            >
-                                                {getAmountDisplay(transaction).sign}{' '}
-                                                {transaction.user?.primary_symbol || primarySymbol}{' '}
-                                                {formatCurrency(transaction.amount, primaryCurrency)}
-                                            </TableCell>
-                                            <TableCell>
-                                                {(() => {
-                                                    const statusDisplay = getStatusDisplay(transaction);
-                                                    if (!statusDisplay) {
-                                                        return <span className="text-gray-400">-</span>;
-                                                    }
-                                                    return (
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm">{statusDisplay.icon}</span>
-                                                            <span
-                                                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusDisplay.color}`}
-                                                            >
-                                                                {statusDisplay.text}
-                                                            </span>
-                                                        </div>
-                                                    );
-                                                })()}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleViewTransaction(transaction.id)}
-                                                        className="h-8 w-8 p-0"
-                                                    >
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleEditClick(transaction.id)}
-                                                        className="h-8 w-8 p-0"
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleDeleteClick(transaction.id)}
-                                                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="w-16">SL</TableHead>
+                                            <TableHead>Date</TableHead>
+                                            <TableHead>Description</TableHead>
+                                            <TableHead>Type</TableHead>
+                                            <TableHead>Source</TableHead>
+                                            <TableHead>Category</TableHead>
+                                            <TableHead>Amount</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead className="w-32">Actions</TableHead>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {filteredTransactions.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
+                                                    No transactions found matching your criteria.
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            filteredTransactions.map((transaction, index) => (
+                                                <TableRow key={transaction.id}>
+                                                    <TableCell className="font-medium">{index + 1}</TableCell>
+                                                    <TableCell>{formatDate(transaction.date)}</TableCell>
+                                                    <TableCell className="font-medium">{transaction.description}</TableCell>
+                                                    <TableCell>
+                                                        <span
+                                                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
+                                                        >
+                                                            {transaction.type === 'settlement'
+                                                                ? transaction.category.name
+                                                                : transaction.type === 'settle_receivable'
+                                                                  ? 'Settle Receivable'
+                                                                  : transaction.type === 'settle_payable'
+                                                                    ? 'Settle Payable'
+                                                                    : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell>{transaction.source}</TableCell>
+                                                    <TableCell>{transaction.category.name}</TableCell>
+
+                                                    <TableCell className={getAmountDisplay(transaction).color}>
+                                                        {getAmountDisplay(transaction).sign} {transaction.user?.primary_symbol || primarySymbol}{' '}
+                                                        {formatCurrency(transaction.amount, primaryCurrency)}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {(() => {
+                                                            const statusDisplay = getStatusDisplay(transaction);
+                                                            if (!statusDisplay) {
+                                                                return <span className="text-gray-400">-</span>;
+                                                            }
+                                                            return (
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-sm">{statusDisplay.icon}</span>
+                                                                    <span
+                                                                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusDisplay.color}`}
+                                                                    >
+                                                                        {statusDisplay.text}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })()}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-1">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleViewTransaction(transaction.id)}
+                                                                className="h-8 w-8 p-0"
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleEditClick(transaction.id)}
+                                                                className="h-8 w-8 p-0"
+                                                            >
+                                                                <Edit className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleDeleteClick(transaction.id)}
+                                                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
+                                    </TableBody>
+                                </Table>
                             </div>
                         </div>
 
                         {/* Mobile Card Layout */}
                         <div className="block sm:hidden">
                             <div className="space-y-3 p-4">
-                                {paginatedTransactions.length === 0 ? (
-                                    <div className="py-8 text-center text-muted-foreground">
-                                        No transactions found matching your criteria.
-                                    </div>
+                                {filteredTransactions.length === 0 ? (
+                                    <div className="py-8 text-center text-muted-foreground">No transactions found matching your criteria.</div>
                                 ) : (
-                                    paginatedTransactions.map((transaction, index) => (
-                                        <div key={transaction.id} className="border rounded-lg p-3 bg-white dark:bg-gray-800">
-                                            <div className="flex items-start justify-between mb-2">
+                                    filteredTransactions.map((transaction) => (
+                                        <div key={transaction.id} className="rounded-lg border bg-white p-3 dark:bg-gray-800">
+                                            <div className="mb-2 flex items-start justify-between">
                                                 <div className="flex-1">
-                                                    <div className="font-medium text-sm">{transaction.description}</div>
-                                                    <div className="text-xs text-muted-foreground mt-1">
+                                                    <div className="text-sm font-medium">{transaction.description}</div>
+                                                    <div className="mt-1 text-xs text-muted-foreground">
                                                         {formatDate(transaction.date)} • {transaction.category.name}
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-1 ml-2">
+                                                <div className="ml-2 flex items-center gap-1">
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -1007,23 +1040,19 @@ export default function Transaction() {
                                                     <span
                                                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
                                                     >
-                                                        {transaction.type === 'settlement' 
-                                                            ? transaction.category.name 
+                                                        {transaction.type === 'settlement'
+                                                            ? transaction.category.name
                                                             : transaction.type === 'settle_receivable'
-                                                            ? 'Settle Receivable'
-                                                            : transaction.type === 'settle_payable'
-                                                            ? 'Settle Payable'
-                                                            : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)
-                                                        }
+                                                              ? 'Settle Receivable'
+                                                              : transaction.type === 'settle_payable'
+                                                                ? 'Settle Payable'
+                                                                : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
                                                     </span>
                                                     <span className="text-xs text-muted-foreground">{transaction.source}</span>
                                                 </div>
                                                 <div className="flex flex-col items-end gap-1">
-                                                    <div
-                                                        className={`font-medium text-sm ${getAmountDisplay(transaction).color}`}
-                                                    >
-                                                        {getAmountDisplay(transaction).sign}{' '}
-                                                        {transaction.user?.primary_symbol || primarySymbol}{' '}
+                                                    <div className={`text-sm font-medium ${getAmountDisplay(transaction).color}`}>
+                                                        {getAmountDisplay(transaction).sign} {transaction.user?.primary_symbol || primarySymbol}{' '}
                                                         {formatCurrency(transaction.amount, primaryCurrency)}
                                                     </div>
                                                     {(() => {
@@ -1051,33 +1080,6 @@ export default function Transaction() {
                         </div>
                     </CardContent>
                 </Card>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">
-                            Page {currentPage} of {totalPages}
-                        </p>
-                        <div className="flex items-center space-x-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                                disabled={currentPage === 1}
-                            >
-                                Previous
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                                disabled={currentPage === totalPages}
-                            >
-                                Next
-                            </Button>
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* Delete Confirmation Modal */}

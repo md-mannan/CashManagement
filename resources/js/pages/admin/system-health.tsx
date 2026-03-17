@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -58,11 +58,6 @@ interface SystemHealthProps {
 }
 
 export default function SystemHealth({ systemHealth }: SystemHealthProps) {
-    const page = usePage();
-
-    // Debug: Log the props to see what's being passed
-
-    // Check if systemHealth data exists
     if (!systemHealth) {
         return (
             <AdminRouteGuard>
@@ -79,10 +74,6 @@ export default function SystemHealth({ systemHealth }: SystemHealthProps) {
                                 System health data is not available. Please check the controller and ensure data is being passed correctly.
                             </AlertDescription>
                         </Alert>
-                        <div className="text-sm text-muted-foreground">
-                            <p>Debug Info:</p>
-                            <pre className="mt-2 overflow-auto rounded bg-gray-100 p-4">{JSON.stringify(page.props, null, 2)}</pre>
-                        </div>
                     </div>
                 </AppLayout>
             </AdminRouteGuard>

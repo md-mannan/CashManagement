@@ -40,10 +40,10 @@
     "name": "app-layout",
     "imports": [
       "_ui-vendor-legacy.js",
-      "_utils-vendor-legacy.js",
       "_button-legacy.js",
-      "resources/js/app-legacy.tsx",
       "_icons-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
       "_inertia-vendor-legacy.js",
       "_app-logo-icon-legacy.js"
     ]
@@ -53,10 +53,10 @@
     "name": "app-layout",
     "imports": [
       "_ui-vendor.js",
-      "_utils-vendor.js",
       "_button.js",
-      "resources/js/app.tsx",
       "_icons-vendor.js",
+      "_utils-vendor.js",
+      "resources/js/app.tsx",
       "_inertia-vendor.js",
       "_app-logo-icon.js"
     ]
@@ -2507,13 +2507,13 @@
       "_select-legacy.js",
       "_app-layout-legacy.js",
       "_inertia-vendor-legacy.js",
+      "resources/js/app-legacy.tsx",
       "_exchangeRateService-legacy.js",
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/transaction-view.tsx": {
@@ -2531,13 +2531,13 @@
       "_select.js",
       "_app-layout.js",
       "_inertia-vendor.js",
+      "resources/js/app.tsx",
       "_exchangeRateService.js",
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/transaction.tsx": {

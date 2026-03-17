@@ -11,6 +11,7 @@ use App\Models\TransactionType;
 use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use App\Services\SettlementService;
@@ -68,16 +69,13 @@ class TransactionController extends Controller
         // SECURITY: Only allow users to view their own transactions
         // Admins cannot access other users' data without explicit authorization
         $query->where('user_id', $user->id);
-
-        // Get all transactions for summary calculation (without pagination)
-        $allTransactions = $query->with('relatedTransaction')->get();
         
         // Use TransactionService for consistent summary calculation
         $summary = $this->transactionService->getFinancialSummary($user);
       
 
-        // Get paginated transactions for the table
-        $transactions = $query->paginate(10);
+        // Get all transactions for the table
+        $transactions = $query->with('relatedTransaction')->get();
 
         return Inertia::render('transaction', [
             'transactions' => $transactions,
@@ -620,6 +618,18 @@ class TransactionController extends Controller
                 ->with('error', 'You do not have permission to delete this transaction.');
         }
 
+        // Cannot delete a transaction that has settlement(s) linked to it (parent row)
+        $settlementsCount = $transaction->settlements()->count();
+        if ($settlementsCount > 0) {
+            $message = $settlementsCount === 1
+                ? 'This transaction cannot be deleted because it has 1 settlement entry linked to it. Delete the settlement from the transaction detail page first, then delete this transaction.'
+                : "This transaction cannot be deleted because it has {$settlementsCount} settlement entries linked to it. Delete the settlements from the transaction detail page first, then delete this transaction.";
+            if (request()->expectsJson() || request()->header('X-Inertia')) {
+                return back()->withErrors(['delete' => $message])->withInput();
+            }
+            return redirect()->route('transactions.index')->with('error', $message);
+        }
+
         // Store transaction info before deletion for admin notification
         $transactionInfo = [
             'type' => $transaction->type,
@@ -640,7 +650,18 @@ class TransactionController extends Controller
             }
         }
 
-        $transaction->delete();
+        try {
+            $transaction->delete();
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'foreign key constraint')) {
+                $message = 'This transaction cannot be deleted because other records (such as settlement entries) are linked to it. Open the transaction, remove or delete those entries first, then try again.';
+                if (request()->expectsJson() || request()->header('X-Inertia')) {
+                    return back()->withErrors(['delete' => $message])->withInput();
+                }
+                return redirect()->route('transactions.index')->with('error', $message);
+            }
+            throw $e;
+        }
 
         // Notify admins about the transaction deletion (exclude current user if they're an admin)
         $excludeUserId = in_array(Auth::user()->role, ['admin', 'super_admin']) ? Auth::id() : null;

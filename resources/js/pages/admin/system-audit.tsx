@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { AlertTriangle, ArrowLeft, Calendar, Clock, Download, Eye, Filter, Search, Shield, Users } from 'lucide-react';
 import { useState } from 'react';
 
@@ -55,15 +55,10 @@ interface SystemAuditProps {
 }
 
 export default function SystemAudit({ recentActivities, error }: SystemAuditProps) {
-    const page = usePage();
-
-    // Debug: Log the props to see what's being passed
-
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedAction, setSelectedAction] = useState('all');
     const [selectedTimeframe, setSelectedTimeframe] = useState('24h');
 
-    // Check if we have an error or no data
     if (error || !recentActivities) {
         return (
             <AdminRouteGuard>
@@ -87,10 +82,6 @@ export default function SystemAudit({ recentActivities, error }: SystemAuditProp
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            <p>Debug Info:</p>
-                            <pre className="mt-2 overflow-auto rounded bg-gray-100 p-4">{JSON.stringify(page.props, null, 2)}</pre>
                         </div>
                     </div>
                 </AppLayout>

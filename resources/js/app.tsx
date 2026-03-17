@@ -12,16 +12,13 @@ import { createRoot } from 'react-dom/client';
 import { ToastProvider } from './components/ui/toast';
 import { RealTimeNotificationProvider } from './contexts/RealTimeNotificationContext';
 import { initializeTheme } from './hooks/use-appearance';
-import webSocketService from './services/websocketService';
 
 // Import axios configuration
 import './lib/axios';
 import { configureEcho } from '@laravel/echo-react';
 
-// Import and make route function globally available
 import { route } from './lib/route';
 
-// Make route function globally available
 declare global {
     interface Window {
         route: typeof route;
@@ -43,12 +40,6 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
     setup({ el, App, props }) {
         const root = createRoot(el);
-
-        // Initialize WebSocket service if user is authenticated
-        // Temporarily disabled to fix 403 errors
-        // if (props.initialPage.props.auth?.user) {
-        //     webSocketService.initialize(props.initialPage.props.auth.user);
-        // }
 
         root.render(
             <ToastProvider>

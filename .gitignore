@@ -17,3 +17,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Vite build output (run npm run build on deploy)
+/public/build
+/public/hot

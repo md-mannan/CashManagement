@@ -10,7 +10,8 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, Edit, Trash2, DollarSign, RefreshCw, Calendar } from 'lucide-react';
 // import SettlementModal from '@/components/Transactions/SettlementModal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useToast } from '@/components/ui/toast';
 import { getExchangeRateForTransaction } from '@/services/exchangeRateService';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -44,9 +45,12 @@ const currencies = [
 
 export default function TransactionView() {
     const [showSettlementModal, setShowSettlementModal] = useState(false);
-    
-    const { auth, transaction, settlementSummary, settlementCategories } = usePage<
+    const { addToast } = useToast();
+
+    const { auth, transaction, settlementSummary, settlementCategories, flash, errors } = usePage<
         SharedData & {
+            flash?: { success?: string; error?: string };
+            errors?: Record<string, string[]>;
             transaction: {
                 id: number;
                 date: string;
@@ -98,6 +102,18 @@ export default function TransactionView() {
             }>;
         }
     >().props;
+
+    // Show toast when delete fails (e.g. transaction has settlements)
+    useEffect(() => {
+        const msg = errors?.['delete']?.[0] ?? flash?.error;
+        if (msg) {
+            addToast({
+                type: 'error',
+                title: 'Cannot delete transaction',
+                message: msg,
+            });
+        }
+    }, [errors, flash, addToast]);
 
     const [settlementFormData, setSettlementFormData] = useState({
         category: settlementCategories?.[0]?.type || 'settle_payable',
@@ -205,6 +221,17 @@ export default function TransactionView() {
             router.delete(route('transactions.destroy', transaction.id), {
                 onSuccess: () => {
                     router.visit(route('transactions.index'));
+                },
+                onError: (errs) => {
+                    const msg =
+                        (typeof errs === 'object' && (errs as Record<string, string[]>)?.delete?.[0]) ||
+                        (typeof errs === 'object' && (errs as Record<string, string>)?.message) ||
+                        'This transaction could not be deleted. It may have settlement entries linked to it—delete those from this page first, then delete the transaction.';
+                    addToast({
+                        type: 'error',
+                        title: 'Cannot delete transaction',
+                        message: typeof msg === 'string' ? msg : 'This transaction may have settlement entries linked to it. Delete those first.',
+                    });
                 },
             });
         }

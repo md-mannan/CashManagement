@@ -2,24 +2,23 @@ import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { 
-    Activity, 
-    BarChart3, 
-    Bell, 
-    Crown, 
-    Database, 
-    DollarSign, 
-    FileText, 
-    HardDrive, 
-    LayoutGrid, 
-    Lock, 
-    Receipt, 
-    Settings, 
-    Shield, 
-    Tag, 
-    Users,
+import {
+    Activity,
     Archive,
+    BarChart3,
+    Bell,
+    Crown,
+    Database,
+    DollarSign,
+    FileText,
+    LayoutGrid,
+    Lock,
     Monitor,
+    Receipt,
+    Settings,
+    Shield,
+    Tag,
+    Users,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -49,7 +48,6 @@ export function AppSidebar() {
             href: '/categories',
             icon: Tag,
         },
-
     ];
 
     const adminNavItems: NavItem[] = [
@@ -148,7 +146,7 @@ export function AppSidebar() {
                 {isSuperAdmin && <NavMain items={superAdminNavItems} label="Super Admin" />}
             </SidebarContent>
 
-            <SidebarFooter>{/* User profile moved to header */}</SidebarFooter>
+            <SidebarFooter />
         </Sidebar>
     );
 }

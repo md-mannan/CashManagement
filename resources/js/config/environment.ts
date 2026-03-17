@@ -81,8 +81,8 @@ function debugLog(message: string, ...args: any[]): void {
 /**
  * Log errors (always logged)
  */
-function errorLog(message: string, error?: any): void {
-            // NotificationService error logged silently
+function errorLog(_message: string, _error?: any): void {
+    // Errors logged silently in production
 }
 
 /**

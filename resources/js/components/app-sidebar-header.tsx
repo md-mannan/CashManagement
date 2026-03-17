@@ -2,9 +2,10 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { useToast } from '@/components/ui/toast';
 import { useNotifications } from '@/hooks/use-notifications';
+import { cn } from '@/lib/utils';
 import { type BreadcrumbItem as BreadcrumbItemType, type SharedData } from '@/types';
 import { router, usePage } from '@inertiajs/react';
 import { Bell, CheckCircle, LogOut, Settings, User, X } from 'lucide-react';
@@ -12,6 +13,8 @@ import { Bell, CheckCircle, LogOut, Settings, User, X } from 'lucide-react';
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
+    const { state } = useSidebar();
+    const isCollapsed = state === 'collapsed';
     const { addToast } = useToast();
     const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
 
@@ -53,13 +56,20 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
     };
 
     return (
-        <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 bg-sidebar px-6 shadow-[6px_4px_6px_-1px_rgba(0,0,0,0.1),6px_2px_4px_-1px_rgba(0,0,0,0.06)] border-b border-border transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4">
-            <div className="flex items-center gap-2">
-                <SidebarTrigger className="-ml-1" />
-                <Breadcrumbs breadcrumbs={breadcrumbs} />
+        <header
+            className={cn(
+                'sticky top-0 z-50 flex h-16 w-[calc(--sidebar-width-width-full)] max-w-full min-w-0 shrink-0 items-center justify-between gap-2 overflow-hidden border-b border-border bg-background px-0 shadow-sm transition-[width,height] duration-200 ease-linear md:px-0',
+                isCollapsed ? 'left-16' : 'left-64',
+            )}
+        >
+            <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+                <SidebarTrigger className="-ml-1 shrink-0" />
+                <div className="min-w-0 flex-1 overflow-hidden">
+                    <Breadcrumbs breadcrumbs={breadcrumbs} />
+                </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
                 {/* Notification Panel */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -144,9 +154,10 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                                 className="w-full text-xs"
                                 onClick={() => {
                                     // Route based on user role
-                                    const notificationsRoute = auth.user.role === 'admin' || auth.user.role === 'super_admin' 
-                                        ? route('admin.notifications.index')
-                                        : route('notifications');
+                                    const notificationsRoute =
+                                        auth.user.role === 'admin' || auth.user.role === 'super_admin'
+                                            ? route('admin.notifications.index')
+                                            : route('notifications');
                                     router.visit(notificationsRoute);
                                 }}
                             >

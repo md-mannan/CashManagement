@@ -1,6 +1,6 @@
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeftIcon } from "lucide-react"
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import * as React from "react"
 
 import { Button } from "@/components/ui/button"
@@ -205,23 +205,27 @@ function Sidebar({
 
   return (
     <div
-      className="group peer text-sidebar-foreground hidden md:block"
+      className={cn(
+        "group peer shrink-0 text-sidebar-foreground hidden md:block transition-[width] duration-200 ease-linear",
+        "w-(--sidebar-width)",
+        "data-[collapsible=offcanvas]:w-0",
+        variant === "floating" || variant === "inset"
+          ? "data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
+          : "data-[collapsible=icon]:w-(--sidebar-width-icon)"
+      )}
       data-state={state}
       data-collapsible={state === "collapsed" ? collapsible : ""}
       data-variant={variant}
       data-side={side}
       data-slot="sidebar"
     >
-      {/* This is what handles the sidebar gap on desktop */}
+      {/* Spacer: reserves space in flex layout so main content column resizes */}
       <div
         className={cn(
-          "relative h-svh w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-          "group-data-[collapsible=offcanvas]:w-0",
-          "group-data-[side=right]:rotate-180",
-          variant === "floating" || variant === "inset"
-            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
+          "relative h-svh w-full bg-transparent",
+          "group-data-[side=right]:rotate-180"
         )}
+        aria-hidden
       />
       <div
         className={cn(
@@ -253,7 +257,8 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, state } = useSidebar()
+  const isCollapsed = state === "collapsed"
 
   return (
     <Button
@@ -268,8 +273,12 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      {isCollapsed ? (
+        <PanelLeftOpen className="h-4 w-4" aria-hidden />
+      ) : (
+        <PanelLeftClose className="h-4 w-4" aria-hidden />
+      )}
+      <span className="sr-only">{isCollapsed ? "Expand sidebar" : "Collapse sidebar"}</span>
     </Button>
   )
 }
@@ -304,7 +313,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "bg-background relative flex max-w-full min-h-svh flex-1 flex-col",
+        "bg-background relative flex min-w-0 max-w-full min-h-svh flex-1 flex-col overflow-hidden transition-[width] duration-200 ease-linear",
         "peer-data-[variant=inset]:min-h-[calc(100svh-(--spacing(4)))] md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-0",
         className
       )}
