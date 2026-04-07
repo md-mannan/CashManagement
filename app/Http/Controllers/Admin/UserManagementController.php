@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Notification;
 use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -81,37 +80,7 @@ class UserManagementController extends Controller
             'is_active' => $request->is_active ?? true,
         ]);
 
-        // Send welcome notification with role information (with error handling)
-        try {
-            $roleNames = [
-                'user' => 'Regular User',
-                'admin' => 'Administrator',
-                'super_admin' => 'Super Administrator'
-            ];
-
-            $roleName = $roleNames[$request->role] ?? $request->role;
-            $welcomeMessage = "Welcome to the system! Your account has been created with {$roleName} privileges.";
-
-            if ($request->role === 'admin') {
-                $welcomeMessage .= " You have access to administrative functions and user management.";
-            } elseif ($request->role === 'super_admin') {
-                $welcomeMessage .= " You have access to all system features and administrative functions.";
-            }
-
-            Notification::createForUser(
-                $user->id,
-                'account_created',
-                'Account Created',
-                $welcomeMessage,
-                [
-                    'icon' => 'CheckCircle',
-                    'color' => 'green',
-                    'is_important' => true,
-                ]
-            );
-        } catch (\Exception $e) {
-            \Log::error('Failed to create welcome notification', ['error' => $e->getMessage()]);
-        }
+        // Notifications removed
 
         // Notify admins about user creation (with error handling)
         try {
@@ -163,22 +132,9 @@ class UserManagementController extends Controller
             'is_active' => $request->is_active ?? true,
         ]);
 
-        // Send notification if role changed
+        // Role changed
         if ($oldRole !== $request->role) {
-            $roleChangeMessage = $this->getRoleChangeMessage($oldRole, $request->role);
-
-            Notification::createForUser(
-                $user->id,
-                'role_change',
-                'Role Updated',
-                $roleChangeMessage,
-                [
-                    'icon' => 'Shield',
-                    'color' => 'blue',
-                    'is_important' => true,
-                ]
-            );
-
+            // Notifications removed
             // Notify admins about role change (excluding current admin to avoid duplicates)
             AdminNotificationService::notifyUserAccountAction(
                 'changed role',
@@ -274,17 +230,7 @@ class UserManagementController extends Controller
             ? "Your account has been activated. You can now access the system."
             : "Your account has been deactivated. Please contact an administrator for assistance.";
 
-        Notification::createForUser(
-            $user->id,
-            'account_status',
-            'Account Status Changed',
-            $statusMessage,
-            [
-                'icon' => $user->is_active ? 'CheckCircle' : 'AlertTriangle',
-                'color' => $user->is_active ? 'green' : 'orange',
-                'is_important' => true,
-            ]
-        );
+        // Notifications removed
 
         // Notify admins about status change (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
@@ -308,18 +254,7 @@ class UserManagementController extends Controller
             'force_password_change' => true,
         ]);
 
-        // Send notification about password reset
-        Notification::createForUser(
-            $user->id,
-            'password_reset',
-            'Password Reset',
-            'Your password has been reset by an administrator. You will be required to change it on your next login.',
-            [
-                'icon' => 'Shield',
-                'color' => 'orange',
-                'is_important' => true,
-            ]
-        );
+        // Notifications removed
 
         // Notify admins about password reset (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(

@@ -6,7 +6,6 @@ import {
     Activity,
     Archive,
     BarChart3,
-    Bell,
     Crown,
     Database,
     DollarSign,
@@ -67,11 +66,6 @@ export function AppSidebar() {
             icon: Lock,
         },
         {
-            title: 'Notifications',
-            href: route('admin.notifications.index'),
-            icon: Bell,
-        },
-        {
             title: 'Analytics',
             href: '/admin/analytics',
             icon: BarChart3,
@@ -127,7 +121,7 @@ export function AppSidebar() {
     ];
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar collapsible="icon" variant="sidebar">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>

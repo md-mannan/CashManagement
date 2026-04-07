@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Notification;
 use App\Services\ActivityLogService;
 use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
@@ -122,20 +121,7 @@ class RolePermissionController extends Controller
             'permissions' => $this->getDefaultPermissionsForRole($request->role),
         ]);
 
-        // Send notification to user about role change
-        $roleChangeMessage = $this->getRoleChangeMessage($oldRole, $request->role);
-
-        Notification::createForUser(
-            $user->id,
-            'role_change',
-            'Role Updated',
-            $roleChangeMessage,
-            [
-                'icon' => 'Shield',
-                'color' => 'blue',
-                'is_important' => true,
-            ]
-        );
+        // Notifications removed
 
         // Notify admins about the role change (excluding current admin to avoid duplicates)
         AdminNotificationService::notifyUserAccountAction(
@@ -242,20 +228,7 @@ class RolePermissionController extends Controller
                 'permissions' => $this->getDefaultPermissionsForRole($request->role),
             ]);
 
-            // Send notification to user about role change
-            $roleChangeMessage = $this->getRoleChangeMessage($oldRole, $request->role);
-
-            Notification::createForUser(
-                $user->id,
-                'role_change',
-                'Role Updated',
-                $roleChangeMessage,
-                [
-                    'icon' => 'Shield',
-                    'color' => 'blue',
-                    'is_important' => true,
-                ]
-            );
+            // Notifications removed
 
 
 

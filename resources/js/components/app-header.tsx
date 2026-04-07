@@ -27,6 +27,8 @@ interface AppHeaderProps {
 
 export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData>();
+    const appName = page.props.name || 'Cash Management';
+    const logoUrl = page.props.branding?.logoUrl ?? null;
     return (
         <>
             <div className="border-b border-sidebar-border/80 bg-sidebar shadow-sm">
@@ -50,7 +52,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             {mainNavItems.map((item) => (
                                                 <Link key={item.title} href={item.href} className="flex items-center space-x-2 font-medium">
                                                     {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
-                                                    <span>{item.title}</span>
+                                                    <span>{item.title} </span>
                                                 </Link>
                                             ))}
                                         </div>
@@ -105,8 +107,12 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     <div className="flex items-center">{breadcrumbs.length > 1 && <Breadcrumbs breadcrumbs={breadcrumbs} />}</div>
 
                     <div className="flex items-center gap-2">
-                        <AppLogoIcon className="h-6 w-6 fill-current text-primary" />
-                        <span className="font-semibold">User name Accounting</span>
+                        {logoUrl ? (
+                            <img src={logoUrl} alt={appName} className="h-6 w-6 rounded object-contain" />
+                        ) : (
+                            <AppLogoIcon className="h-6 w-6 fill-current text-primary" />
+                        )}
+                        <span className="font-semibold">{appName}</span>
                     </div>
                 </div>
             </div>

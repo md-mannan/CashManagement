@@ -101,14 +101,6 @@ class User extends Authenticatable implements CanResetPasswordContract
     }
 
     /**
-     * Get the notifications for the user.
-     */
-    public function notifications(): HasMany
-    {
-        return $this->hasMany(Notification::class)->orderBy('created_at', 'desc');
-    }
-
-    /**
      * Get unread notifications count.
      */
     public function unreadNotificationsCount(): int

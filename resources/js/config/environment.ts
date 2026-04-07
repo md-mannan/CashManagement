@@ -89,7 +89,7 @@ function errorLog(_message: string, _error?: any): void {
  * Log warnings (always logged)
  */
 function warnLog(message: string, ...args: any[]): void {
-    console.warn(`[NotificationService Warning] ${message}`, ...args);
+    console.warn(`[App Warning] ${message}`, ...args);
 }
 
 // Export the configuration

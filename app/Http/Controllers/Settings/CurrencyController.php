@@ -5,28 +5,34 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\UpdateCurrencyRequest;
 use App\Services\ExchangeRateService;
+use App\Services\SettingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CurrencyController extends Controller
 {
     protected $exchangeRateService;
-
-    public function __construct(ExchangeRateService $exchangeRateService)
+    public function __construct(ExchangeRateService $exchangeRateService, private readonly SettingService $settingService)
     {
         $this->exchangeRateService = $exchangeRateService;
     }
 
     public function edit()
     {
-        $user = auth()->user();
+        $user = Auth::user();
+
+        $globalPrimaryCurrency = $this->settingService->get('primary_currency', 'BDT');
+        $globalSecondaryCurrency = $this->settingService->get('secondary_currency', 'KWD');
+        $globalPrimarySymbol = $this->settingService->get('primary_symbol', '৳');
+        $globalSecondarySymbol = $this->settingService->get('secondary_symbol', 'د.ك');
 
         return Inertia::render('settings/currency', [
             'user_preferences' => [
-                'primary_currency' => $user->primary_currency ?? 'USD',
-                'secondary_currency' => $user->secondary_currency ?? 'EUR',
-                'primary_symbol' => $user->primary_symbol ?? '$',
-                'secondary_symbol' => $user->secondary_symbol ?? '€',
+                'primary_currency' => $user->primary_currency ?? $globalPrimaryCurrency,
+                'secondary_currency' => $user->secondary_currency ?? $globalSecondaryCurrency,
+                'primary_symbol' => $user->primary_symbol ?? $globalPrimarySymbol,
+                'secondary_symbol' => $user->secondary_symbol ?? $globalSecondarySymbol,
                 'exchange_rate' => $user->exchange_rate ?? '1.0000',
             ],
             'supported_currencies' => $this->exchangeRateService->getSupportedCurrencies(),
@@ -49,6 +55,15 @@ class CurrencyController extends Controller
 
         // Update user's currency preferences
         $request->user()->update($validated);
+
+        // If super admin updates, also save as global defaults
+        if ($request->user()->role === 'super_admin') {
+            $this->settingService->set('primary_currency', $validated['primary_currency']);
+            $this->settingService->set('secondary_currency', $validated['secondary_currency']);
+            $this->settingService->set('primary_symbol', $validated['primary_symbol']);
+            $this->settingService->set('secondary_symbol', $validated['secondary_symbol']);
+            $this->settingService->set('exchange_rate', (string) $validated['exchange_rate']);
+        }
 
         return back()->with([
             'success' => 'Currency settings updated successfully',

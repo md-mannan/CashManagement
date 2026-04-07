@@ -1,1 +1,1 @@
-System.register(["./app-legacy.js"],function(t,r){"use strict";var e,n;return{setters:[t=>{e=t.t,n=t.v}],execute:function(){var r,u;t("r",function(){if(u)return r;u=1;var t=e(),c=n();return r=function(r,e){return c(t[r].prototype[e])}})}}});
+System.register(["./app-legacy.js"],function(r,t){"use strict";var e,n;return{setters:[r=>{e=r.o,n=r.p}],execute:function(){var t,u;r("r",function(){if(u)return t;u=1;var r=e(),c=n();return t=function(t,e){return c(r[t].prototype[e])}})}}});

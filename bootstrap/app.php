@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(append: [
+            \App\Http\Middleware\SetupRequiredMiddleware::class,
             ValidateCsrfToken::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,

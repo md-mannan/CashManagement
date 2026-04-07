@@ -1,8 +1,12 @@
 import AppLogoIcon from '@/components/app-logo-icon';
+import { type SharedData } from '@/types';
 import { Link } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
 export default function AuthSplitLayout({ children }: PropsWithChildren) {
+    const page = usePage<SharedData>();
+    const appName = page.props.name || 'Cash Management';
     return (
         <div className="flex min-h-svh">
             <div className="flex w-full flex-col lg:w-1/2">
@@ -34,7 +38,7 @@ export default function AuthSplitLayout({ children }: PropsWithChildren) {
                                 <AppLogoIcon className="h-12 w-12 fill-current text-primary" />
                             </div>
                             <div className="max-w-sm">
-                                <h2 className="text-2xl font-semibold text-foreground">Welcome to User name Accounting</h2>
+                                <h2 className="text-2xl font-semibold text-foreground">Welcome to {appName}</h2>
                                 <p className="mt-2 text-sm text-muted-foreground">Manage your personal finances with ease and security.</p>
                             </div>
                         </div>

@@ -31,6 +31,7 @@ export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    branding?: { logoUrl?: string | null };
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
     [key: string]: unknown;

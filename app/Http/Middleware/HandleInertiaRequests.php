@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\SettingService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -58,10 +59,13 @@ class HandleInertiaRequests extends Middleware
 
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'name' => app(SettingService::class)->get('app_name', config('app.name')),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $user,
+            ],
+            'branding' => [
+                'logoUrl' => fn () => ($path = app(SettingService::class)->get('logo_path')) ? asset('storage/'.$path) : null,
             ],
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),

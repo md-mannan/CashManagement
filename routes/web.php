@@ -27,10 +27,10 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\ExchangeRateController as ApiExchangeRateController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SetupController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,11 +48,16 @@ use Illuminate\Support\Facades\Route;
 // PUBLIC ROUTES
 // ============================================================================
 
+// Setup (WordPress-like first run)
+Route::get('/setup', [SetupController::class, 'index'])->name('setup.index');
+Route::post('/setup/db-test', [SetupController::class, 'testDb'])->name('setup.db-test');
+Route::post('/setup', [SetupController::class, 'store'])->name('setup.store');
+
 // Landing page
 // - Guests see the login screen
 // - Authenticated users go to the dashboard
 Route::get('/', function () {
-    if (auth()->check()) {
+    if (Auth::check()) {
         return redirect()->route('dashboard');
     }
 
@@ -91,9 +96,8 @@ Broadcast::routes(['middleware' => ['web', 'auth']]);
 // ============================================================================
 
 Route::middleware('guest')->group(function () {
-    // Registration
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store'])->name('register.store');
+    // Registration disabled
+    Route::redirect('register', '/')->name('register');
 
     // Login (page is the landing page)
     Route::redirect('login', '/')->name('login');
@@ -167,10 +171,7 @@ Route::middleware(['auth', 'verified', 'user.data.access'])->group(function () {
     Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
-    // Notifications
-    Route::get('notifications', function () {
-        return Inertia::render('notifications');
-    })->name('notifications');
+    // Notifications removed
 
     // Settings
     Route::redirect('settings', '/settings/profile');
@@ -295,13 +296,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/export', [RolePermissionController::class, 'exportUsers'])->name('export');
     });
 
-    // Notifications
-    Route::prefix('notifications')->name('notifications.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('index');
-        Route::get('/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'show'])->name('show');
-        Route::delete('/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('destroy');
-        Route::post('/mark-all-as-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-    });
+    // Notifications removed
 
     // Activity Logs
     Route::prefix('activity-logs')->name('activity-logs.')->group(function () {
@@ -356,15 +351,7 @@ Route::prefix('api')->name('api.')->group(function () {
         });
     });
 
-    // Notification API Routes
-    Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {
-        Route::get('/', [NotificationController::class, 'index'])->name('index');
-        Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
-        Route::post('/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
-        Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
-        Route::post('/clear-all', [NotificationController::class, 'clearAll'])->name('clear-all');
-        Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
-    });
+    // Notifications removed
 
     // User API (authenticated)
     Route::get('/user', function (Illuminate\Http\Request $request) {

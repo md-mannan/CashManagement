@@ -23,7 +23,7 @@
     "imports": [
       "_ui-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_alert.js": {
@@ -32,7 +32,7 @@
     "imports": [
       "_ui-vendor.js",
       "_utils-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_app-layout-legacy.js": {
@@ -43,9 +43,10 @@
       "_button-legacy.js",
       "_icons-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
       "_inertia-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx"
     ]
   },
   "_app-layout.js": {
@@ -56,9 +57,10 @@
       "_button.js",
       "_icons-vendor.js",
       "_utils-vendor.js",
-      "resources/js/app.tsx",
       "_inertia-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js",
+      "resources/js/app.tsx"
     ]
   },
   "_app-logo-icon-legacy.js": {
@@ -119,7 +121,7 @@
     "imports": [
       "_ui-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_badge.js": {
@@ -128,7 +130,7 @@
     "imports": [
       "_ui-vendor.js",
       "_utils-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_button-legacy.js": {
@@ -136,8 +138,7 @@
     "name": "button",
     "imports": [
       "_ui-vendor-legacy.js",
-      "_utils-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_utils-vendor-legacy.js"
     ]
   },
   "_button.js": {
@@ -145,8 +146,7 @@
     "name": "button",
     "imports": [
       "_ui-vendor.js",
-      "_utils-vendor.js",
-      "resources/js/app.tsx"
+      "_utils-vendor.js"
     ]
   },
   "_card-legacy.js": {
@@ -154,7 +154,7 @@
     "name": "card",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_card.js": {
@@ -162,7 +162,7 @@
     "name": "card",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_chart-config-legacy.js": {
@@ -198,7 +198,7 @@
     "name": "checkbox",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
       "_icons-vendor-legacy.js"
     ]
   },
@@ -207,7 +207,7 @@
     "name": "checkbox",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx",
+      "_button.js",
       "_icons-vendor.js"
     ]
   },
@@ -216,7 +216,7 @@
     "name": "custom-date-input",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
       "_input-legacy.js",
       "_icons-vendor-legacy.js"
     ]
@@ -226,7 +226,7 @@
     "name": "custom-date-input",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx",
+      "_button.js",
       "_input.js",
       "_icons-vendor.js"
     ]
@@ -236,7 +236,7 @@
     "name": "dialog",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
       "_icons-vendor-legacy.js"
     ]
   },
@@ -245,7 +245,7 @@
     "name": "dialog",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx",
+      "_button.js",
       "_icons-vendor.js"
     ]
   },
@@ -500,7 +500,7 @@
     "name": "input-error",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_input-error.js": {
@@ -508,7 +508,7 @@
     "name": "input-error",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_input-legacy.js": {
@@ -516,7 +516,7 @@
     "name": "input",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_input.js": {
@@ -524,7 +524,7 @@
     "name": "input",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_intersection-observer-legacy.js": {
@@ -548,7 +548,7 @@
     "name": "label",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_label.js": {
@@ -556,7 +556,7 @@
     "name": "label",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_layout-legacy.js": {
@@ -566,7 +566,6 @@
       "_ui-vendor-legacy.js",
       "_button-legacy.js",
       "_separator-legacy.js",
-      "resources/js/app-legacy.tsx",
       "_inertia-vendor-legacy.js"
     ]
   },
@@ -577,7 +576,6 @@
       "_ui-vendor.js",
       "_button.js",
       "_separator.js",
-      "resources/js/app.tsx",
       "_inertia-vendor.js"
     ]
   },
@@ -594,7 +592,7 @@
     "name": "select",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
       "_icons-vendor-legacy.js"
     ]
   },
@@ -603,7 +601,7 @@
     "name": "select",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx",
+      "_button.js",
       "_icons-vendor.js"
     ]
   },
@@ -612,7 +610,7 @@
     "name": "separator",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_separator.js": {
@@ -620,7 +618,7 @@
     "name": "separator",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_starts-with-legacy.js": {
@@ -648,7 +646,7 @@
     "name": "table",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_table.js": {
@@ -656,7 +654,7 @@
     "name": "table",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_tabs-legacy.js": {
@@ -664,7 +662,7 @@
     "name": "tabs",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_tabs.js": {
@@ -672,7 +670,7 @@
     "name": "tabs",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_text-link-legacy.js": {
@@ -680,7 +678,7 @@
     "name": "text-link",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
       "_inertia-vendor-legacy.js"
     ]
   },
@@ -689,7 +687,7 @@
     "name": "text-link",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx",
+      "_button.js",
       "_inertia-vendor.js"
     ]
   },
@@ -698,7 +696,7 @@
     "name": "textarea",
     "imports": [
       "_ui-vendor-legacy.js",
-      "resources/js/app-legacy.tsx"
+      "_button-legacy.js"
     ]
   },
   "_textarea.js": {
@@ -706,7 +704,7 @@
     "name": "textarea",
     "imports": [
       "_ui-vendor.js",
-      "resources/js/app.tsx"
+      "_button.js"
     ]
   },
   "_ui-vendor-legacy.js": {
@@ -779,8 +777,7 @@
       "_ui-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_inertia-vendor-legacy.js",
-      "_icons-vendor-legacy.js",
-      "_utils-vendor-legacy.js"
+      "_icons-vendor-legacy.js"
     ],
     "dynamicImports": [
       "node_modules/whatwg-fetch/fetch-legacy.js",
@@ -798,7 +795,6 @@
       "node_modules/@juggle/resize-observer/lib/exports/resize-observer-legacy.js",
       "resources/js/pages/About-legacy.tsx",
       "resources/js/pages/Features-legacy.tsx",
-      "resources/js/pages/Welcome-legacy.tsx",
       "resources/js/pages/add-transaction-legacy.tsx",
       "resources/js/pages/admin/activity-log-view-legacy.tsx",
       "resources/js/pages/admin/activity-logs-legacy.tsx",
@@ -806,8 +802,6 @@
       "resources/js/pages/admin/backup-legacy.tsx",
       "resources/js/pages/admin/dashboard-legacy.tsx",
       "resources/js/pages/admin/database-legacy.tsx",
-      "resources/js/pages/admin/notification-detail-legacy.tsx",
-      "resources/js/pages/admin/notifications-legacy.tsx",
       "resources/js/pages/admin/role-permission-legacy.tsx",
       "resources/js/pages/admin/super-admin-legacy.tsx",
       "resources/js/pages/admin/system-audit-legacy.tsx",
@@ -818,18 +812,17 @@
       "resources/js/pages/auth/confirm-password-legacy.tsx",
       "resources/js/pages/auth/forgot-password-legacy.tsx",
       "resources/js/pages/auth/login-legacy.tsx",
-      "resources/js/pages/auth/register-legacy.tsx",
       "resources/js/pages/auth/reset-password-legacy.tsx",
       "resources/js/pages/auth/verify-email-legacy.tsx",
       "resources/js/pages/categories-legacy.tsx",
       "resources/js/pages/dashboard-legacy.tsx",
       "resources/js/pages/ledger-legacy.tsx",
-      "resources/js/pages/notifications-legacy.tsx",
       "resources/js/pages/settings/appearance-legacy.tsx",
       "resources/js/pages/settings/currency-legacy.tsx",
       "resources/js/pages/settings/exchange-rate-legacy.tsx",
       "resources/js/pages/settings/password-legacy.tsx",
       "resources/js/pages/settings/profile-legacy.tsx",
+      "resources/js/pages/setup/index-legacy.tsx",
       "resources/js/pages/transaction-edit-legacy.tsx",
       "resources/js/pages/transaction-view-legacy.tsx",
       "resources/js/pages/transaction-legacy.tsx",
@@ -849,8 +842,7 @@
       "_ui-vendor.js",
       "_react-vendor.js",
       "_inertia-vendor.js",
-      "_icons-vendor.js",
-      "_utils-vendor.js"
+      "_icons-vendor.js"
     ],
     "dynamicImports": [
       "node_modules/whatwg-fetch/fetch.js",
@@ -868,7 +860,6 @@
       "node_modules/@juggle/resize-observer/lib/exports/resize-observer.js",
       "resources/js/pages/About.tsx",
       "resources/js/pages/Features.tsx",
-      "resources/js/pages/Welcome.tsx",
       "resources/js/pages/add-transaction.tsx",
       "resources/js/pages/admin/activity-log-view.tsx",
       "resources/js/pages/admin/activity-logs.tsx",
@@ -876,8 +867,6 @@
       "resources/js/pages/admin/backup.tsx",
       "resources/js/pages/admin/dashboard.tsx",
       "resources/js/pages/admin/database.tsx",
-      "resources/js/pages/admin/notification-detail.tsx",
-      "resources/js/pages/admin/notifications.tsx",
       "resources/js/pages/admin/role-permission.tsx",
       "resources/js/pages/admin/super-admin.tsx",
       "resources/js/pages/admin/system-audit.tsx",
@@ -888,18 +877,17 @@
       "resources/js/pages/auth/confirm-password.tsx",
       "resources/js/pages/auth/forgot-password.tsx",
       "resources/js/pages/auth/login.tsx",
-      "resources/js/pages/auth/register.tsx",
       "resources/js/pages/auth/reset-password.tsx",
       "resources/js/pages/auth/verify-email.tsx",
       "resources/js/pages/categories.tsx",
       "resources/js/pages/dashboard.tsx",
       "resources/js/pages/ledger.tsx",
-      "resources/js/pages/notifications.tsx",
       "resources/js/pages/settings/appearance.tsx",
       "resources/js/pages/settings/currency.tsx",
       "resources/js/pages/settings/exchange-rate.tsx",
       "resources/js/pages/settings/password.tsx",
       "resources/js/pages/settings/profile.tsx",
+      "resources/js/pages/setup/index.tsx",
       "resources/js/pages/transaction-edit.tsx",
       "resources/js/pages/transaction-view.tsx",
       "resources/js/pages/transaction.tsx",
@@ -956,30 +944,6 @@
       "_react-vendor.js"
     ]
   },
-  "resources/js/pages/Welcome-legacy.tsx": {
-    "file": "assets/Welcome-legacy.js",
-    "name": "Welcome",
-    "src": "resources/js/pages/Welcome-legacy.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor-legacy.js",
-      "_inertia-vendor-legacy.js",
-      "_icons-vendor-legacy.js",
-      "_react-vendor-legacy.js"
-    ]
-  },
-  "resources/js/pages/Welcome.tsx": {
-    "file": "assets/Welcome.js",
-    "name": "Welcome",
-    "src": "resources/js/pages/Welcome.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor.js",
-      "_inertia-vendor.js",
-      "_icons-vendor.js",
-      "_react-vendor.js"
-    ]
-  },
   "resources/js/pages/add-transaction-legacy.tsx": {
     "file": "assets/add-transaction-legacy.js",
     "name": "add-transaction",
@@ -1002,7 +966,8 @@
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
     ]
   },
   "resources/js/pages/add-transaction.tsx": {
@@ -1027,7 +992,8 @@
       "_react-vendor.js",
       "_utils-vendor.js",
       "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js"
     ]
   },
   "resources/js/pages/admin/activity-log-view-legacy.tsx": {
@@ -1047,9 +1013,9 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
       "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/activity-log-view.tsx": {
@@ -1069,9 +1035,9 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
+      "_app-logo-icon.js",
       "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/activity-logs-legacy.tsx": {
@@ -1095,9 +1061,10 @@
       "_inertia-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
       "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/activity-logs.tsx": {
@@ -1121,9 +1088,10 @@
       "_inertia-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js",
       "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/analytics-legacy.tsx": {
@@ -1142,11 +1110,12 @@
       "_chart-config-legacy.js",
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_utils-vendor-legacy.js",
       "_button-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/analytics.tsx": {
@@ -1165,11 +1134,12 @@
       "_chart-config.js",
       "_icons-vendor.js",
       "_react-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_utils-vendor.js",
       "_button.js",
-      "_app-logo-icon.js"
+      "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/backup-legacy.tsx": {
@@ -1192,9 +1162,10 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
       "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/backup.tsx": {
@@ -1217,9 +1188,10 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js",
       "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/dashboard-legacy.tsx": {
@@ -1239,9 +1211,10 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
       "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/dashboard.tsx": {
@@ -1261,9 +1234,10 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js",
       "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/database-legacy.tsx": {
@@ -1277,15 +1251,16 @@
       "_badge-legacy.js",
       "_button-legacy.js",
       "_card-legacy.js",
-      "resources/js/app-legacy.tsx",
       "_table-legacy.js",
       "_app-layout-legacy.js",
       "_inertia-vendor-legacy.js",
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/database.tsx": {
@@ -1299,101 +1274,16 @@
       "_badge.js",
       "_button.js",
       "_card.js",
-      "resources/js/app.tsx",
       "_table.js",
       "_app-layout.js",
       "_inertia-vendor.js",
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
-    ]
-  },
-  "resources/js/pages/admin/notification-detail-legacy.tsx": {
-    "file": "assets/notification-detail-legacy.js",
-    "name": "notification-detail",
-    "src": "resources/js/pages/admin/notification-detail-legacy.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor-legacy.js",
-      "_badge-legacy.js",
-      "_button-legacy.js",
-      "_card-legacy.js",
-      "_separator-legacy.js",
-      "_inertia-vendor-legacy.js",
-      "_icons-vendor-legacy.js",
-      "_react-vendor-legacy.js",
-      "_utils-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js"
-    ]
-  },
-  "resources/js/pages/admin/notification-detail.tsx": {
-    "file": "assets/notification-detail.js",
-    "name": "notification-detail",
-    "src": "resources/js/pages/admin/notification-detail.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor.js",
-      "_badge.js",
-      "_button.js",
-      "_card.js",
+      "_app-logo-icon.js",
       "_separator.js",
-      "_inertia-vendor.js",
-      "_icons-vendor.js",
-      "_react-vendor.js",
-      "_utils-vendor.js",
       "resources/js/app.tsx",
       "_export-vendor.js"
-    ]
-  },
-  "resources/js/pages/admin/notifications-legacy.tsx": {
-    "file": "assets/notifications-legacy.js",
-    "name": "notifications",
-    "src": "resources/js/pages/admin/notifications-legacy.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor-legacy.js",
-      "_admin-route-guard-legacy.js",
-      "_badge-legacy.js",
-      "_button-legacy.js",
-      "_card-legacy.js",
-      "_dialog-legacy.js",
-      "_input-legacy.js",
-      "_select-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_app-layout-legacy.js",
-      "_inertia-vendor-legacy.js",
-      "_icons-vendor-legacy.js",
-      "_react-vendor-legacy.js",
-      "_utils-vendor-legacy.js",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
-    ]
-  },
-  "resources/js/pages/admin/notifications.tsx": {
-    "file": "assets/notifications.js",
-    "name": "notifications",
-    "src": "resources/js/pages/admin/notifications.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor.js",
-      "_admin-route-guard.js",
-      "_badge.js",
-      "_button.js",
-      "_card.js",
-      "_dialog.js",
-      "_input.js",
-      "_select.js",
-      "resources/js/app.tsx",
-      "_app-layout.js",
-      "_inertia-vendor.js",
-      "_icons-vendor.js",
-      "_react-vendor.js",
-      "_utils-vendor.js",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
     ]
   },
   "resources/js/pages/admin/role-permission-legacy.tsx": {
@@ -1418,9 +1308,10 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
       "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/role-permission.tsx": {
@@ -1445,9 +1336,10 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js",
       "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/super-admin-legacy.tsx": {
@@ -1468,9 +1360,10 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
       "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/super-admin.tsx": {
@@ -1491,9 +1384,10 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js",
       "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/system-audit-legacy.tsx": {
@@ -1516,9 +1410,10 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
       "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/system-audit.tsx": {
@@ -1541,9 +1436,10 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js",
       "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/system-health-legacy.tsx": {
@@ -1562,10 +1458,11 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
       "_button-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/system-health.tsx": {
@@ -1584,10 +1481,11 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
       "_button.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/system-settings-legacy.tsx": {
@@ -1603,7 +1501,6 @@
       "_input-legacy.js",
       "_label-legacy.js",
       "_select-legacy.js",
-      "resources/js/app-legacy.tsx",
       "_tabs-legacy.js",
       "_textarea-legacy.js",
       "_app-layout-legacy.js",
@@ -1611,8 +1508,10 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/system-settings.tsx": {
@@ -1628,7 +1527,6 @@
       "_input.js",
       "_label.js",
       "_select.js",
-      "resources/js/app.tsx",
       "_tabs.js",
       "_textarea.js",
       "_app-layout.js",
@@ -1636,8 +1534,10 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/user-management-legacy.tsx": {
@@ -1657,13 +1557,14 @@
       "_table-legacy.js",
       "_tabs-legacy.js",
       "_utils-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
       "_app-layout-legacy.js",
       "_inertia-vendor-legacy.js",
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/user-management.tsx": {
@@ -1683,13 +1584,14 @@
       "_table.js",
       "_tabs.js",
       "_utils-vendor.js",
-      "resources/js/app.tsx",
       "_app-layout.js",
       "_inertia-vendor.js",
       "_icons-vendor.js",
       "_react-vendor.js",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/admin/user-profile-legacy.tsx": {
@@ -1710,9 +1612,9 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
       "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/admin/user-profile.tsx": {
@@ -1733,9 +1635,9 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
+      "_app-logo-icon.js",
       "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/auth/confirm-password-legacy.tsx": {
@@ -1753,8 +1655,6 @@
       "_auth-layout-legacy.js",
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_app-logo-icon-legacy.js"
     ]
@@ -1774,8 +1674,6 @@
       "_auth-layout.js",
       "_icons-vendor.js",
       "_react-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
       "_utils-vendor.js",
       "_app-logo-icon.js"
     ]
@@ -1797,8 +1695,6 @@
       "_inertia-vendor-legacy.js",
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_app-logo-icon-legacy.js"
     ]
@@ -1820,8 +1716,6 @@
       "_inertia-vendor.js",
       "_icons-vendor.js",
       "_react-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
       "_utils-vendor.js",
       "_app-logo-icon.js"
     ]
@@ -1872,50 +1766,6 @@
       "_app-logo-icon.js"
     ]
   },
-  "resources/js/pages/auth/register-legacy.tsx": {
-    "file": "assets/register-legacy.js",
-    "name": "register",
-    "src": "resources/js/pages/auth/register-legacy.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor-legacy.js",
-      "_inertia-vendor-legacy.js",
-      "_input-error-legacy.js",
-      "_text-link-legacy.js",
-      "_button-legacy.js",
-      "_input-legacy.js",
-      "_label-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_auth-layout-legacy.js",
-      "_icons-vendor-legacy.js",
-      "_react-vendor-legacy.js",
-      "_utils-vendor-legacy.js",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
-    ]
-  },
-  "resources/js/pages/auth/register.tsx": {
-    "file": "assets/register.js",
-    "name": "register",
-    "src": "resources/js/pages/auth/register.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor.js",
-      "_inertia-vendor.js",
-      "_input-error.js",
-      "_text-link.js",
-      "_button.js",
-      "_input.js",
-      "_label.js",
-      "resources/js/app.tsx",
-      "_auth-layout.js",
-      "_icons-vendor.js",
-      "_react-vendor.js",
-      "_utils-vendor.js",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
-    ]
-  },
   "resources/js/pages/auth/reset-password-legacy.tsx": {
     "file": "assets/reset-password-legacy.js",
     "name": "reset-password",
@@ -1932,8 +1782,6 @@
       "_inertia-vendor-legacy.js",
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_app-logo-icon-legacy.js"
     ]
@@ -1954,8 +1802,6 @@
       "_inertia-vendor.js",
       "_icons-vendor.js",
       "_react-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
       "_utils-vendor.js",
       "_app-logo-icon.js"
     ]
@@ -1973,8 +1819,6 @@
       "_auth-layout-legacy.js",
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_app-logo-icon-legacy.js"
     ]
@@ -1992,8 +1836,6 @@
       "_auth-layout.js",
       "_icons-vendor.js",
       "_react-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
       "_utils-vendor.js",
       "_app-logo-icon.js"
     ]
@@ -2018,7 +1860,8 @@
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
     ]
   },
   "resources/js/pages/categories.tsx": {
@@ -2041,7 +1884,8 @@
       "_react-vendor.js",
       "_utils-vendor.js",
       "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js"
     ]
   },
   "resources/js/pages/dashboard-legacy.tsx": {
@@ -2051,18 +1895,19 @@
     "isDynamicEntry": true,
     "imports": [
       "_ui-vendor-legacy.js",
-      "_inertia-vendor-legacy.js",
-      "_icons-vendor-legacy.js",
       "_button-legacy.js",
       "_card-legacy.js",
       "_app-layout-legacy.js",
+      "_inertia-vendor-legacy.js",
       "_charts-vendor-legacy.js",
       "_chart-config-legacy.js",
+      "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
       "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/dashboard.tsx": {
@@ -2072,18 +1917,19 @@
     "isDynamicEntry": true,
     "imports": [
       "_ui-vendor.js",
-      "_inertia-vendor.js",
-      "_icons-vendor.js",
       "_button.js",
       "_card.js",
       "_app-layout.js",
+      "_inertia-vendor.js",
       "_charts-vendor.js",
       "_chart-config.js",
+      "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
+      "_app-logo-icon.js",
+      "_separator.js",
       "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/ledger-legacy.tsx": {
@@ -2102,9 +1948,10 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
       "_input-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx"
     ]
   },
   "resources/js/pages/ledger.tsx": {
@@ -2123,53 +1970,10 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
-      "resources/js/app.tsx",
       "_input.js",
-      "_app-logo-icon.js"
-    ]
-  },
-  "resources/js/pages/notifications-legacy.tsx": {
-    "file": "assets/notifications-legacy2.js",
-    "name": "notifications",
-    "src": "resources/js/pages/notifications-legacy.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor-legacy.js",
-      "_badge-legacy.js",
-      "_button-legacy.js",
-      "_card-legacy.js",
-      "_input-legacy.js",
-      "_select-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_app-layout-legacy.js",
-      "_inertia-vendor-legacy.js",
-      "_icons-vendor-legacy.js",
-      "_react-vendor-legacy.js",
-      "_utils-vendor-legacy.js",
-      "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
-    ]
-  },
-  "resources/js/pages/notifications.tsx": {
-    "file": "assets/notifications2.js",
-    "name": "notifications",
-    "src": "resources/js/pages/notifications.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ui-vendor.js",
-      "_badge.js",
-      "_button.js",
-      "_card.js",
-      "_input.js",
-      "_select.js",
-      "resources/js/app.tsx",
-      "_app-layout.js",
-      "_inertia-vendor.js",
-      "_icons-vendor.js",
-      "_react-vendor.js",
-      "_utils-vendor.js",
-      "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js",
+      "resources/js/app.tsx"
     ]
   },
   "resources/js/pages/settings/appearance-legacy.tsx": {
@@ -2181,6 +1985,7 @@
       "_ui-vendor-legacy.js",
       "_inertia-vendor-legacy.js",
       "resources/js/app-legacy.tsx",
+      "_button-legacy.js",
       "_icons-vendor-legacy.js",
       "_heading-small-legacy.js",
       "_app-layout-legacy.js",
@@ -2188,7 +1993,6 @@
       "_react-vendor-legacy.js",
       "_export-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "_button-legacy.js",
       "_app-logo-icon-legacy.js",
       "_separator-legacy.js"
     ]
@@ -2202,6 +2006,7 @@
       "_ui-vendor.js",
       "_inertia-vendor.js",
       "resources/js/app.tsx",
+      "_button.js",
       "_icons-vendor.js",
       "_heading-small.js",
       "_app-layout.js",
@@ -2209,7 +2014,6 @@
       "_react-vendor.js",
       "_export-vendor.js",
       "_utils-vendor.js",
-      "_button.js",
       "_app-logo-icon.js",
       "_separator.js"
     ]
@@ -2234,11 +2038,11 @@
       "_icons-vendor-legacy.js",
       "_headless-vendor-legacy.js",
       "_react-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_app-logo-icon-legacy.js",
-      "_separator-legacy.js"
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/settings/currency.tsx": {
@@ -2261,11 +2065,11 @@
       "_icons-vendor.js",
       "_headless-vendor.js",
       "_react-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
       "_utils-vendor.js",
       "_app-logo-icon.js",
-      "_separator.js"
+      "_separator.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/settings/exchange-rate-legacy.tsx": {
@@ -2286,10 +2090,8 @@
       "_separator-legacy.js",
       "_layout-legacy.js",
       "_react-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
-      "_icons-vendor-legacy.js",
-      "_utils-vendor-legacy.js"
+      "_utils-vendor-legacy.js",
+      "_icons-vendor-legacy.js"
     ]
   },
   "resources/js/pages/settings/exchange-rate.tsx": {
@@ -2310,10 +2112,8 @@
       "_separator.js",
       "_layout.js",
       "_react-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
-      "_icons-vendor.js",
-      "_utils-vendor.js"
+      "_utils-vendor.js",
+      "_icons-vendor.js"
     ]
   },
   "resources/js/pages/settings/password-legacy.tsx": {
@@ -2333,12 +2133,12 @@
       "_label-legacy.js",
       "_headless-vendor-legacy.js",
       "_react-vendor-legacy.js",
-      "resources/js/app-legacy.tsx",
-      "_export-vendor-legacy.js",
       "_icons-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_app-logo-icon-legacy.js",
-      "_separator-legacy.js"
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_export-vendor-legacy.js"
     ]
   },
   "resources/js/pages/settings/password.tsx": {
@@ -2358,12 +2158,12 @@
       "_label.js",
       "_headless-vendor.js",
       "_react-vendor.js",
-      "resources/js/app.tsx",
-      "_export-vendor.js",
       "_icons-vendor.js",
       "_utils-vendor.js",
       "_app-logo-icon.js",
-      "_separator.js"
+      "_separator.js",
+      "resources/js/app.tsx",
+      "_export-vendor.js"
     ]
   },
   "resources/js/pages/settings/profile-legacy.tsx": {
@@ -2418,6 +2218,50 @@
       "_separator.js"
     ]
   },
+  "resources/js/pages/setup/index-legacy.tsx": {
+    "file": "assets/index-legacy4.js",
+    "name": "index",
+    "src": "resources/js/pages/setup/index-legacy.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor-legacy.js",
+      "_inertia-vendor-legacy.js",
+      "_input-error-legacy.js",
+      "_button-legacy.js",
+      "_card-legacy.js",
+      "_input-legacy.js",
+      "_label-legacy.js",
+      "_select-legacy.js",
+      "_separator-legacy.js",
+      "resources/js/app-legacy.tsx",
+      "_react-vendor-legacy.js",
+      "_utils-vendor-legacy.js",
+      "_icons-vendor-legacy.js",
+      "_export-vendor-legacy.js"
+    ]
+  },
+  "resources/js/pages/setup/index.tsx": {
+    "file": "assets/index4.js",
+    "name": "index",
+    "src": "resources/js/pages/setup/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ui-vendor.js",
+      "_inertia-vendor.js",
+      "_input-error.js",
+      "_button.js",
+      "_card.js",
+      "_input.js",
+      "_label.js",
+      "_select.js",
+      "_separator.js",
+      "resources/js/app.tsx",
+      "_react-vendor.js",
+      "_utils-vendor.js",
+      "_icons-vendor.js",
+      "_export-vendor.js"
+    ]
+  },
   "resources/js/pages/transaction-edit-legacy.tsx": {
     "file": "assets/transaction-edit-legacy.js",
     "name": "transaction-edit",
@@ -2428,11 +2272,11 @@
       "_button-legacy.js",
       "_card-legacy.js",
       "_custom-date-input-legacy.js",
-      "resources/js/app-legacy.tsx",
       "_input-legacy.js",
       "_label-legacy.js",
       "_select-legacy.js",
       "_textarea-legacy.js",
+      "resources/js/app-legacy.tsx",
       "_app-layout-legacy.js",
       "_inertia-vendor-legacy.js",
       "_exchangeRateService-legacy.js",
@@ -2440,7 +2284,8 @@
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
     ]
   },
   "resources/js/pages/transaction-edit.tsx": {
@@ -2453,11 +2298,11 @@
       "_button.js",
       "_card.js",
       "_custom-date-input.js",
-      "resources/js/app.tsx",
       "_input.js",
       "_label.js",
       "_select.js",
       "_textarea.js",
+      "resources/js/app.tsx",
       "_app-layout.js",
       "_inertia-vendor.js",
       "_exchangeRateService.js",
@@ -2465,7 +2310,8 @@
       "_react-vendor.js",
       "_utils-vendor.js",
       "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js"
     ]
   },
   "resources/js/pages/transaction-legacy.tsx": {
@@ -2489,7 +2335,8 @@
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
     ]
   },
   "resources/js/pages/transaction-view-legacy.tsx": {
@@ -2513,6 +2360,7 @@
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_app-logo-icon-legacy.js",
+      "_separator-legacy.js",
       "_export-vendor-legacy.js"
     ]
   },
@@ -2537,6 +2385,7 @@
       "_react-vendor.js",
       "_utils-vendor.js",
       "_app-logo-icon.js",
+      "_separator.js",
       "_export-vendor.js"
     ]
   },
@@ -2561,7 +2410,8 @@
       "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js"
     ]
   },
   "resources/js/pages/transactions/add-expense-legacy.tsx": {
@@ -2586,7 +2436,8 @@
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
     ]
   },
   "resources/js/pages/transactions/add-expense.tsx": {
@@ -2611,7 +2462,8 @@
       "_react-vendor.js",
       "_utils-vendor.js",
       "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js"
     ]
   },
   "resources/js/pages/transactions/add-income-legacy.tsx": {
@@ -2636,7 +2488,8 @@
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
     ]
   },
   "resources/js/pages/transactions/add-income.tsx": {
@@ -2661,7 +2514,8 @@
       "_react-vendor.js",
       "_utils-vendor.js",
       "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js"
     ]
   },
   "resources/js/pages/transactions/add-payable-legacy.tsx": {
@@ -2686,7 +2540,8 @@
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
     ]
   },
   "resources/js/pages/transactions/add-payable.tsx": {
@@ -2711,7 +2566,8 @@
       "_react-vendor.js",
       "_utils-vendor.js",
       "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js"
     ]
   },
   "resources/js/pages/transactions/add-receivable-legacy.tsx": {
@@ -2736,7 +2592,8 @@
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_export-vendor-legacy.js",
-      "_app-logo-icon-legacy.js"
+      "_app-logo-icon-legacy.js",
+      "_separator-legacy.js"
     ]
   },
   "resources/js/pages/transactions/add-receivable.tsx": {
@@ -2761,7 +2618,8 @@
       "_react-vendor.js",
       "_utils-vendor.js",
       "_export-vendor.js",
-      "_app-logo-icon.js"
+      "_app-logo-icon.js",
+      "_separator.js"
     ]
   },
   "vite/legacy-polyfills-legacy": {

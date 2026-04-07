@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Category;
-use App\Models\Notification;
 use App\Models\Transaction;
 use App\Models\TransactionType;
 use App\Services\AdminNotificationService;
@@ -356,54 +355,7 @@ class TransactionController extends Controller
      */
     private function createTransactionNotification(Transaction $transaction, string $action): void
     {
-        $user = Auth::user();
-        $primarySymbol = $user->primary_symbol ?? '$';
-        $amount = number_format($transaction->amount, 2);
-
-        $actionText = $action === 'created' ? 'added' : 'updated';
-        $typeText = ucfirst($transaction->type);
-
-        $title = "{$typeText} Transaction " . ucfirst($actionText);
-        $message = "Your {$transaction->type} of {$primarySymbol}{$amount} has been {$actionText} successfully";
-
-        $icon = match ($transaction->type) {
-            'income' => 'TrendingUp',
-            'expense' => 'TrendingDown',
-            'receivable' => 'ArrowUpRight',
-            'payable' => 'ArrowDownLeft',
-            default => 'DollarSign',
-        };
-
-        $color = match ($transaction->type) {
-            'income' => 'green',
-            'expense' => 'red',
-            'receivable' => 'blue',
-            'payable' => 'orange',
-            default => 'blue',
-        };
-
-        $notification = Notification::createForUser(
-            $user->id,
-            'success',
-            $title,
-            $message,
-            [
-                'icon' => $icon,
-                'color' => $color,
-                'data' => [
-                    'transaction_id' => $transaction->id,
-                    'action' => $action,
-                    'type' => $transaction->type,
-                    'amount' => $transaction->amount,
-                ],
-                'is_important' => false,
-            ]
-        );
-
-        // Auto-mark transaction notifications as read after 30 seconds to reduce notification clutter
-        dispatch(function() use ($notification) {
-            $notification->markAsRead();
-        })->delay(now()->addSeconds(30));
+        // Notifications removed
     }
 
     /**

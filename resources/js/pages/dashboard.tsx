@@ -1,4 +1,3 @@
-import { AdminNotification } from '@/components/admin-notification';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -439,7 +438,7 @@ export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-3 overflow-x-auto rounded-xl p-2 sm:p-3 w-full max-w-full">
+            <div className="flex h-full flex-1 flex-col gap-3 overflow-x-auto w-full max-w-full p-0">
                 {/* Welcome Section */}
                 <div
                     className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
@@ -494,10 +493,7 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Admin Notification */}
-                {auth.user.role && ['admin', 'super_admin'].includes(auth.user.role) && (
-                    <AdminNotification userRole={auth.user.role} userPermissions={auth.user.permissions || []} />
-                )}
+                {/* Notifications removed */}
 
                 {/* Transaction Summary */}
                 <div className="space-y-3">

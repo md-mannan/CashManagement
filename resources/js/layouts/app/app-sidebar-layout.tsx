@@ -9,10 +9,10 @@ function SidebarLayoutContent({ children, breadcrumbs }: { children: React.React
         <div className="flex h-svh min-h-0 w-full flex-1 overflow-hidden">
             <AppSidebar />
             <main
-                className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background transition-[width] duration-200 ease-linear md:rounded-xl md:shadow-sm"
+                className="!mx-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background !px-0 transition-[width] duration-200 ease-linear"
                 data-slot="sidebar-inset"
             >
-                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+                <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
                     <AppSidebarHeader breadcrumbs={breadcrumbs} />
                     <div className="min-h-0 flex-1">{children}</div>
                 </div>

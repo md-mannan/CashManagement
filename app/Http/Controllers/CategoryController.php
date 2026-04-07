@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Notification;
 use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -184,47 +183,6 @@ class CategoryController extends Controller
      */
     private function createCategoryNotification(Category $category, string $action): void
     {
-        $user = Auth::user();
-        $actionText = $action === 'created' ? 'added' : 'updated';
-
-        $title = "Category " . ucfirst($actionText);
-        $message = "Your {$category->type} category '{$category->name}' has been {$actionText} successfully";
-
-        $icon = match ($category->type) {
-            'income' => 'TrendingUp',
-            'expense' => 'TrendingDown',
-            'receivable' => 'ArrowUpRight',
-            'payable' => 'ArrowDownLeft',
-            'settle_payable' => 'ArrowDownLeft',
-            'settle_receivable' => 'ArrowUpRight',
-            default => 'Tag',
-        };
-
-        $color = match ($category->type) {
-            'income' => 'green',
-            'expense' => 'red',
-            'receivable' => 'blue',
-            'payable' => 'orange',
-            'settle_payable' => 'orange',
-            'settle_receivable' => 'blue',
-            default => 'blue',
-        };
-
-        Notification::createForUser(
-            $user->id,
-            'success',
-            $title,
-            $message,
-            [
-                'icon' => $icon,
-                'color' => $color,
-                'data' => [
-                    'category_id' => $category->id,
-                    'action' => $action,
-                    'type' => $category->type,
-                    'name' => $category->name,
-                ],
-            ]
-        );
+        // Notifications removed
     }
 }
