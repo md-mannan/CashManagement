@@ -11,7 +11,7 @@ import { Toggle } from '@/components/ui/toggle';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Edit, Key, Plus, Trash2, UserCheck, Users, UserX } from 'lucide-react';
+import { Edit, Eye, EyeOff, Key, Plus, Trash2, UserCheck, Users, UserX } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -52,6 +52,8 @@ export default function UserManagement() {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [selectedUser, setSelectedUser] = useState<{
         id: number;
         name: string;
@@ -415,59 +417,66 @@ export default function UserManagement() {
                                         <TableBody>
                                             {users.data.filter((u) => u.is_active).length === 0 ? (
                                                 <TableRow>
-                                                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                                                    <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                                                         No active users found
                                                     </TableCell>
                                                 </TableRow>
                                             ) : (
-                                                users.data.filter((u) => u.is_active).map((user) => (
-                                                <TableRow key={user.id}>
-                                                    <TableCell>
-                                                        <div>
-                                                            <div className="font-medium">{user.name}</div>
-                                                            <div className="text-sm text-muted-foreground">{user.email}</div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span
-                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}
-                                                        >
-                                                            {user.role.replace('_', ' ').toUpperCase()}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span
-                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getStatusColor(user.is_active)}`}
-                                                        >
-                                                            {user.is_active ? 'ACTIVE' : 'INACTIVE'}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
-                                                                <Edit className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="outline" size="sm" onClick={() => openPasswordDialog(user)}>
-                                                                <Key className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(user)}>
-                                                                {user.is_active ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                                                            </Button>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => openDeleteDialog(user)}
-                                                                className="text-red-600 hover:text-red-700"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            )))}
+                                                users.data
+                                                    .filter((u) => u.is_active)
+                                                    .map((user) => (
+                                                        <TableRow key={user.id}>
+                                                            <TableCell>
+                                                                <div>
+                                                                    <div className="font-medium">{user.name}</div>
+                                                                    <div className="text-sm text-muted-foreground">{user.email}</div>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <span
+                                                                    className={`rounded-full border px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}
+                                                                >
+                                                                    {user.role.replace('_', ' ').toUpperCase()}
+                                                                </span>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <span
+                                                                    className={`rounded-full border px-2 py-1 text-xs font-medium ${getStatusColor(user.is_active)}`}
+                                                                >
+                                                                    {user.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                                                </span>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <div className="flex items-center gap-2">
+                                                                    <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button variant="outline" size="sm" onClick={() => openPasswordDialog(user)}>
+                                                                        <Key className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button variant="outline" size="sm" onClick={() => handleToggleStatus(user)}>
+                                                                        {user.is_active ? (
+                                                                            <UserX className="h-4 w-4" />
+                                                                        ) : (
+                                                                            <UserCheck className="h-4 w-4" />
+                                                                        )}
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => openDeleteDialog(user)}
+                                                                        className="text-red-600 hover:text-red-700"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))
+                                            )}
                                         </TableBody>
                                     </Table>
                                 </CardContent>
@@ -497,59 +506,66 @@ export default function UserManagement() {
                                         <TableBody>
                                             {users.data.filter((u) => ['admin', 'super_admin'].includes(u.role)).length === 0 ? (
                                                 <TableRow>
-                                                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                                                    <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                                                         No administrators found
                                                     </TableCell>
                                                 </TableRow>
                                             ) : (
-                                                users.data.filter((u) => ['admin', 'super_admin'].includes(u.role)).map((user) => (
-                                                <TableRow key={user.id}>
-                                                    <TableCell>
-                                                        <div>
-                                                            <div className="font-medium">{user.name}</div>
-                                                            <div className="text-sm text-muted-foreground">{user.email}</div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span
-                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}
-                                                        >
-                                                            {user.role.replace('_', ' ').toUpperCase()}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span
-                                                            className={`rounded-full border px-2 py-1 text-xs font-medium ${getStatusColor(user.is_active)}`}
-                                                        >
-                                                            {user.is_active ? 'ACTIVE' : 'INACTIVE'}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
-                                                                <Edit className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="outline" size="sm" onClick={() => openPasswordDialog(user)}>
-                                                                <Key className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(user)}>
-                                                                {user.is_active ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                                                            </Button>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => openDeleteDialog(user)}
-                                                                className="text-red-600 hover:text-red-700"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            )))}
+                                                users.data
+                                                    .filter((u) => ['admin', 'super_admin'].includes(u.role))
+                                                    .map((user) => (
+                                                        <TableRow key={user.id}>
+                                                            <TableCell>
+                                                                <div>
+                                                                    <div className="font-medium">{user.name}</div>
+                                                                    <div className="text-sm text-muted-foreground">{user.email}</div>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <span
+                                                                    className={`rounded-full border px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}
+                                                                >
+                                                                    {user.role.replace('_', ' ').toUpperCase()}
+                                                                </span>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <span
+                                                                    className={`rounded-full border px-2 py-1 text-xs font-medium ${getStatusColor(user.is_active)}`}
+                                                                >
+                                                                    {user.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                                                </span>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <div className="flex items-center gap-2">
+                                                                    <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button variant="outline" size="sm" onClick={() => openPasswordDialog(user)}>
+                                                                        <Key className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button variant="outline" size="sm" onClick={() => handleToggleStatus(user)}>
+                                                                        {user.is_active ? (
+                                                                            <UserX className="h-4 w-4" />
+                                                                        ) : (
+                                                                            <UserCheck className="h-4 w-4" />
+                                                                        )}
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => openDeleteDialog(user)}
+                                                                        className="text-red-600 hover:text-red-700"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))
+                                            )}
                                         </TableBody>
                                     </Table>
                                 </CardContent>
@@ -687,25 +703,45 @@ export default function UserManagement() {
                                     <Label htmlFor="new-password" className="text-right">
                                         New Password
                                     </Label>
-                                    <Input
-                                        id="new-password"
-                                        type="password"
-                                        value={passwordForm.data.password}
-                                        onChange={(e) => passwordForm.setData('password', e.target.value)}
-                                        className="col-span-3"
-                                    />
+                                    <div className="relative col-span-3">
+                                        <Input
+                                            id="new-password"
+                                            type={showPassword ? 'text' : 'password'}
+                                            value={passwordForm.data.password}
+                                            onChange={(e) => passwordForm.setData('password', e.target.value)}
+                                            className="pr-10"
+                                        />
+                                        <button
+                                            type="button"
+                                            aria-label={showPassword ? 'Hide new password' : 'Show new password'}
+                                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="confirm-password" className="text-right">
                                         Confirm
                                     </Label>
-                                    <Input
-                                        id="confirm-password"
-                                        type="password"
-                                        value={passwordForm.data.password_confirmation}
-                                        onChange={(e) => passwordForm.setData('password_confirmation', e.target.value)}
-                                        className="col-span-3"
-                                    />
+                                    <div className="relative col-span-3">
+                                        <Input
+                                            id="confirm-password"
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            value={passwordForm.data.password_confirmation}
+                                            onChange={(e) => passwordForm.setData('password_confirmation', e.target.value)}
+                                            className="pr-10"
+                                        />
+                                        <button
+                                            type="button"
+                                            aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <DialogFooter>

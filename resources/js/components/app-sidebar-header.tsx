@@ -2,10 +2,10 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/toast';
 import { useNotifications } from '@/hooks/use-notifications';
-import { cn } from '@/lib/utils';
 import { type BreadcrumbItem as BreadcrumbItemType, type SharedData } from '@/types';
 import { router, usePage } from '@inertiajs/react';
 import { Bell, CheckCircle, LogOut, Settings, User, X } from 'lucide-react';
@@ -13,8 +13,6 @@ import { Bell, CheckCircle, LogOut, Settings, User, X } from 'lucide-react';
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
-    const { state } = useSidebar();
-    const isCollapsed = state === 'collapsed';
     const { addToast } = useToast();
     const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
 
@@ -56,20 +54,17 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
     };
 
     return (
-        <header
-            className={cn(
-                'sticky top-0 z-50 flex h-16 w-[calc(--sidebar-width-width-full)] max-w-full min-w-0 shrink-0 items-center justify-between gap-2 overflow-hidden border-b border-border bg-background px-0 shadow-sm transition-[width,height] duration-200 ease-linear md:px-0',
-                isCollapsed ? 'left-16' : 'left-64',
-            )}
-        >
-            <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
-                <SidebarTrigger className="-ml-1 shrink-0" />
-                <div className="min-w-0 flex-1 overflow-hidden">
-                    <Breadcrumbs breadcrumbs={breadcrumbs} />
+        <header className="sticky top-0 z-40 w-full border-b bg-background shadow-sm">
+            <div className="flex h-16 min-w-0 items-center justify-between gap-3 px-4">
+                <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+                    <SidebarTrigger className="shrink-0" />
+                    <Separator orientation="vertical" className="h-4" />
+                    <div className="min-w-0 flex-1 overflow-hidden">
+                        <Breadcrumbs breadcrumbs={breadcrumbs} />
+                    </div>
                 </div>
-            </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2">
                 {/* Notification Panel */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -208,6 +203,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
+            </div>
             </div>
         </header>
     );

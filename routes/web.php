@@ -48,11 +48,22 @@ use Illuminate\Support\Facades\Route;
 // PUBLIC ROUTES
 // ============================================================================
 
-// Public landing page - accessible to all users
+// Landing page
+// - Guests see the login screen
+// - Authenticated users go to the dashboard
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
 
-Route::get('/welcome', function () {
-    return Inertia::render('Welcome');
-})->name('welcome');
+    return Inertia::render('auth/login', [
+        'canResetPassword' => Route::has('password.request'),
+        'status' => session('status'),
+    ]);
+})->name('home');
+
+// Legacy welcome route (removed) -> landing page
+Route::redirect('/welcome', '/')->name('welcome');
 
 // Public features page
 Route::get('/features', function () {
@@ -69,11 +80,6 @@ Route::get('/health', function () {
     return response()->json(['status' => 'healthy', 'timestamp' => now()]);
 })->name('health');
 
-// Home route - Simplified to prevent redirect loops
-Route::get('/', function () {
-    return redirect()->route('welcome');
-})->name('home');
-
 // ============================================================================
 // BROADCASTING AUTHENTICATION ROUTES
 // ============================================================================
@@ -89,8 +95,8 @@ Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
     Route::post('register', [RegisteredUserController::class, 'store'])->name('register.store');
 
-    // Login
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    // Login (page is the landing page)
+    Route::redirect('login', '/')->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
 
     // Password Reset
