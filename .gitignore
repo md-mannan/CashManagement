@@ -21,3 +21,10 @@ yarn-error.log
 # Vite build output (run npm run build on deploy)
 /public/build
 /public/hot
+
+# Laravel runtime files
+/storage/*.key
+/storage/logs/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
