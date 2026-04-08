@@ -29,8 +29,8 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
         <header className="sticky top-0 z-40 w-full border-b bg-background shadow-sm">
             <div className="flex h-16 min-w-0 items-center justify-between gap-2 px-2 sm:px-3 md:px-4">
                 <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
-                    <SidebarTrigger className="shrink-0" />
-                    <Separator orientation="vertical" className="h-4" />
+                    <SidebarTrigger className="-ml-1 shrink-0" />
+                    <Separator orientation="vertical" className="mr-2 h-4" />
                     <div className="min-w-0 flex-1 overflow-hidden">
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>

@@ -201,6 +201,11 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
         setFormData({ name: '', type: 'income' as 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable', color: '#6B7280', icon: '' });
     };
 
+    const closeUpsertModal = () => {
+        setShowCreateForm(false);
+        cancelEdit();
+    };
+
     return (
         <AppLayout>
             <Head title="Categories" />
@@ -312,68 +317,86 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                     </CardContent>
                 </Card>
 
-                {/* Create/Edit Form */}
-                {(showCreateForm || editingCategory) && (
-                    <Card className="mb-6">
-                        <CardHeader>
-                            <CardTitle>{editingCategory ? 'Edit Category' : 'Create New Category'}</CardTitle>
-                            <CardDescription>{editingCategory ? 'Update the category details' : 'Add a new transaction category'}</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <div>
-                                    <label className="text-sm font-medium">Name</label>
-                                    <Input
-                                        placeholder="Category name"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        className="mt-1"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium">Type</label>
-                                    <Select value={formData.type} onValueChange={(value: any) => setFormData({ ...formData, type: value })}>
-                                        <SelectTrigger className="mt-1">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="income">Income</SelectItem>
-                                            <SelectItem value="expense">Expense</SelectItem>
-                                            <SelectItem value="receivable">Receivable</SelectItem>
-                                            <SelectItem value="payable">Payable</SelectItem>
-                                            <SelectItem value="settle_payable">Settle Payable</SelectItem>
-                                            <SelectItem value="settle_receivable">Settle Receivable</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium">Color</label>
-                                    <Input
-                                        type="color"
-                                        value={formData.color}
-                                        onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                                        className="mt-1 h-10"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium">Icon (optional)</label>
-                                    <Input
-                                        placeholder="Icon name"
-                                        value={formData.icon}
-                                        onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                                        className="mt-1"
-                                    />
-                                </div>
+                {/* Create/Edit Modal */}
+                <Dialog
+                    open={showCreateForm || !!editingCategory}
+                    onOpenChange={(open) => {
+                        if (!open) closeUpsertModal();
+                    }}
+                >
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>{editingCategory ? 'Edit Category' : 'Add Category'}</DialogTitle>
+                            <DialogDescription>
+                                {editingCategory ? 'Update the category details' : 'Create a new transaction category'}
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label className="text-sm font-medium">Name</label>
+                                <Input
+                                    placeholder="Category name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    className="mt-1"
+                                />
                             </div>
-                            <div className="mt-4 flex gap-2">
-                                <Button onClick={editingCategory ? handleUpdate : handleCreate}>{editingCategory ? 'Update' : 'Create'}</Button>
-                                <Button variant="outline" onClick={editingCategory ? cancelEdit : () => setShowCreateForm(false)}>
-                                    Cancel
-                                </Button>
+                            <div>
+                                <label className="text-sm font-medium">Type</label>
+                                <Select value={formData.type} onValueChange={(value: any) => setFormData({ ...formData, type: value })}>
+                                    <SelectTrigger className="mt-1">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="income">Income</SelectItem>
+                                        <SelectItem value="expense">Expense</SelectItem>
+                                        <SelectItem value="receivable">Receivable</SelectItem>
+                                        <SelectItem value="payable">Payable</SelectItem>
+                                        <SelectItem value="settle_payable">Settle Payable</SelectItem>
+                                        <SelectItem value="settle_receivable">Settle Receivable</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
-                        </CardContent>
-                    </Card>
-                )}
+                            <div>
+                                <label className="text-sm font-medium">Color</label>
+                                <Input
+                                    type="color"
+                                    value={formData.color}
+                                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                                    className="mt-1 h-10"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium">Icon (optional)</label>
+                                <Input
+                                    placeholder="Icon name"
+                                    value={formData.icon}
+                                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                                    className="mt-1"
+                                />
+                            </div>
+                        </div>
+
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={closeUpsertModal}>
+                                Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    if (editingCategory) {
+                                        handleUpdate();
+                                    } else {
+                                        handleCreate();
+                                    }
+                                }}
+                            >
+                                {editingCategory ? 'Update' : 'Create'}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
 
                 {/* Categories Table */}
                 <Card>

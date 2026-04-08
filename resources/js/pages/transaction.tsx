@@ -57,7 +57,7 @@ type TransactionItem = {
     source: string;
     category: {
         name: string;
-    };
+    } | null;
     user?: {
         name: string;
         email: string;
@@ -148,6 +148,8 @@ export default function Transaction() {
     const filteredTransactions = useMemo(() => {
         let filtered = [...allTransactions];
 
+        const getCategoryName = (t: TransactionItem) => t.category?.name ?? 'Uncategorized';
+
         // Search filter (no reloading - instant)
         if (searchInput.trim()) {
             const searchTerm = searchInput.toLowerCase();
@@ -155,7 +157,7 @@ export default function Transaction() {
                 (transaction) =>
                     transaction.description.toLowerCase().includes(searchTerm) ||
                     transaction.source.toLowerCase().includes(searchTerm) ||
-                    transaction.category.name.toLowerCase().includes(searchTerm) ||
+                    getCategoryName(transaction).toLowerCase().includes(searchTerm) ||
                     transaction.notes?.toLowerCase().includes(searchTerm) ||
                     transaction.amount.toString().includes(searchTerm) ||
                     transaction.type.toLowerCase().includes(searchTerm),
@@ -234,14 +236,15 @@ export default function Transaction() {
     };
 
     const getAmountDisplay = (transaction: TransactionItem) => {
-        const { type, category } = transaction;
+        const { type } = transaction;
+        const categoryName = transaction.category?.name ?? '';
 
         // Handle settlement transactions based on category
         if (type === 'settlement') {
-            if (category.name.includes('Pay') || category.name.includes('pay')) {
+            if (categoryName.includes('Pay') || categoryName.includes('pay')) {
                 // Payable settlement (paying back borrowed money) - negative
                 return { sign: '-', color: 'text-red-600' };
-            } else if (category.name.includes('Return') || category.name.includes('return')) {
+            } else if (categoryName.includes('Return') || categoryName.includes('return')) {
                 // Receivable settlement (getting money back) - positive
                 return { sign: '+', color: 'text-green-600' };
             }
@@ -388,14 +391,14 @@ export default function Transaction() {
             Description: transaction.description,
             Type:
                 transaction.type === 'settlement'
-                    ? transaction.category.name
+                    ? transaction.category?.name ?? 'Settlement'
                     : transaction.type === 'settle_receivable'
                       ? 'Settle Receivable'
                       : transaction.type === 'settle_payable'
                         ? 'Settle Payable'
                         : transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
             Source: transaction.source,
-            Category: transaction.category,
+            Category: transaction.category?.name ?? 'Uncategorized',
             Amount: `${getAmountDisplay(transaction).sign} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}`,
         }));
 
@@ -521,9 +524,9 @@ export default function Transaction() {
                                 <td style="text-align: center;">${index + 1}</td>
                                 <td>${formatDate(transaction.date)}</td>
                                 <td>${transaction.description}</td>
-                                                                        <td style="text-transform: capitalize;">${transaction.type === 'settle_receivable' || transaction.type === 'settle_payable' ? transaction.category.name : transaction.type}</td>
+                                <td style="text-transform: capitalize;">${transaction.type === 'settle_receivable' || transaction.type === 'settle_payable' ? (transaction.category?.name ?? 'Settlement') : transaction.type}</td>
                                 <td>${transaction.source}</td>
-                                <td>${transaction.category.name}</td>
+                                <td>${transaction.category?.name ?? 'Uncategorized'}</td>
                                 <td class="amount ${transaction.type === 'income' || transaction.type === 'settle_receivable' ? 'income' : 'expense'}">${transaction.type === 'income' || transaction.type === 'settle_receivable' ? '+' : '-'} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}</td>
                             </tr>
                         `,
@@ -933,7 +936,7 @@ export default function Transaction() {
                                                             className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
                                                         >
                                                             {transaction.type === 'settlement'
-                                                                ? transaction.category.name
+                                                                ? transaction.category?.name ?? 'Settlement'
                                                                 : transaction.type === 'settle_receivable'
                                                                   ? 'Settle Receivable'
                                                                   : transaction.type === 'settle_payable'
@@ -942,7 +945,7 @@ export default function Transaction() {
                                                         </span>
                                                     </TableCell>
                                                     <TableCell>{transaction.source}</TableCell>
-                                                    <TableCell>{transaction.category.name}</TableCell>
+                                                    <TableCell>{transaction.category?.name ?? 'Uncategorized'}</TableCell>
 
                                                     <TableCell className={getAmountDisplay(transaction).color}>
                                                         <div className="flex flex-col gap-0.5">
@@ -1022,7 +1025,7 @@ export default function Transaction() {
                                                 <div className="flex-1">
                                                     <div className="text-sm font-medium">{transaction.description}</div>
                                                     <div className="mt-1 text-xs text-muted-foreground">
-                                                        {formatDate(transaction.date)} • {transaction.category.name}
+                                                        {formatDate(transaction.date)} • {transaction.category?.name ?? 'Uncategorized'}
                                                     </div>
                                                 </div>
                                                 <div className="ml-2 flex items-center gap-1">
@@ -1058,7 +1061,7 @@ export default function Transaction() {
                                                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getTypeColor(transaction.type)}`}
                                                     >
                                                         {transaction.type === 'settlement'
-                                                            ? transaction.category.name
+                                                            ? transaction.category?.name ?? 'Settlement'
                                                             : transaction.type === 'settle_receivable'
                                                               ? 'Settle Receivable'
                                                               : transaction.type === 'settle_payable'
