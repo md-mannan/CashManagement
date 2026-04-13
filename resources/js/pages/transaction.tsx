@@ -5,10 +5,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+import { computeFilteredSummary } from '@/utils/transactionFilteredSummary';
 import { Head, router, usePage } from '@inertiajs/react';
 import {
     ArrowDownLeft,
@@ -57,6 +58,8 @@ type TransactionItem = {
     source: string;
     category: {
         name: string;
+        type?: string;
+        slug?: string;
     } | null;
     user?: {
         name: string;
@@ -73,6 +76,9 @@ type TransactionItem = {
     };
     settled_amount?: number;
     settlements?: unknown[];
+    related_transaction_id?: number | null;
+    related_transaction?: { type?: string } | null;
+    relatedTransaction?: { type?: string } | null;
 };
 
 export default function Transaction() {
@@ -183,6 +189,24 @@ export default function Transaction() {
         return filtered;
     }, [allTransactions, searchInput, selectedType, startDate, endDate]);
 
+    const filteredFinancialSummary = useMemo(
+        () => computeFilteredSummary(filteredTransactions, secondaryCurrency),
+        [filteredTransactions, secondaryCurrency],
+    );
+
+    const exportDateRangeLabel = useMemo(() => {
+        if (!startDate && !endDate) {
+            return 'All dates';
+        }
+        if (startDate && endDate) {
+            return `${startDate.slice(0, 10)} to ${endDate.slice(0, 10)}`;
+        }
+        if (startDate) {
+            return `From ${startDate.slice(0, 10)}`;
+        }
+        return `Until ${endDate.slice(0, 10)}`;
+    }, [startDate, endDate]);
+
     // Format currency
     const formatCurrency = (amount: number, currency: string = primaryCurrency) => {
         // Validate input amount - return 0.00 if invalid
@@ -214,6 +238,14 @@ export default function Transaction() {
             month: '2-digit',
             day: '2-digit',
         });
+    };
+
+    const formatExportAmountCell = (primaryAmt: number, secondaryAmt: number) => {
+        const primaryPart = `${primarySymbol} ${formatCurrency(primaryAmt, primaryCurrency)}`;
+        if (Math.abs(secondaryAmt) <= 1e-9) {
+            return primaryPart;
+        }
+        return `${primaryPart} / ${secondarySymbol} ${formatCurrency(secondaryAmt, secondaryCurrency)}`;
     };
 
     const getTypeColor = (type: string) => {
@@ -384,6 +416,7 @@ export default function Transaction() {
 
     // Export to Excel functionality
     const exportToExcel = () => {
+        const s = filteredFinancialSummary;
         // Prepare data for export
         const exportData = filteredTransactions.map((transaction, index) => ({
             SL: index + 1,
@@ -402,9 +435,25 @@ export default function Transaction() {
             Amount: `${getAmountDisplay(transaction).sign} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}`,
         }));
 
+        const emptyRow = { SL: '', Date: '', Description: '', Type: '', Source: '', Category: '', Amount: '' };
+        const summaryRows = [
+            emptyRow,
+            { ...emptyRow, Description: '— Summary (filtered) —' },
+            { ...emptyRow, Description: 'Total Income', Amount: formatExportAmountCell(s.total_income, s.secondary.total_income) },
+            { ...emptyRow, Description: 'Total Expense', Amount: formatExportAmountCell(s.total_expenses, s.secondary.total_expenses) },
+            { ...emptyRow, Description: 'Payables — total (in filter)', Amount: formatExportAmountCell(s.total_payables, s.secondary.total_payables) },
+            { ...emptyRow, Description: 'Payables — settled (in filter)', Amount: formatExportAmountCell(s.payable_settlements, s.secondary.payable_settlements) },
+            { ...emptyRow, Description: 'Receivables — total (in filter)', Amount: formatExportAmountCell(s.total_receivables, s.secondary.total_receivables) },
+            {
+                ...emptyRow,
+                Description: 'Receivables — settled (in filter)',
+                Amount: formatExportAmountCell(s.receivable_settlements, s.secondary.receivable_settlements),
+            },
+        ];
+
         // Create workbook and worksheet
         const workbook = XLSX.utils.book_new();
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const worksheet = XLSX.utils.json_to_sheet([...exportData, ...summaryRows]);
 
         // Set column widths
         const columnWidths = [
@@ -431,6 +480,31 @@ export default function Transaction() {
 
     // Export to PDF functionality
     const exportToPDF = () => {
+        const s = filteredFinancialSummary;
+        const escapeHtml = (text: string) =>
+            String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+
+        const pdfSummaryFooterRows = [
+            ['Total Income', formatExportAmountCell(s.total_income, s.secondary.total_income)],
+            ['Total Expense', formatExportAmountCell(s.total_expenses, s.secondary.total_expenses)],
+            ['Payables — total (in filter)', formatExportAmountCell(s.total_payables, s.secondary.total_payables)],
+            ['Payables — settled (in filter)', formatExportAmountCell(s.payable_settlements, s.secondary.payable_settlements)],
+            ['Receivables — total (in filter)', formatExportAmountCell(s.total_receivables, s.secondary.total_receivables)],
+            ['Receivables — settled (in filter)', formatExportAmountCell(s.receivable_settlements, s.secondary.receivable_settlements)],
+        ]
+            .map(
+                ([label, amt]) => `
+                        <tr>
+                            <td colspan="4" style="padding:8px;border:1px solid #333;">${escapeHtml(label)}</td>
+                            <td colspan="3" class="amount" style="padding:8px;border:1px solid #333;">${amt}</td>
+                        </tr>`,
+            )
+            .join('');
+
         // Create the HTML content
         const htmlContent = `
             <!DOCTYPE html>
@@ -481,17 +555,28 @@ export default function Transaction() {
                     }
                     .income { color: #008000; }
                     .expense { color: #cc0000; }
+                    thead { display: table-header-group; }
+                    tr { page-break-inside: avoid; }
+                    .filtered-summary-once {
+                        width: 100%;
+                        margin-top: 16px;
+                        font-size: 12px;
+                    }
+                    .filtered-summary-once table {
+                        margin-top: 0;
+                    }
                     @media print {
                         body { margin: 10px; }
-                        table { page-break-inside: avoid; }
-                        .header { break-after: avoid; }
-                        @page { 
+                        /* Do not use page-break-inside: avoid on the whole table — it moves the
+                           entire grid to page 2 when height exceeds remaining space, leaving a blank first page. */
+                        table { page-break-inside: auto; }
+                        .header { break-after: avoid; page-break-after: avoid; }
+                        /* Summary is outside main <table> so it is not repeated every printed page (unlike tfoot). */
+                        .filtered-summary-once {
+                            page-break-inside: avoid;
+                        }
+                        @page {
                             margin: 1cm;
-                            @bottom-center {
-                                content: "Page " counter(page) " of " counter(pages);
-                                font-size: 10px;
-                                color: #666;
-                            }
                         }
                     }
                 </style>
@@ -502,7 +587,7 @@ export default function Transaction() {
                 </div>
                 <div class="summary">
                     <p><strong>Total Transactions:</strong> ${filteredTransactions.length}</p>
-                    <p><strong>Date Range:</strong> All transactions</p>
+                    <p><strong>Date Range:</strong> ${exportDateRangeLabel}</p>
                 </div>
                 <table>
                     <thead>
@@ -523,10 +608,10 @@ export default function Transaction() {
                             <tr>
                                 <td style="text-align: center;">${index + 1}</td>
                                 <td>${formatDate(transaction.date)}</td>
-                                <td>${transaction.description}</td>
-                                <td style="text-transform: capitalize;">${transaction.type === 'settle_receivable' || transaction.type === 'settle_payable' ? (transaction.category?.name ?? 'Settlement') : transaction.type}</td>
-                                <td>${transaction.source}</td>
-                                <td>${transaction.category?.name ?? 'Uncategorized'}</td>
+                                <td>${escapeHtml(transaction.description)}</td>
+                                <td style="text-transform: capitalize;">${escapeHtml(transaction.type === 'settle_receivable' || transaction.type === 'settle_payable' ? (transaction.category?.name ?? 'Settlement') : transaction.type)}</td>
+                                <td>${escapeHtml(transaction.source)}</td>
+                                <td>${escapeHtml(transaction.category?.name ?? 'Uncategorized')}</td>
                                 <td class="amount ${transaction.type === 'income' || transaction.type === 'settle_receivable' ? 'income' : 'expense'}">${transaction.type === 'income' || transaction.type === 'settle_receivable' ? '+' : '-'} ${primarySymbol} ${formatCurrency(transaction.amount, primaryCurrency)}</td>
                             </tr>
                         `,
@@ -534,11 +619,18 @@ export default function Transaction() {
                             .join('')}
                     </tbody>
                 </table>
+                <div class="filtered-summary-once">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td colspan="7" style="padding:8px;border:1px solid #333;background:#f0f0f0;font-weight:bold;">Summary (filtered)</td>
+                            </tr>
+                            ${pdfSummaryFooterRows}
+                        </tbody>
+                    </table>
+                </div>
                 <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #666;">
                     <p>This report was generated automatically from the Cash Management System</p>
-                </div>
-                <div class="footer" style="position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 10px; color: #666; padding: 10px;">
-                    Page <span class="page-number"></span>
                 </div>
             </body>
             </html>
@@ -569,6 +661,36 @@ export default function Transaction() {
         // Use the same approach as PDF export
         exportToPDF();
     };
+
+    const fs = filteredFinancialSummary;
+    type SummaryFooterBlock = {
+        label: string;
+        primary: number;
+        secondary: number;
+        color: string;
+        settledPrimary?: number;
+        settledSecondary?: number;
+    };
+    const summaryBlocks: SummaryFooterBlock[] = [
+        { label: 'Total Income', primary: fs.total_income, secondary: fs.secondary.total_income, color: 'text-green-600' },
+        { label: 'Total Expense', primary: fs.total_expenses, secondary: fs.secondary.total_expenses, color: 'text-red-600' },
+        {
+            label: 'Payables (filtered)',
+            primary: fs.total_payables,
+            secondary: fs.secondary.total_payables,
+            color: 'text-orange-600',
+            settledPrimary: fs.payable_settlements,
+            settledSecondary: fs.secondary.payable_settlements,
+        },
+        {
+            label: 'Receivables (filtered)',
+            primary: fs.total_receivables,
+            secondary: fs.secondary.total_receivables,
+            color: 'text-blue-600',
+            settledPrimary: fs.receivable_settlements,
+            settledSecondary: fs.secondary.receivable_settlements,
+        },
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -921,7 +1043,7 @@ export default function Transaction() {
                                     <TableBody>
                                         {filteredTransactions.length === 0 ? (
                                             <TableRow>
-                                                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
+                                                <TableCell colSpan={9} className="py-8 text-center text-muted-foreground">
                                                     No transactions found matching your criteria.
                                                 </TableCell>
                                             </TableRow>
@@ -1009,6 +1131,48 @@ export default function Transaction() {
                                             ))
                                         )}
                                     </TableBody>
+                                    <TableFooter>
+                                        <TableRow>
+                                            <TableCell colSpan={9} className="align-top">
+                                                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                                    Summary (filtered)
+                                                </div>
+                                                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                                    {summaryBlocks.map((block) => (
+                                                        <div key={block.label} className="rounded-md border bg-background/80 p-2">
+                                                            <div className="text-xs text-muted-foreground">{block.label}</div>
+                                                            <div className={`text-sm font-semibold ${block.color}`}>
+                                                                {primarySymbol}
+                                                                {formatCurrency(block.primary, primaryCurrency)}
+                                                            </div>
+                                                            {Math.abs(block.secondary) > 1e-9 && (
+                                                                <div className="text-xs text-muted-foreground">
+                                                                    {secondarySymbol} {formatCurrency(block.secondary, secondaryCurrency)}
+                                                                </div>
+                                                            )}
+                                                            {block.settledPrimary !== undefined && (
+                                                                <>
+                                                                    <div className="mt-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                                                                        Settled (in filter)
+                                                                    </div>
+                                                                    <div className={`text-xs font-semibold ${block.color}`}>
+                                                                        {primarySymbol}
+                                                                        {formatCurrency(block.settledPrimary, primaryCurrency)}
+                                                                    </div>
+                                                                    {Math.abs(block.settledSecondary ?? 0) > 1e-9 && (
+                                                                        <div className="text-xs text-muted-foreground">
+                                                                            {secondarySymbol}{' '}
+                                                                            {formatCurrency(block.settledSecondary ?? 0, secondaryCurrency)}
+                                                                        </div>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableFooter>
                                 </Table>
                             </div>
                         </div>
@@ -1101,6 +1265,44 @@ export default function Transaction() {
                                         </div>
                                     ))
                                 )}
+                                <div className="border-t bg-muted/40 p-4">
+                                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                        Summary (filtered)
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {summaryBlocks.map((block) => (
+                                            <div key={block.label} className="rounded-md border bg-background p-2">
+                                                <div className="text-xs text-muted-foreground">{block.label}</div>
+                                                <div className={`text-sm font-semibold ${block.color}`}>
+                                                    {primarySymbol}
+                                                    {formatCurrency(block.primary, primaryCurrency)}
+                                                </div>
+                                                {Math.abs(block.secondary) > 1e-9 && (
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {secondarySymbol} {formatCurrency(block.secondary, secondaryCurrency)}
+                                                    </div>
+                                                )}
+                                                {block.settledPrimary !== undefined && (
+                                                    <>
+                                                        <div className="mt-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                                                            Settled (in filter)
+                                                        </div>
+                                                        <div className={`text-xs font-semibold ${block.color}`}>
+                                                            {primarySymbol}
+                                                            {formatCurrency(block.settledPrimary, primaryCurrency)}
+                                                        </div>
+                                                        {Math.abs(block.settledSecondary ?? 0) > 1e-9 && (
+                                                            <div className="text-xs text-muted-foreground">
+                                                                {secondarySymbol}{' '}
+                                                                {formatCurrency(block.settledSecondary ?? 0, secondaryCurrency)}
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
