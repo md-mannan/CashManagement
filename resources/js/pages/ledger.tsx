@@ -91,6 +91,52 @@ export default function Ledger() {
     const secondarySymbol = auth.user.secondary_symbol || 'د.ك';
     const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
 
+    // Use a single effective exchange rate for running-balance conversion.
+    // - Prefer user's configured exchange rate when it's meaningful (> 1)
+    // - Otherwise derive from transaction metadata (first available rate for the user's secondary currency)
+    const derivedRateFromTransactions = useMemo(() => {
+        for (const t of transactions) {
+            const meta = t.metadata;
+            const rate = Number(meta?.exchange_rate) || 0;
+            if ((meta?.secondary_currency || null) === secondaryCurrency && rate > 0) {
+                return rate;
+            }
+        }
+        return 0;
+    }, [transactions, secondaryCurrency]);
+
+    const effectiveExchangeRate =
+        secondaryCurrency !== primaryCurrency && exchangeRate > 1.0001
+            ? exchangeRate
+            : derivedRateFromTransactions;
+
+    const getSecondaryAmount = (transaction: (typeof transactions)[number]) => {
+        // Secondary amounts must be computed consistently:
+        // - Prefer stored metadata.secondary_amount when present
+        // - If missing but this transaction is recorded in the user's secondary currency, derive from exchange_rate
+        // - Otherwise return 0 (no secondary value to track)
+        const amountPrimary = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) || 0 : transaction.amount || 0;
+        const meta = transaction.metadata;
+        const epsilon = 1e-9;
+        if (Math.abs(amountPrimary) < epsilon) return 0;
+
+        const secondaryTxnCurrency = meta?.secondary_currency;
+        const storedSecondary = Number(meta?.secondary_amount) || 0;
+        if (storedSecondary > 0 && secondaryTxnCurrency === secondaryCurrency) {
+            return storedSecondary;
+        }
+
+        const rate = Number(meta?.exchange_rate) || effectiveExchangeRate || 0;
+        if (secondaryTxnCurrency === secondaryCurrency && rate > 0) {
+            // IMPORTANT: do NOT round here.
+            // Rounding each row and then summing causes drift in the final running balance
+            // (e.g. ending at 19.989 instead of ~20.000). We only round in `formatCurrency`.
+            return amountPrimary / rate;
+        }
+
+        return 0;
+    };
+
     // Helper function to calculate converted amount (used for secondary currency conversion)
     const convertAmount = (amount: number, targetCurrency: string) => {
         if (targetCurrency === primaryCurrency) return amount;
@@ -169,7 +215,7 @@ export default function Ledger() {
             // Determine debit/credit based on transaction type and category
             const amount = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) || 0 : transaction.amount || 0;
             const epsilon = 1e-9;
-            const amountSecondary = Math.abs(amount) < epsilon ? 0 : Number(transaction.metadata?.secondary_amount) || 0;
+            const amountSecondary = Math.abs(amount) < epsilon ? 0 : getSecondaryAmount(transaction);
             const categoryName = transaction.category.name.toLowerCase();
             
 
@@ -177,36 +223,28 @@ export default function Ledger() {
             if (transaction.type === 'expense') {
                 debit = amount;
                 runningBalance -= amount;
-                runningBalanceSecondary -= amountSecondary;
             } else if (transaction.type === 'income') {
                 credit = amount;
                 runningBalance += amount;
-                runningBalanceSecondary += amountSecondary;
             } else if (transaction.type === 'payable') {
                 credit = amount;
                 runningBalance += amount;
-                runningBalanceSecondary += amountSecondary;
             } else if (transaction.type === 'receivable') {
                 debit = amount;
                 runningBalance -= amount;
-                runningBalanceSecondary -= amountSecondary;
             } else if (transaction.type === 'settle_receivable') {
                 credit = amount;
                 runningBalance += amount;
-                runningBalanceSecondary += amountSecondary;
             } else if (transaction.type === 'settle_payable') {
                 debit = amount;
                 runningBalance -= amount;
-                runningBalanceSecondary -= amountSecondary;
             } else {
                 if (categoryName.includes('return') || transaction.description.toLowerCase().includes('return')) {
                     credit = amount;
                     runningBalance += amount;
-                    runningBalanceSecondary += amountSecondary;
                 } else if (categoryName.includes('pay')) {
                     debit = amount;
                     runningBalance -= amount;
-                    runningBalanceSecondary -= amountSecondary;
                 }
             }
 
@@ -214,8 +252,13 @@ export default function Ledger() {
                 if (transaction.description.toLowerCase().includes('return')) {
                     credit = amount;
                     runningBalance += amount;
-                    runningBalanceSecondary += amountSecondary;
                 }
+            }
+
+            // Running secondary balance should be derived from the running primary balance,
+            // otherwise inconsistent/missing stored secondary amounts can drift the final balance.
+            if (effectiveExchangeRate > 0 && secondaryCurrency !== primaryCurrency) {
+                runningBalanceSecondary = runningBalance / effectiveExchangeRate;
             }
 
             const secondaryDebit = debit != null ? amountSecondary : null;
@@ -560,9 +603,11 @@ export default function Ledger() {
                                 <CardContent>
                                     {(() => {
                                         const epsilon = 1e-9;
-                                        const primaryNetRaw = Number(summary.net_balance ?? 0);
-                                        const secondaryNetRaw =
-                                            summary.secondary_currency_totals?.net_balance ?? 0;
+                                        // Use the latest running balance from the ledger (last row)
+                                        // so Summary always matches the table's final "Balance".
+                                        const last = ledgerEntries.length > 0 ? ledgerEntries[ledgerEntries.length - 1] : null;
+                                        const primaryNetRaw = Number(last?.balance ?? 0);
+                                        const secondaryNetRaw = Number(last?.secondaryBalance ?? 0);
                                         const shouldForceZero =
                                             Math.abs(primaryNetRaw) < epsilon ||
                                             Math.abs(secondaryNetRaw) < epsilon;

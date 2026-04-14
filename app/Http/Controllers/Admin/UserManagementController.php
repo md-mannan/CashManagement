@@ -12,6 +12,14 @@ use Inertia\Inertia;
 
 class UserManagementController extends Controller
 {
+    /**
+     * @return array<string, string>
+     */
+    private function modulePermissionLabels(): array
+    {
+        return config('module_permissions.modules', []);
+    }
+
     public function index()
     {
         $users = User::orderBy('created_at', 'desc')
@@ -20,14 +28,6 @@ class UserManagementController extends Controller
         return Inertia::render('admin/user-management', [
             'users' => $users,
             'roles' => ['user', 'admin', 'super_admin'],
-            'permissions' => [
-                'manage_users' => 'Manage Users',
-                'manage_admins' => 'Manage Admins',
-                'view_analytics' => 'View Analytics',
-                'manage_transactions' => 'Manage Transactions',
-                'manage_categories' => 'Manage Categories',
-                'manage_settings' => 'Manage Settings',
-            ],
         ]);
     }
 
@@ -39,15 +39,7 @@ class UserManagementController extends Controller
 
         return Inertia::render('admin/user-profile', [
             'user' => $user,
-            'roles' => ['user', 'admin', 'super_admin'],
-            'permissions' => [
-                'manage_users' => 'Manage Users',
-                'manage_admins' => 'Manage Admins',
-                'view_analytics' => 'View Analytics',
-                'manage_transactions' => 'Manage Transactions',
-                'manage_categories' => 'Manage Categories',
-                'manage_settings' => 'Manage Settings',
-            ],
+            'permissionLabels' => $this->modulePermissionLabels(),
         ]);
     }
 
@@ -58,7 +50,6 @@ class UserManagementController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'role' => ['required', Rule::in(['user', 'admin', 'super_admin'])],
-            'permissions' => 'array',
             'is_active' => 'boolean',
         ]);
 
@@ -76,7 +67,7 @@ class UserManagementController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'permissions' => $request->permissions ?? [],
+            'permissions' => User::defaultPermissionsForRole($request->role),
             'is_active' => $request->is_active ?? true,
         ]);
 
@@ -103,7 +94,6 @@ class UserManagementController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'role' => ['required', Rule::in(['user', 'admin', 'super_admin'])],
-            'permissions' => 'array',
             'is_active' => 'boolean',
         ]);
 
@@ -128,7 +118,7 @@ class UserManagementController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
-            'permissions' => $request->permissions ?? [],
+            'permissions' => User::defaultPermissionsForRole($request->role),
             'is_active' => $request->is_active ?? true,
         ]);
 

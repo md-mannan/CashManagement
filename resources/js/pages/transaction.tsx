@@ -106,6 +106,7 @@ export default function Transaction() {
                     payable_settlements: number;
                 };
             };
+            ledgerLikeNetBalance?: number;
             flash?: { success?: string; error?: string };
             errors?: Record<string, string[]>;
         }
@@ -135,6 +136,17 @@ export default function Transaction() {
     const primarySymbol = auth.user.primary_symbol || '৳';
     const secondaryCurrency = auth.user.secondary_currency || 'KWD';
     const secondarySymbol = auth.user.secondary_symbol || 'د.ك';
+    const userExchangeRate = Number(auth.user.exchange_rate) || 0;
+    const derivedExchangeRate =
+        secondaryCurrency !== primaryCurrency &&
+        (Number(summary?.total_payables) || 0) > 0 &&
+        (Number(summary?.secondary_amounts?.total_payables) || 0) > 0
+            ? (Number(summary.total_payables) || 0) / (Number(summary.secondary_amounts?.total_payables) || 1)
+            : 0;
+    const effectiveExchangeRate =
+        secondaryCurrency !== primaryCurrency && userExchangeRate > 0 && userExchangeRate <= 1.0001
+            ? derivedExchangeRate
+            : userExchangeRate;
 
     const { addToast } = useToast();
 
@@ -753,15 +765,11 @@ export default function Transaction() {
                         <CardContent>
                             {(() => {
                                 const epsilon = 1e-9;
-                                const primaryNetRaw = Number(summary.net_balance ?? 0);
-                                const secondaryNetRaw = summary.secondary_amounts
-                                    ? summary.secondary_amounts.total_income -
-                                      summary.secondary_amounts.total_expenses -
-                                      summary.secondary_amounts.total_receivables +
-                                      summary.secondary_amounts.total_payables +
-                                      summary.secondary_amounts.receivable_settlements -
-                                      summary.secondary_amounts.payable_settlements
-                                    : null;
+                                const primaryNetRaw = Number((usePage().props as any)?.ledgerLikeNetBalance ?? summary.net_balance ?? 0);
+                                // Net balance secondary should be derived from primary net balance + user's exchange rate.
+                                // This avoids data drift where stored secondary totals can be scaled incorrectly.
+                                const secondaryNetRaw =
+                                    effectiveExchangeRate > 0 ? primaryNetRaw / effectiveExchangeRate : null;
 
                                 // If either currency net is zero, force BOTH to show zero (sync display).
                                 const shouldForceZero =

@@ -61,6 +61,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     protected $appends = [
         'avatar',
+        'effective_permissions',
     ];
 
     /**
@@ -192,6 +193,43 @@ class User extends Authenticatable implements CanResetPasswordContract
 
 
     /**
+     * Default permission keys stored for a role (and used as the effective set for non–super-admins).
+     *
+     * @return list<string>
+     */
+    public static function defaultPermissionsForRole(string $role): array
+    {
+        $map = config('module_permissions.role_permissions', []);
+
+        return $map[$role] ?? $map['user'] ?? [];
+    }
+
+    /**
+     * Keys the user effectively has for UI and authorization (derived from role).
+     *
+     * @return list<string>
+     */
+    public function effectivePermissions(): array
+    {
+        if ($this->isSuperAdmin()) {
+            return array_keys(config('module_permissions.modules', []));
+        }
+
+        $perms = self::defaultPermissionsForRole($this->role ?? 'user');
+
+        if ($perms === ['*'] || (count($perms) === 1 && ($perms[0] ?? null) === '*')) {
+            return array_keys(config('module_permissions.modules', []));
+        }
+
+        return $perms;
+    }
+
+    public function getEffectivePermissionsAttribute(): array
+    {
+        return $this->effectivePermissions();
+    }
+
+    /**
      * Check if user has a specific permission.
      */
     public function hasPermission(string $permission): bool
@@ -200,7 +238,44 @@ class User extends Authenticatable implements CanResetPasswordContract
             return true;
         }
 
-        return in_array($permission, $this->permissions ?? []);
+        $perms = $this->effectivePermissions();
+
+        if (in_array('*', $perms, true)) {
+            return true;
+        }
+
+        if (in_array($permission, $perms, true)) {
+            return true;
+        }
+
+        foreach ($this->equivalentPermissionKeys($permission) as $equivalent) {
+            if ($equivalent !== $permission && in_array($equivalent, $perms, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Legacy seeders/UI used alternate keys; treat them as the same capability.
+     *
+     * @return list<string>
+     */
+    private function equivalentPermissionKeys(string $permission): array
+    {
+        $groups = [
+            ['manage_system_settings', 'manage_settings'],
+            ['view_system_logs', 'view_logs', 'view_activity_logs'],
+        ];
+
+        foreach ($groups as $group) {
+            if (in_array($permission, $group, true)) {
+                return $group;
+            }
+        }
+
+        return [$permission];
     }
 
     public function hasAnyPermission(array $permissions): bool
@@ -218,7 +293,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canManageUsers(): bool
     {
-        return $this->hasPermission('manage_users') || $this->isSuperAdmin();
+        return $this->hasPermission('manage_users');
     }
 
     /**
@@ -226,8 +301,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canManageAdmins(): bool
     {
-        return $this->isSuperAdmin() ||
-               ($this->isAdmin() && in_array('manage_admins', $this->permissions ?? []));
+        return $this->hasPermission('manage_admins');
     }
 
     /**
@@ -235,7 +309,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canViewAnalytics(): bool
     {
-        return $this->hasPermission('view_analytics') || $this->isAdmin();
+        return $this->hasPermission('view_analytics');
     }
 
     /**
@@ -243,7 +317,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canViewAllTransactions(): bool
     {
-        return $this->hasPermission('view_all_transactions') || $this->isAdmin();
+        return $this->hasPermission('view_all_transactions');
     }
 
     /**
@@ -251,7 +325,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canViewAllUserData(): bool
     {
-        return $this->hasPermission('view_all_user_data') || $this->isAdmin();
+        return $this->hasPermission('view_all_user_data');
     }
 
     /**
@@ -259,7 +333,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canAccessLedger(): bool
     {
-        return $this->hasPermission('access_ledger') || $this->isAdmin();
+        return $this->hasPermission('access_ledger');
     }
 
     /**
@@ -267,7 +341,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canManageTransactions(): bool
     {
-        return $this->hasPermission('manage_transactions') || $this->isAdmin();
+        return $this->hasPermission('manage_transactions');
     }
 
     /**
@@ -275,7 +349,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canManageCategories(): bool
     {
-        return $this->hasPermission('manage_categories') || $this->isAdmin();
+        return $this->hasPermission('manage_categories');
     }
 
     /**
@@ -283,7 +357,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canManageSystemSettings(): bool
     {
-        return $this->hasPermission('manage_system_settings') || $this->isAdmin();
+        return $this->hasPermission('manage_system_settings');
     }
 
     /**
@@ -291,7 +365,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canViewSystemLogs(): bool
     {
-        return $this->hasPermission('view_system_logs') || $this->isAdmin();
+        return $this->hasPermission('view_system_logs');
     }
 
     /**
@@ -299,7 +373,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canExportData(): bool
     {
-        return $this->hasPermission('export_data') || $this->isAdmin();
+        return $this->hasPermission('export_data');
     }
 
     /**
@@ -307,7 +381,119 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function canPerformBulkOperations(): bool
     {
-        return $this->hasPermission('perform_bulk_operations') || $this->isAdmin();
+        return $this->hasPermission('perform_bulk_operations');
+    }
+
+    /**
+     * Cross-user / system-wide blocks on the main financial dashboard.
+     */
+    public function hasAggregatedMainDashboard(): bool
+    {
+        return $this->hasAnyPermission([
+            'view_analytics',
+            'view_all_user_data',
+            'view_all_transactions',
+            'admin_dashboard',
+        ]);
+    }
+
+    /**
+     * Whether any admin sidebar link should appear (admin/super_admin role + at least one admin-area permission).
+     */
+    public function canAccessAdministrationMenu(): bool
+    {
+        if (! $this->isAdmin()) {
+            return false;
+        }
+
+        return $this->hasAnyPermission([
+            'admin_dashboard',
+            'manage_users',
+            'manage_role_permissions',
+            'view_analytics',
+            'manage_transactions',
+            'access_ledger',
+            'manage_system_settings',
+        ]);
+    }
+
+    /**
+     * Whether any super-admin sidebar link should appear.
+     */
+    public function canAccessSuperAdministrationMenu(): bool
+    {
+        if (! $this->isSuperAdmin()) {
+            return false;
+        }
+
+        return $this->hasAnyPermission([
+            'super_admin_panel',
+            'system_audit',
+            'view_system_logs',
+            'system_health',
+            'database_management',
+            'backup_restore',
+        ]);
+    }
+
+    /**
+     * First URL to send the user after login or when clicking the app logo.
+     */
+    public function firstAccessibleUrlPath(): string
+    {
+        if ($this->hasPermission('view_dashboard')) {
+            return '/dashboard';
+        }
+        if ($this->hasPermission('manage_transactions')) {
+            return '/transactions';
+        }
+        if ($this->hasPermission('access_ledger')) {
+            return '/ledger';
+        }
+        if ($this->hasPermission('manage_categories')) {
+            return '/categories';
+        }
+
+        if ($this->isAdmin()) {
+            if ($this->hasPermission('admin_dashboard')) {
+                return '/admin/dashboard';
+            }
+            if ($this->hasPermission('manage_users')) {
+                return '/admin/users';
+            }
+            if ($this->hasPermission('manage_role_permissions')) {
+                return '/admin/role-permission';
+            }
+            if ($this->hasPermission('view_analytics')) {
+                return '/admin/analytics';
+            }
+            if ($this->hasPermission('manage_system_settings')) {
+                return '/admin/system-settings';
+            }
+        }
+
+        if ($this->isSuperAdmin()) {
+            if ($this->hasPermission('super_admin_panel')) {
+                return '/admin/super-admin';
+            }
+            if ($this->hasPermission('system_audit')) {
+                return '/admin/super-admin/audit';
+            }
+            if ($this->hasPermission('view_system_logs')) {
+                return '/admin/activity-logs';
+            }
+            if ($this->hasPermission('system_health')) {
+                return '/admin/system-health';
+            }
+            if ($this->hasPermission('database_management')) {
+                return '/admin/database';
+            }
+            if ($this->hasPermission('backup_restore')) {
+                return '/admin/backup';
+            }
+        }
+
+        return '/settings/profile';
     }
 
     /**
@@ -315,13 +501,17 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function hasAnyAdminPrivileges(): bool
     {
-        return $this->isAdmin() || $this->hasAnyPermission([
-            'manage_users',
-            'view_analytics',
-            'manage_transactions',
-            'access_ledger',
-            'view_all_user_data'
-        ]);
+        return $this->canAccessAdministrationMenu()
+            || $this->canAccessSuperAdministrationMenu()
+            || $this->hasAnyPermission([
+                'manage_users',
+                'manage_admins',
+                'view_analytics',
+                'manage_transactions',
+                'access_ledger',
+                'view_all_user_data',
+                'view_all_transactions',
+            ]);
     }
 
 

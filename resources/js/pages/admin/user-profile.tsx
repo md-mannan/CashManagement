@@ -33,7 +33,8 @@ interface User {
     email: string;
     role: string;
     is_active: boolean;
-    permissions: string[];
+    permissions?: string[];
+    effective_permissions?: string[];
     created_at: string;
     updated_at: string;
     transactions: Transaction[];
@@ -41,11 +42,10 @@ interface User {
 
 interface Props {
     user: User;
-    roles: string[];
-    permissions: Record<string, string>;
+    permissionLabels: Record<string, string>;
 }
 
-export default function UserProfile({ user, roles, permissions }: Props) {
+export default function UserProfile({ user, permissionLabels }: Props) {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return {
@@ -129,25 +129,25 @@ export default function UserProfile({ user, roles, permissions }: Props) {
                                 </CardContent>
                             </Card>
 
-                            {/* Permissions */}
+                            {/* Module access (from role) */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center">
                                         <Shield className="mr-2 h-4 w-4" />
-                                        Permissions
+                                        Module access
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {user.permissions && user.permissions.length > 0 ? (
+                                    {(user.effective_permissions ?? user.permissions ?? []).length > 0 ? (
                                         <div className="flex flex-wrap gap-2">
-                                            {user.permissions.map((permission) => (
+                                            {(user.effective_permissions ?? user.permissions ?? []).map((permission) => (
                                                 <Badge key={permission} variant="outline" className="text-xs">
-                                                    {permission.replace('_', ' ')}
+                                                    {permissionLabels[permission] ?? permission.replaceAll('_', ' ')}
                                                 </Badge>
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-sm text-gray-500">No specific permissions assigned</p>
+                                        <p className="text-sm text-gray-500">No modules for this role</p>
                                     )}
                                 </CardContent>
                             </Card>

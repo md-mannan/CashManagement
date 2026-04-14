@@ -23,8 +23,8 @@ class DashboardController extends Controller
         $currentMonth = Carbon::now()->startOfMonth();
         $lastMonth = Carbon::now()->subMonth()->startOfMonth();
 
-        // ADMIN: Super admin and admin can see ALL users' data (system-wide access)
-        if ($user->isAdmin()) {
+        // System-wide dashboard blocks (requires explicit module permission)
+        if ($user->hasAggregatedMainDashboard()) {
             // Super admin can see recent transactions from all users
             $recentTransactions = Transaction::with(['category', 'user'])
                 ->orderBy('date', 'desc')
@@ -67,6 +67,47 @@ class DashboardController extends Controller
             $previousSummary = $this->transactionService->getFinancialSummary($user, $previousMonth, $previousMonth->copy()->endOfMonth());
         }
 
+        // Ledger-like net balance (match Ledger/Transactions behavior for legacy/orphan settlement rows).
+        // Only compute for non-aggregated dashboards (single user).
+        $ledgerLikeNetBalance = null;
+        if (! $user->hasAggregatedMainDashboard()) {
+            $ledgerLikePayableSettlements = (float) Transaction::query()
+                ->where('user_id', $user->id)
+                ->where(function ($q) {
+                    $q->whereHas('category', function ($c) {
+                        $c->where('type', 'settle_payable');
+                    })->orWhere(function ($q2) {
+                        $q2->where('type', 'settlement')
+                            ->whereHas('relatedTransaction', function ($rel) {
+                                $rel->where('type', 'payable');
+                            });
+                    });
+                })
+                ->sum('amount');
+
+            $ledgerLikeReceivableSettlements = (float) Transaction::query()
+                ->where('user_id', $user->id)
+                ->where(function ($q) {
+                    $q->whereHas('category', function ($c) {
+                        $c->where('type', 'settle_receivable');
+                    })->orWhere(function ($q2) {
+                        $q2->where('type', 'settlement')
+                            ->whereHas('relatedTransaction', function ($rel) {
+                                $rel->where('type', 'receivable');
+                            });
+                    });
+                })
+                ->sum('amount');
+
+            $ledgerLikeNetBalance =
+                (float) ($currentSummary['total_income'] ?? 0)
+                - (float) ($currentSummary['total_expenses'] ?? 0)
+                - (float) ($currentSummary['total_receivables'] ?? 0)
+                + (float) ($currentSummary['total_payables'] ?? 0)
+                + $ledgerLikeReceivableSettlements
+                - $ledgerLikePayableSettlements;
+        }
+
         // Calculate changes
         $changes = [
             'income_change' => $this->calculatePercentageChange($previousSummary['total_income'], $currentSummary['total_income']),
@@ -79,8 +120,8 @@ class DashboardController extends Controller
         // Add the correct net balance formula for display
         $netBalanceFormula = 'Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements';
 
-        // Chart data: Super admin sees system-wide, regular users see only their own
-        if ($user->isAdmin()) {
+        // Chart data: aggregated when user has cross-user analytics permission
+        if ($user->hasAggregatedMainDashboard()) {
             // Super admin sees system-wide chart data (ALL users)
             $monthlyData = $this->transactionService->getSystemMonthlyChartData();
             $yearlyData = $this->transactionService->getSystemYearlyChartData();
@@ -94,53 +135,15 @@ class DashboardController extends Controller
             $yearlyCategoryData = $this->transactionService->getYearlyCategoryBreakdown($user);
         }
 
-        // Payable/receivable summaries: Super admin sees system-wide, regular users see only their own
-        if ($user->isAdmin()) {
-            // Super admin sees system-wide payable/receivable data (ALL users)
-            $payableSummary = Transaction::where('type', 'payable')
-                ->whereNull('related_transaction_id') // Exclude settlement transactions
-                ->selectRaw('
-                    COUNT(*) as total_count,
-                    SUM(amount) as total_amount,
-                    SUM(COALESCE(settled_amount, 0)) as total_settled,
-                    SUM(amount - COALESCE(settled_amount, 0)) as total_outstanding'
-                )->first();
-
-            $receivableSummary = Transaction::where('type', 'receivable')
-                ->whereNull('related_transaction_id') // Exclude settlement transactions
-                ->selectRaw('
-                    COUNT(*) as total_count,
-                    SUM(amount) as total_amount,
-                    SUM(COALESCE(settled_amount, 0)) as total_settled,
-                    SUM(amount - COALESCE(settled_amount, 0)) as total_outstanding'
-                )->first();
-        } else {
-            // Regular users see only their own payable/receivable data
-            $payableSummary = Transaction::where('type', 'payable')
-                ->where('user_id', $user->id) // Only current user's data
-                ->whereNull('related_transaction_id') // Exclude settlement transactions
-                ->selectRaw('
-                    COUNT(*) as total_count,
-                    SUM(amount) as total_amount,
-                    SUM(COALESCE(settled_amount, 0)) as total_settled,
-                    SUM(amount - COALESCE(settled_amount, 0)) as total_outstanding'
-                )->first();
-
-            $receivableSummary = Transaction::where('type', 'receivable')
-                ->where('user_id', $user->id) // Only current user's data
-                ->whereNull('related_transaction_id') // Exclude settlement transactions
-                ->selectRaw('
-                    COUNT(*) as total_count,
-                    SUM(amount) as total_amount,
-                    SUM(COALESCE(settled_amount, 0)) as total_settled,
-                    SUM(amount - COALESCE(settled_amount, 0)) as total_outstanding'
-                )->first();
-        
-        }
+        // Payable/receivable summaries
+        $summaryUserId = $user->hasAggregatedMainDashboard() ? null : $user->id;
+        $payableSummary = (object) $this->computePayableReceivableSummary($summaryUserId, 'payable');
+        $receivableSummary = (object) $this->computePayableReceivableSummary($summaryUserId, 'receivable');
 
         return Inertia::render('dashboard', [
             'recentTransactions' => $recentTransactions,
             'currentSummary' => $currentSummary,
+            'ledgerLikeNetBalance' => $ledgerLikeNetBalance,
             'changes' => $changes,
             'netBalanceFormula' => $netBalanceFormula,
             'monthlyData' => $monthlyData,
@@ -148,7 +151,7 @@ class DashboardController extends Controller
             'categoryData' => $categoryData,
             'yearlyCategoryData' => $yearlyCategoryData,
 
-            'isAdmin' => $user->isAdmin(),
+            'showAggregatedDashboard' => $user->hasAggregatedMainDashboard(),
             'allUsers' => $allUsers,
             'payableSummary' => $payableSummary,
             'receivableSummary' => $receivableSummary,
@@ -158,6 +161,68 @@ class DashboardController extends Controller
                 'monthlyDataSample' => $monthlyData['datasets'][0]['data'] ?? [],
             ],
         ]);
+    }
+
+    /**
+     * Compute payable/receivable summary using actual settlement rows.
+     * This avoids relying on `settled_amount`, which can drift out-of-sync.
+     *
+     * @return array{total_count:int,total_amount:float,total_settled:float,total_outstanding:float}
+     */
+    private function computePayableReceivableSummary(?int $userId, string $type): array
+    {
+        $base = Transaction::query()
+            ->where('type', $type)
+            ->whereNull('related_transaction_id'); // exclude settlement transactions
+
+        if ($userId !== null) {
+            $base->where('user_id', $userId);
+        }
+
+        $totalCount = (int) (clone $base)->count();
+        $totalAmount = (float) (clone $base)->sum('amount');
+
+        // Settled = sum of settlement transactions whose related transaction is of this type.
+        $settledQuery = Transaction::query()
+            // Legacy support: settlements are identified by `related_transaction_id` linkage
+            // (not strictly by `type`).
+            ->where(function ($q) {
+                $q->whereNotNull('related_transaction_id')
+                    ->orWhere('type', 'settlement')
+                    ->orWhereHas('category', function ($c) {
+                        $c->whereIn('type', ['settle_payable', 'settle_receivable']);
+                    });
+            })
+            ->whereColumn('id', '!=', 'related_transaction_id')
+            ->whereHas('relatedTransaction', function ($q) use ($type, $userId) {
+                $q->where('type', $type)->whereNull('related_transaction_id');
+                if ($userId !== null) {
+                    $q->where('user_id', $userId);
+                }
+            });
+
+        $totalSettled = (float) $settledQuery->sum('amount');
+
+        // Also include orphan settlement rows categorized as settle_payable/settle_receivable.
+        $orphanSettleType = $type === 'payable' ? 'settle_payable' : 'settle_receivable';
+        $orphanQuery = Transaction::query()
+            ->whereColumn('id', '!=', 'related_transaction_id')
+            ->whereHas('category', function ($c) use ($orphanSettleType) {
+                $c->where('type', $orphanSettleType);
+            })
+            ->whereDoesntHave('relatedTransaction');
+        if ($userId !== null) {
+            $orphanQuery->where('user_id', $userId);
+        }
+        $totalSettled += (float) $orphanQuery->sum('amount');
+        $totalOutstanding = max(0.0, $totalAmount - $totalSettled);
+
+        return [
+            'total_count' => $totalCount,
+            'total_amount' => $totalAmount,
+            'total_settled' => $totalSettled,
+            'total_outstanding' => $totalOutstanding,
+        ];
     }
 
     /**

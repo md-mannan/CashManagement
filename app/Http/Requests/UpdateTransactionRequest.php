@@ -28,8 +28,7 @@ class UpdateTransactionRequest extends FormRequest
             return false;
         }
         
-        // Admins and super admins can update any transaction
-        if ($user->isAdmin()) {
+        if ($user->canViewAllTransactions()) {
             return true;
         }
         

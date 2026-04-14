@@ -144,6 +144,12 @@ export default function TransactionView() {
     const primaryCurrency = auth.user.primary_currency || 'BDT';
     const primarySymbol = auth.user.primary_symbol || '৳';
 
+    const roundCurrency = (amount: number, currency: string = primaryCurrency) => {
+        const decimals = currency === 'KWD' ? 3 : 2;
+        const factor = Math.pow(10, decimals);
+        return Math.round((amount + Number.EPSILON) * factor) / factor;
+    };
+
     // Available currencies for selection
     const currencies = [
         { code: 'USD', name: 'US Dollar', symbol: '$' },
@@ -487,6 +493,59 @@ export default function TransactionView() {
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Settlement History (batch entries) */}
+                                {settlementSummary.settlements.length > 0 && (
+                                    <div className="mt-4">
+                                        <div className="mb-2 flex items-center justify-between">
+                                            <div className="text-sm font-semibold text-gray-700">Settlement History</div>
+                                            <div className="text-xs text-muted-foreground">
+                                                {settlementSummary.settlements.length} item(s)
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            {settlementSummary.settlements.map((s) => (
+                                                <div
+                                                    key={s.id}
+                                                    className="flex items-start justify-between gap-3 rounded-lg border border-gray-200 bg-white p-3"
+                                                >
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <span className="text-xs font-medium text-muted-foreground">
+                                                                {formatDate(s.date)}
+                                                            </span>
+                                                            <span
+                                                                className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium"
+                                                                style={{
+                                                                    borderColor: `${s.category_color}33`,
+                                                                    backgroundColor: `${s.category_color}14`,
+                                                                    color: s.category_color,
+                                                                }}
+                                                            >
+                                                                {s.category}
+                                                            </span>
+                                                        </div>
+                                                        <div className="mt-1 truncate text-sm text-gray-800">{s.description}</div>
+                                                    </div>
+
+                                                    <div className="shrink-0 text-right">
+                                                        <div className="text-sm font-semibold text-gray-900">
+                                                            {primarySymbol} {formatCurrency(s.amount, primaryCurrency)}
+                                                        </div>
+                                                        {settlementSummary.secondary_currency && typeof s.secondary_amount === 'number' && s.secondary_amount > 0 && (
+                                                            <div className="mt-0.5 text-xs text-muted-foreground">
+                                                                {currencies.find((c) => c.code === settlementSummary.secondary_currency)?.symbol ||
+                                                                    settlementSummary.secondary_currency}{' '}
+                                                                {formatCurrency(s.secondary_amount, settlementSummary.secondary_currency)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     )}
@@ -502,29 +561,76 @@ export default function TransactionView() {
                             <form onSubmit={(e) => {
                                 e.preventDefault();
                                 const formData = new FormData(e.currentTarget);
-                                const amount = parseFloat(formData.get('amount') as string);
+                                const amount = parseFloat(String(formData.get('amount') ?? ''));
                                 const description = formData.get('description') as string;
                                 const category = formData.get('category') as string;
                                 const date = formData.get('date_iso') as string; // Use the hidden ISO date field
-                                const secondary_amount = parseFloat(formData.get('secondary_amount') as string) || 0;
-                                const exchange_rate = parseFloat(formData.get('exchange_rate') as string) || transaction.metadata?.exchange_rate || 0;
+                                const secondary_amount = parseFloat(String(formData.get('secondary_amount') ?? '')) || 0;
+                                const exchange_rate = parseFloat(String(formData.get('exchange_rate') ?? '')) || transaction.metadata?.exchange_rate || 0;
                                 
+                                const remainingRaw = Number(settlementSummary.remaining_amount ?? 0);
+                                const remaining = Math.max(0, roundCurrency(remainingRaw, primaryCurrency));
 
-                                
-                                if (amount && amount > 0 && amount <= (settlementSummary.total_amount - settlementSummary.settled_amount)) {
-                                    router.post(route('transactions.settle', transaction.id), {
-                                        amount: amount,
-                                        description: description,
-                                        category: category,
-                                        date: date,
-                                        secondary_amount: secondary_amount,
-                                        exchange_rate: exchange_rate,
-                                    }, {
-                                        onSuccess: () => {
-                                            setShowSettlementModal(false);
-                                        },
+                                if (!Number.isFinite(amount) || amount <= 0) {
+                                    addToast({
+                                        type: 'error',
+                                        title: 'Invalid amount',
+                                        message: 'Please enter a valid settlement amount.',
                                     });
+                                    return;
                                 }
+
+                                if (amount - remaining > 0.0001) {
+                                    addToast({
+                                        type: 'error',
+                                        title: 'Amount exceeds remaining',
+                                        message: `You can settle up to ${primarySymbol}${formatCurrency(remaining, primaryCurrency)}.`,
+                                    });
+                                    return;
+                                }
+
+                                router.post(route('transactions.settle', transaction.id), {
+                                    amount: amount,
+                                    description: description,
+                                    category: category,
+                                    date: date,
+                                    secondary_amount: secondary_amount,
+                                    exchange_rate: exchange_rate,
+                                }, {
+                                    onSuccess: () => {
+                                        setShowSettlementModal(false);
+                                    },
+                                    onError: (errs) => {
+                                        // Inertia can return validation errors as Record<string, string> (common)
+                                        // or Record<string, string[]> (less common). Handle both.
+                                        // Also log for easier debugging when needed.
+                                        // eslint-disable-next-line no-console
+                                        console.error('Settlement failed (Inertia errors):', errs);
+
+                                        const getErr = (key: string) => {
+                                            if (!errs || typeof errs !== 'object') return undefined;
+                                            const raw = (errs as Record<string, unknown>)[key];
+                                            if (typeof raw === 'string') return raw;
+                                            if (Array.isArray(raw) && typeof raw[0] === 'string') return raw[0];
+                                            return undefined;
+                                        };
+
+                                        const msg =
+                                            getErr('amount') ||
+                                            getErr('date') ||
+                                            getErr('category') ||
+                                            getErr('description') ||
+                                            (typeof (errs as Record<string, unknown>)?.message === 'string'
+                                                ? ((errs as Record<string, unknown>).message as string)
+                                                : undefined) ||
+                                            'Settlement could not be recorded. Please check the form and try again.';
+                                        addToast({
+                                            type: 'error',
+                                            title: 'Settlement failed',
+                                            message: typeof msg === 'string' ? msg : 'Settlement could not be recorded.',
+                                        });
+                                    },
+                                });
                             }}>
                                 <div className="space-y-6">
                                     {/* Total Remaining Amount (Disabled) */}
@@ -534,7 +640,7 @@ export default function TransactionView() {
                                         </Label>
                                         <Input
                                             type="text"
-                                            value={`৳${(settlementSummary.total_amount - settlementSummary.settled_amount).toFixed(2)}`}
+                                            value={`${primarySymbol}${formatCurrency(roundCurrency(Math.max(0, settlementSummary.remaining_amount ?? 0), primaryCurrency), primaryCurrency)}`}
                                             disabled
                                             className="h-10 bg-gray-100 text-base font-medium"
                                         />
@@ -551,8 +657,8 @@ export default function TransactionView() {
                                                 id="amount"
                                                 type="number"
                                                 step="0.01"
-                                                defaultValue={settlementSummary.total_amount - settlementSummary.settled_amount}
-                                                max={settlementSummary.total_amount - settlementSummary.settled_amount}
+                                                defaultValue={roundCurrency(Math.max(0, settlementSummary.remaining_amount ?? 0), primaryCurrency)}
+                                                max={roundCurrency(Math.max(0, settlementSummary.remaining_amount ?? 0), primaryCurrency)}
                                                 required
                                                 className="h-10 text-base font-medium"
                                                 onChange={(e) => {

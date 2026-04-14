@@ -25,10 +25,13 @@ export interface NavItem {
     href: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    /** Module permission key from config/module_permissions.php */
+    permission?: string;
 }
 
 export interface SharedData {
     name: string;
+    appEntryPath?: string;
     quote: { message: string; author: string };
     auth: Auth;
     branding?: { logoUrl?: string | null };
@@ -51,6 +54,8 @@ export interface User {
     exchange_rate?: string;
     role?: string;
     permissions?: string[];
+    /** Derived from role for navigation and checks (preferred over permissions). */
+    effective_permissions?: string[];
     is_active?: boolean;
     last_login_at?: string | null;
     created_at: string;

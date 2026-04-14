@@ -36,7 +36,7 @@ class SuperAdminController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'permissions' => $user->permissions ?? [],
+                    'permissions' => $user->effective_permissions,
                     'is_active' => $user->is_active,
                     'created_at' => $user->created_at,
                     'last_login_at' => $user->last_login_at,
@@ -62,10 +62,6 @@ class SuperAdminController extends Controller
 
     public function promoteToSuperAdmin(Request $request, User $user)
     {
-        $request->validate([
-            'permissions' => 'array',
-        ]);
-
         // Prevent self-promotion
         if ($user->id === auth()->id()) {
             abort(403, 'You cannot promote yourself to super admin.');
@@ -80,7 +76,7 @@ class SuperAdminController extends Controller
 
         $user->update([
             'role' => 'super_admin',
-            'permissions' => ['*'], // Super admins get all permissions
+            'permissions' => User::defaultPermissionsForRole('super_admin'),
         ]);
 
         // Log the action using ActivityLogService (with error handling)
@@ -137,7 +133,6 @@ class SuperAdminController extends Controller
     {
         $request->validate([
             'new_role' => ['required', Rule::in(['user', 'admin'])],
-            'permissions' => 'array',
         ]);
 
         // Prevent self-demotion
@@ -152,15 +147,9 @@ class SuperAdminController extends Controller
 
         $oldRole = $user->role;
 
-        // Set default permissions based on new role
-        $permissions = $this->getDefaultPermissionsForRole($request->new_role);
-        if ($request->permissions) {
-            $permissions = array_merge($permissions, $request->permissions);
-        }
-
         $user->update([
             'role' => $request->new_role,
-            'permissions' => $permissions,
+            'permissions' => User::defaultPermissionsForRole($request->new_role),
         ]);
 
         // Log the action using ActivityLogService (with error handling)
@@ -211,79 +200,6 @@ class SuperAdminController extends Controller
         }
 
         return redirect()->back()->with('success', 'Super admin demoted successfully.');
-    }
-
-    public function updateSuperAdminPermissions(Request $request, User $user)
-    {
-        $request->validate([
-            'permissions' => 'array',
-        ]);
-
-        // Prevent self-modification
-        if ($user->id === auth()->id()) {
-            abort(403, 'You cannot modify your own permissions.');
-        }
-
-        // Check if user is actually a super admin
-        if (!$user->isSuperAdmin()) {
-            abort(400, 'User is not a super admin.');
-        }
-
-        $oldPermissions = $user->permissions ?? [];
-
-        $user->update([
-            'permissions' => $request->permissions ?? ['*'],
-        ]);
-
-        // Log the action using ActivityLogService (with error handling)
-        try {
-            ActivityLogService::logPermissionsUpdated($user, $oldPermissions, $request->permissions ?? ['*'], $request);
-        } catch (\Exception $e) {
-            \Log::error('Failed to log permissions update', ['error' => $e->getMessage()]);
-        }
-
-        // Also log as admin action (with error handling)
-        try {
-            ActivityLogService::logAdminAction(
-                'update_super_admin_permissions',
-                "Super admin permissions updated for {$user->name}",
-                $request,
-                [
-                    'updated_user_id' => $user->id,
-                    'updated_user_email' => $user->email,
-                    'old_permissions' => $oldPermissions,
-                    'new_permissions' => $request->permissions ?? ['*'],
-                ]
-            );
-        } catch (\Exception $e) {
-            \Log::error('Failed to log admin action', ['error' => $e->getMessage()]);
-        }
-
-        // Notify admins about the permission update (with error handling)
-        try {
-            AdminNotificationService::notifyUserAccountAction(
-                'updated permissions for',
-                $user->name,
-                "Email: {$user->email}, Updated by: " . auth()->user()->name,
-                auth()->id()
-            );
-        } catch (\Exception $e) {
-            \Log::error('Failed to notify admins', ['error' => $e->getMessage()]);
-        }
-
-        // Notify the user about permission changes (with error handling)
-        try {
-            AdminNotificationService::notifyUserAboutAdminAction(
-                $user->id,
-                'updated permissions',
-                auth()->user()->name,
-                "Your system permissions have been modified"
-            );
-        } catch (\Exception $e) {
-            \Log::error('Failed to notify user', ['error' => $e->getMessage()]);
-        }
-
-        return redirect()->back()->with('success', 'Super admin permissions updated successfully.');
     }
 
     public function systemAudit()
@@ -539,29 +455,5 @@ class SuperAdminController extends Controller
         }
 
         return round($bytes, $precision) . ' ' . $units[$i];
-    }
-
-    private function getDefaultPermissionsForRole(string $role): array
-    {
-        switch ($role) {
-            case 'admin':
-                return [
-                    'view_dashboard',
-                    'manage_transactions',
-                    'view_reports',
-                    'manage_users',
-                    'view_analytics',
-                    'manage_categories',
-                    'manage_settings',
-                    'view_logs',
-                ];
-            case 'user':
-            default:
-                return [
-                    'view_dashboard',
-                    'manage_transactions',
-                    'view_reports',
-                ];
-        }
     }
 }

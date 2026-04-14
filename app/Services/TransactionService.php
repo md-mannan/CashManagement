@@ -14,22 +14,17 @@ class TransactionService
      */
     public function getFinancialSummary(?User $user = null, ?Carbon $startDate = null, ?Carbon $endDate = null): array
     {
-        if ($user) {
-            $query = $user->transactions();
-        } else {
-            // Admin view - all transactions
-            $query = Transaction::query();
-        }
+        $baseQuery = $user ? $user->transactions() : Transaction::query();
 
         if ($startDate && $endDate) {
             if ($user) {
-                $query->dateRange($startDate, $endDate);
+                $baseQuery->dateRange($startDate, $endDate);
             } else {
-                $query->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+                $baseQuery->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
             }
         }
 
-        $transactions = $query->with('relatedTransaction')->get();
+        $transactions = (clone $baseQuery)->with('relatedTransaction')->get();
 
         // Calculate basic transaction totals
         $totalIncome = $transactions->where('type', 'income')->sum('amount');
@@ -43,22 +38,49 @@ class TransactionService
             ->whereNull('related_transaction_id') // Exclude settlement transactions
             ->sum('amount');
         
-        // Calculate settlement totals - separate receivable and payable settlements
-        // We need to use separate queries since whereHas doesn't work on Collections
-        $receivableSettlements = 0;
-        $payableSettlements = 0;
-        
-        // Get settlement transactions and check their related transactions
-        $settlementTransactions = $transactions->where('type', 'settlement');
-        foreach ($settlementTransactions as $settlement) {
-            if ($settlement->relatedTransaction) {
-                if ($settlement->relatedTransaction->type === 'receivable') {
-                    $receivableSettlements += $settlement->amount;
-                } elseif ($settlement->relatedTransaction->type === 'payable') {
-                    $payableSettlements += $settlement->amount;
-                }
-            }
+        // Calculate settlement totals (from actual settlement rows, not `settled_amount`).
+        // Use query-level `whereHas` for correctness even if relations aren't loaded in memory.
+        // IMPORTANT: Some older data may store settlement rows with a different `type`
+        // (e.g. "settle_payable") but they are still linked via `related_transaction_id`.
+        // So we treat any transaction with `related_transaction_id` as a settlement row.
+        $settlementQuery = Transaction::query()
+            // Settlements are ideally linked via `related_transaction_id`, but older/bad rows can be orphaned.
+            // We therefore also fall back to category types (settle_payable/settle_receivable) below.
+            ->where(function ($q) {
+                $q->whereNotNull('related_transaction_id')
+                    ->orWhere('type', 'settlement')
+                    ->orWhereHas('category', function ($c) {
+                        $c->whereIn('type', ['settle_payable', 'settle_receivable']);
+                    });
+            })
+            // Guard against bad self-linked rows (related_transaction_id == id)
+            ->whereColumn('id', '!=', 'related_transaction_id');
+        if ($startDate && $endDate) {
+            $settlementQuery->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
         }
+        if ($user) {
+            $settlementQuery->where('user_id', $user->id);
+        }
+
+        $receivableSettlements = (float) (clone $settlementQuery)
+            ->where(function ($q) {
+                $q->whereHas('relatedTransaction', function ($rel) {
+                    $rel->where('type', 'receivable')->whereNull('related_transaction_id');
+                })->orWhereHas('category', function ($c) {
+                    $c->where('type', 'settle_receivable');
+                });
+            })
+            ->sum('amount');
+
+        $payableSettlements = (float) (clone $settlementQuery)
+            ->where(function ($q) {
+                $q->whereHas('relatedTransaction', function ($rel) {
+                    $rel->where('type', 'payable')->whereNull('related_transaction_id');
+                })->orWhereHas('category', function ($c) {
+                    $c->where('type', 'settle_payable');
+                });
+            })
+            ->sum('amount');
             
         $totalSettlements = $receivableSettlements + $payableSettlements;
         
@@ -89,6 +111,147 @@ class TransactionService
         if ($user) {
             // Single user view - use their secondary currency settings
             $secondaryAmounts = $this->calculateSecondaryAmountSums($transactions, $user);
+
+            // IMPORTANT: keep payable/receivable secondary totals consistent with the primary logic
+            // by calculating them per related transaction (parent) and its settlements.
+            // This fixes cases where:
+            // - some settlement rows are missing `metadata.secondary_amount`
+            // - different payables use different exchange rates
+            // - legacy settlement rows use different `type` values
+            $secondaryCurrency = $user->secondary_currency ?? null;
+            if ($secondaryCurrency) {
+                $payablesSecondaryTotal = 0.0;
+                $payablesSecondarySettled = 0.0;
+                $receivablesSecondaryTotal = 0.0;
+                $receivablesSecondarySettled = 0.0;
+
+                $parentQuery = Transaction::query()
+                    ->where('user_id', $user->id)
+                    ->whereNull('related_transaction_id');
+
+                if ($startDate && $endDate) {
+                    $parentQuery->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+                }
+
+                $payables = (clone $parentQuery)
+                    ->where('type', 'payable')
+                    ->where('metadata->secondary_currency', $secondaryCurrency)
+                    ->with(['settlements' => function ($q) use ($startDate, $endDate) {
+                        if ($startDate && $endDate) {
+                            $q->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+                        }
+                    }])
+                    ->get();
+
+                foreach ($payables as $p) {
+                    $pMeta = is_array($p->metadata) ? $p->metadata : [];
+                    $rate = (float) (($pMeta['exchange_rate'] ?? 0) ?: 0);
+
+                    $pSecondaryTotal = (float) (($pMeta['secondary_amount'] ?? 0) ?: 0);
+                    if ($pSecondaryTotal <= 0 && $rate > 0) {
+                        $pSecondaryTotal = ((float) $p->amount) / $rate;
+                    }
+                    $payablesSecondaryTotal += $pSecondaryTotal;
+
+                    foreach ($p->settlements as $s) {
+                        $sMeta = is_array($s->metadata) ? $s->metadata : [];
+                        $sSecondary = (float) (($sMeta['secondary_amount'] ?? 0) ?: 0);
+                        if ($sSecondary <= 0 && $rate > 0) {
+                            $sSecondary = ((float) $s->amount) / $rate;
+                        }
+                        $payablesSecondarySettled += $sSecondary;
+                    }
+                }
+
+                // Add orphan settlement rows (not linked to a payable) but categorized as settle_payable.
+                $orphanPayableSettlements = Transaction::query()
+                    ->where('user_id', $user->id)
+                    ->whereColumn('id', '!=', 'related_transaction_id')
+                    ->whereHas('category', function ($c) {
+                        $c->where('type', 'settle_payable');
+                    })
+                    ->whereDoesntHave('relatedTransaction')
+                    ->get(['amount', 'metadata']);
+                foreach ($orphanPayableSettlements as $s) {
+                    $sMeta = is_array($s->metadata) ? $s->metadata : [];
+                    if (($sMeta['secondary_currency'] ?? null) !== $secondaryCurrency) {
+                        continue;
+                    }
+                    $sSecondary = (float) (($sMeta['secondary_amount'] ?? 0) ?: 0);
+                    if ($sSecondary <= 0) {
+                        $rate = (float) (($sMeta['exchange_rate'] ?? 0) ?: 0);
+                        if ($rate > 0) {
+                            $sSecondary = ((float) $s->amount) / $rate;
+                        }
+                    }
+                    $payablesSecondarySettled += $sSecondary;
+                }
+
+                $receivables = (clone $parentQuery)
+                    ->where('type', 'receivable')
+                    ->where('metadata->secondary_currency', $secondaryCurrency)
+                    ->with(['settlements' => function ($q) use ($startDate, $endDate) {
+                        if ($startDate && $endDate) {
+                            $q->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+                        }
+                    }])
+                    ->get();
+
+                foreach ($receivables as $r) {
+                    $rMeta = is_array($r->metadata) ? $r->metadata : [];
+                    $rate = (float) (($rMeta['exchange_rate'] ?? 0) ?: 0);
+
+                    $rSecondaryTotal = (float) (($rMeta['secondary_amount'] ?? 0) ?: 0);
+                    if ($rSecondaryTotal <= 0 && $rate > 0) {
+                        $rSecondaryTotal = ((float) $r->amount) / $rate;
+                    }
+                    $receivablesSecondaryTotal += $rSecondaryTotal;
+
+                    foreach ($r->settlements as $s) {
+                        $sMeta = is_array($s->metadata) ? $s->metadata : [];
+                        $sSecondary = (float) (($sMeta['secondary_amount'] ?? 0) ?: 0);
+                        if ($sSecondary <= 0 && $rate > 0) {
+                            $sSecondary = ((float) $s->amount) / $rate;
+                        }
+                        $receivablesSecondarySettled += $sSecondary;
+                    }
+                }
+
+                $orphanReceivableSettlements = Transaction::query()
+                    ->where('user_id', $user->id)
+                    ->whereColumn('id', '!=', 'related_transaction_id')
+                    ->whereHas('category', function ($c) {
+                        $c->where('type', 'settle_receivable');
+                    })
+                    ->whereDoesntHave('relatedTransaction')
+                    ->get(['amount', 'metadata']);
+                foreach ($orphanReceivableSettlements as $s) {
+                    $sMeta = is_array($s->metadata) ? $s->metadata : [];
+                    if (($sMeta['secondary_currency'] ?? null) !== $secondaryCurrency) {
+                        continue;
+                    }
+                    $sSecondary = (float) (($sMeta['secondary_amount'] ?? 0) ?: 0);
+                    if ($sSecondary <= 0) {
+                        $rate = (float) (($sMeta['exchange_rate'] ?? 0) ?: 0);
+                        if ($rate > 0) {
+                            $sSecondary = ((float) $s->amount) / $rate;
+                        }
+                    }
+                    $receivablesSecondarySettled += $sSecondary;
+                }
+
+                $secondaryAmounts['total_payables'] = $payablesSecondaryTotal;
+                $secondaryAmounts['total_receivables'] = $receivablesSecondaryTotal;
+                $secondaryAmounts['payable_settlements'] = $payablesSecondarySettled;
+                $secondaryAmounts['receivable_settlements'] = $receivablesSecondarySettled;
+                $secondaryAmounts['net_balance'] =
+                    ($secondaryAmounts['total_income'] ?? 0)
+                    - ($secondaryAmounts['total_expenses'] ?? 0)
+                    - ($secondaryAmounts['total_receivables'] ?? 0)
+                    + ($secondaryAmounts['total_payables'] ?? 0)
+                    + ($secondaryAmounts['receivable_settlements'] ?? 0)
+                    - ($secondaryAmounts['payable_settlements'] ?? 0);
+            }
         } else {
             // System-wide view (super admin) - calculate secondary amounts for all users
             $secondaryAmounts = $this->calculateSystemSecondaryAmountSums($transactions);

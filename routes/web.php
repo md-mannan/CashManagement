@@ -58,7 +58,7 @@ Route::post('/setup', [SetupController::class, 'store'])->name('setup.store');
 // - Authenticated users go to the dashboard
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect()->route('dashboard');
+        return redirect(Auth::user()->firstAccessibleUrlPath());
     }
 
     return Inertia::render('auth/login', [
@@ -137,42 +137,6 @@ Route::middleware('auth')->group(function () {
 // ============================================================================
 
 Route::middleware(['auth', 'verified', 'user.data.access'])->group(function () {
-    // Dashboard
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // Ledger (transactions summary)
-    Route::get('ledger', [TransactionController::class, 'ledger'])->name('ledger');
-
-    // Transactions
-    Route::prefix('transactions')->name('transactions.')->group(function () {
-        Route::get('/', [TransactionController::class, 'index'])->name('index');
-        Route::get('/create', [TransactionController::class, 'create'])->name('create');
-        Route::post('/', [TransactionController::class, 'store'])->name('store');
-
-        // Add Transaction Type Pages (must come before {transaction} routes)
-        Route::get('/add-income', [TransactionController::class, 'addIncome'])->name('add-income');
-        Route::get('/add-expense', [TransactionController::class, 'addExpense'])->name('add-expense');
-        Route::get('/add-receivable', [TransactionController::class, 'addReceivable'])->name('add-receivable');
-        Route::get('/add-payable', [TransactionController::class, 'addPayable'])->name('add-payable');
-
-        // Generic transaction routes (must come after specific routes)
-        Route::get('/{transaction}', [TransactionController::class, 'show'])->name('show')->where('transaction', '[0-9]+');
-        Route::get('/{transaction}/edit', [TransactionController::class, 'edit'])->name('edit')->where('transaction', '[0-9]+');
-        Route::put('/{transaction}', [TransactionController::class, 'update'])->name('update')->where('transaction', '[0-9]+');
-        Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy')->where('transaction', '[0-9]+');
-        
-        // Settlement route
-        Route::post('/{transaction}/settle', [TransactionController::class, 'settle'])->name('settle')->where('transaction', '[0-9]+');
-    });
-
-    // Categories
-    Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
-    Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
-    Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-
-    // Notifications removed
-
     // Settings
     Route::redirect('settings', '/settings/profile');
 
@@ -200,39 +164,69 @@ Route::middleware(['auth', 'verified', 'user.data.access'])->group(function () {
     Route::post('settings/appearance/mode', [AppearanceController::class, 'updateMode'])->name('settings.appearance.mode');
     Route::post('settings/appearance/theme', [AppearanceController::class, 'updateTheme'])->name('settings.appearance.theme');
 
-    // Currency Settings
-    Route::get('settings/currency', [CurrencyController::class, 'edit'])->name('settings.currency.edit');
-    Route::patch('settings/currency', [CurrencyController::class, 'update'])->name('settings.currency.update');
-    Route::get('settings/currency/live-rate', [CurrencyController::class, 'getLiveRate'])->name('settings.currency.live-rate');
+    // Currency & exchange (requires module permission)
+    Route::middleware('permission:manage_system_settings')->group(function () {
+        Route::get('settings/currency', [CurrencyController::class, 'edit'])->name('settings.currency.edit');
+        Route::patch('settings/currency', [CurrencyController::class, 'update'])->name('settings.currency.update');
+        Route::get('settings/currency/live-rate', [CurrencyController::class, 'getLiveRate'])->name('settings.currency.live-rate');
 
+        Route::get('settings/exchange-rate', [SettingsExchangeRateController::class, 'edit'])->name('settings.exchange-rate.edit');
+        Route::patch('settings/exchange-rate', [SettingsExchangeRateController::class, 'update'])->name('settings.exchange-rate.update');
+        Route::delete('settings/exchange-rate', [SettingsExchangeRateController::class, 'destroy'])->name('settings.exchange-rate.destroy');
+        Route::post('settings/exchange-rate/test', [SettingsExchangeRateController::class, 'test'])->name('settings.exchange-rate.test');
+    });
 
+    Route::middleware('permission:view_dashboard')->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    });
 
-    // Exchange Rate Settings
-    Route::get('settings/exchange-rate', [SettingsExchangeRateController::class, 'edit'])->name('settings.exchange-rate.edit');
-    Route::patch('settings/exchange-rate', [SettingsExchangeRateController::class, 'update'])->name('settings.exchange-rate.update');
-    Route::delete('settings/exchange-rate', [SettingsExchangeRateController::class, 'destroy'])->name('settings.exchange-rate.destroy');
-    Route::post('settings/exchange-rate/test', [SettingsExchangeRateController::class, 'test'])->name('settings.exchange-rate.test');
+    Route::middleware('permission:access_ledger')->group(function () {
+        Route::get('ledger', [TransactionController::class, 'ledger'])->name('ledger');
+    });
 
-    // Notifications are handled via API routes
+    Route::middleware('permission:manage_transactions')->group(function () {
+        Route::prefix('transactions')->name('transactions.')->group(function () {
+            Route::get('/', [TransactionController::class, 'index'])->name('index');
+            Route::get('/create', [TransactionController::class, 'create'])->name('create');
+            Route::post('/', [TransactionController::class, 'store'])->name('store');
 
-    // Legacy route redirects for backward compatibility
-    Route::get('transaction', function () {
-        return redirect()->route('transactions.index');
-    })->name('transaction');
+            Route::get('/add-income', [TransactionController::class, 'addIncome'])->name('add-income');
+            Route::get('/add-expense', [TransactionController::class, 'addExpense'])->name('add-expense');
+            Route::get('/add-receivable', [TransactionController::class, 'addReceivable'])->name('add-receivable');
+            Route::get('/add-payable', [TransactionController::class, 'addPayable'])->name('add-payable');
 
-    Route::get('add-transaction', function () {
-        return redirect()->route('transactions.create');
-    })->name('add-transaction');
+            Route::get('/{transaction}', [TransactionController::class, 'show'])->name('show')->where('transaction', '[0-9]+');
+            Route::get('/{transaction}/edit', [TransactionController::class, 'edit'])->name('edit')->where('transaction', '[0-9]+');
+            Route::put('/{transaction}', [TransactionController::class, 'update'])->name('update')->where('transaction', '[0-9]+');
+            Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy')->where('transaction', '[0-9]+');
 
-    Route::get('transaction/{transaction}', [TransactionController::class, 'show'])->name('transaction.view')->where('transaction', '[0-9]+');
+            Route::post('/{transaction}/settle', [TransactionController::class, 'settle'])->name('settle')->where('transaction', '[0-9]+');
+        });
 
-    Route::get('transaction/{transaction}/edit', [TransactionController::class, 'edit'])->name('transaction.edit')->where('transaction', '[0-9]+');
+        Route::get('transaction', function () {
+            return redirect()->route('transactions.index');
+        })->name('transaction');
 
-    Route::delete('transaction/{transaction}', [TransactionController::class, 'destroy'])->name('transaction.delete')->where('transaction', '[0-9]+');
+        Route::get('add-transaction', function () {
+            return redirect()->route('transactions.create');
+        })->name('add-transaction');
 
-    // Redirect authenticated users to dashboard
+        Route::get('transaction/{transaction}', [TransactionController::class, 'show'])->name('transaction.view')->where('transaction', '[0-9]+');
+
+        Route::get('transaction/{transaction}/edit', [TransactionController::class, 'edit'])->name('transaction.edit')->where('transaction', '[0-9]+');
+
+        Route::delete('transaction/{transaction}', [TransactionController::class, 'destroy'])->name('transaction.delete')->where('transaction', '[0-9]+');
+    });
+
+    Route::middleware('permission:manage_categories')->group(function () {
+        Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
+        Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
+        Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+        Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    });
+
     Route::get('/home', function () {
-        return redirect()->route('dashboard');
+        return redirect(Auth::user()->firstAccessibleUrlPath());
     })->name('home.authenticated');
 });
 
@@ -243,85 +237,94 @@ Route::middleware(['auth', 'verified', 'user.data.access'])->group(function () {
 // ============================================================================
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Admin Dashboard
-    Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-
-    // Analytics
-    Route::prefix('analytics')->name('analytics.')->group(function () {
-        Route::get('/', [AdminAnalyticsController::class, 'index'])->name('index');
+    Route::middleware('permission:admin_dashboard')->group(function () {
+        Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     });
 
-    // System Settings
-    Route::prefix('system-settings')->name('system-settings.')->group(function () {
-        Route::get('/', [SystemSettingsController::class, 'index'])->name('index');
-        Route::put('/general', [SystemSettingsController::class, 'updateGeneral'])->name('general');
-        Route::put('/email', [SystemSettingsController::class, 'updateEmail'])->name('email');
-        Route::put('/database', [SystemSettingsController::class, 'updateDatabase'])->name('database');
-        Route::put('/security', [SystemSettingsController::class, 'updateSecurity'])->name('security');
+    Route::middleware('permission:view_analytics')->group(function () {
+        Route::prefix('analytics')->name('analytics.')->group(function () {
+            Route::get('/', [AdminAnalyticsController::class, 'index'])->name('index');
+        });
     });
 
-    // System Health
-    Route::prefix('system-health')->name('system-health.')->group(function () {
-        Route::get('/', [SystemHealthController::class, 'index'])->name('index');
+    Route::middleware('permission:manage_system_settings')->group(function () {
+        Route::prefix('system-settings')->name('system-settings.')->group(function () {
+            Route::get('/', [SystemSettingsController::class, 'index'])->name('index');
+            Route::put('/general', [SystemSettingsController::class, 'updateGeneral'])->name('general');
+            Route::put('/email', [SystemSettingsController::class, 'updateEmail'])->name('email');
+            Route::put('/database', [SystemSettingsController::class, 'updateDatabase'])->name('database');
+            Route::put('/security', [SystemSettingsController::class, 'updateSecurity'])->name('security');
+        });
     });
 
-    // Super Admin Management (only accessible by super admins)
+    Route::middleware('permission:system_health')->group(function () {
+        Route::prefix('system-health')->name('system-health.')->group(function () {
+            Route::get('/', [SystemHealthController::class, 'index'])->name('index');
+        });
+    });
+
     Route::prefix('super-admin')->name('super-admin.')->middleware('super_admin')->group(function () {
-        Route::get('/', [SuperAdminController::class, 'index'])->name('index');
-        Route::post('/users/{user}/promote', [SuperAdminController::class, 'promoteToSuperAdmin'])->name('promote');
-        Route::post('/users/{user}/demote', [SuperAdminController::class, 'demoteFromSuperAdmin'])->name('demote');
-        Route::put('/users/{user}/permissions', [SuperAdminController::class, 'updateSuperAdminPermissions'])->name('permissions');
-        Route::get('/audit', [SuperAdminController::class, 'systemAudit'])->name('audit');
-        Route::get('/audit/{activityLog}', [SuperAdminController::class, 'viewActivityLog'])->name('audit.show');
-        Route::get('/system-health', [SuperAdminController::class, 'systemHealth'])->name('system-health');
+        Route::middleware('permission:super_admin_panel')->group(function () {
+            Route::get('/', [SuperAdminController::class, 'index'])->name('index');
+            Route::post('/users/{user}/promote', [SuperAdminController::class, 'promoteToSuperAdmin'])->name('promote');
+            Route::post('/users/{user}/demote', [SuperAdminController::class, 'demoteFromSuperAdmin'])->name('demote');
+        });
+        Route::middleware('permission:system_audit')->group(function () {
+            Route::get('/audit', [SuperAdminController::class, 'systemAudit'])->name('audit');
+            Route::get('/audit/{activityLog}', [SuperAdminController::class, 'viewActivityLog'])->name('audit.show');
+        });
+        Route::middleware('permission:system_health')->group(function () {
+            Route::get('/system-health', [SuperAdminController::class, 'systemHealth'])->name('system-health');
+        });
     });
 
-    // User Management
-    Route::prefix('users')->name('users.')->group(function () {
-        Route::get('/', [UserManagementController::class, 'index'])->name('index');
-        Route::get('/{user}', [UserManagementController::class, 'show'])->name('show');
-        Route::post('/', [UserManagementController::class, 'store'])->name('store');
-        Route::put('/{user}', [UserManagementController::class, 'update'])->name('update');
-        Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy');
-        Route::post('/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('toggle-status');
-        Route::post('/{user}/reset-password', [UserManagementController::class, 'resetPassword'])->name('reset-password');
+    Route::middleware('permission:manage_users')->group(function () {
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [UserManagementController::class, 'index'])->name('index');
+            Route::get('/{user}', [UserManagementController::class, 'show'])->name('show');
+            Route::post('/', [UserManagementController::class, 'store'])->name('store');
+            Route::put('/{user}', [UserManagementController::class, 'update'])->name('update');
+            Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy');
+            Route::post('/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/{user}/reset-password', [UserManagementController::class, 'resetPassword'])->name('reset-password');
+        });
     });
 
-    // Role & Permission Management
-    Route::prefix('role-permission')->name('role-permission.')->group(function () {
-        Route::get('/', [RolePermissionController::class, 'index'])->name('index');
-        Route::put('/users/{user}/role', [RolePermissionController::class, 'updateUserRole'])->name('users.role');
-        Route::put('/users/{user}/permissions', [RolePermissionController::class, 'updateUserPermissions'])->name('users.permissions');
-        Route::post('/bulk-update', [RolePermissionController::class, 'bulkUpdateRoles'])->name('bulk-update');
-        Route::get('/export', [RolePermissionController::class, 'exportUsers'])->name('export');
+    Route::middleware('permission:manage_role_permissions')->group(function () {
+        Route::prefix('role-permission')->name('role-permission.')->group(function () {
+            Route::get('/', [RolePermissionController::class, 'index'])->name('index');
+            Route::put('/users/{user}/role', [RolePermissionController::class, 'updateUserRole'])->name('users.role');
+            Route::post('/bulk-update', [RolePermissionController::class, 'bulkUpdateRoles'])->name('bulk-update');
+            Route::get('/export', [RolePermissionController::class, 'exportUsers'])->name('export');
+        });
     });
 
-    // Notifications removed
-
-    // Activity Logs
-    Route::prefix('activity-logs')->name('activity-logs.')->group(function () {
-        Route::get('/', [ActivityLogController::class, 'index'])->name('index');
-        Route::get('/{activityLog}', [ActivityLogController::class, 'show'])->name('show');
-        Route::get('/export', [ActivityLogController::class, 'export'])->name('export');
-        Route::delete('/clear', [ActivityLogController::class, 'clear'])->name('clear');
+    Route::middleware('permission:view_system_logs')->group(function () {
+        Route::prefix('activity-logs')->name('activity-logs.')->group(function () {
+            Route::get('/', [ActivityLogController::class, 'index'])->name('index');
+            Route::get('/{activityLog}', [ActivityLogController::class, 'show'])->name('show');
+            Route::get('/export', [ActivityLogController::class, 'export'])->name('export');
+            Route::delete('/clear', [ActivityLogController::class, 'clear'])->name('clear');
+        });
     });
 
-    // System Audit
-    Route::prefix('system-audit')->name('system-audit.')->group(function () {
-        Route::get('/', [SystemAuditController::class, 'index'])->name('index');
-        Route::get('/export', [SystemAuditController::class, 'export'])->name('export');
+    Route::middleware('permission:system_audit')->group(function () {
+        Route::prefix('system-audit')->name('system-audit.')->group(function () {
+            Route::get('/', [SystemAuditController::class, 'index'])->name('index');
+            Route::get('/export', [SystemAuditController::class, 'export'])->name('export');
+        });
     });
 
-    // Database Management
-    Route::prefix('database')->name('database.')->group(function () {
-        Route::get('/', [DatabaseManagementController::class, 'index'])->name('index');
-        Route::post('/optimize', [DatabaseManagementController::class, 'optimize'])->name('optimize');
-        Route::post('/repair', [DatabaseManagementController::class, 'repair'])->name('repair');
-        Route::get('/status', [DatabaseManagementController::class, 'status'])->name('status');
+    Route::middleware('permission:database_management')->group(function () {
+        Route::prefix('database')->name('database.')->group(function () {
+            Route::get('/', [DatabaseManagementController::class, 'index'])->name('index');
+            Route::post('/optimize', [DatabaseManagementController::class, 'optimize'])->name('optimize');
+            Route::post('/repair', [DatabaseManagementController::class, 'repair'])->name('repair');
+            Route::get('/status', [DatabaseManagementController::class, 'status'])->name('status');
+        });
     });
 
-    // Backup & Restore (only accessible by super admins)
-    Route::prefix('backup')->name('backup.')->middleware('super_admin')->group(function () {
+    Route::prefix('backup')->name('backup.')->middleware(['super_admin', 'permission:backup_restore'])->group(function () {
         Route::get('/', [BackupRestoreController::class, 'index'])->name('index');
         Route::post('/create', [BackupRestoreController::class, 'create'])->name('create');
         Route::post('/restore', [BackupRestoreController::class, 'restore'])->name('restore');

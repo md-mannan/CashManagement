@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use App\Services\SettlementService;
 use App\Services\TransactionService;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
@@ -33,8 +34,7 @@ class TransactionController extends Controller
         
         
 
-        // Admins and super admins can view all transactions
-        if ($user->isAdmin()) {
+        if ($user->canViewAllTransactions()) {
             $query = Transaction::with(['category', 'user'])
                 ->orderBy('date', 'asc')
                 ->orderBy('created_at', 'asc');
@@ -71,6 +71,45 @@ class TransactionController extends Controller
         
         // Use TransactionService for consistent summary calculation
         $summary = $this->transactionService->getFinancialSummary($user);
+
+        // Ledger-style net balance (matches Ledger page settlement counting).
+        // NOTE: Ledger historically counts settlements by category type/name and may include legacy/bad rows.
+        // We expose this separately so the Transactions page can match Ledger exactly when desired.
+        $ledgerLikePayableSettlements = (float) Transaction::query()
+            ->where('user_id', $user->id)
+            ->where(function ($q) {
+                $q->whereHas('category', function ($c) {
+                    $c->where('type', 'settle_payable');
+                })->orWhere(function ($q2) {
+                    $q2->where('type', 'settlement')
+                        ->whereHas('relatedTransaction', function ($rel) {
+                            $rel->where('type', 'payable');
+                        });
+                });
+            })
+            ->sum('amount');
+
+        $ledgerLikeReceivableSettlements = (float) Transaction::query()
+            ->where('user_id', $user->id)
+            ->where(function ($q) {
+                $q->whereHas('category', function ($c) {
+                    $c->where('type', 'settle_receivable');
+                })->orWhere(function ($q2) {
+                    $q2->where('type', 'settlement')
+                        ->whereHas('relatedTransaction', function ($rel) {
+                            $rel->where('type', 'receivable');
+                        });
+                });
+            })
+            ->sum('amount');
+
+        $ledgerLikeNetBalance =
+            (float) ($summary['total_income'] ?? 0)
+            - (float) ($summary['total_expenses'] ?? 0)
+            - (float) ($summary['total_receivables'] ?? 0)
+            + (float) ($summary['total_payables'] ?? 0)
+            + $ledgerLikeReceivableSettlements
+            - $ledgerLikePayableSettlements;
       
 
         // Get all transactions for the table
@@ -79,8 +118,9 @@ class TransactionController extends Controller
         return Inertia::render('transaction', [
             'transactions' => $transactions,
             'summary' => $summary,
+            'ledgerLikeNetBalance' => $ledgerLikeNetBalance,
             'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id']),
-            'isAdmin' => $user->isAdmin(),
+            'isAdmin' => $user->canViewAllTransactions(),
         ]);
     }
 
@@ -92,9 +132,7 @@ class TransactionController extends Controller
         $user = Auth::user();
         
 
-
-        // Admins and super admins can view all transactions
-        if ($user->isAdmin()) {
+        if ($user->canViewAllTransactions()) {
             $query = Transaction::with(['category', 'user'])
                 ->orderBy('date', 'asc');
         } else {
@@ -108,8 +146,12 @@ class TransactionController extends Controller
             $query->ofType($request->type);
         }
 
+        $start = null;
+        $end = null;
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->dateRange($request->start_date, $request->end_date);
+            $start = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+            $end = \Carbon\Carbon::parse($request->end_date)->endOfDay();
         }
 
         if ($request->filled('search')) {
@@ -124,128 +166,42 @@ class TransactionController extends Controller
         $query->where('user_id', $user->id);
 
         $transactions = $query->with('relatedTransaction')->get();
+        // Use the same summary logic as Transactions page
+        $baseSummary = $this->transactionService->getFinancialSummary($user, $start, $end);
 
-        // Calculate summary data with correct settlement handling
-        $totalIncome = $transactions->where('type', 'income')->sum('amount');
-        $totalExpenses = $transactions->where('type', 'expense')->sum('amount');
-        
-        // Separate receivable and payable settlements
-        $receivableSettlements = 0;
-        $payableSettlements = 0;
-        
-        // Get settlement transactions based on category names (not just type)
-        $settlementTransactions = $transactions->filter(function ($transaction) {
-            $categoryName = strtolower($transaction->category->name);
-            return str_contains($categoryName, 'return') || str_contains($categoryName, 'pay') || str_contains($categoryName, 'settle');
-        });
-        
-        foreach ($settlementTransactions as $settlement) {
-            $categoryName = strtolower($settlement->category->name);
-            
-            if (str_contains($categoryName, 'return')) {
-                // Receivable settlement (getting money back)
-                $receivableSettlements += $settlement->amount;
-            } elseif (str_contains($categoryName, 'pay')) {
-                // Payable settlement (paying back borrowed money)
-                $payableSettlements += $settlement->amount;
-            }
-        }
-            
-        $totalSettlements = $receivableSettlements + $payableSettlements;
-        
-        $totalReceivables = $transactions->where('type', 'receivable')->sum('amount');
-        $totalPayables = $transactions->where('type', 'payable')->sum('amount');
-        
-        // Calculate REMAINING payable/receivable amounts (after settlements)
-        $remainingPayables = $totalPayables - $payableSettlements;
-        $remainingReceivables = $totalReceivables - $receivableSettlements;
-        
-        // Only payable settlements are expenses - receivable settlements increase net balance directly
-        $totalExpensesWithPayableSettlements = $totalExpenses + $payableSettlements;
-        
-        // Calculate net balance before using it in summary
-        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements (same as index method)
-        $calculatedNetBalance = $totalIncome - $totalExpenses - $totalReceivables + $totalPayables + $receivableSettlements - $payableSettlements;
-        
-        // Calculate secondary currency totals from metadata
-        $secondaryCurrencyTotals = [
-            'income' => 0,
-            'expenses' => 0,
-            'receivables' => 0,
-            'payables' => 0,
-            'settlements' => 0,
-        ];
-        
-        // Sum secondary currency amounts for each transaction type
-        foreach ($transactions as $transaction) {
-            if (isset($transaction->metadata['secondary_amount']) && $transaction->metadata['secondary_amount'] > 0) {
-                $amount = (float) $transaction->metadata['secondary_amount'];
-                switch ($transaction->type) {
-                    case 'income':
-                        $secondaryCurrencyTotals['income'] += $amount;
-                        break;
-                    case 'expense':
-                        $secondaryCurrencyTotals['expenses'] += $amount;
-                        break;
-                    case 'receivable':
-                        $secondaryCurrencyTotals['receivables'] += $amount;
-                        break;
-                    case 'payable':
-                        $secondaryCurrencyTotals['payables'] += $amount;
-                        break;
-                    case 'settlement':
-                        $secondaryCurrencyTotals['settlements'] += $amount;
-                        break;
-                }
-            }
-        }
-        
-        // Calculate secondary currency settlements
-        $secondaryReceivableSettlements = 0;
-        $secondaryPayableSettlements = 0;
-        
-        foreach ($settlementTransactions as $settlement) {
-            if (isset($settlement->metadata['secondary_amount']) && $settlement->metadata['secondary_amount'] > 0) {
-                $amount = (float) $settlement->metadata['secondary_amount'];
-                $categoryName = strtolower($settlement->category->name);
-                
-                if (str_contains($categoryName, 'return')) {
-                    $secondaryReceivableSettlements += $amount;
-                } elseif (str_contains($categoryName, 'pay')) {
-                    $secondaryPayableSettlements += $amount;
-                }
-            }
-        }
-        
-        // Calculate remaining secondary currency amounts
-        $secondaryRemainingReceivables = $secondaryCurrencyTotals['receivables'] - $secondaryReceivableSettlements;
-        $secondaryRemainingPayables = $secondaryCurrencyTotals['payables'] - $secondaryPayableSettlements;
-        
-        // Calculate secondary currency net balance using the SAME formula as primary
-        // Formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
-        $secondaryNetBalance = $secondaryCurrencyTotals['income'] - $secondaryCurrencyTotals['expenses'] - $secondaryCurrencyTotals['receivables'] + $secondaryCurrencyTotals['payables'] + $secondaryReceivableSettlements - $secondaryPayableSettlements;
-        
-        // Add the calculated net balance to secondary currency totals
-        $secondaryCurrencyTotals['net_balance'] = $secondaryNetBalance;
-        
+        $secondaryAmounts = $baseSummary['secondary_amounts'] ?? null;
+        $secondaryCurrencyTotals = $secondaryAmounts ? [
+            'income' => (float) ($secondaryAmounts['total_income'] ?? 0),
+            'expenses' => (float) ($secondaryAmounts['total_expenses'] ?? 0),
+            'receivables' => (float) ($secondaryAmounts['total_receivables'] ?? 0),
+            'payables' => (float) ($secondaryAmounts['total_payables'] ?? 0),
+            // Ledger UI doesn’t need a “settlements” bucket; keep for compatibility.
+            'settlements' => (float) (($secondaryAmounts['receivable_settlements'] ?? 0) + ($secondaryAmounts['payable_settlements'] ?? 0)),
+            'net_balance' => (float) ($secondaryAmounts['net_balance'] ?? 0),
+        ] : null;
+
         $summary = [
-            'total_income' => $totalIncome,
-            'total_expenses' => $totalExpenses,
-            'total_expenses_with_payable_settlements' => $totalExpensesWithPayableSettlements,
-            'total_receivables' => $totalReceivables,
-            'total_payables' => $totalPayables,
-            'remaining_receivables' => $remainingReceivables,
-            'remaining_payables' => $remainingPayables,
-            'total_settlements' => $totalSettlements,
-            'receivable_settlements' => $receivableSettlements,
-            'payable_settlements' => $payableSettlements,
-            'net_balance' => $calculatedNetBalance,
+            'total_income' => (float) ($baseSummary['total_income'] ?? 0),
+            'total_expenses' => (float) ($baseSummary['total_expenses'] ?? 0),
+            'total_expenses_with_payable_settlements' => (float) ($baseSummary['total_expenses_with_payable_settlements'] ?? 0),
+            'total_receivables' => (float) ($baseSummary['total_receivables'] ?? 0),
+            'total_payables' => (float) ($baseSummary['total_payables'] ?? 0),
+            'remaining_receivables' => (float) ($baseSummary['remaining_receivables'] ?? 0),
+            'remaining_payables' => (float) ($baseSummary['remaining_payables'] ?? 0),
+            'total_settlements' => (float) ($baseSummary['total_settlements'] ?? 0),
+            'receivable_settlements' => (float) ($baseSummary['receivable_settlements'] ?? 0),
+            'payable_settlements' => (float) ($baseSummary['payable_settlements'] ?? 0),
+            'net_balance' => (float) ($baseSummary['net_balance'] ?? 0),
             'secondary_currency_totals' => $secondaryCurrencyTotals,
-            'secondary_net_balance' => $secondaryNetBalance,
-            'secondary_remaining_receivables' => $secondaryRemainingReceivables,
-            'secondary_remaining_payables' => $secondaryRemainingPayables,
-            'secondary_receivable_settlements' => $secondaryReceivableSettlements,
-            'secondary_payable_settlements' => $secondaryPayableSettlements,
+            'secondary_net_balance' => $secondaryAmounts ? (float) ($secondaryAmounts['net_balance'] ?? 0) : null,
+            'secondary_remaining_receivables' => $secondaryAmounts
+                ? (float) (($secondaryAmounts['total_receivables'] ?? 0) - ($secondaryAmounts['receivable_settlements'] ?? 0))
+                : null,
+            'secondary_remaining_payables' => $secondaryAmounts
+                ? (float) (($secondaryAmounts['total_payables'] ?? 0) - ($secondaryAmounts['payable_settlements'] ?? 0))
+                : null,
+            'secondary_receivable_settlements' => $secondaryAmounts ? (float) ($secondaryAmounts['receivable_settlements'] ?? 0) : null,
+            'secondary_payable_settlements' => $secondaryAmounts ? (float) ($secondaryAmounts['payable_settlements'] ?? 0) : null,
         ];
 
     
@@ -254,7 +210,7 @@ class TransactionController extends Controller
             'transactions' => $transactions,
             'summary' => $summary,
             'filters' => $request->only(['type', 'start_date', 'end_date', 'search', 'category_id']),
-            'isAdmin' => $user->isAdmin(),
+            'isAdmin' => $user->canViewAllTransactions(),
         ]);
     }
 
@@ -282,7 +238,7 @@ class TransactionController extends Controller
         
         // If not found, try to find by slug
         if (!$category) {
-            $slug = \Str::slug($request->category);
+            $slug = Str::slug($request->category);
             $category = Category::where('slug', $slug)->first();
         }
         
@@ -373,7 +329,7 @@ class TransactionController extends Controller
         }
 
         // Admins and super admins can view any transaction
-        if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
+        if (! $user->canViewAllTransactions() && $transaction->user_id !== $user->id) {
             // Instead of abort(403), redirect to transactions index with error message
             return redirect()->route('transactions.index')
                 ->with('error', 'You do not have permission to view this transaction.');
@@ -457,7 +413,7 @@ class TransactionController extends Controller
 
 
         // Admins and super admins can edit any transaction
-        if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
+        if (! $user->canViewAllTransactions() && $transaction->user_id !== $user->id) {
             // Instead of abort(403), redirect to transactions index with error message
             return redirect()->route('transactions.index')
                 ->with('error', 'You do not have permission to edit this transaction.');
@@ -486,7 +442,7 @@ class TransactionController extends Controller
         $user = Auth::user();
 
         // Admins and super admins can update any transaction
-        if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
+        if (! $user->canViewAllTransactions() && $transaction->user_id !== $user->id) {
             abort(403);
         }
 
@@ -501,7 +457,7 @@ class TransactionController extends Controller
             
             // If not found, try to find by slug
             if (!$category) {
-                $slug = \Str::slug($request->category);
+                $slug = Str::slug($request->category);
                 $category = Category::where('slug', $slug)->first();
             }
             
@@ -560,7 +516,7 @@ class TransactionController extends Controller
 
 
         // Admins and super admins can delete any transaction
-        if (!$user->isAdmin() && $transaction->user_id !== $user->id) {
+        if (! $user->canViewAllTransactions() && $transaction->user_id !== $user->id) {
             // Return JSON error for AJAX requests
             if (request()->expectsJson()) {
                 return response()->json(['error' => 'You do not have permission to delete this transaction.'], 403);
@@ -680,8 +636,13 @@ class TransactionController extends Controller
 
     public function settle(Request $request, Transaction $transaction)
     {
+        // IMPORTANT: `settled_amount` column can get out of sync with actual settlement rows.
+        // Always compute remaining from real settlements to avoid blocking valid settlements.
+        $actualSettledAmount = (float) $transaction->settlements()->sum('amount');
+        $remainingAmount = max(0, (float) $transaction->amount - $actualSettledAmount);
+
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . ($transaction->amount - $transaction->settled_amount),
+            'amount' => 'required|numeric|min:0.01|max:' . $remainingAmount,
             'description' => 'required|string|max:255',
             'category' => 'required|string|in:settle_payable,settle_receivable',
             'date' => 'required|date|before_or_equal:today',

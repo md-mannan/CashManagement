@@ -2,7 +2,6 @@ import { AdminRouteGuard } from '@/components/admin-route-guard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -36,18 +35,12 @@ interface RolePermissionProps {
 
 export default function RolePermission({ roles, availablePermissions, users }: RolePermissionProps) {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [isPermissionDialogOpen, setIsPermissionDialogOpen] = useState(false);
     const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<(typeof users)[0] | null>(null);
     const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
 
     const editForm = useForm({
         role: '',
-        permissions: [] as string[],
-    });
-
-    const permissionForm = useForm({
-        permissions: [] as string[],
     });
 
     const bulkForm = useForm({
@@ -67,18 +60,6 @@ export default function RolePermission({ roles, availablePermissions, users }: R
         }
     };
 
-    const handleUpdatePermissions = () => {
-        if (selectedUser) {
-            permissionForm.put(`/admin/role-permission/users/${selectedUser.id}/permissions`, {
-                onSuccess: () => {
-                    setIsPermissionDialogOpen(false);
-                    setSelectedUser(null);
-                    permissionForm.reset();
-                },
-            });
-        }
-    };
-
     const handleBulkUpdate = () => {
         bulkForm.post('/admin/role-permission/bulk-update', {
             onSuccess: () => {
@@ -93,17 +74,8 @@ export default function RolePermission({ roles, availablePermissions, users }: R
         setSelectedUser(user);
         editForm.setData({
             role: user.role,
-            permissions: user.permissions || [],
         });
         setIsEditDialogOpen(true);
-    };
-
-    const openPermissionDialog = (user: (typeof users)[0]) => {
-        setSelectedUser(user);
-        permissionForm.setData({
-            permissions: user.permissions || [],
-        });
-        setIsPermissionDialogOpen(true);
     };
 
     const getRoleColor = (role: string) => {
@@ -138,7 +110,7 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight">Role & Permission Management</h1>
-                            <p className="text-muted-foreground">Manage user roles and permissions across the system</p>
+                            <p className="text-muted-foreground">Manage user roles; each role has a fixed set of modules</p>
                         </div>
                     </div>
 
@@ -191,9 +163,6 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                                                             <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
                                                                 <Edit className="h-4 w-4" />
                                                             </Button>
-                                                            <Button variant="outline" size="sm" onClick={() => openPermissionDialog(user)}>
-                                                                <Key className="h-4 w-4" />
-                                                            </Button>
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>
@@ -234,7 +203,7 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                         <DialogContent className="sm:max-w-[500px]">
                             <DialogHeader>
                                 <DialogTitle>Edit User Role</DialogTitle>
-                                <DialogDescription>Update user role and permissions.</DialogDescription>
+                                <DialogDescription>Update this user&apos;s role. Their module access updates automatically.</DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -254,32 +223,6 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label className="text-right">Permissions</Label>
-                                    <div className="col-span-3 space-y-2">
-                                        {Object.entries(availablePermissions).map(([key, label]) => (
-                                            <div key={key} className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={`edit-perm-${key}`}
-                                                    checked={editForm.data.permissions.includes(key)}
-                                                    onCheckedChange={(checked) => {
-                                                        if (checked) {
-                                                            editForm.setData('permissions', [...editForm.data.permissions, key]);
-                                                        } else {
-                                                            editForm.setData(
-                                                                'permissions',
-                                                                editForm.data.permissions.filter((p) => p !== key),
-                                                            );
-                                                        }
-                                                    }}
-                                                />
-                                                <label htmlFor={`edit-perm-${key}`} className="text-sm text-gray-700">
-                                                    {label}
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
                             </div>
                             <DialogFooter>
                                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
@@ -287,49 +230,6 @@ export default function RolePermission({ roles, availablePermissions, users }: R
                                 </Button>
                                 <Button onClick={handleEditUser} disabled={editForm.processing}>
                                     Update User
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-
-                    {/* Update Permissions Dialog */}
-                    <Dialog open={isPermissionDialogOpen} onOpenChange={setIsPermissionDialogOpen}>
-                        <DialogContent className="sm:max-w-[500px]">
-                            <DialogHeader>
-                                <DialogTitle>Update User Permissions</DialogTitle>
-                                <DialogDescription>Update permissions for {selectedUser?.name}.</DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="space-y-2">
-                                    {Object.entries(availablePermissions).map(([key, label]) => (
-                                        <div key={key} className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id={`perm-${key}`}
-                                                checked={permissionForm.data.permissions.includes(key)}
-                                                onCheckedChange={(checked) => {
-                                                    if (checked) {
-                                                        permissionForm.setData('permissions', [...permissionForm.data.permissions, key]);
-                                                    } else {
-                                                        permissionForm.setData(
-                                                            'permissions',
-                                                            permissionForm.data.permissions.filter((p) => p !== key),
-                                                        );
-                                                    }
-                                                }}
-                                            />
-                                            <label htmlFor={`perm-${key}`} className="text-sm text-gray-700">
-                                                {label}
-                                            </label>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button type="button" variant="outline" onClick={() => setIsPermissionDialogOpen(false)}>
-                                    Cancel
-                                </Button>
-                                <Button onClick={handleUpdatePermissions} disabled={permissionForm.processing}>
-                                    Update Permissions
                                 </Button>
                             </DialogFooter>
                         </DialogContent>

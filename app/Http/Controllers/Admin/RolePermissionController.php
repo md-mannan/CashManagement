@@ -30,50 +30,24 @@ class RolePermissionController extends Controller
             'super_admin' => [
                 'name' => 'Super Admin',
                 'description' => 'Full system access with ability to manage other super admins',
-                'permissions' => ['*'],
+                'permissions' => User::defaultPermissionsForRole('super_admin'),
                 'user_count' => User::where('role', 'super_admin')->count(),
             ],
             'admin' => [
                 'name' => 'Admin',
                 'description' => 'Administrative access with user and system management',
-                'permissions' => [
-                    'view_dashboard',
-                    'manage_transactions',
-                    'view_reports',
-                    'manage_users',
-                    'view_analytics',
-                    'manage_categories',
-                    'manage_settings',
-                    'view_logs',
-                ],
+                'permissions' => User::defaultPermissionsForRole('admin'),
                 'user_count' => User::where('role', 'admin')->count(),
             ],
             'user' => [
                 'name' => 'User',
                 'description' => 'Standard user with basic transaction management',
-                'permissions' => [
-                    'view_dashboard',
-                    'manage_transactions',
-                    'view_reports',
-                ],
+                'permissions' => User::defaultPermissionsForRole('user'),
                 'user_count' => User::where('role', 'user')->count(),
             ],
         ];
 
-        $availablePermissions = [
-            'view_dashboard' => 'View Dashboard',
-            'manage_transactions' => 'Manage Transactions',
-            'view_reports' => 'View Reports',
-            'manage_users' => 'Manage Users',
-            'view_analytics' => 'View Analytics',
-            'manage_categories' => 'Manage Categories',
-            'manage_settings' => 'Manage Settings',
-            'view_logs' => 'View Logs',
-            'manage_admins' => 'Manage Administrators',
-            'system_maintenance' => 'System Maintenance',
-            'export_data' => 'Export Data',
-            'import_data' => 'Import Data',
-        ];
+        $availablePermissions = config('module_permissions.modules', []);
 
         $users = User::orderBy('created_at', 'desc')
             ->get()
@@ -83,7 +57,7 @@ class RolePermissionController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $user->role,
-                    'permissions' => $user->permissions ?? [],
+                    'permissions' => $user->effective_permissions,
                     'is_active' => $user->is_active,
                     'created_at' => $user->created_at,
                     'last_login_at' => $user->last_login_at,
@@ -118,7 +92,7 @@ class RolePermissionController extends Controller
 
         $user->update([
             'role' => $request->role,
-            'permissions' => $this->getDefaultPermissionsForRole($request->role),
+            'permissions' => User::defaultPermissionsForRole($request->role),
         ]);
 
         // Notifications removed
@@ -150,55 +124,6 @@ class RolePermissionController extends Controller
         return redirect()->back()->with('success', 'User role updated successfully.');
     }
 
-    public function updateUserPermissions(Request $request, User $user)
-    {
-        $request->validate([
-            'permissions' => 'array',
-        ]);
-
-        // Prevent self-modification
-        if ($user->id === auth()->id()) {
-            abort(403, 'You cannot modify your own permissions.');
-        }
-
-        // Check if current user can modify the target user
-        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
-            abort(403, 'Only super admins can modify super admin permissions.');
-        }
-
-        $oldPermissions = $user->permissions ?? [];
-
-        $user->update([
-            'permissions' => $request->permissions ?? [],
-        ]);
-
-        // Notify admins about the permission update (excluding current admin to avoid duplicates)
-        AdminNotificationService::notifyUserAccountAction(
-            'updated permissions for',
-            $user->name,
-            "Email: {$user->email}, Updated by: " . auth()->user()->name,
-            auth()->id()
-        );
-
-        // Log the action using ActivityLogService
-        ActivityLogService::logPermissionsUpdated($user, $oldPermissions, $request->permissions ?? [], $request);
-
-        // Also log as admin action
-        ActivityLogService::logAdminAction(
-            'update_user_permissions',
-            "User {$user->name} permissions updated",
-            $request,
-            [
-                'updated_user_id' => $user->id,
-                'updated_user_email' => $user->email,
-                'old_permissions' => $oldPermissions,
-                'new_permissions' => $request->permissions ?? [],
-            ]
-        );
-
-        return redirect()->back()->with('success', 'User permissions updated successfully.');
-    }
-
     public function bulkUpdateRoles(Request $request)
     {
         $request->validate([
@@ -225,7 +150,7 @@ class RolePermissionController extends Controller
 
             $user->update([
                 'role' => $request->role,
-                'permissions' => $this->getDefaultPermissionsForRole($request->role),
+                'permissions' => User::defaultPermissionsForRole($request->role),
             ]);
 
             // Notifications removed
@@ -279,7 +204,7 @@ class RolePermissionController extends Controller
                     'Created' => $user->created_at->format('Y-m-d H:i:s'),
                     'Last Login' => $user->last_login_at ? $user->last_login_at->format('Y-m-d H:i:s') : 'Never',
                     'Social Accounts' => '',
-                    'Permissions' => implode(', ', $user->permissions ?? []),
+                    'Permissions' => implode(', ', $user->effective_permissions),
                 ];
             });
 
@@ -318,32 +243,6 @@ class RolePermissionController extends Controller
         );
 
         return Response::stream($callback, 200, $headers);
-    }
-
-    private function getDefaultPermissionsForRole(string $role): array
-    {
-        switch ($role) {
-            case 'super_admin':
-                return ['*'];
-            case 'admin':
-                return [
-                    'view_dashboard',
-                    'manage_transactions',
-                    'view_reports',
-                    'manage_users',
-                    'view_analytics',
-                    'manage_categories',
-                    'manage_settings',
-                    'view_logs',
-                ];
-            case 'user':
-            default:
-                return [
-                    'view_dashboard',
-                    'manage_transactions',
-                    'view_reports',
-                ];
-        }
     }
 
     /**

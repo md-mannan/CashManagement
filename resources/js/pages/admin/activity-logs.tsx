@@ -374,7 +374,7 @@ export default function ActivityLogs({ activityLogs, filters, statistics, topAct
                             <CardContent>
                                 <div className="space-y-3">
                                     {topUsers.map((user, index) => (
-                                        <div key={user.user.id} className="flex items-center justify-between">
+                                        <div key={`${user.user?.id ?? 'unknown'}-${index}`} className="flex items-center justify-between">
                                             <div className="flex items-center space-x-2">
                                                 <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
                                                 <div>

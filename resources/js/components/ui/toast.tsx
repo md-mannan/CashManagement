@@ -84,7 +84,8 @@ const ToastContainer: React.FC = () => {
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    // Keep toasts above dialogs/overlays.
+    <div className="fixed top-4 right-4 z-[9999] space-y-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}

@@ -6,9 +6,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
-import { Head, router } from '@inertiajs/react';
+import { cn } from '@/lib/utils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Head, router, usePage } from '@inertiajs/react';
 import { AlertTriangle, ArrowDownLeft, ArrowUpRight, Edit, Plus, Tag, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
+
+function formatValidationErrors(errors: Record<string, string | string[]>): string {
+    return Object.values(errors)
+        .flatMap((v) => (Array.isArray(v) ? v : [v]))
+        .filter(Boolean)
+        .join(' ');
+}
+
+function firstErrorMessage(errors: Record<string, string | string[]>, key: string): string | undefined {
+    const v = errors[key];
+    if (v === undefined) {
+        return undefined;
+    }
+    return Array.isArray(v) ? v[0] : v;
+}
 
 interface Category {
     id: number;
@@ -41,6 +58,13 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
         color: '#6B7280',
         icon: '',
     });
+
+    const { errors: pageErrors = {} } = usePage<{ errors?: Record<string, string | string[]> }>().props;
+    const modalIsOpen = showCreateForm || !!editingCategory;
+    const validationSummary = formatValidationErrors(pageErrors);
+    const nameFieldError = firstErrorMessage(pageErrors, 'name');
+    const showFormErrorAlert = modalIsOpen && validationSummary.length > 0;
+    const nameInputInvalid = Boolean(nameFieldError && modalIsOpen);
 
     // Filter categories based on search and type
     const filteredCategories = categories.filter((category) => {
@@ -107,12 +131,8 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                 setShowCreateForm(false);
                 setFormData({ name: '', type: 'income' as 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable', color: '#6B7280', icon: '' });
             },
-            onError: (errors) => {
-                addToast({
-                    title: 'Error',
-                    message: Object.values(errors).join(', '),
-                    type: 'error',
-                });
+            onError: () => {
+                // Validation errors are shown inline in the modal.
             },
         });
     };
@@ -137,12 +157,8 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                 setEditingCategory(null);
                 setFormData({ name: '', type: 'income' as 'income' | 'expense' | 'receivable' | 'payable' | 'settle_payable' | 'settle_receivable', color: '#6B7280', icon: '' });
             },
-            onError: (errors) => {
-                addToast({
-                    title: 'Error',
-                    message: Object.values(errors).join(', '),
-                    type: 'error',
-                });
+            onError: () => {
+                // Validation errors are shown inline in the modal.
             },
         });
     };
@@ -174,12 +190,8 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                 setIsDeleteDialogOpen(false);
                 setCategoryToDelete(null);
             },
-            onError: (errors) => {
-                addToast({
-                    title: 'Error',
-                    message: Object.values(errors).join(', '),
-                    type: 'error',
-                });
+            onError: () => {
+                // If a delete fails, keep the UI clean and just close the dialog.
                 setIsDeleteDialogOpen(false);
                 setCategoryToDelete(null);
             },
@@ -332,6 +344,14 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                             </DialogDescription>
                         </DialogHeader>
 
+                        {showFormErrorAlert && (
+                            <Alert variant="destructive" className="mt-2">
+                                <AlertTriangle className="h-4 w-4 shrink-0" />
+                                <AlertTitle>Could not save</AlertTitle>
+                                <AlertDescription>{validationSummary}</AlertDescription>
+                            </Alert>
+                        )}
+
                         <div className="grid gap-4 md:grid-cols-2">
                             <div>
                                 <label className="text-sm font-medium">Name</label>
@@ -339,7 +359,8 @@ export default function CategoriesPage({ categories, isAdmin }: CategoriesPagePr
                                     placeholder="Category name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="mt-1"
+                                    aria-invalid={nameInputInvalid}
+                                    className={cn('mt-1', nameInputInvalid && 'border-destructive')}
                                 />
                             </div>
                             <div>

@@ -59,6 +59,7 @@ class HandleInertiaRequests extends Middleware
 
         return [
             ...parent::share($request),
+            'appEntryPath' => fn () => $user?->firstAccessibleUrlPath() ?? '/',
             'name' => app(SettingService::class)->get('app_name', config('app.name')),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [

@@ -19,7 +19,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard() {
-    const { auth, currentSummary, recentTransactions, changes, monthlyData, yearlyData, categoryData, yearlyCategoryData } = usePage<
+    const { auth, currentSummary, ledgerLikeNetBalance, recentTransactions, changes, monthlyData, yearlyData, categoryData, yearlyCategoryData } = usePage<
         SharedData & {
             currentSummary: {
                 total_income: number;
@@ -115,6 +115,7 @@ export default function Dashboard() {
                     hoverOffset: number;
                 }>;
             } | null;
+            ledgerLikeNetBalance?: number | null;
 
         }
     >().props;
@@ -131,7 +132,17 @@ export default function Dashboard() {
     const primarySymbol = auth.user.primary_symbol || '৳';
     const secondaryCurrency = auth.user.secondary_currency || 'KWD';
     const secondarySymbol = auth.user.secondary_symbol || 'د.ك';
-    const exchangeRate = parseFloat(auth.user.exchange_rate || '1.0');
+    const userExchangeRate = parseFloat(auth.user.exchange_rate || '0');
+    const derivedExchangeRate =
+        secondaryCurrency !== primaryCurrency &&
+        (currentSummary?.total_payables || 0) > 0 &&
+        (currentSummary?.secondary_amounts?.total_payables || 0) > 0
+            ? (currentSummary.total_payables || 0) / (currentSummary.secondary_amounts?.total_payables || 1)
+            : 0;
+    const effectiveExchangeRate =
+        secondaryCurrency !== primaryCurrency && userExchangeRate > 0 && userExchangeRate <= 1.0001
+            ? derivedExchangeRate
+            : userExchangeRate;
 
     // Helper function to check if chart data has actual values
     const hasChartData = (data: { datasets?: Array<{ data?: number[] }> } | null) => {
@@ -505,25 +516,27 @@ export default function Dashboard() {
                                 <FileText className="h-4 w-4 text-violet-600" />
                             </CardHeader>
                             <CardContent>
-                                <div className={`text-2xl font-bold ${currentSummary?.net_balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {(() => {
+                                    const primaryNet = typeof ledgerLikeNetBalance === 'number'
+                                        ? ledgerLikeNetBalance
+                                        : (currentSummary?.net_balance || 0);
+                                    return (
+                                        <div className={`text-2xl font-bold ${primaryNet >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                     {primarySymbol}
-                                    {formatCurrency(currentSummary?.net_balance || 0, primaryCurrency)} 
-                                </div>
+                                    {formatCurrency(primaryNet, primaryCurrency)}
+                                        </div>
+                                    );
+                                })()}
                                 <div className="space-y-1 text-sm text-gray-600 mt-1">
                                     {(() => {
-                                        // Calculate secondary currency net balance using the EXACT same formula as Ledger page
-                                        if (currentSummary?.secondary_amounts) {
-                                            // Use the same formula: Income - Expenses - Receivables + Payables + Receivable Settlements - Payable Settlements
-                                            const secondaryNetBalance = 
-                                                (currentSummary.secondary_amounts.total_income || 0) - 
-                                                (currentSummary.secondary_amounts.total_expenses || 0) - 
-                                                (currentSummary.secondary_amounts.total_receivables || 0) + 
-                                                (currentSummary.secondary_amounts.total_payables || 0) + 
-                                                (currentSummary.secondary_amounts.receivable_settlements || 0) - 
-                                                (currentSummary.secondary_amounts.payable_settlements || 0);
-                                            
-                                            // Check if the result is valid (not NaN or undefined)
-                                            if (secondaryNetBalance !== undefined && !isNaN(secondaryNetBalance)) {
+                                        // Secondary net balance should be derived from primary net + exchange rate
+                                        // to avoid inconsistencies when stored secondary totals drift.
+                                        if (effectiveExchangeRate > 0) {
+                                            const primaryNet = typeof ledgerLikeNetBalance === 'number'
+                                                ? ledgerLikeNetBalance
+                                                : (currentSummary?.net_balance || 0);
+                                            const secondaryNetBalance = primaryNet / effectiveExchangeRate;
+                                            if (!isNaN(secondaryNetBalance)) {
                                                 return (
                                                     <div className={`${secondaryNetBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                                         {secondarySymbol} {formatCurrency(secondaryNetBalance, secondaryCurrency)}

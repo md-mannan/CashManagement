@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Services\AdminNotificationService;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
@@ -18,13 +20,11 @@ class CategoryController extends Controller
     {
         $user = Auth::user();
 
-        // Admins and super admins can view all categories
-        if ($user->isAdmin()) {
+        if ($user->hasPermission('view_all_user_data')) {
             $categories = Category::with('transactions')
                 ->orderBy('name')
                 ->get();
         } else {
-            // Regular users can only view active categories
             $categories = Category::active()
                 ->orderBy('name')
                 ->get();
@@ -32,7 +32,7 @@ class CategoryController extends Controller
 
         return Inertia::render('categories', [
             'categories' => $categories,
-            'isAdmin' => $user->isAdmin(),
+            'isAdmin' => $user->canManageCategories(),
         ]);
     }
 
@@ -56,14 +56,21 @@ class CategoryController extends Controller
             'icon' => 'nullable|string|max:255',
         ]);
 
-        $category = Category::create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'type' => $request->type,
-            'color' => $request->color ?? $this->getDefaultCategoryColor($request->type),
-            'icon' => $request->icon,
-            'is_active' => true,
-        ]);
+        $slug = Str::slug($request->name);
+        $this->assertCategorySlugIsUnique($slug);
+
+        try {
+            $category = Category::create([
+                'name' => $request->name,
+                'slug' => $slug,
+                'type' => $request->type,
+                'color' => $request->color ?? $this->getDefaultCategoryColor($request->type),
+                'icon' => $request->icon,
+                'is_active' => true,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            throw $this->duplicateCategoryValidationException();
+        }
 
         // Create notification for category creation
         $this->createCategoryNotification($category, 'created');
@@ -111,14 +118,21 @@ class CategoryController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $category->update([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'type' => $request->type,
-            'color' => $request->color ?? $category->color,
-            'icon' => $request->icon,
-            'is_active' => $request->is_active ?? $category->is_active,
-        ]);
+        $slug = Str::slug($request->name);
+        $this->assertCategorySlugIsUnique($slug, $category->id);
+
+        try {
+            $category->update([
+                'name' => $request->name,
+                'slug' => $slug,
+                'type' => $request->type,
+                'color' => $request->color ?? $category->color,
+                'icon' => $request->icon,
+                'is_active' => $request->is_active ?? $category->is_active,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            throw $this->duplicateCategoryValidationException();
+        }
 
         // Create notification for category update
         $this->createCategoryNotification($category, 'updated');
@@ -160,6 +174,34 @@ class CategoryController extends Controller
         );
 
         return back()->with('success', 'Category deleted successfully.');
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function assertCategorySlugIsUnique(string $slug, ?int $ignoreCategoryId = null): void
+    {
+        if ($slug === '') {
+            throw ValidationException::withMessages([
+                'name' => [__('Use a name that includes letters or numbers so we can create a unique link for this category.')],
+            ]);
+        }
+
+        $query = Category::query()->where('slug', $slug);
+        if ($ignoreCategoryId !== null) {
+            $query->where('id', '!=', $ignoreCategoryId);
+        }
+
+        if ($query->exists()) {
+            throw $this->duplicateCategoryValidationException();
+        }
+    }
+
+    private function duplicateCategoryValidationException(): ValidationException
+    {
+        return ValidationException::withMessages([
+            'name' => [__('A category with this name already exists. Choose a different name.')],
+        ]);
     }
 
     /**

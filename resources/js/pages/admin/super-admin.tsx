@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { AlertTriangle, Key, Lock, Shield, Users } from 'lucide-react';
+import { AlertTriangle, Lock, Shield, Users } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -40,20 +40,12 @@ interface SuperAdminProps {
 export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps) {
     const [isPromoteDialogOpen, setIsPromoteDialogOpen] = useState(false);
     const [isDemoteDialogOpen, setIsDemoteDialogOpen] = useState(false);
-    const [isPermissionDialogOpen, setIsPermissionDialogOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<any>(null);
 
-    const promoteForm = useForm({
-        permissions: [] as string[],
-    });
+    const promoteForm = useForm({});
 
     const demoteForm = useForm({
         new_role: 'admin',
-        permissions: [] as string[],
-    });
-
-    const permissionForm = useForm({
-        permissions: [] as string[],
     });
 
     const handlePromote = () => {
@@ -80,18 +72,6 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
         }
     };
 
-    const handleUpdatePermissions = () => {
-        if (selectedUser) {
-            permissionForm.put(`/admin/super-admin/users/${selectedUser.id}/permissions`, {
-                onSuccess: () => {
-                    setIsPermissionDialogOpen(false);
-                    setSelectedUser(null);
-                    permissionForm.reset();
-                },
-            });
-        }
-    };
-
     const openPromoteDialog = (user: any) => {
         setSelectedUser(user);
         setIsPromoteDialogOpen(true);
@@ -101,12 +81,6 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
         setSelectedUser(user);
         demoteForm.setData('new_role', 'admin');
         setIsDemoteDialogOpen(true);
-    };
-
-    const openPermissionDialog = (user: any) => {
-        setSelectedUser(user);
-        permissionForm.setData('permissions', user.permissions || []);
-        setIsPermissionDialogOpen(true);
     };
 
     const getStatusColor = (isActive: boolean) => {
@@ -229,14 +203,9 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
                                                 <TableCell>
                                                     <div className="flex gap-2">
                                                         {!admin.is_current_user && (
-                                                            <>
-                                                                <Button size="sm" variant="outline" onClick={() => openPermissionDialog(admin)}>
-                                                                    <Key className="h-4 w-4" />
-                                                                </Button>
-                                                                <Button size="sm" variant="destructive" onClick={() => openDemoteDialog(admin)}>
-                                                                    <Lock className="h-4 w-4" />
-                                                                </Button>
-                                                            </>
+                                                            <Button size="sm" variant="destructive" onClick={() => openDemoteDialog(admin)}>
+                                                                <Lock className="h-4 w-4" />
+                                                            </Button>
                                                         )}
                                                         {admin.is_current_user && (
                                                             <Badge variant="outline" className="text-xs">
@@ -325,39 +294,6 @@ export default function SuperAdmin({ superAdmins, systemStats }: SuperAdminProps
                             </Button>
                             <Button variant="destructive" onClick={handleDemote} disabled={demoteForm.processing}>
                                 {demoteForm.processing ? 'Demoting...' : 'Demote Super Admin'}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-
-                {/* Update Permissions Dialog */}
-                <Dialog open={isPermissionDialogOpen} onOpenChange={setIsPermissionDialogOpen}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Update Permissions</DialogTitle>
-                            <DialogDescription>
-                                Update permissions for {selectedUser?.name}. Super admins typically have all permissions.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                            <div className="rounded-lg bg-blue-50 p-4">
-                                <div className="flex">
-                                    <Shield className="h-5 w-5 text-blue-400" />
-                                    <div className="ml-3">
-                                        <h3 className="text-sm font-medium text-blue-800">Note</h3>
-                                        <div className="mt-2 text-sm text-blue-700">
-                                            <p>Super admins have access to all system features by default. Custom permissions are typically not needed.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsPermissionDialogOpen(false)}>
-                                Cancel
-                            </Button>
-                            <Button onClick={handleUpdatePermissions} disabled={permissionForm.processing}>
-                                {permissionForm.processing ? 'Updating...' : 'Update Permissions'}
                             </Button>
                         </DialogFooter>
                     </DialogContent>

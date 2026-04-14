@@ -26,7 +26,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function UserManagement() {
-    const { users, roles, permissions } = usePage<
+    const { users, roles } = usePage<
         SharedData & {
             users: {
                 data: Array<{
@@ -37,14 +37,12 @@ export default function UserManagement() {
                     is_active: boolean;
                     created_at: string;
                     last_login_at: string | null;
-                    permissions?: string[];
                 }>;
                 current_page: number;
                 last_page: number;
                 total: number;
             };
             roles: string[];
-            permissions: Record<string, string>;
         }
     >().props;
 
@@ -54,13 +52,14 @@ export default function UserManagement() {
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [showCreatePassword, setShowCreatePassword] = useState(false);
+    const [showCreatePasswordConfirm, setShowCreatePasswordConfirm] = useState(false);
     const [selectedUser, setSelectedUser] = useState<{
         id: number;
         name: string;
         email: string;
         role: string;
         is_active: boolean;
-        permissions?: string[];
     } | null>(null);
 
     const createForm = useForm({
@@ -69,15 +68,13 @@ export default function UserManagement() {
         password: '',
         password_confirmation: '',
         role: 'user',
-        permissions: [] as string[],
-        is_active: true,
+        is_active: true as boolean,
     });
 
     const editForm = useForm({
         name: '',
         email: '',
         role: '',
-        permissions: [] as string[],
         is_active: true as boolean,
     });
 
@@ -86,10 +83,18 @@ export default function UserManagement() {
         password_confirmation: '',
     });
 
+    const handleCreateDialogOpenChange = (open: boolean) => {
+        setIsCreateDialogOpen(open);
+        if (!open) {
+            setShowCreatePassword(false);
+            setShowCreatePasswordConfirm(false);
+        }
+    };
+
     const handleCreateUser = () => {
         createForm.post('/admin/users', {
             onSuccess: () => {
-                setIsCreateDialogOpen(false);
+                handleCreateDialogOpenChange(false);
                 createForm.reset();
             },
         });
@@ -134,24 +139,23 @@ export default function UserManagement() {
         }
     };
 
-    const openEditDialog = (user: { id: number; name: string; email: string; role: string; is_active: boolean; permissions?: string[] }) => {
+    const openEditDialog = (user: { id: number; name: string; email: string; role: string; is_active: boolean }) => {
         setSelectedUser(user);
         editForm.setData({
             name: user.name,
             email: user.email,
             role: user.role,
-            permissions: user.permissions || [],
             is_active: user.is_active as boolean,
         });
         setIsEditDialogOpen(true);
     };
 
-    const openDeleteDialog = (user: { id: number; name: string; email: string; role: string; is_active: boolean; permissions?: string[] }) => {
+    const openDeleteDialog = (user: { id: number; name: string; email: string; role: string; is_active: boolean }) => {
         setSelectedUser(user);
         setIsDeleteDialogOpen(true);
     };
 
-    const openPasswordDialog = (user: { id: number; name: string; email: string; role: string; is_active: boolean; permissions?: string[] }) => {
+    const openPasswordDialog = (user: { id: number; name: string; email: string; role: string; is_active: boolean }) => {
         setSelectedUser(user);
         setIsPasswordDialogOpen(true);
     };
@@ -180,126 +184,114 @@ export default function UserManagement() {
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-                            <p className="text-muted-foreground">Manage users, roles, and permissions across the system</p>
+                            <p className="text-muted-foreground">Manage users and roles; module access follows each role</p>
                         </div>
-                        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                        <Dialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogOpenChange}>
                             <DialogTrigger asChild>
                                 <Button className="flex items-center gap-2">
                                     <Plus className="h-4 w-4" />
                                     Add User
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-[500px]">
-                                <DialogHeader>
+                            <DialogContent className="flex max-h-[min(92vh,940px)] w-full max-w-4xl flex-col gap-0 overflow-hidden p-0 sm:max-w-4xl">
+                                <DialogHeader className="shrink-0 space-y-1 border-b px-6 py-4 text-left">
                                     <DialogTitle>Create New User</DialogTitle>
-                                    <DialogDescription>Add a new user to the system with appropriate role and permissions.</DialogDescription>
+                                    <DialogDescription>Add a new user and assign a role. Access is determined by that role.</DialogDescription>
                                 </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="name" className="text-right">
-                                            Name
-                                        </Label>
-                                        <Input
-                                            id="name"
-                                            value={createForm.data.name}
-                                            onChange={(e) => createForm.setData('name', e.target.value)}
-                                            className="col-span-3"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="email" className="text-right">
-                                            Email
-                                        </Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={createForm.data.email}
-                                            onChange={(e) => createForm.setData('email', e.target.value)}
-                                            className="col-span-3"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="password" className="text-right">
-                                            Password
-                                        </Label>
-                                        <Input
-                                            id="password"
-                                            type="password"
-                                            value={createForm.data.password}
-                                            onChange={(e) => createForm.setData('password', e.target.value)}
-                                            className="col-span-3"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="password_confirmation" className="text-right">
-                                            Confirm
-                                        </Label>
-                                        <Input
-                                            id="password_confirmation"
-                                            type="password"
-                                            value={createForm.data.password_confirmation}
-                                            onChange={(e) => createForm.setData('password_confirmation', e.target.value)}
-                                            className="col-span-3"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="role" className="text-right">
-                                            Role
-                                        </Label>
-                                        <Select value={createForm.data.role} onValueChange={(value) => createForm.setData('role', value)}>
-                                            <SelectTrigger className="col-span-3">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {roles.map((role) => (
-                                                    <SelectItem key={role} value={role}>
-                                                        {role.replace('_', ' ').toUpperCase()}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label className="text-right">Active</Label>
-                                        <Toggle
-                                            pressed={createForm.data.is_active}
-                                            onPressedChange={(pressed) => createForm.setData('is_active', pressed)}
-                                            className="col-span-3"
-                                        >
-                                            {createForm.data.is_active ? 'Active' : 'Inactive'}
-                                        </Toggle>
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label className="text-right">Permissions</Label>
-                                        <div className="col-span-3 space-y-2">
-                                            {Object.entries(permissions).map(([key, label]) => (
-                                                <div key={key} className="flex items-center space-x-2">
-                                                    <input
-                                                        type="checkbox"
-                                                        id={`perm-${key}`}
-                                                        checked={createForm.data.permissions.includes(key)}
-                                                        onChange={(e) => {
-                                                            if (e.target.checked) {
-                                                                createForm.setData('permissions', [...createForm.data.permissions, key]);
-                                                            } else {
-                                                                createForm.setData(
-                                                                    'permissions',
-                                                                    createForm.data.permissions.filter((p) => p !== key),
-                                                                );
-                                                            }
-                                                        }}
-                                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                                    />
-                                                    <label htmlFor={`perm-${key}`} className="text-sm text-gray-700">
-                                                        {label}
-                                                    </label>
-                                                </div>
-                                            ))}
+                                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="name">Name</Label>
+                                            <Input
+                                                id="name"
+                                                value={createForm.data.name}
+                                                onChange={(e) => createForm.setData('name', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="email">Email</Label>
+                                            <Input
+                                                id="email"
+                                                type="email"
+                                                value={createForm.data.email}
+                                                onChange={(e) => createForm.setData('email', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="password">Password</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password"
+                                                    type={showCreatePassword ? 'text' : 'password'}
+                                                    value={createForm.data.password}
+                                                    onChange={(e) => createForm.setData('password', e.target.value)}
+                                                    className="pr-10"
+                                                    autoComplete="new-password"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    aria-label={showCreatePassword ? 'Hide password' : 'Show password'}
+                                                    className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3 transition-colors"
+                                                    onClick={() => setShowCreatePassword(!showCreatePassword)}
+                                                >
+                                                    {showCreatePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="password_confirmation">Confirm password</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password_confirmation"
+                                                    type={showCreatePasswordConfirm ? 'text' : 'password'}
+                                                    value={createForm.data.password_confirmation}
+                                                    onChange={(e) => createForm.setData('password_confirmation', e.target.value)}
+                                                    className="pr-10"
+                                                    autoComplete="new-password"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    aria-label={showCreatePasswordConfirm ? 'Hide confirm password' : 'Show confirm password'}
+                                                    className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3 transition-colors"
+                                                    onClick={() => setShowCreatePasswordConfirm(!showCreatePasswordConfirm)}
+                                                >
+                                                    {showCreatePasswordConfirm ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="role">Role</Label>
+                                            <Select value={createForm.data.role} onValueChange={(value) => createForm.setData('role', value)}>
+                                                <SelectTrigger id="role" className="w-full">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {roles.map((role) => (
+                                                        <SelectItem key={role} value={role}>
+                                                            {role.replace('_', ' ').toUpperCase()}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="flex flex-col justify-end space-y-2">
+                                            <Label>Account status</Label>
+                                            <Toggle
+                                                pressed={createForm.data.is_active}
+                                                onPressedChange={(pressed) => createForm.setData('is_active', pressed)}
+                                                className="w-fit"
+                                            >
+                                                {createForm.data.is_active ? 'Active' : 'Inactive'}
+                                            </Toggle>
                                         </div>
                                     </div>
                                 </div>
-                                <DialogFooter>
-                                    <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                                <DialogFooter className="shrink-0 border-t px-6 py-4 sm:justify-end">
+                                    <Button type="button" variant="outline" onClick={() => handleCreateDialogOpenChange(false)}>
                                         Cancel
                                     </Button>
                                     <Button onClick={handleCreateUser} disabled={createForm.processing}>
@@ -575,92 +567,58 @@ export default function UserManagement() {
 
                     {/* Edit User Dialog */}
                     <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                        <DialogContent className="sm:max-w-[500px]">
-                            <DialogHeader>
+                        <DialogContent className="flex max-h-[min(92vh,940px)] w-full max-w-4xl flex-col gap-0 overflow-hidden p-0 sm:max-w-4xl">
+                            <DialogHeader className="shrink-0 space-y-1 border-b px-6 py-4 text-left">
                                 <DialogTitle>Edit User</DialogTitle>
-                                <DialogDescription>Update user information and permissions.</DialogDescription>
+                                <DialogDescription>Update profile and role. Module access follows the selected role.</DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="edit-name" className="text-right">
-                                        Name
-                                    </Label>
-                                    <Input
-                                        id="edit-name"
-                                        value={editForm.data.name}
-                                        onChange={(e) => editForm.setData('name', e.target.value)}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="edit-email" className="text-right">
-                                        Email
-                                    </Label>
-                                    <Input
-                                        id="edit-email"
-                                        type="email"
-                                        value={editForm.data.email}
-                                        onChange={(e) => editForm.setData('email', e.target.value)}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="edit-role" className="text-right">
-                                        Role
-                                    </Label>
-                                    <Select value={editForm.data.role} onValueChange={(value) => editForm.setData('role', value)}>
-                                        <SelectTrigger className="col-span-3">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {roles.map((role) => (
-                                                <SelectItem key={role} value={role}>
-                                                    {role.replace('_', ' ').toUpperCase()}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label className="text-right">Active</Label>
-                                    <Toggle
-                                        pressed={editForm.data.is_active}
-                                        onPressedChange={(pressed) => editForm.setData('is_active', pressed)}
-                                        className="col-span-3"
-                                    >
-                                        {editForm.data.is_active ? 'Active' : 'Inactive'}
-                                    </Toggle>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label className="text-right">Permissions</Label>
-                                    <div className="col-span-3 space-y-2">
-                                        {Object.entries(permissions).map(([key, label]) => (
-                                            <div key={key} className="flex items-center space-x-2">
-                                                <input
-                                                    type="checkbox"
-                                                    id={`edit-perm-${key}`}
-                                                    checked={editForm.data.permissions.includes(key)}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            editForm.setData('permissions', [...editForm.data.permissions, key]);
-                                                        } else {
-                                                            editForm.setData(
-                                                                'permissions',
-                                                                editForm.data.permissions.filter((p) => p !== key),
-                                                            );
-                                                        }
-                                                    }}
-                                                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                                />
-                                                <label htmlFor={`edit-perm-${key}`} className="text-sm text-gray-700">
-                                                    {label}
-                                                </label>
-                                            </div>
-                                        ))}
+                            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="edit-name">Name</Label>
+                                        <Input
+                                            id="edit-name"
+                                            value={editForm.data.name}
+                                            onChange={(e) => editForm.setData('name', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="edit-email">Email</Label>
+                                        <Input
+                                            id="edit-email"
+                                            type="email"
+                                            value={editForm.data.email}
+                                            onChange={(e) => editForm.setData('email', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="edit-role">Role</Label>
+                                        <Select value={editForm.data.role} onValueChange={(value) => editForm.setData('role', value)}>
+                                            <SelectTrigger id="edit-role" className="w-full">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {roles.map((role) => (
+                                                    <SelectItem key={role} value={role}>
+                                                        {role.replace('_', ' ').toUpperCase()}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="flex flex-col justify-end space-y-2">
+                                        <Label>Account status</Label>
+                                        <Toggle
+                                            pressed={editForm.data.is_active}
+                                            onPressedChange={(pressed) => editForm.setData('is_active', pressed)}
+                                            className="w-fit"
+                                        >
+                                            {editForm.data.is_active ? 'Active' : 'Inactive'}
+                                        </Toggle>
                                     </div>
                                 </div>
                             </div>
-                            <DialogFooter>
+                            <DialogFooter className="shrink-0 border-t px-6 py-4 sm:justify-end">
                                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                                     Cancel
                                 </Button>

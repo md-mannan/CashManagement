@@ -49,7 +49,9 @@ class SettlementService
             ]);
 
             // Update payable/receivable status
-            $newSettledAmount = $payableReceivable->settled_amount + $data['amount'];
+            // Resync from actual settlement rows to avoid drift/mismatch.
+            $actualSettledAmount = (float) $payableReceivable->settlements()->sum('amount');
+            $newSettledAmount = $actualSettledAmount + (float) $data['amount'];
             $payableReceivable->update([
                 'settled_amount' => $newSettledAmount,
                 'status' => $this->calculateStatus($payableReceivable->amount, $newSettledAmount),

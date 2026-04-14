@@ -193,24 +193,6 @@
       "_ui-vendor.js"
     ]
   },
-  "_checkbox-legacy.js": {
-    "file": "assets/checkbox-legacy.js",
-    "name": "checkbox",
-    "imports": [
-      "_ui-vendor-legacy.js",
-      "_button-legacy.js",
-      "_icons-vendor-legacy.js"
-    ]
-  },
-  "_checkbox.js": {
-    "file": "assets/checkbox.js",
-    "name": "checkbox",
-    "imports": [
-      "_ui-vendor.js",
-      "_button.js",
-      "_icons-vendor.js"
-    ]
-  },
   "_custom-date-input-legacy.js": {
     "file": "assets/custom-date-input-legacy.js",
     "name": "custom-date-input",
@@ -1297,7 +1279,6 @@
       "_badge-legacy.js",
       "_button-legacy.js",
       "_card-legacy.js",
-      "_checkbox-legacy.js",
       "_dialog-legacy.js",
       "_label-legacy.js",
       "_select-legacy.js",
@@ -1325,7 +1306,6 @@
       "_badge.js",
       "_button.js",
       "_card.js",
-      "_checkbox.js",
       "_dialog.js",
       "_label.js",
       "_select.js",
@@ -1731,12 +1711,11 @@
       "_input-error-legacy.js",
       "_text-link-legacy.js",
       "_button-legacy.js",
-      "_checkbox-legacy.js",
+      "_icons-vendor-legacy.js",
       "_input-legacy.js",
       "_label-legacy.js",
       "resources/js/app-legacy.tsx",
       "_auth-layout-legacy.js",
-      "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
       "_utils-vendor-legacy.js",
       "_export-vendor-legacy.js",
@@ -1754,12 +1733,11 @@
       "_input-error.js",
       "_text-link.js",
       "_button.js",
-      "_checkbox.js",
+      "_icons-vendor.js",
       "_input.js",
       "_label.js",
       "resources/js/app.tsx",
       "_auth-layout.js",
-      "_icons-vendor.js",
       "_react-vendor.js",
       "_utils-vendor.js",
       "_export-vendor.js",
@@ -1855,6 +1833,7 @@
       "_table-legacy.js",
       "resources/js/app-legacy.tsx",
       "_app-layout-legacy.js",
+      "_alert-legacy.js",
       "_inertia-vendor-legacy.js",
       "_icons-vendor-legacy.js",
       "_react-vendor-legacy.js",
@@ -1879,6 +1858,7 @@
       "_table.js",
       "resources/js/app.tsx",
       "_app-layout.js",
+      "_alert.js",
       "_inertia-vendor.js",
       "_icons-vendor.js",
       "_react-vendor.js",
